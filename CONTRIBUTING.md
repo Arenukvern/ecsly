@@ -80,8 +80,15 @@ Release automation:
 - Release Please config: `release-please-config.json`
 - Manifest: `.release-please-manifest.json`
 - Publish workflow: `.github/workflows/pub-publish.yml`
+- Agent approval workflow: `.github/workflows/agent-auto-approve.yml`
 - Local preflight: `dart tool/release/pub_package.dart --all --skip-existing`
 
 pub.dev automated publishing must be enabled per package with repository
 `Arenukvern/ecsly`, tag pattern `<package>-v{{version}}`, push events enabled,
 and environment `pub.dev`.
+
+Agent auto-approval requires a repository secret named `AUTO_APPROVE_TOKEN`.
+Use a dedicated machine user token with write access to this repository. The
+workflow only approves same-repo PRs from `Arenukvern` on `codex/` branches or
+`github-actions[bot]` on `release-please--` branches after `Release validation`
+succeeds and the PR has the `agent-auto-approve` label.

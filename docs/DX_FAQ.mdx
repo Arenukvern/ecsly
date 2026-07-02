@@ -36,6 +36,14 @@ A: Run `steward map` for the repo map, `steward doctor --json` for contract
 shape, and `steward probe --profile quick --json` for the quick-safe smoke.
 Treat those as stewardship checks, not runtime package proof.
 
+**Q: How does agent auto-approval work?**
+A: Add the `agent-auto-approve` label to a trusted same-repo `codex/` or
+`release-please--` PR. After `Release validation` passes,
+`.github/workflows/agent-auto-approve.yml` uses the `AUTO_APPROVE_TOKEN`
+repository secret to approve eligible PRs from `Arenukvern` or
+`github-actions[bot]`. The token must belong to a separate machine user with
+write access; GitHub does not allow authors to approve their own PRs.
+
 ## Docs
 
 **Q: Where should I document a repo-wide why/how answer?**

@@ -75,6 +75,7 @@ docs:
   "Architecture": ARCHITECTURE.md
   "Release Please config": release-please-config.json
   "Release manifest": .release-please-manifest.json
+  "Agent approval workflow": .github/workflows/agent-auto-approve.yml
   "Core package README": core_packages/ecsly/README.md
   "Core DX FAQ": core_packages/ecsly/DX_FAQ.md
   "Core Design FAQ": core_packages/ecsly/DESIGN_FAQ.md

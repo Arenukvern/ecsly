@@ -6,6 +6,7 @@ Release configuration lives in:
 
 - `release-please-config.json`
 - `.release-please-manifest.json`
+- `.github/workflows/agent-auto-approve.yml`
 
 Release tags use `<package>-v<version>`:
 
@@ -25,3 +26,8 @@ dart tool/release/pub_package.dart --tag ecsly-v0.0.1-dev.11 --skip-existing
 Actual pub.dev publishing also requires the pub.dev package admin settings to
 allow GitHub Actions publishing for repository `Arenukvern/ecsly` and matching
 tag patterns.
+
+Agent auto-approval is label-gated. Configure `AUTO_APPROVE_TOKEN` with a
+separate write-capable machine user token, then add `agent-auto-approve` to
+trusted same-repo `codex/` or `release-please--` PRs that should be approved
+automatically after release validation passes.
