@@ -63,8 +63,20 @@
           "href": "/"
         },
         {
+          "title": "North Star",
+          "href": "/NORTH_STAR"
+        },
+        {
           "title": "Packages",
           "href": "/packages"
+        },
+        {
+          "title": "Design FAQ",
+          "href": "/DESIGN_FAQ"
+        },
+        {
+          "title": "DX FAQ",
+          "href": "/DX_FAQ"
         },
         {
           "title": "Stewardship",

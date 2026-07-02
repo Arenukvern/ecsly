@@ -1,0 +1,57 @@
+# Design FAQ
+
+Repo-wide design questions live here. Package-specific internals stay in the
+package FAQs so this parent FAQ does not duplicate implementation details.
+
+## Repository Shape
+
+**Q: Why does the repo have one global North Star?**
+A: The global North Star keeps ownership, non-goals, and proof rules in one
+published place. Package READMEs and FAQs can then explain local behavior
+without redefining the repo center.
+
+**Q: Why is the public repo smaller than private or internal workspaces?**
+A: This repo is the canonical public surface for migrated, publishable packages
+only. Keeping private experiments out of public contracts avoids accidental
+claims and lets packages graduate when they have enough proof.
+
+**Q: Why keep the `core_packages/` layout?**
+A: The layout makes each publishable package explicit while preserving room for
+more packages to graduate later. It also keeps package-local validation,
+READMEs, DESIGN FAQs, and DX FAQs close to the code they describe.
+
+**Q: Why not merge app workflows and Flutter behavior into core `ecsly`?**
+A: The core runtime should stay pure Dart and focused on hot ECS behavior.
+App identity, invalidation, selectors, widgets, and host loops change at a
+different cadence, so companion packages own those responsibilities.
+
+## Claims And Evidence
+
+**Q: Why does public copy say "experimental" instead of "engine"?**
+A: The long-term direction is a practical Dart game-engine stack, but the
+current shipped surface is an experimental package family. Public docs should
+name the aspiration while keeping present-tense claims tied to code and
+validation that exists here.
+
+**Q: Why is Steward proof not package proof?**
+A: Steward validates repository routing, action contracts, and handoff shape.
+Runtime behavior still needs native Dart or Flutter validation, examples,
+benchmarks, publish dry-runs, or hosted package evidence.
+
+**Q: When does a change need an ADR?**
+A: Use an ADR when a change moves ownership boundaries, changes dependency
+direction, accepts a significant trade-off, or amends the global North Star.
+Small changes already covered by package design rules can link the existing FAQ
+or ADR instead.
+
+## Sub-Stars
+
+**Q: When should a package get an internal North Star?**
+A: Add a package sub-star when a package has enough independent direction that a
+README or FAQ starts carrying charter-like material. The sub-star must describe
+how it serves the global `docs/NORTH_STAR.mdx`.
+
+**Q: Where do package-level "why" answers belong?**
+A: Use package-local `DESIGN_FAQ.md` files for runtime, app, codegen, or Flutter
+trade-offs. Use this parent FAQ only for repo-wide ownership and governance
+rules.

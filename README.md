@@ -26,6 +26,10 @@ The honest status: `ecsly` is early R&D, not a finished game engine. The North
 Star is a practical Dart game-engine stack over time, but only the packages in
 this public repository are canonical here.
 
+Repo charter: [docs/NORTH_STAR.mdx](docs/NORTH_STAR.mdx). Repo-wide why/how:
+[docs/DESIGN_FAQ.mdx](docs/DESIGN_FAQ.mdx) and
+[docs/DX_FAQ.mdx](docs/DX_FAQ.mdx).
+
 ## Choose Your Path
 
 | I want to... | Start here | Use |

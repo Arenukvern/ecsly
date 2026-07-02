@@ -25,10 +25,10 @@ adoption:
 
 stewardship:
   governance:
-    charter: AGENTS.md
+    charter: docs/NORTH_STAR.mdx
     adr_dir: docs/decisions
   knowledge:
-    docs_map: README.md
+    docs_map: docs/index.mdx
     source_policy: required_for_external_claims
   repo_quality:
     contract_spec: steward.yaml
@@ -53,7 +53,7 @@ stewardship:
     moe_required_for_architecture: true
     claim_ceiling: only packages present in this public repo are canonical here
   strategic_alignment:
-    vision_source: README.md
+    vision_source: docs/NORTH_STAR.mdx
     success_evidence: required
   security:
     action_effects: required
@@ -62,6 +62,9 @@ stewardship:
     owners: AGENTS.md
 
 docs:
+  "North Star": docs/NORTH_STAR.mdx
+  "Global Design FAQ": docs/DESIGN_FAQ.mdx
+  "Global DX FAQ": docs/DX_FAQ.mdx
   "Repository README": README.md
   "Local command hub": justfile
   "Contribution guide": CONTRIBUTING.md

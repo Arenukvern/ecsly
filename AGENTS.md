@@ -3,6 +3,19 @@
 This is the public canonical repo for migrated, publishable `ecsly` packages.
 It is intentionally smaller than the private development repo.
 
+## Documentation Router
+
+| Need | Go to |
+| --- | --- |
+| Global repo purpose, owned surfaces, non-goals, proof rules | `docs/NORTH_STAR.mdx` |
+| Repo-wide design rationale | `docs/DESIGN_FAQ.mdx` |
+| Repo-wide maintainer and contributor workflows | `docs/DX_FAQ.mdx` |
+| Package ownership and layout | `ARCHITECTURE.md` |
+| Public landing and user route map | `README.md` |
+| Release automation | `docs/release.mdx` |
+| Steward contract and actions | `steward.yaml` |
+| Architectural decisions | `docs/decisions/` |
+
 ## Current Scope
 
 - Canonical here: `core_packages/ecsly`, `core_packages/ecsly_app`,
@@ -39,9 +52,12 @@ This repo adopts Skill Steward as a local stewardship and handoff layer, with
   Steward proof is routing and contract proof, not a substitute for package
   tests, publish dry-runs, or runtime evidence.
 
-Before durable structural changes, classify North Star impact as one of:
+Before durable structural changes, read `docs/NORTH_STAR.mdx` and classify
+North Star impact as one of:
 `none`, `applies`, `clarifies`, `sub_star`, `amends`, or `conflicts`.
 `amends` and `conflicts` need ADR work before the repo center moves.
+Temporary plans are not durable docs; extract outcomes to ADRs, FAQs, code, or
+Steward actions, then remove stale plan files.
 
 ## Validation
 
