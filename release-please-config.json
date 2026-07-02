@@ -1,0 +1,75 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "include-component-in-tag": true,
+  "group-pull-request-title-pattern": "chore${scope}: release ecsly packages",
+  "packages": {
+    "core_packages/ecsly": {
+      "release-type": "dart",
+      "versioning": "prerelease",
+      "prerelease": true,
+      "prerelease-type": "dev",
+      "package-name": "ecsly",
+      "component": "ecsly",
+      "changelog-sections": [
+        { "type": "feat", "section": "Features" },
+        { "type": "fix", "section": "Bug Fixes" },
+        { "type": "perf", "section": "Performance" },
+        { "type": "docs", "section": "Documentation" },
+        { "type": "chore", "section": "Miscellaneous", "hidden": true },
+        { "type": "refactor", "section": "Miscellaneous", "hidden": true },
+        { "type": "test", "section": "Miscellaneous", "hidden": true }
+      ]
+    },
+    "core_packages/ecsly_app": {
+      "release-type": "dart",
+      "versioning": "prerelease",
+      "prerelease": true,
+      "prerelease-type": "dev",
+      "package-name": "ecsly_app",
+      "component": "ecsly_app",
+      "changelog-sections": [
+        { "type": "feat", "section": "Features" },
+        { "type": "fix", "section": "Bug Fixes" },
+        { "type": "perf", "section": "Performance" },
+        { "type": "docs", "section": "Documentation" },
+        { "type": "chore", "section": "Miscellaneous", "hidden": true },
+        { "type": "refactor", "section": "Miscellaneous", "hidden": true },
+        { "type": "test", "section": "Miscellaneous", "hidden": true }
+      ]
+    },
+    "core_packages/ecsly_codegen": {
+      "release-type": "dart",
+      "versioning": "prerelease",
+      "prerelease": true,
+      "prerelease-type": "dev",
+      "package-name": "ecsly_codegen",
+      "component": "ecsly_codegen",
+      "changelog-sections": [
+        { "type": "feat", "section": "Features" },
+        { "type": "fix", "section": "Bug Fixes" },
+        { "type": "perf", "section": "Performance" },
+        { "type": "docs", "section": "Documentation" },
+        { "type": "chore", "section": "Miscellaneous", "hidden": true },
+        { "type": "refactor", "section": "Miscellaneous", "hidden": true },
+        { "type": "test", "section": "Miscellaneous", "hidden": true }
+      ]
+    },
+    "core_packages/ecsly_flutter": {
+      "release-type": "dart",
+      "versioning": "prerelease",
+      "prerelease": true,
+      "prerelease-type": "dev",
+      "package-name": "ecsly_flutter",
+      "component": "ecsly_flutter",
+      "changelog-sections": [
+        { "type": "feat", "section": "Features" },
+        { "type": "fix", "section": "Bug Fixes" },
+        { "type": "perf", "section": "Performance" },
+        { "type": "docs", "section": "Documentation" },
+        { "type": "chore", "section": "Miscellaneous", "hidden": true },
+        { "type": "refactor", "section": "Miscellaneous", "hidden": true },
+        { "type": "test", "section": "Miscellaneous", "hidden": true }
+      ]
+    }
+  }
+}

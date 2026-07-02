@@ -1,0 +1,13 @@
+{
+  "projectName": "ecsly",
+  "projectOwner": "Arenukvern",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributorsPerLine": 7,
+  "contributors": []
+}

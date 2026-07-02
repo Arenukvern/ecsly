@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "skills": {
+    "mcp-harness-repo-maintainer": {
+      "source": "Arenukvern/skill_steward",
+      "sourceType": "github",
+      "skillPath": "skills/mcp-harness-repo-maintainer/SKILL.md",
+      "computedHash": "dee49ed2a084281fda4ca85e3254599d41e0d7774fae2415753e3b96b8951a8a"
+    },
+    "repository-governance-lifecycle": {
+      "source": "Arenukvern/skill_steward",
+      "sourceType": "github",
+      "skillPath": "skills/repository-governance-lifecycle/SKILL.md",
+      "computedHash": "a944097849e309017d96c920328b569cffbccb77eb0d9da087e8c6292db9c6d2"
+    },
+    "skill-source-citations": {
+      "source": "Arenukvern/skill_steward",
+      "sourceType": "github",
+      "skillPath": "skills/skill-source-citations/SKILL.md",
+      "computedHash": "86526f258c7d2d76a2fc071cb8aa243502c2022b2034f5d2662ce626798fb2e9"
+    }
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "$schema": "https://docs.page/schema.json",
+  "name": "ecsly",
+  "description": "Experimental ECS packages for Dart and Flutter: a headless runtime, app workflow layer, code generator, and Flutter bridge.",
+  "github": "https://github.com/Arenukvern/ecsly",
+  "theme": {
+    "defaultTheme": "light",
+    "primary": "#227C4F"
+  },
+  "header": {
+    "showName": true,
+    "showThemeToggle": true,
+    "showGitHubCard": true,
+    "links": [
+      {
+        "title": "GitHub",
+        "href": "https://github.com/Arenukvern/ecsly"
+      },
+      {
+        "title": "Packages",
+        "href": "/packages",
+        "cta": true
+      }
+    ]
+  },
+  "anchors": [
+    {
+      "icon": "github",
+      "title": "GitHub",
+      "href": "https://github.com/Arenukvern/ecsly"
+    },
+    {
+      "icon": "package",
+      "title": "pub.dev",
+      "href": "https://pub.dev/packages/ecsly"
+    }
+  ],
+  "social": {
+    "github": "Arenukvern",
+    "website": "https://github.com/Arenukvern/ecsly"
+  },
+  "seo": {
+    "noindex": false
+  },
+  "variables": {
+    "version": "0.0.1-dev.10",
+    "repo": "https://github.com/Arenukvern/ecsly",
+    "docs": "https://docs.page/arenukvern/ecsly"
+  },
+  "content": {
+    "headerDepth": 3,
+    "zoomImages": true,
+    "automaticallyInferNextPrevious": true,
+    "showPageTitle": true,
+    "showPageImage": true
+  },
+  "sidebar": [
+    {
+      "group": "Start Here",
+      "pages": [
+        {
+          "title": "Overview",
+          "href": "/"
+        },
+        {
+          "title": "Packages",
+          "href": "/packages"
+        },
+        {
+          "title": "Stewardship",
+          "href": "/stewardship"
+        },
+        {
+          "title": "Release Automation",
+          "href": "/release"
+        }
+      ]
+    },
+    {
+      "group": "Contributing",
+      "pages": [
+        {
+          "title": "Contribution Guide",
+          "href": "https://github.com/Arenukvern/ecsly/blob/main/CONTRIBUTING.md"
+        },
+        {
+          "title": "Contributors",
+          "href": "/contributing/contributors"
+        },
+        {
+          "title": "Security",
+          "href": "https://github.com/Arenukvern/ecsly/security/advisories/new"
+        }
+      ]
+    },
+    {
+      "group": "Reference",
+      "pages": [
+        {
+          "title": "Core package",
+          "href": "https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly"
+        },
+        {
+          "title": "Architecture",
+          "href": "https://github.com/Arenukvern/ecsly/blob/main/ARCHITECTURE.md"
+        },
+        {
+          "title": "API docs",
+          "href": "https://pub.dev/documentation/ecsly/latest/"
+        }
+      ]
+    },
+    {
+      "group": "Decisions",
+      "pages": [
+        {
+          "title": "Overview",
+          "href": "/decisions"
+        }
+      ]
+    }
+  ]
+}
