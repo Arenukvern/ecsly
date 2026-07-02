@@ -8,8 +8,7 @@ setup path shared: every host gets an `EcsScope`, an `EcsController`, selectors,
 and optional action helpers. Apps can run user actions without a loop. Games can
 add `EcsLoop` or `EcsFixedStepLoop` around the same scope.
 
-**Status:** public source, unpublished prerelease. Use a workspace or local/path
-dependency until a hosted package appears on pub.dev.
+**Status:** published prerelease. Pin the `dev` version deliberately.
 
 **Compatibility:** `ecsly_flutter` `0.1.0-dev.x` requires `ecsly` `>=0.0.1-dev.9`,
 `ecsly_app` `^0.1.0-dev.1`, and Flutter `>=3.35.0`.
@@ -21,10 +20,8 @@ Further docs: [DX_FAQ.md](DX_FAQ.md) (how) · [DESIGN_FAQ.md](DESIGN_FAQ.md) (wh
 ```yaml
 dependencies:
   ecsly: ^0.0.1-dev.9
-  ecsly_app:
-    path: ../ecsly/core_packages/ecsly_app
-  ecsly_flutter:
-    path: ../ecsly/core_packages/ecsly_flutter
+  ecsly_app: ^0.1.0-dev.1
+  ecsly_flutter: ^0.1.0-dev.1
   flutter:
     sdk: flutter
 ```
@@ -37,9 +34,8 @@ This package re-exports `package:ecsly_app/ecsly_app.dart` (which re-exports
 `ecsly`). Flutter widgets and loop hosts live here; headless app workflows are
 defined in [`ecsly_app`](../ecsly_app/README.md).
 
-Monorepo/workspace packages may use key-only entries (`ecsly_flutter:`).
-Once published, replace the path dependencies with matching hosted prerelease
-constraints.
+Monorepo/workspace packages may use key-only entries (`ecsly_flutter:`) or
+local path overrides while developing multiple packages together.
 
 Run the sample app from this package:
 
@@ -52,9 +48,9 @@ cd core_packages/ecsly_flutter/example && flutter run
 | Need | Package | Public status |
 |------|---------|---------------|
 | Hot simulation | `ecsly` | Public package |
-| Cold app path | `ecsly_app` | Public source, unpublished prerelease |
-| Typed-column builders | `ecsly_codegen` | Public source, unpublished prerelease |
-| Flutter host | `ecsly_flutter` | Public source, unpublished prerelease |
+| Cold app path | `ecsly_app` | Published prerelease |
+| Typed-column builders | `ecsly_codegen` | Published prerelease |
+| Flutter host | `ecsly_flutter` | Published prerelease |
 
 Pure Dart app contracts such as `EcsAction`, `EcsDraft`, cold component lookup,
 and `EntityIndexResource` are owned by

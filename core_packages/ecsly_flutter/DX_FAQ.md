@@ -1,17 +1,16 @@
 # ecsly_flutter DX_FAQ
 
-`ecsly_flutter` has public source but is unpublished. Use workspace/local
-dependency setup from [README.md](README.md) until hosted publication is
-verified.
+`ecsly_flutter` is a published prerelease. Use hosted constraints for consumers
+and workspace/local dependency setup for repo development.
 
 ## Package chooser
 
 | Need | Package | Status |
 |------|---------|--------|
 | Systems, queries, hot loops | `ecsly` | Public package |
-| Actions, drafts, invalidation, cold lookup | `ecsly_app` | Public source, unpublished prerelease |
-| Typed-column builders | `ecsly_codegen` | Public source, unpublished prerelease |
-| Widgets, scope, controller | `ecsly_flutter` | Public source, unpublished prerelease |
+| Actions, drafts, invalidation, cold lookup | `ecsly_app` | Published prerelease |
+| Typed-column builders | `ecsly_codegen` | Published prerelease |
+| Widgets, scope, controller | `ecsly_flutter` | Published prerelease |
 
 ## Do apps need a game loop?
 

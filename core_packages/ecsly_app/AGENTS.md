@@ -26,8 +26,7 @@ See [DX_FAQ.md](DX_FAQ.md) for drafts, indexes, schedules, troubleshooting.
 ## Compatibility
 
 - `ecsly_app` `0.1.0-dev.x` requires `ecsly` `>=0.0.1-dev.9`.
-- Publication status: publish-prepared unpublished prerelease. Do not claim a
-  live pub.dev package until hosted publication is verified.
+- Publication status: published prerelease on pub.dev.
 - Public API: `package:ecsly_app/ecsly_app.dart` (includes ecsly re-export).
 
 ## Testing

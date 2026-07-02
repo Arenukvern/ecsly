@@ -4,10 +4,8 @@ Quick reference for **why** this package exists and where its boundary lies.
 
 ## Publication status
 
-**Q: Is this package live on pub.dev?** A: Not yet. `ecsly_app` is
-publish-prepared and versioned as a prerelease, but
-reader-facing docs should describe it as unpublished until the hosted package is
-verified.
+**Q: Is this package live on pub.dev?** A: Yes. `ecsly_app` is published as an
+early prerelease on pub.dev.
 
 ## Why this package exists
 

@@ -30,8 +30,7 @@ See [DX_FAQ.md](DX_FAQ.md) for forms, plugins, invalidation, and troubleshooting
 
 - `ecsly_flutter` `0.1.0-dev.x` requires `ecsly` `>=0.0.1-dev.9`, `ecsly_app`
   `^0.1.0-dev.1`, Flutter `>=3.35.0`.
-- Publication status: publish-prepared unpublished prerelease. Do not claim a
-  live pub.dev package until hosted publication is verified.
+- Publication status: published prerelease on pub.dev.
 - Public API: `package:ecsly_flutter/ecsly_flutter.dart`.
 
 ## Testing

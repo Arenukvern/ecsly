@@ -10,7 +10,7 @@ topics:
   - state-management
   - simulation
 # Requires ecsly >=0.0.1-dev.9 for World, Component, and Resource APIs.
-# Publish-prepared prerelease; do not claim hosted availability until pub.dev is verified.
+# Published prerelease.
 version: 0.1.0-dev.1
 
 environment:

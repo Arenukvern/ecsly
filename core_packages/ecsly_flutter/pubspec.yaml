@@ -10,7 +10,7 @@ topics:
   - flutter
   - state-management
 # Requires ecsly >=0.0.1-dev.9 and ecsly_app ^0.1.0-dev.1. Flutter >=3.35.0.
-# Publish-prepared prerelease; do not claim hosted availability until pub.dev is verified.
+# Published prerelease.
 version: 0.1.0-dev.1
 
 environment:
