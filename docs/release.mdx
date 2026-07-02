@@ -33,6 +33,23 @@ Automated tag publishing requires two hosted settings:
    `Arenukvern/ecsly`, tag pattern `<package>-v{{version}}`, push events, and
    the required GitHub Actions environment `pub.dev`.
 
+Verify the release token before relying on automatic tags:
+
+```sh
+gh secret list --repo Arenukvern/ecsly
+```
+
+Maintainers can bootstrap or rotate the secret from an authenticated GitHub CLI
+session that has `repo` and `workflow` scopes:
+
+```sh
+gh auth status
+gh auth token | gh secret set RELEASE_PLEASE_TOKEN --repo Arenukvern/ecsly
+```
+
+Do not print the token in logs. The secret value lives only in GitHub Actions;
+the repo records the required secret name, scopes, and verification command.
+
 Bootstrap matters: pub.dev automated publishing only works after the first
 version of a package exists. Publish the first companion package versions
 manually, then enable automated publishing on their pub.dev admin pages.
