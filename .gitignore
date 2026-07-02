@@ -1,0 +1,19 @@
+# macOS and editor noise
+.DS_Store
+*.swp
+*.tmp
+*.log
+pubspec.lock
+
+# Dart and Flutter build state
+**/.dart_tool/
+**/.flutter-plugins-dependencies
+**/.pub/
+**/.pub-cache/
+**/build/
+**/coverage/
+**/doc/api/
+
+# IDE-local project state
+.idea/
+*.iml

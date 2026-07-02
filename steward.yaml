@@ -1,0 +1,78 @@
+schema: steward/v1
+repo:
+  id: ecsly-public
+  archetype: dart_workspace
+harness:
+  name: ecsly-public
+  mode: package
+  description: Public canonical package workspace for migrated ecsly packages.
+stewardship:
+  governance:
+    charter: AGENTS.md
+    adr_dir: docs/decisions/
+  knowledge:
+    docs_map: README.md
+    source_policy: required_for_external_claims
+  repo_quality:
+    contract_spec: steward.yaml
+  review_handoff:
+    claim_ceiling: only packages present in this public repo are canonical here
+docs:
+  "Architecture": ARCHITECTURE.md
+  "Core package README": core_packages/ecsly/README.md
+  "Core DX FAQ": core_packages/ecsly/DX_FAQ.md
+  "Core Design FAQ": core_packages/ecsly/DESIGN_FAQ.md
+  "Decision index": docs/decisions/index.mdx
+actions:
+  ecsly.core.analyze:
+    kind: command
+    desc: Analyze the public core ecsly package.
+    command:
+      argv: [dart, analyze]
+      shell: false
+    cwd: core_packages/ecsly
+    effects:
+      fs_read:
+        - core_packages/ecsly/**
+        - pubspec.yaml
+        - pubspec.lock
+      fs_write: []
+      git: false
+      network: false
+      secrets: false
+      destructive: false
+    safety:
+      class: bounded_local
+      default_policy: auto
+      requires_confirmation: false
+    limits:
+      timeout_ms: 30000
+      max_output_bytes: 200000
+  ecsly.core.test:
+    kind: command
+    desc: Run the public core ecsly package tests.
+    command:
+      argv: [dart, test]
+      shell: false
+    cwd: core_packages/ecsly
+    effects:
+      fs_read:
+        - core_packages/ecsly/**
+        - pubspec.yaml
+        - pubspec.lock
+      fs_write: []
+      git: false
+      network: false
+      secrets: false
+      destructive: false
+    safety:
+      class: bounded_local
+      default_policy: auto
+      requires_confirmation: false
+    limits:
+      timeout_ms: 120000
+      max_output_bytes: 400000
+probes:
+  quick:
+    profile: quick
+    actions: [ecsly.core.analyze, ecsly.core.test]

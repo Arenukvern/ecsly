@@ -1,0 +1,13 @@
+name: ecsly_workspace
+description: Public workspace for canonical ecsly packages.
+publish_to: none
+
+environment:
+  sdk: ">=3.12.0 <4.0.0"
+
+workspace:
+  - core_packages/ecsly
+  - core_packages/ecsly_app
+  - core_packages/ecsly_codegen
+  - core_packages/ecsly_flutter
+  - core_packages/ecsly_flutter/example

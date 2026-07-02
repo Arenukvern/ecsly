@@ -1,0 +1,18 @@
+ecsly is free, open source, and permissively licensed.
+
+Except where noted (below and/or in individual files), all code in this
+repository is dual-licensed under either:
+
+- MIT License (`LICENSE-MIT`)
+- Apache License 2.0 (`LICENSE-APACHE`)
+
+at your option. You can pick one of those licenses when using code from this
+repo.
+
+Some files may carry additional copyright notices and license terms due to
+external origins (for example, copied examples, generated assets, or vendor
+content). In those cases, that file or module's specific notice/header prevails
+for that scope.
+
+Unless otherwise stated, contributions are licensed under the same terms above,
+for consistency across the project.
