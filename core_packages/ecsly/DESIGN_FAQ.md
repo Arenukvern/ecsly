@@ -130,9 +130,10 @@ spawn/despawn/insert/remove safely, then `flush()` applies the batch at a known
 boundary.
 
 **Q: Why use resources for global state instead of singleton components?**  
-A: Resources model world-level state directly: clocks, policies, queues, caches,
-and settings. They avoid creating special entities just to hold global data and
-provide direct registry lookup.
+A: Resources model world-level state directly: clocks, policies, data queues,
+outboxes, caches, and settings. They avoid creating special entities just to
+hold global data and provide direct registry lookup. Command queues, callbacks,
+system registration, and domain behavior should stay outside resource objects.
 
 **Q: Why not use extension components for every example?**  
 A: Object components are easier to read and are appropriate for cold data.

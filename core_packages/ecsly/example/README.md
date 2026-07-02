@@ -12,5 +12,6 @@ Then explore focused examples:
 - `scheduled_run.dart` - run a small system schedule.
 - `components.dart` - define extension-type and GC-backed components.
 - `extension_component.dart` - use factories around extension-type components.
-- `commands_and_resources.dart` - queue commands and read data-only resources.
+- `commands_and_resources.dart` - queue commands and read/write data-only
+  resource state from systems.
 - `simd_columns.dart` - use `Float32x4` columns for packed hot-loop data.

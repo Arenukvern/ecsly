@@ -145,12 +145,16 @@ class FrameClockResource extends Resource {
 }
 
 world.upsertResource(FrameClockResource(1 / 60));
-world.getResource<FrameClockResource>().frame += 1;
+
+void tickFrameClockSystem(World world) {
+  world.getResource<FrameClockResource>().frame += 1;
+}
 ```
 
 Resources can be immutable snapshots, mutable frame state, or a mix of both.
 Choose mutability by purpose: fixed inputs stay `final`, counters and caches can
-mutate, and behavior still belongs in systems.
+mutate, and behavior still belongs in systems. Keep command-queuing behavior in
+system functions, not inside the resource object.
 
 Use `world.maybeGetResource<T>()` for optional resources. Runtime [Entity]
 handles are not persistent ids; stable app/domain ids should be normal

@@ -58,6 +58,14 @@ publish-core-dry-run:
 publish-dry-run:
     dart tool/release/pub_package.dart --all --skip-existing
 
+# Run publish dry-run preflight for one release tag.
+publish-tag-dry-run tag:
+    dart tool/release/pub_package.dart --tag "{{tag}}" --skip-existing
+
+# Publish one release tag. Intended for CI or supervised maintainer bootstrap.
+publish-tag-execute tag:
+    dart tool/release/pub_package.dart --tag "{{tag}}" --execute --skip-existing
+
 # Run the default local gate used before PRs.
 check: probe get analyze-core test docs-check
 
