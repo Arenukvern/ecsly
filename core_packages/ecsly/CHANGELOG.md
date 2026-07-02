@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## [0.0.1-dev.11](https://github.com/Arenukvern/ecsly/compare/ecsly-v0.0.1-dev.10...ecsly-v0.0.1-dev.11) (2026-07-02)
+
+
+### Documentation
+
+* clarify ecsly resource boundaries and release automation ([371dfec](https://github.com/Arenukvern/ecsly/commit/371dfec85e3dc8ff59fca0ca2b6edde4de2b1d8f))
+* **ecsly:** clarify resource system boundaries ([e38f11e](https://github.com/Arenukvern/ecsly/commit/e38f11ecd30e309a55ad60c06e261cef61c99cf4))
+
 ## 0.0.1-dev.10 - 2026-07-02
 
 - Moved the public-canonical source for the core package to

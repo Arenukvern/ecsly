@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.0-dev.2](https://github.com/Arenukvern/ecsly/compare/ecsly_app-v0.1.0-dev.1...ecsly_app-v0.1.0-dev.2) (2026-07-02)
+
+
+### Documentation
+
+* clarify ecsly resource boundaries and release automation ([371dfec](https://github.com/Arenukvern/ecsly/commit/371dfec85e3dc8ff59fca0ca2b6edde4de2b1d8f))
+* mark companion packages published ([ff4192a](https://github.com/Arenukvern/ecsly/commit/ff4192a6c6f69e247b5053dd4bdba5c039228b6e))
+
 ## 0.1.0-dev.1
 
 - Initial public prerelease aligned with `ecsly` `0.0.1-dev.x` and
