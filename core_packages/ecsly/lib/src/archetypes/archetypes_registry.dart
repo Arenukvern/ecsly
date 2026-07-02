@@ -9,12 +9,8 @@ import 'archetype_signature.dart';
 /// Registry for managing archetypes.
 /// Provides fast lookup by component signature.
 class ArchetypeRegistry {
-  ArchetypeRegistry({
-    final ComponentRegistry? componentRegistry,
-    final QueryCache? queryCache,
-  }) : _componentRegistry = componentRegistry,
-       _queryCache = queryCache,
-       _nextArchetypeId = 1 {
+  ArchetypeRegistry({this._componentRegistry, this._queryCache})
+    : _nextArchetypeId = 1 {
     // Reserve index 0 for empty archetype
     _archetypes.add(
       Archetype(

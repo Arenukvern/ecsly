@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ecsly/ecsly.dart';
 
 import 'components.dart';
@@ -58,6 +60,6 @@ void main() {
 
     final frame = world.getResource<FrameClockResource>().frame;
     final remaining = world.queryCount<CounterComponent>();
-    print('frame=$frame counters=$remaining');
+    log('frame=$frame counters=$remaining');
   }
 }

@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:ecsly/ecsly.dart';
@@ -7,24 +8,17 @@ class SimdVectorComponent extends Component {
 }
 
 extension type SimdVector._(int index) {
-  static late FloatColumn _column;
+  static late FloatColumn column;
 
-  static FloatColumn get column => _column;
+  double get x => column.getValueUnsafe(index, 0);
+  double get y => column.getValueUnsafe(index, 1);
+  double get z => column.getValueUnsafe(index, 2);
+  double get w => column.getValueUnsafe(index, 3);
 
-  // ignore: avoid_setters_without_getters
-  static set column(final FloatColumn column) {
-    _column = column;
-  }
-
-  double get x => _column.getValueUnsafe(index, 0);
-  double get y => _column.getValueUnsafe(index, 1);
-  double get z => _column.getValueUnsafe(index, 2);
-  double get w => _column.getValueUnsafe(index, 3);
-
-  set x(final double value) => _column.setValue(index, 0, value);
-  set y(final double value) => _column.setValue(index, 1, value);
-  set z(final double value) => _column.setValue(index, 2, value);
-  set w(final double value) => _column.setValue(index, 3, value);
+  set x(final double value) => column.setValue(index, 0, value);
+  set y(final double value) => column.setValue(index, 1, value);
+  set z(final double value) => column.setValue(index, 2, value);
+  set w(final double value) => column.setValue(index, 3, value);
 }
 
 final class _SimdVectorColumnFactory extends ColumnFactory {
@@ -82,6 +76,6 @@ void main() {
   }
 
   for (final (_, vector) in world.queryExt<SimdVectorComponent, SimdVector>()) {
-    print('vector=(${vector.x}, ${vector.y}, ${vector.z}, ${vector.w})');
+    log('vector=(${vector.x}, ${vector.y}, ${vector.z}, ${vector.w})');
   }
 }

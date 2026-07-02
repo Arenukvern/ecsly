@@ -117,7 +117,7 @@ graph TB
         SIMDPatterns -->|provides| AddPackedVectorsSimd["addPackedVectorsSimd()<br/>(Packed numeric rows)"]
         SIMDPatterns -->|provides| CalculateDistancesSimd["calculateDistancesSimd()<br/>(Distance Calculations)"]
         SIMDPatterns -->|provides| NormalizeVectorsSimd["normalizeVectorsSimd()<br/>(Vector Normalization)"]
-        SIMDPatterns -->|provides| ScalePackedVectorsSimd["scalePackedVectorsSimd()<br/>(Packed vector scaling)"]
+        SIMDPatterns -->|provides| ScalePositionsSimd["scalePositionsSimd()<br/>(Packed vector scaling)"]
 
         System -->|can use| PackedNumericSystem["packedNumericSystem<br/>(SIMD-Optimized Feature Logic)"]
         PackedNumericSystem -->|uses| SIMDPatterns

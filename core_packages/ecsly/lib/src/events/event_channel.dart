@@ -68,13 +68,12 @@ enum EventCapacityPolicy {
 class EventChannel<T extends EcsEvent> implements Resource {
   /// {@macro event_channel}
   EventChannel.withColumn({
-    required final DataColumn column,
-    required final EventColumnConfig<T> config,
+    required this._column,
+    required this._config,
     required this.capacity,
     this.capacityPolicy = EventCapacityPolicy.dropNew,
     this.metricsHook,
-  }) : _column = column,
-       _config = config;
+  });
 
   /// Maximum number of events this channel can hold.
   final int capacity;
