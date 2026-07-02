@@ -21,13 +21,52 @@ maintainer preflight:
 ```sh
 dart tool/release/pub_package.dart --all --skip-existing
 dart tool/release/pub_package.dart --tag ecsly-v0.0.1-dev.11 --skip-existing
+just publish-tag-dry-run ecsly_flutter-v0.1.0-dev.2
 ```
 
-Actual pub.dev publishing also requires the pub.dev package admin settings to
-allow GitHub Actions publishing for repository `Arenukvern/ecsly` and matching
-tag patterns.
+Automated tag publishing requires two hosted settings:
+
+1. `RELEASE_PLEASE_TOKEN` must be configured as a write-capable repository
+   secret. Release Please must not fall back to `GITHUB_TOKEN`, because tags
+   created with the default token may not start the downstream publish workflow.
+2. Each package must enable pub.dev GitHub Actions publishing for repository
+   `Arenukvern/ecsly`, tag pattern `<package>-v{{version}}`, push events, and
+   the required GitHub Actions environment `pub.dev`.
+
+Verify the release token before relying on automatic tags:
+
+```sh
+gh secret list --repo Arenukvern/ecsly
+```
+
+Maintainers can bootstrap or rotate the secret from an authenticated GitHub CLI
+session that has `repo` and `workflow` scopes:
+
+```sh
+gh auth status
+gh auth token | gh secret set RELEASE_PLEASE_TOKEN --repo Arenukvern/ecsly
+```
+
+Do not print the token in logs. The secret value lives only in GitHub Actions;
+the repo records the required secret name, scopes, and verification command.
+
+Bootstrap matters: pub.dev automated publishing only works after the first
+version of a package exists. Publish the first companion package versions
+manually, then enable automated publishing on their pub.dev admin pages.
+
+Bootstrap order:
+
+```sh
+cd core_packages/ecsly_app && dart pub publish
+cd ../ecsly_codegen && dart pub publish
+cd ../ecsly_flutter && flutter pub publish
+```
+
+The release helper keeps the same package order for automation, uses
+`flutter pub publish` for `ecsly_flutter`, checks package changelog entries, and
+waits for internal hosted dependencies before publishing dependent packages.
 
 Agent auto-approval is label-gated. Configure `AUTO_APPROVE_TOKEN` with a
-separate write-capable machine user token, then add `agent-auto-approve` to
-trusted same-repo `codex/` or `release-please--` PRs that should be approved
-automatically after release validation passes.
+separate write-capable machine user token. Release Please PRs from
+`github-actions[bot]` are labeled automatically; trusted same-repo `codex/` PRs
+still need an explicit `agent-auto-approve` label.

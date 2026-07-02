@@ -7,8 +7,7 @@ builder that emits `ColumnFactory` and `FacadeFactory` boilerplate for SoA
 extension components. The ECS runtime stays in `ecsly`; this package owns
 annotations and generated source only.
 
-**Status:** public source, unpublished prerelease. Use a workspace or local/path
-dependency until a hosted package appears on pub.dev.
+**Status:** published prerelease. Pin the `dev` version deliberately.
 
 **Compatibility:** `ecsly_codegen` `0.1.0-dev.x` requires `ecsly` `>=0.0.1-dev.9`.
 
@@ -21,8 +20,7 @@ Add to a component or plugin package that defines marker components:
 ```yaml
 dependencies:
   ecsly: ^0.0.1-dev.9
-  ecsly_codegen:
-    path: ../ecsly/core_packages/ecsly_codegen
+  ecsly_codegen: ^0.1.0-dev.1
 
 dev_dependencies:
   build_runner: ^2.7.1
@@ -31,18 +29,18 @@ dev_dependencies:
 `ecsly_codegen` belongs in `dependencies` (not only `dev_dependencies`) because
 its `build.yaml` builder auto-applies to dependents.
 
-Monorepo/workspace packages may use key-only entries (`ecsly:` / `ecsly_codegen:`).
-Once published, replace the path dependency with the matching hosted prerelease
-constraint.
+Monorepo/workspace packages may use key-only entries (`ecsly:` /
+`ecsly_codegen:`) or local path overrides while developing multiple packages
+together.
 
 ## Package chooser
 
 | Need | Package | Public status |
 |------|---------|---------------|
 | Hot simulation | `ecsly` | Public package |
-| Cold app path | `ecsly_app` | Public source, unpublished prerelease |
-| Typed-column builders | `ecsly_codegen` | Public source, unpublished prerelease |
-| Flutter host | `ecsly_flutter` | Public source, unpublished prerelease |
+| Cold app path | `ecsly_app` | Published prerelease |
+| Typed-column builders | `ecsly_codegen` | Published prerelease |
+| Flutter host | `ecsly_flutter` | Published prerelease |
 
 ## Use
 

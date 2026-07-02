@@ -2,8 +2,8 @@
 
 Developer notes for practical setup and safe integration.
 
-**Requires `ecsly` `>=0.0.1-dev.9`.** `ecsly_codegen` has public source but is
-unpublished; see [README.md](README.md) for workspace/local dependency setup.
+**Requires `ecsly` `>=0.0.1-dev.9`.** `ecsly_codegen` is a published
+prerelease; see [README.md](README.md) for hosted and workspace setup.
 
 ## Quick setup
 
@@ -12,8 +12,7 @@ Add `ecsly`, `ecsly_codegen`, and `build_runner` to the component package:
 ```yaml
 dependencies:
   ecsly: ^0.0.1-dev.9
-  ecsly_codegen:
-    path: ../ecsly/core_packages/ecsly_codegen
+  ecsly_codegen: ^0.1.0-dev.1
 
 dev_dependencies:
   build_runner: ^2.7.1
@@ -26,9 +25,9 @@ Keep `ecsly_codegen` in `dependencies` — the builder auto-applies via `build.y
 | Need | Package | Status |
 |------|---------|--------|
 | Systems, queries, hot loops | `ecsly` | Public package |
-| Actions, drafts, invalidation, cold lookup | `ecsly_app` | Public source, unpublished prerelease |
-| Typed-column builders | `ecsly_codegen` | Public source, unpublished prerelease |
-| Widgets, scope, controller | `ecsly_flutter` | Public source, unpublished prerelease |
+| Actions, drafts, invalidation, cold lookup | `ecsly_app` | Published prerelease |
+| Typed-column builders | `ecsly_codegen` | Published prerelease |
+| Widgets, scope, controller | `ecsly_flutter` | Published prerelease |
 
 ## First use
 

@@ -32,8 +32,7 @@ See [DX_FAQ.md](DX_FAQ.md) for setup, troubleshooting, and codegen vs manual.
 ## Compatibility
 
 - `ecsly_codegen` `0.1.0-dev.x` requires `ecsly` `>=0.0.1-dev.9`.
-- Publication status: publish-prepared unpublished prerelease. Do not claim a
-  live pub.dev package until hosted publication is verified.
+- Publication status: published prerelease on pub.dev.
 - Public API: `package:ecsly_codegen/ecsly_codegen.dart` only (not `src/`).
 
 ## Testing

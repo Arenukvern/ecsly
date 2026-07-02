@@ -280,7 +280,8 @@ global data.
 
 Resources may be immutable snapshots, mutable runtime state, or a small mix of
 both depending on purpose. Keep resources data-only: put behavior in systems,
-not callbacks or domain logic inside the resource.
+not callbacks, command queues, system registration, or domain logic inside the
+resource.
 
 **Q: When is a resource too big?**  
 A: If a resource stores repeated user/domain records, a large
@@ -301,8 +302,17 @@ components. World/session state becomes resources.
 | Spawn/despawn/add/remove request | `EcsCommand` / command queue |
 
 ```dart
-world.upsertResource(ScheduleTimeResource(deltaSeconds: 1 / 60));
-final dt = world.getResource<ScheduleTimeResource>().deltaSeconds;
+world.upsertResource(FrameClockResource(deltaSeconds: 1 / 60));
+
+void tickFrameClockSystem(World world) {
+  world.getResource<FrameClockResource>().frame += 1;
+}
+
+void queueSpawnOrRemoveSystem(World world) {
+  for (final (entity, counter) in world.query<CounterComponent>()) {
+    if (counter.value >= 2) entity.remove<CounterComponent>();
+  }
+}
 ```
 
 ## 🚀 Schedule Launchpad
@@ -406,11 +416,12 @@ Architecture improvement candidates should be judged in this order:
 
 ```dart
 ADD: world.addPlugin(PluginClass())
-CORE: Game2DPlugin() // Position, Velocity, Health
+FEATURE: MyFeaturePlugin() // registers package-owned components/systems
 ```
 
-Package-specific plugin docs have not moved into this public repo yet. Treat
-plugin references here as ecosystem context, not public-repo contribution scope.
+Domain plugins own their own component vocabulary. Core `ecsly` provides the
+plugin hook, component registration, schedules, resources, and commands; it does
+not own game-specific components such as position, velocity, or health.
 
 ## 🎯 SIMD Accelerator
 

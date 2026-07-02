@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ecsly/ecsly.dart';
 
 import 'components.dart';
@@ -9,10 +11,19 @@ class FrameClockResource extends Resource {
   int frame = 0;
 }
 
-void countAndQueueChanges(final World world) {
+void installFrameClock(
+  final World world, {
+  required final double deltaSeconds,
+}) {
+  world.upsertResource(FrameClockResource(deltaSeconds: deltaSeconds));
+}
+
+void tickFrameClockSystem(final World world) {
   final clock = world.getResource<FrameClockResource>();
   clock.frame += 1;
+}
 
+void queueCounterChangesSystem(final World world) {
   for (final (entity, counter) in world.query<CounterComponent>()) {
     if (counter.value >= 2) {
       // Structural changes are queued so iteration can finish safely.
@@ -23,17 +34,25 @@ void countAndQueueChanges(final World world) {
   }
 }
 
+void addUpdateSystems(final World world) {
+  world.createSchedule('Update')
+    ..add(tickFrameClockSystem)
+    ..add(queueCounterChangesSystem);
+}
+
 void main() {
   final world = World();
   registerCounterComponents(world);
 
-  world.upsertResource(FrameClockResource(deltaSeconds: 1 / 60));
+  // Resources hold world-level data. Systems read or mutate that data.
+  installFrameClock(world, deltaSeconds: 1 / 60);
 
   final entity = world.reserveEmptyEntity().entity;
   world.spawnBundle(entity, ComponentBundle.fromLists([CounterComponent(1)]));
   world.flush();
 
-  world.createSchedule('Update').add(countAndQueueChanges);
+  // Schedules wire behavior. Resources do not own commands or systems.
+  addUpdateSystems(world);
 
   for (var i = 0; i < 3; i++) {
     world.runSchedule('Update');
@@ -41,6 +60,6 @@ void main() {
 
     final frame = world.getResource<FrameClockResource>().frame;
     final remaining = world.queryCount<CounterComponent>();
-    print('frame=$frame counters=$remaining');
+    log('frame=$frame counters=$remaining');
   }
 }

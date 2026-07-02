@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ecsly/ecsly.dart';
 
 import 'components.dart';
@@ -28,6 +30,6 @@ void main() {
 
   for (final (entity, energy) in world.queryExt<EnergyComponent, Energy>()) {
     final note = entity.toEntity().get<DebugNoteComponent>()?.text ?? 'entity';
-    print('$note energy=${energy.current}/${energy.max}');
+    log('$note energy=${energy.current}/${energy.max}');
   }
 }

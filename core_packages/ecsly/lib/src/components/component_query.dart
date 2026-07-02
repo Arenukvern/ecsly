@@ -881,14 +881,13 @@ final class RawComponentColumn<T> {
 
 final class RawQueryChunk2<T1, T2> {
   const RawQueryChunk2._({
-    required final World world,
-    required final ArchetypeId archetypeId,
+    required this._world,
+    required this._archetypeId,
     required this.entities,
     required this.rowCount,
     required this.column1,
     required this.column2,
-  }) : _world = world,
-       _archetypeId = archetypeId;
+  });
 
   final World _world;
   final ArchetypeId _archetypeId;
@@ -914,15 +913,14 @@ final class RawQueryChunk2<T1, T2> {
 
 final class RawQueryChunk3<T1, T2, T3> {
   const RawQueryChunk3._({
-    required final World world,
-    required final ArchetypeId archetypeId,
+    required this._world,
+    required this._archetypeId,
     required this.entities,
     required this.rowCount,
     required this.column1,
     required this.column2,
     required this.column3,
-  }) : _world = world,
-       _archetypeId = archetypeId;
+  });
 
   final World _world;
   final ArchetypeId _archetypeId;
@@ -956,16 +954,15 @@ final class RawQueryChunk3<T1, T2, T3> {
 
 final class RawQueryChunk4<T1, T2, T3, T4> {
   const RawQueryChunk4._({
-    required final World world,
-    required final ArchetypeId archetypeId,
+    required this._world,
+    required this._archetypeId,
     required this.entities,
     required this.rowCount,
     required this.column1,
     required this.column2,
     required this.column3,
     required this.column4,
-  }) : _world = world,
-       _archetypeId = archetypeId;
+  });
 
   final World _world;
   final ArchetypeId _archetypeId;

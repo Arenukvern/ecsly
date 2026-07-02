@@ -6,8 +6,7 @@ Pure Dart app-layer helpers for [`ecsly`](https://pub.dev/packages/ecsly).
 [`ecsly_flutter`](../ecsly_flutter/README.md). It owns app workflows
 and derived infrastructure that are not core simulation machinery.
 
-**Status:** public source, unpublished prerelease. Use a workspace or local/path
-dependency until a hosted package appears on pub.dev.
+**Status:** published prerelease. Pin the `dev` version deliberately.
 
 **Compatibility:** `ecsly_app` `0.1.0-dev.x` requires `ecsly` `>=0.0.1-dev.9`.
 
@@ -18,8 +17,7 @@ Further docs: [DX_FAQ.md](DX_FAQ.md) (how) · [DESIGN_FAQ.md](DESIGN_FAQ.md) (wh
 ```yaml
 dependencies:
   ecsly: ^0.0.1-dev.9
-  ecsly_app:
-    path: ../ecsly/core_packages/ecsly_app
+  ecsly_app: ^0.1.0-dev.1
 ```
 
 ```dart
@@ -29,18 +27,17 @@ import 'package:ecsly_app/ecsly_app.dart';
 This package re-exports `package:ecsly/ecsly.dart` for one-import app hosts.
 Simulation-only packages may depend on `ecsly` alone.
 
-Monorepo/workspace packages may use key-only entries (`ecsly:` / `ecsly_app:`).
-Once published, replace the path dependency with the matching hosted prerelease
-constraint.
+Monorepo/workspace packages may use key-only entries (`ecsly:` / `ecsly_app:`)
+or local path overrides while developing multiple packages together.
 
 ## Package chooser
 
 | Need | Package | Public status |
 |------|---------|---------------|
 | Hot simulation | `ecsly` | Public package |
-| Cold app path | `ecsly_app` | Public source, unpublished prerelease |
-| Typed-column builders | `ecsly_codegen` | Public source, unpublished prerelease |
-| Flutter host | `ecsly_flutter` | Public source, unpublished prerelease |
+| Cold app path | `ecsly_app` | Published prerelease |
+| Typed-column builders | `ecsly_codegen` | Published prerelease |
+| Flutter host | `ecsly_flutter` | Published prerelease |
 
 Keep hot simulation in `ecsly` systems and queries. Keep widgets and tickers in
 host packages. Stable app ids belong on normal components; indexes are optional

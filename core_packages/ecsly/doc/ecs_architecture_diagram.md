@@ -114,18 +114,18 @@ graph TB
         Float32x4List -->|contains| Float32x4
 
         SIMDUtils -->|provides| Float32x4Operations["Float32x4 Operations<br/>(add, multiply, etc.)"]
-        SIMDPatterns -->|provides| UpdatePositionSimd["updatePositionSimd()<br/>(Position + Velocity)"]
+        SIMDPatterns -->|provides| AddPackedVectorsSimd["addPackedVectorsSimd()<br/>(Packed numeric rows)"]
         SIMDPatterns -->|provides| CalculateDistancesSimd["calculateDistancesSimd()<br/>(Distance Calculations)"]
         SIMDPatterns -->|provides| NormalizeVectorsSimd["normalizeVectorsSimd()<br/>(Vector Normalization)"]
-        SIMDPatterns -->|provides| ScalePositionsSimd["scalePositionsSimd()<br/>(Position Scaling)"]
+        SIMDPatterns -->|provides| ScalePositionsSimd["scalePositionsSimd()<br/>(Packed vector scaling)"]
 
-        System -->|can use| MovementSystemSimd["movementSystemSimd<br/>(SIMD-Optimized Movement)"]
-        MovementSystemSimd -->|uses| SIMDPatterns
-        MovementSystemSimd -->|accesses| Archetype
-        MovementSystemSimd -->|calls| WorldEnsureFlushed["World.ensureFlushed()"]
-        MovementSystemSimd -->|bypasses| ComponentQuery
-        MovementSystemSimd -->|uses| ComponentMask
-        MovementSystemSimd -->|uses| ArchetypeRegistry
+        System -->|can use| PackedNumericSystem["packedNumericSystem<br/>(SIMD-Optimized Feature Logic)"]
+        PackedNumericSystem -->|uses| SIMDPatterns
+        PackedNumericSystem -->|accesses| Archetype
+        PackedNumericSystem -->|calls| WorldEnsureFlushed["World.ensureFlushed()"]
+        PackedNumericSystem -->|bypasses| ComponentQuery
+        PackedNumericSystem -->|uses| ComponentMask
+        PackedNumericSystem -->|uses| ArchetypeRegistry
     end
 
     subgraph "Persistent Entity System"
@@ -654,27 +654,17 @@ graph TB
         Plugin -->|adds| Schedule
         Plugin -->|modifies| World
 
-        Plugin -->|types| Game2DPlugin["Game2DPlugin<br/>(2D Game Components)"]
+        Plugin -->|types| FeaturePlugin["FeaturePlugin<br/>(Package-Owned Components)"]
         Plugin -->|types| DebugPlugin["DebugPlugin<br/>(Performance Monitoring)"]
         Plugin -->|types| PersistentEntityPlugin["PersistentEntityPlugin<br/>(Save/Load Support)"]
         Plugin -->|types| EventPlugin
 
-        Game2DPlugin -->|registers| PositionComponent["PositionComponent<br/>(x, y)"]
-        Game2DPlugin -->|registers| VelocityComponent["VelocityComponent<br/>(dx, dy)"]
-        Game2DPlugin -->|registers| SizeComponent["SizeComponent<br/>(width, height)"]
-        Game2DPlugin -->|registers| HealthComponent["HealthComponent<br/>(value)"]
-        Game2DPlugin -->|registers| PathfindingComponent["PathfindingComponent<br/>(waypoints)"]
-        Game2DPlugin -->|creates| PositionFacadeFactory["PositionFacadeFactory"]
-        Game2DPlugin -->|creates| VelocityFacadeFactory["VelocityFacadeFactory"]
-        Game2DPlugin -->|creates| SizeFacadeFactory["SizeFacadeFactory"]
-        Game2DPlugin -->|creates| HealthFacadeFactory["HealthFacadeFactory"]
-        Game2DPlugin -->|creates| PathfindingFacadeFactory["PathfindingFacadeFactory"]
-        Game2DPlugin -->|creates| PositionColumnFactory["PositionColumnFactory<br/>(Float32List stride 2)"]
-        Game2DPlugin -->|creates| VelocityColumnFactory["VelocityColumnFactory<br/>(Float32List stride 2)"]
-        Game2DPlugin -->|creates| SizeColumnFactory["SizeColumnFactory<br/>(Float32List stride 2)"]
-        Game2DPlugin -->|creates| HealthColumnFactory["HealthColumnFactory<br/>(Int32List stride 1)"]
-        Game2DPlugin -->|creates| PathfindingColumnFactory["PathfindingColumnFactory<br/>(ObjectColumn)"]
-
+        FeaturePlugin -->|registers| FeatureStateComponent["FeatureStateComponent<br/>(domain state)"]
+        FeaturePlugin -->|registers| FeatureTagComponent["FeatureTagComponent<br/>(marker/tag)"]
+        FeaturePlugin -->|registers| FeaturePackedComponent["FeaturePackedComponent<br/>(hot numeric state)"]
+        FeaturePlugin -->|creates| FeatureStateFacadeFactory["FeatureStateFacadeFactory"]
+        FeaturePlugin -->|creates| FeaturePackedFacadeFactory["FeaturePackedFacadeFactory"]
+        FeaturePlugin -->|creates| FeaturePackedColumnFactory["FeaturePackedColumnFactory<br/>(Float32List stride 4)"]
         DebugPlugin -->|adds| PerformanceResource["PerformanceResource<br/>(fps, frameTime, entityCount)"]
         DebugPlugin -->|adds| SpawnPerformanceResource["SpawnPerformanceResource<br/>(spawn/despawn timing)"]
         DebugPlugin -->|adds| PerformanceSystem["performanceSystem<br/>(Metrics Collection)"]
@@ -921,7 +911,7 @@ graph TB
 
 **Installation**: `world.addPlugin(plugin)` → `plugin.install(world)` → registers components/facades/factories → adds systems to schedules → flushes world
 
-**Game2DPlugin**: Registers `PositionComponent`, `VelocityComponent`, `SizeComponent`, `HealthComponent`, `PathfindingComponent` → creates facade/column factories → enables SIMD operations
+**FeaturePlugin**: Registers package-owned feature components → creates facade/column factories → optionally enables SIMD operations for that package's hot numeric state
 
 **DebugPlugin**: Registers `PerformanceResource`, `SpawnPerformanceResource` → adds `performanceSystem` to schedule → collects fps/frameTime/entityCount metrics
 
@@ -933,9 +923,9 @@ graph TB
 
 **Column SIMD Views**: `FloatColumn.simdView` → `Float32x4List` view of `Float32List` data → enables vectorized operations
 
-**Movement System**: `movementSystemSimd(world)` → `world.ensureFlushed()` → get component IDs → create mask → find archetypes → for each archetype: cast columns to `FloatColumn` → `updatePositionSimd(positionColumn, velocityColumn, dt)`
+**Packed Numeric System**: `packedNumericSystem(world)` → `world.ensureFlushed()` → get component IDs → create mask → find archetypes → for each archetype: cast columns to `FloatColumn` → apply package-owned SIMD math
 
-**SIMD Patterns**: `updatePositionSimd()` (pos += vel _ dt), `calculateDistancesSimd()` (sqrt(dx² + dy²)), `normalizeVectorsSimd()` (vec / magnitude), `scalePositionsSimd()` (pos _= scale)
+**SIMD Patterns**: packed vector add/multiply, `calculateDistancesSimd()` (sqrt(dx² + dy²)), `normalizeVectorsSimd()` (vec / magnitude), packed vector scaling
 
 **Performance**: Processes 2 positions per SIMD vector (Float32x4 = 4 floats = 2 positions with stride 2) → significant speedup for math-heavy systems
 

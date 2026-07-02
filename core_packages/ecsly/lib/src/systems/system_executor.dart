@@ -380,7 +380,7 @@ class SystemExecutor {
       );
     }
 
-    // TODO(ecs): Implement isolate execution with framework-agnostic abstraction
+    // TODO(arenukvern): migrate to isolate execution with framework-agnostic abstraction (plugin: game_isolates)
     // For now, run synchronously
     desc.system(world);
   }

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:ecsly/ecsly.dart';
 
 /// Tiny object component for the pub.dev example entry point.
@@ -20,6 +22,6 @@ void main() {
 
   for (final (_, counter) in world.queryMut<CounterComponent>()) {
     counter.value += 1;
-    print('counter=${counter.value}');
+    log('counter=${counter.value}');
   }
 }

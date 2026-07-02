@@ -154,7 +154,7 @@ void main() {
   });
 }
 
-const _goldenExamplePositionFactories = '''
+const _goldenExamplePositionFactories = r'''
 class ExamplePositionColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
@@ -175,7 +175,7 @@ class ExamplePositionFacadeFactory extends ComponentFacadeFactory<ExamplePositio
       _column = column;
       return;
     }
-    throw ArgumentError('ExamplePosition requires FloatColumn, got \${column.runtimeType}.');
+    throw ArgumentError('ExamplePosition requires FloatColumn, got ${column.runtimeType}.');
   }
 }
 ''';

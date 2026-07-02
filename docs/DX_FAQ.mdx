@@ -44,6 +44,12 @@ repository secret to approve eligible PRs from `Arenukvern` or
 `github-actions[bot]`. The token must belong to a separate machine user with
 write access; GitHub does not allow authors to approve their own PRs.
 
+**Q: What token lets Release Please publish tags?**
+A: `RELEASE_PLEASE_TOKEN` is a repository secret containing a GitHub token with
+`repo` and `workflow` scopes. Release Please uses it instead of the default
+`GITHUB_TOKEN` so component tags can trigger the downstream pub.dev publish
+workflow. Verify it with `gh secret list --repo Arenukvern/ecsly`.
+
 ## Docs
 
 **Q: Where should I document a repo-wide why/how answer?**

@@ -2,9 +2,8 @@
 
 ## Publication status
 
-**Q: Is this package live on pub.dev?** A: Not yet. `ecsly_flutter` is
-publish-prepared and versioned as a prerelease, but reader-facing docs should
-describe it as unpublished until the hosted package is verified.
+**Q: Is this package live on pub.dev?** A: Yes. `ecsly_flutter` is published as
+an early prerelease on pub.dev.
 
 ## Why is this package small?
 

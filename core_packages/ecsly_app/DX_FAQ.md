@@ -2,16 +2,15 @@
 
 Developer notes for app-layer workflows on ecsly worlds.
 
-**Requires `ecsly` `>=0.0.1-dev.9`.** `ecsly_app` has public source but is
-unpublished; see [README.md](README.md) for workspace/local dependency setup.
+**Requires `ecsly` `>=0.0.1-dev.9`.** `ecsly_app` is a published prerelease;
+see [README.md](README.md) for hosted and workspace setup.
 
 ## Quick setup
 
 ```yaml
 dependencies:
   ecsly: ^0.0.1-dev.9
-  ecsly_app:
-    path: ../ecsly/core_packages/ecsly_app
+  ecsly_app: ^0.1.0-dev.1
 ```
 
 ```dart
@@ -26,9 +25,9 @@ re-exports `ecsly_app`.
 | Need | Package | Status |
 |------|---------|--------|
 | Systems, queries, hot loops | `ecsly` | Public package |
-| Actions, drafts, invalidation, cold lookup | `ecsly_app` | Public source, unpublished prerelease |
-| Typed-column builders | `ecsly_codegen` | Public source, unpublished prerelease |
-| Widgets, scope, controller | `ecsly_flutter` | Public source, unpublished prerelease |
+| Actions, drafts, invalidation, cold lookup | `ecsly_app` | Published prerelease |
+| Typed-column builders | `ecsly_codegen` | Published prerelease |
+| Widgets, scope, controller | `ecsly_flutter` | Published prerelease |
 
 ## First action
 

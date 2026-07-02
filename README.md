@@ -88,8 +88,8 @@ identity, invalidation, and Flutter widgets.
 | Flutter scope, controller, selectors, actions, frame loops | [`ecsly_flutter`](core_packages/ecsly_flutter/) |
 | Typed-column factory generation | [`ecsly_codegen`](core_packages/ecsly_codegen/) |
 
-The app packages are publish-prepared prereleases. Do not assume hosted
-availability until pub.dev is verified for that package.
+The companion packages are published prereleases. Treat the `dev` channel as
+early integration surface and pin versions deliberately.
 
 ## Packages
 
