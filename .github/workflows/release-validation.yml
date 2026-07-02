@@ -1,0 +1,64 @@
+name: Release validation
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Diff whitespace check
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            git fetch --no-tags --depth=1 origin "$GITHUB_BASE_REF"
+            git diff --check "origin/$GITHUB_BASE_REF" HEAD
+          elif git rev-parse HEAD^ >/dev/null 2>&1; then
+            git diff --check HEAD^ HEAD
+          else
+            git diff --check
+          fi
+
+      - name: Workspace dependencies
+        run: dart pub get
+
+      - name: Analyze core package
+        working-directory: core_packages/ecsly
+        run: dart analyze
+
+      - name: Test core package
+        working-directory: core_packages/ecsly
+        run: dart test
+
+      - name: Test app package
+        working-directory: core_packages/ecsly_app
+        run: dart test
+
+      - name: Test codegen package
+        working-directory: core_packages/ecsly_codegen
+        run: dart test
+
+      - name: Test Flutter package
+        working-directory: core_packages/ecsly_flutter
+        run: flutter test
+
+      - name: Publish dry-run all packages
+        run: dart tool/release/pub_package.dart --all --skip-existing

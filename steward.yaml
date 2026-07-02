@@ -1,29 +1,154 @@
 schema: steward/v1
 repo:
   id: ecsly-public
-  archetype: dart_workspace
+  archetype: library
+  archetype_detection:
+    confidence: 1.0
+    signals:
+      - public Dart workspace for canonical ecsly packages
+      - publishable package family under core_packages/
+
 harness:
   name: ecsly-public
-  mode: package
+  mode: cli
   description: Public canonical package workspace for migrated ecsly packages.
+  entrypoints:
+    cli: steward
+    native_validation: AGENTS.md#validation
+
+adoption:
+  status: adopting
+  owner: ecsly-public
+  gate:
+    pillar: quality
+    native_gate: AGENTS.md#validation
+
 stewardship:
   governance:
-    charter: AGENTS.md
-    adr_dir: docs/decisions/
+    charter: docs/NORTH_STAR.mdx
+    adr_dir: docs/decisions
   knowledge:
-    docs_map: README.md
+    docs_map: docs/index.mdx
     source_policy: required_for_external_claims
   repo_quality:
     contract_spec: steward.yaml
+    maturity_model: general_stewardship
+  skill_lifecycle:
+    installable_skills: false
+    registry: skills.json
+    project_lock: skills-lock.json
+  quality:
+    validate: "dart pub get; cd core_packages/ecsly; dart analyze; dart test; dart pub publish --dry-run"
+    evidence: .steward/evidence
+  harness:
+    enabled: true
+    action_contract: actions
+  release:
+    changelog: per-package CHANGELOG.md files under core_packages/
+    automation: release-please-config.json
+    manifest: .release-please-manifest.json
+    publish_workflow: .github/workflows/pub-publish.yml
+    artifact_provenance: required
   review_handoff:
+    moe_required_for_architecture: true
     claim_ceiling: only packages present in this public repo are canonical here
+  strategic_alignment:
+    vision_source: docs/NORTH_STAR.mdx
+    success_evidence: required
+  security:
+    action_effects: required
+    redaction: steward/redaction/v1
+  org:
+    owners: AGENTS.md
+
 docs:
+  "North Star": docs/NORTH_STAR.mdx
+  "Global Design FAQ": docs/DESIGN_FAQ.mdx
+  "Global DX FAQ": docs/DX_FAQ.mdx
+  "Repository README": README.md
+  "Local command hub": justfile
+  "Contribution guide": CONTRIBUTING.md
+  "Contributor credit": docs/contributing/contributors.mdx
+  "Hosted docs config": docs.json
+  "Hosted docs overview": docs/index.mdx
+  "Working agreement": AGENTS.md
   "Architecture": ARCHITECTURE.md
+  "Release Please config": release-please-config.json
+  "Release manifest": .release-please-manifest.json
+  "Agent approval workflow": .github/workflows/agent-auto-approve.yml
   "Core package README": core_packages/ecsly/README.md
   "Core DX FAQ": core_packages/ecsly/DX_FAQ.md
   "Core Design FAQ": core_packages/ecsly/DESIGN_FAQ.md
   "Decision index": docs/decisions/index.mdx
+
 actions:
+  doctor.local:
+    kind: command
+    desc: Inspect Steward adoption state without running repository actions.
+    command:
+      argv: [steward, doctor, --json]
+      shell: false
+    cwd: .
+    effects:
+      fs_read:
+        - .
+      fs_write: []
+      git: false
+      network: false
+      secrets: false
+      destructive: false
+    safety:
+      class: observe
+      default_policy: auto
+      requires_confirmation: false
+    limits:
+      timeout_ms: 10000
+      max_output_bytes: 200000
+    outputs:
+      - id: stdout
+        kind: stream
+        required: true
+        retention: summary
+        format: json
+    evidence:
+      redact: []
+
+  ecsly.workspace.get:
+    kind: command
+    desc: Fetch Dart workspace dependencies.
+    command:
+      argv: [dart, pub, get]
+      shell: false
+    cwd: .
+    effects:
+      fs_read:
+        - pubspec.yaml
+        - core_packages/**/pubspec.yaml
+      fs_write:
+        - .dart_tool/
+        - pubspec.lock
+        - core_packages/**/.dart_tool/
+        - core_packages/**/pubspec.lock
+      git: false
+      network: true
+      secrets: false
+      destructive: false
+    safety:
+      class: bounded_local
+      default_policy: manual
+      requires_confirmation: true
+    limits:
+      timeout_ms: 120000
+      max_output_bytes: 400000
+    outputs:
+      - id: stdout
+        kind: stream
+        required: true
+        retention: summary
+        format: text
+    evidence:
+      redact: []
+
   ecsly.core.analyze:
     kind: command
     desc: Analyze the public core ecsly package.
@@ -35,7 +160,6 @@ actions:
       fs_read:
         - core_packages/ecsly/**
         - pubspec.yaml
-        - pubspec.lock
       fs_write: []
       git: false
       network: false
@@ -46,8 +170,17 @@ actions:
       default_policy: auto
       requires_confirmation: false
     limits:
-      timeout_ms: 30000
+      timeout_ms: 60000
       max_output_bytes: 200000
+    outputs:
+      - id: stdout
+        kind: stream
+        required: true
+        retention: summary
+        format: text
+    evidence:
+      redact: []
+
   ecsly.core.test:
     kind: command
     desc: Run the public core ecsly package tests.
@@ -59,7 +192,6 @@ actions:
       fs_read:
         - core_packages/ecsly/**
         - pubspec.yaml
-        - pubspec.lock
       fs_write: []
       git: false
       network: false
@@ -72,7 +204,245 @@ actions:
     limits:
       timeout_ms: 120000
       max_output_bytes: 400000
+    outputs:
+      - id: stdout
+        kind: stream
+        required: true
+        retention: summary
+        format: text
+    evidence:
+      redact: []
+
+  ecsly.app.test:
+    kind: command
+    desc: Run the public ecsly_app package tests.
+    command:
+      argv: [dart, test]
+      shell: false
+    cwd: core_packages/ecsly_app
+    effects:
+      fs_read:
+        - core_packages/ecsly_app/**
+        - core_packages/ecsly/**
+        - pubspec.yaml
+      fs_write: []
+      git: false
+      network: false
+      secrets: false
+      destructive: false
+    safety:
+      class: bounded_local
+      default_policy: auto
+      requires_confirmation: false
+    limits:
+      timeout_ms: 120000
+      max_output_bytes: 400000
+    outputs:
+      - id: stdout
+        kind: stream
+        required: true
+        retention: summary
+        format: text
+    evidence:
+      redact: []
+
+  ecsly.codegen.test:
+    kind: command
+    desc: Run the public ecsly_codegen package tests.
+    command:
+      argv: [dart, test]
+      shell: false
+    cwd: core_packages/ecsly_codegen
+    effects:
+      fs_read:
+        - core_packages/ecsly_codegen/**
+        - core_packages/ecsly/**
+        - pubspec.yaml
+      fs_write: []
+      git: false
+      network: false
+      secrets: false
+      destructive: false
+    safety:
+      class: bounded_local
+      default_policy: auto
+      requires_confirmation: false
+    limits:
+      timeout_ms: 120000
+      max_output_bytes: 400000
+    outputs:
+      - id: stdout
+        kind: stream
+        required: true
+        retention: summary
+        format: text
+    evidence:
+      redact: []
+
+  ecsly.flutter.test:
+    kind: command
+    desc: Run the public ecsly_flutter package tests.
+    command:
+      argv: [flutter, test]
+      shell: false
+    cwd: core_packages/ecsly_flutter
+    effects:
+      fs_read:
+        - core_packages/ecsly_flutter/**
+        - core_packages/ecsly_app/**
+        - core_packages/ecsly/**
+        - pubspec.yaml
+      fs_write: []
+      git: false
+      network: false
+      secrets: false
+      destructive: false
+    safety:
+      class: bounded_local
+      default_policy: auto
+      requires_confirmation: false
+    limits:
+      timeout_ms: 180000
+      max_output_bytes: 600000
+    outputs:
+      - id: stdout
+        kind: stream
+        required: true
+        retention: summary
+        format: text
+    evidence:
+      redact: []
+
+  ecsly.docs.check:
+    kind: command
+    desc: Check docs.page configuration and docs pages.
+    command:
+      argv: [npx, --yes, "@docs.page/cli", check]
+      shell: false
+    cwd: .
+    effects:
+      fs_read:
+        - docs.json
+        - docs/**
+      fs_write: []
+      git: false
+      network: true
+      secrets: false
+      destructive: false
+    safety:
+      class: bounded_local
+      default_policy: manual
+      requires_confirmation: true
+    limits:
+      timeout_ms: 120000
+      max_output_bytes: 400000
+    outputs:
+      - id: stdout
+        kind: stream
+        required: true
+        retention: summary
+        format: text
+    evidence:
+      redact: []
+
+  ecsly.core.publish-dry-run:
+    kind: command
+    desc: Run the public core package publish dry-run.
+    command:
+      argv: [dart, pub, publish, --dry-run]
+      shell: false
+    cwd: core_packages/ecsly
+    effects:
+      fs_read:
+        - core_packages/ecsly/**
+        - pubspec.yaml
+      fs_write: []
+      git: false
+      network: true
+      secrets: false
+      destructive: false
+    safety:
+      class: bounded_local
+      default_policy: manual
+      requires_confirmation: true
+    limits:
+      timeout_ms: 120000
+      max_output_bytes: 400000
+    outputs:
+      - id: stdout
+        kind: stream
+        required: true
+        retention: summary
+        format: text
+    evidence:
+      redact: []
+
+  ecsly.release.publish-dry-run-all:
+    kind: command
+    desc: Run publish dry-run preflight for all publishable ecsly packages.
+    command:
+      argv: [dart, tool/release/pub_package.dart, --all, --skip-existing]
+      shell: false
+    cwd: .
+    effects:
+      fs_read:
+        - core_packages/ecsly/**
+        - core_packages/ecsly_app/**
+        - core_packages/ecsly_codegen/**
+        - core_packages/ecsly_flutter/**
+        - pubspec.yaml
+        - tool/release/pub_package.dart
+      fs_write: []
+      git: false
+      network: true
+      secrets: false
+      destructive: false
+    safety:
+      class: bounded_local
+      default_policy: manual
+      requires_confirmation: true
+    limits:
+      timeout_ms: 180000
+      max_output_bytes: 600000
+    outputs:
+      - id: stdout
+        kind: stream
+        required: true
+        retention: summary
+        format: text
+    evidence:
+      redact: []
+
 probes:
   quick:
     profile: quick
-    actions: [ecsly.core.analyze, ecsly.core.test]
+    actions: [doctor.local]
+
+diagnostics:
+  cases: {}
+
+unknown_cases:
+  path: .steward/unknown-cases/
+  retention: local
+
+provenance:
+  dependencies:
+    - name: skill_steward
+      source: https://github.com/Arenukvern/skill_steward
+      ref: main
+      resolved: f959a49b5f1b35df100b27970439e228860a5218
+      installed_skills:
+        - mcp-harness-repo-maintainer
+        - repository-governance-lifecycle
+        - skill-source-citations
+      installed_via: npx skills add Arenukvern/skill_steward --skill <skill> --agent codex --copy -y
+  artifacts:
+    - path: skills-lock.json
+      kind: project_skill_lock
+    - path: .agents/skills/mcp-harness-repo-maintainer/
+      kind: local_agent_skill_copy
+    - path: .agents/skills/repository-governance-lifecycle/
+      kind: local_agent_skill_copy
+    - path: .agents/skills/skill-source-citations/
+      kind: local_agent_skill_copy
+  benchmarks: []

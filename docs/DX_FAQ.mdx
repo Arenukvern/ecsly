@@ -1,0 +1,62 @@
+# DX FAQ
+
+Repo-wide workflow questions live here. Package APIs and examples stay in the
+package READMEs and package-local DX FAQs.
+
+## Start Here
+
+**Q: I am new to `ecsly`; where do I start?**
+A: Read the root README for the route map, then open the package README that
+matches your goal. Use `core_packages/ecsly/README.md` for the pure Dart runtime,
+`core_packages/ecsly_app/README.md` for app workflows, and
+`core_packages/ecsly_flutter/README.md` for Flutter hosts.
+
+**Q: I want game or simulation logic; which package should I use first?**
+A: Start with `ecsly`. Use object components first, then move hot numeric state
+to typed columns when allocation pressure or iteration speed matters.
+
+**Q: I want app workflow or UI state; where does that belong?**
+A: Use `ecsly_app` for app actions, drafts, invalidation, and identity
+projection. Use `ecsly_flutter` when those workflows need Flutter scopes,
+selectors, actions, or frame loops.
+
+## Local Commands
+
+**Q: What is the default validation loop?**
+A: Run `dart pub get`, then `cd core_packages/ecsly && dart analyze && dart test`.
+For release readiness, also run the package publish dry-run documented in
+`AGENTS.md`.
+
+**Q: What command should maintainers use first?**
+A: Run `just` to list the local command hub. Use `just check` before ordinary
+PRs and `just release-check` before release automation changes.
+
+**Q: How do I inspect the Steward surface?**
+A: Run `steward map` for the repo map, `steward doctor --json` for contract
+shape, and `steward probe --profile quick --json` for the quick-safe smoke.
+Treat those as stewardship checks, not runtime package proof.
+
+**Q: How does agent auto-approval work?**
+A: Add the `agent-auto-approve` label to a trusted same-repo `codex/` or
+`release-please--` PR. After `Release validation` passes,
+`.github/workflows/agent-auto-approve.yml` uses the `AUTO_APPROVE_TOKEN`
+repository secret to approve eligible PRs from `Arenukvern` or
+`github-actions[bot]`. The token must belong to a separate machine user with
+write access; GitHub does not allow authors to approve their own PRs.
+
+## Docs
+
+**Q: Where should I document a repo-wide why/how answer?**
+A: Put repo-wide rationale in `docs/DESIGN_FAQ.mdx` and repo-wide workflows in
+`docs/DX_FAQ.mdx`. Put package-specific behavior in that package's README,
+DESIGN FAQ, or DX FAQ.
+
+**Q: Where should temporary plans go?**
+A: Prefer issue or PR descriptions for short-lived tracking. If a plan file is
+created, extract durable decisions into ADRs, FAQs, code, or Steward actions
+when the work completes, then remove the stale plan file.
+
+**Q: How do I add a new docs.page page?**
+A: Add the page under `docs/`, wire it into `docs.json`, and link it from the
+nearest router surface. Do not duplicate package API details that already live
+in code examples or package READMEs.

@@ -1,34 +1,48 @@
+<div align="center">
+
+<img src="core_packages/ecsly/assets/brand/ecsly-logo.png" alt="ecsly logo" width="180">
+
 # ecsly
 
-Experimental Entity Component System packages for Dart and Flutter.
+_Experimental ECS packages for Dart and Flutter._
 
-**Status:** early prerelease (`0.0.1-dev.9`). APIs may change between releases.
+[![pub: ecsly](https://img.shields.io/pub/v/ecsly.svg?include_prereleases)](https://pub.dev/packages/ecsly)
+[![Release validation](https://github.com/Arenukvern/ecsly/actions/workflows/release-validation.yml/badge.svg?branch=main)](https://github.com/Arenukvern/ecsly/actions/workflows/release-validation.yml)
+[![Release Please](https://github.com/Arenukvern/ecsly/actions/workflows/release-please.yml/badge.svg?branch=main)](https://github.com/Arenukvern/ecsly/actions/workflows/release-please.yml)
+[![Publish pub.dev package](https://github.com/Arenukvern/ecsly/actions/workflows/pub-publish.yml/badge.svg?branch=main)](https://github.com/Arenukvern/ecsly/actions/workflows/pub-publish.yml)
+[![Docs](https://img.shields.io/badge/docs-docs.page-blue)](https://docs.page/arenukvern/ecsly)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE-MIT)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE-APACHE)
+[![All Contributors](https://img.shields.io/github/all-contributors/Arenukvern/ecsly?color=ee8449&style=flat-square)](#contributors)
+[![maintained with Skill Steward](https://raw.githubusercontent.com/Arenukvern/skill_steward/main/docs/brand/assets/svg/badge-light.svg)](https://github.com/Arenukvern/skill_steward)
 
-This repository is the canonical source for the migrated `ecsly` package family:
-the headless runtime, app workflow layer, code generator, and Flutter bridge.
+</div>
 
-The North Star is a practical Dart game-engine stack over time. The honest
-present shape is an R&D package family with a stabilizing core, public companion
-packages, and many ideas still experimental rather than public contracts. The
-core can be used from Flutter apps, Jaspr sites, Flame games, CLIs, servers, and
-plain Dart tests without taking a Flutter dependency.
+`ecsly` is a public prerelease package family for building data-oriented Dart
+and Flutter applications. It currently provides a pure Dart ECS runtime, an app
+workflow layer, typed-column code generation, and a Flutter bridge.
 
-## Repo map
+The honest status: `ecsly` is early R&D, not a finished game engine. The North
+Star is a practical Dart game-engine stack over time, but only the packages in
+this public repository are canonical here.
 
-| Path | What it is |
-| --- | --- |
-| [`core_packages/ecsly/`](core_packages/ecsly/) | Publishable `ecsly` package — runtime, examples, tests, benchmarks |
-| [`core_packages/ecsly_app/`](core_packages/ecsly_app/) | Pure Dart app layer — actions, drafts, invalidation, cold lookup |
-| [`core_packages/ecsly_codegen/`](core_packages/ecsly_codegen/) | Annotation/build_runner package for typed-column factories |
-| [`core_packages/ecsly_flutter/`](core_packages/ecsly_flutter/) | Flutter bridge — scope, controller, selectors, actions, loops |
-| [`AGENTS.md`](AGENTS.md) | Working agreement for coding agents (scope, validation, doc updates) |
-| [`ARCHITECTURE.md`](ARCHITECTURE.md) | Public package ownership and layout |
-| [`docs/decisions/`](docs/decisions/) | Architecture decision records (ADRs) |
-| [`pubspec.yaml`](pubspec.yaml) | Dart workspace root (`ecsly_workspace`) |
+Repo charter: [docs/NORTH_STAR.mdx](docs/NORTH_STAR.mdx). Repo-wide why/how:
+[docs/DESIGN_FAQ.mdx](docs/DESIGN_FAQ.mdx) and
+[docs/DX_FAQ.mdx](docs/DX_FAQ.mdx).
 
-## Quick start
+## Choose Your Path
 
-**Requirements:** Dart SDK `>=3.12.0`.
+| I want to... | Start here | Use |
+| --- | --- | --- |
+| Try the core ECS runtime | [Quick start](#quick-start) | `ecsly` |
+| Build game/simulation logic | [For game dev](#for-game-dev) | `ecsly`, optional `ecsly_codegen` |
+| Build app workflows and Flutter UI | [For app dev](#for-app-dev) | `ecsly_app`, `ecsly_flutter` |
+| Contribute or maintain releases | [For maintainers](#for-maintainers) | `AGENTS.md`, Steward, Release Please |
+| Browse hosted docs | [docs.page/arenukvern/ecsly](https://docs.page/arenukvern/ecsly) | Docs map and package routes |
+
+## Quick Start
+
+Requirements: Dart SDK `>=3.12.0`.
 
 ```sh
 dart pub get
@@ -36,19 +50,88 @@ cd core_packages/ecsly
 dart run example/main.dart
 ```
 
-Add as a dependency:
+Add the core runtime:
 
 ```yaml
 dependencies:
-  ecsly: ^0.0.1-dev.9
+  ecsly: ^0.0.1-dev.10
 ```
 
-Platforms: Android, iOS, Linux, macOS, web, Windows. Usable from Flutter,
-Jaspr, CLI tools, and plain Dart tests.
+The core package is pure Dart. It does not depend on Flutter.
 
-## Validate
+## For Game Dev
 
-Run from the repository root:
+Use `ecsly` when you want explicit entity/component storage, systems, schedules,
+resources, events, deferred commands, and hot-path data layouts.
+
+Good first examples:
+
+| Example | Shows |
+| --- | --- |
+| [`basic_world.dart`](core_packages/ecsly/example/basic_world.dart) | Smallest object-component flow |
+| [`scheduled_run.dart`](core_packages/ecsly/example/scheduled_run.dart) | Systems and schedules |
+| [`extension_component.dart`](core_packages/ecsly/example/extension_component.dart) | Typed facade over hot data |
+| [`commands_and_resources.dart`](core_packages/ecsly/example/commands_and_resources.dart) | Deferred commands and resources |
+| [`simd_columns.dart`](core_packages/ecsly/example/simd_columns.dart) | Stride-4 `FloatColumn` and SIMD views |
+
+Start with object components. Move hot numeric state into typed columns only
+when allocation pressure or iteration speed matters.
+
+## For App Dev
+
+Use the companion packages when ECS state needs to connect to app workflows,
+identity, invalidation, and Flutter widgets.
+
+| Need | Package |
+| --- | --- |
+| Actions, drafts, invalidation, cold lookup, entity-id projections | [`ecsly_app`](core_packages/ecsly_app/) |
+| Flutter scope, controller, selectors, actions, frame loops | [`ecsly_flutter`](core_packages/ecsly_flutter/) |
+| Typed-column factory generation | [`ecsly_codegen`](core_packages/ecsly_codegen/) |
+
+The app packages are publish-prepared prereleases. Do not assume hosted
+availability until pub.dev is verified for that package.
+
+## Packages
+
+| Package | Version | Pub.dev | Role |
+| --- | --- | --- | --- |
+| `ecsly` | `0.0.1-dev.10` | [![pub package](https://img.shields.io/pub/v/ecsly.svg?include_prereleases)](https://pub.dev/packages/ecsly) | Pure ECS runtime, systems, queries, commands, resources, events, benchmarks |
+| `ecsly_app` | `0.1.0-dev.1` | [![pub package](https://img.shields.io/pub/v/ecsly_app.svg?include_prereleases)](https://pub.dev/packages/ecsly_app) | Pure Dart app workflow layer |
+| `ecsly_codegen` | `0.1.0-dev.1` | [![pub package](https://img.shields.io/pub/v/ecsly_codegen.svg?include_prereleases)](https://pub.dev/packages/ecsly_codegen) | Typed-column factory annotations and builder |
+| `ecsly_flutter` | `0.1.0-dev.1` | [![pub package](https://img.shields.io/pub/v/ecsly_flutter.svg?include_prereleases)](https://pub.dev/packages/ecsly_flutter) | Flutter bindings for ECS worlds and app workflows |
+
+Package docs:
+
+- [`ecsly` README](core_packages/ecsly/README.md)
+- [`ecsly_app` README](core_packages/ecsly_app/README.md)
+- [`ecsly_codegen` README](core_packages/ecsly_codegen/README.md)
+- [`ecsly_flutter` README](core_packages/ecsly_flutter/README.md)
+- [API docs on pub.dev](https://pub.dev/documentation/ecsly/latest/)
+
+## What Exists Now
+
+- Generational entity IDs and world/entity wrappers.
+- Archetype-based component storage and migration.
+- Object components for straightforward modeling.
+- Extension/facade components backed by typed columns for hot data paths.
+- Resources, deferred command queues, and explicit `flush()` semantics.
+- Schedules, systems, plugins, and event channels.
+- Query helpers, query caching, and topology revisions.
+- Benchmark scripts and local scorecard artifacts.
+- Flutter selectors, actions, and loop widgets through companion packages.
+
+Non-claims:
+
+- This is not yet a complete game engine.
+- The public repo is intentionally smaller than private/internal workspaces.
+- Packages or tools absent from this repo are not public contracts.
+- A green Steward check is routing/contract proof, not runtime product proof.
+
+## For Maintainers
+
+Read [AGENTS.md](AGENTS.md) before changing code.
+
+Main validation loop:
 
 ```sh
 dart pub get
@@ -58,7 +141,7 @@ dart test
 dart pub publish --dry-run
 ```
 
-Companion package checks:
+Companion checks:
 
 ```sh
 cd core_packages/ecsly_app && dart test
@@ -66,98 +149,48 @@ cd core_packages/ecsly_codegen && dart test
 cd core_packages/ecsly_flutter && flutter test
 ```
 
-Benchmarks (optional):
+Release and Steward commands:
 
 ```sh
-cd core_packages/ecsly
-dart run benchmark/run.dart --limits --samples=5 \
-  --markdown-out=benchmark/results/latest.md \
-  --json-out=benchmark/results/latest.json
+just
+just check
+just release-check
+steward doctor --json
+steward probe --profile quick --json
 ```
 
-## What the package provides
+Release automation uses Release Please and tags shaped like
+`<package>-v<version>`, for example `ecsly-v0.0.1-dev.11`.
 
-- generational entity IDs and world/entity wrappers
-- archetype-based component storage and migration
-- object components for straightforward modeling
-- extension/facade components backed by typed columns for hot data paths
-- resources, deferred command queues, and explicit flush semantics
-- schedules, systems, plugins, and event channels
-- query helpers, query caching, and structural topology revisions
-- benchmark scripts and local scorecard artifacts
+## Contributing
 
-Start with object components; move hot numeric state to extension components
-when GC pressure or iteration speed matters. See
-[`core_packages/ecsly/README.md`](core_packages/ecsly/README.md) for usage
-patterns, SIMD columns, and example walkthroughs.
+Contributions are welcome when they target packages and docs already present in
+this public repo.
 
-## Documentation
+- Contributor guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Pull request checklist: [.github/pull_request_template.md](.github/pull_request_template.md)
+- Contributor credit: [docs/contributing/contributors.mdx](docs/contributing/contributors.mdx)
+- Security reports: [GitHub security advisories](https://github.com/Arenukvern/ecsly/security/advisories/new)
 
-| Doc | Audience | Purpose |
-| --- | --- | --- |
-| [`core_packages/ecsly/README.md`](core_packages/ecsly/README.md) | Developers | Install, examples, benchmarks, API lanes |
-| [`core_packages/ecsly/DX_FAQ.md`](core_packages/ecsly/DX_FAQ.md) | Developers & agents | How-to patterns and terminology |
-| [`core_packages/ecsly/DESIGN_FAQ.md`](core_packages/ecsly/DESIGN_FAQ.md) | Contributors | Architecture trade-offs and invariants |
-| [`core_packages/ecsly_app/README.md`](core_packages/ecsly_app/README.md) | App developers | App actions, drafts, invalidation, cold lookup |
-| [`core_packages/ecsly_codegen/README.md`](core_packages/ecsly_codegen/README.md) | Package authors | Typed-column factory code generation |
-| [`core_packages/ecsly_flutter/README.md`](core_packages/ecsly_flutter/README.md) | Flutter developers | Scope, controller, selectors, actions, loops |
-| [`core_packages/ecsly/doc/ecs_architecture_diagram.md`](core_packages/ecsly/doc/ecs_architecture_diagram.md) | Contributors | Internal layout reference |
-| [`core_packages/ecsly/CHANGELOG.md`](core_packages/ecsly/CHANGELOG.md) | Everyone | Release notes |
-| [API docs on pub.dev](https://pub.dev/documentation/ecsly/latest/) | Developers | Generated reference |
+## Contributors
 
-Runnable examples live under `core_packages/ecsly/example/`:
+Thanks to everyone who helps improve `ecsly`.
 
-- `basic_world.dart` — smallest object-component flow
-- `scheduled_run.dart` — schedule + extension component
-- `extension_component.dart` — marker component + typed facade
-- `commands_and_resources.dart` — deferred commands and resources
-- `simd_columns.dart` — stride-4 `FloatColumn` and SIMD view
+This roster is maintained with [all-contributors](https://allcontributors.org/).
+Use the all-contributors bot or CLI from a pull request:
 
-## For coding agents
-
-Read [`AGENTS.md`](AGENTS.md) before changing code. Summary:
-
-**In scope:** migrated packages under `core_packages/`. Keep Flutter out of
-`core_packages/ecsly`; Flutter bindings belong in `core_packages/ecsly_flutter`.
-
-**Hot-loop rules:** store hot data in typed columns (`Float32List`, `Int32List`,
-…); avoid per-entity heap allocations in hot systems; structural changes go
-through the command queue and `flush()`.
-
-**Source layout:**
-
-```
-core_packages/ecsly/lib/src/
-  archetypes/   component storage and entity migration
-  entities/     generational IDs and world entity wrappers
-  components/   registries, queries, columns, SIMD helpers
-  commands/     deferred structural changes
-  systems/      schedules and execution
-  events/       event channels and typed storage
-  world/        World entry point
+```sh
+npx all-contributors-cli add <github-login> code,doc
+npx all-contributors-cli generate
 ```
 
-**After changes:**
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
 
-| Change type | Update |
-| --- | --- |
-| Archetypes, flush, query semantics | `DESIGN_FAQ.md`, `doc/ecs_architecture_diagram.md` |
-| Public usage patterns | `DX_FAQ.md` |
-| User-facing package behavior | `core_packages/ecsly/README.md`, `CHANGELOG.md` |
-
-**Contributions:** safe when they target packages already in this repo. Do not
-add references to packages, plugins, or tools that are not present here.
-
-## Package chooser
-
-| Need | Package | Public source | Hosted status |
-| --- | --- | --- | --- |
-| Pure ECS runtime, systems, queries, commands | `ecsly` | `core_packages/ecsly` | Published prerelease |
-| App actions, drafts, invalidation, cold lookup | `ecsly_app` | `core_packages/ecsly_app` | Unpublished prerelease |
-| Typed-column factory generation | `ecsly_codegen` | `core_packages/ecsly_codegen` | Unpublished prerelease |
-| Flutter scope, controller, selectors, loops | `ecsly_flutter` | `core_packages/ecsly_flutter` | Unpublished prerelease |
-
-Publication to pub.dev is tracked separately from moving source into this repo.
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 ## License
 

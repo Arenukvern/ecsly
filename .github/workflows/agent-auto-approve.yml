@@ -1,0 +1,72 @@
+name: Agent auto-approve
+
+on:
+  workflow_run:
+    workflows:
+      - Release validation
+    types:
+      - completed
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  approve:
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Approve trusted labeled PR
+        env:
+          GH_TOKEN: ${{ secrets.AUTO_APPROVE_TOKEN }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${GH_TOKEN:-}" ]; then
+            echo "AUTO_APPROVE_TOKEN is not configured; skipping approval."
+            exit 0
+          fi
+
+          prs_json="$(gh api "repos/$REPO/actions/runs/$RUN_ID/pulls")"
+          pr_number="$(ruby -rjson -e 'prs = JSON.parse(STDIN.read); exit 1 if prs.empty?; puts prs.fetch(0).fetch("number")' <<<"$prs_json")"
+
+          pr_json="$(gh pr view "$pr_number" --repo "$REPO" --json \
+            author,baseRefName,headRefName,headRepositoryOwner,isCrossRepository,labels,state,statusCheckRollup)"
+
+          PR_JSON="$pr_json" ruby <<'RUBY'
+          require "json"
+
+          pr = JSON.parse(ENV.fetch("PR_JSON"))
+          labels = pr.fetch("labels").map { |label| label.fetch("name") }
+          checks = pr.fetch("statusCheckRollup")
+          validate = checks.find { |check| check["name"] == "validate" }
+
+          failures = []
+          failures << "PR is not open" unless pr["state"] == "OPEN"
+          failures << "base is not main" unless pr["baseRefName"] == "main"
+          failures << "cross-repository PRs are not eligible" if pr["isCrossRepository"]
+          failures << "missing agent-auto-approve label" unless labels.include?("agent-auto-approve")
+          allowed_branch =
+            pr["headRefName"].start_with?("codex/") ||
+            pr["headRefName"].start_with?("release-please--")
+          allowed_author = ["Arenukvern", "github-actions[bot]"].include?(pr.dig("author", "login"))
+
+          failures << "head branch must use codex/ or release-please-- prefix" unless allowed_branch
+          failures << "author must be Arenukvern or github-actions[bot]" unless allowed_author
+          failures << "head repo owner must be Arenukvern" unless pr.dig("headRepositoryOwner", "login") == "Arenukvern"
+          failures << "validate check is not successful" unless validate && validate["conclusion"] == "SUCCESS"
+
+          unless failures.empty?
+            warn "Auto-approval skipped:"
+            failures.each { |failure| warn "- #{failure}" }
+            exit 0
+          end
+          RUBY
+
+          gh pr review "$pr_number" --repo "$REPO" --approve \
+            --body "Agent auto-approval: trusted labeled PR passed release validation."

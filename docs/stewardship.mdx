@@ -1,0 +1,24 @@
+# Stewardship
+
+This repository uses Skill Steward as a local contract and handoff layer.
+`justfile` is the human command hub; `steward.yaml` is the typed contract that
+agents inspect. The global repository charter is [North Star](/NORTH_STAR).
+
+Common commands:
+
+```sh
+just
+just check
+just release-check
+steward map
+steward doctor --json
+steward actions list --json
+steward probe --profile quick --json
+```
+
+The Steward contract is `steward.yaml`. It records the repo as a library
+workspace and exposes bounded actions for core validation, companion package
+tests, docs checks, and release publish dry-runs.
+
+Steward proof is not product proof. Package behavior remains proven by the
+native Dart and Flutter commands documented in `AGENTS.md`.
