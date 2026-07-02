@@ -1,0 +1,8 @@
+# Native ffigen build helpers for ecsly.
+# Run from this package directory: `just build-by-yaml`
+
+build-by-yaml:
+    dart run ffigen --config tool/rust_ffigen.yaml
+
+build-by-dart:
+    dart tool/rust_ffigen.dart

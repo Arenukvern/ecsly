@@ -1,0 +1,130 @@
+{
+  "schemaId": "ecsly.core.command_profile",
+  "package": "ecsly",
+  "generatedAt": "2026-06-30T23:58:22.875027Z",
+  "command": "dart run benchmark/profile_commands.dart --samples=5 --json-out=benchmark/results/command_profile.latest.json",
+  "environment": {
+    "os": "macos",
+    "osVersion": "Version 27.0 (Build 26A5368g)",
+    "dartVersion": "3.12.1 (stable) (Tue May 26 01:02:21 2026 -0700) on \"macos_arm64\"",
+    "processors": 8,
+    "executable": "dart",
+    "machineModel": "Mac14,2",
+    "machineName": "MacBook Air (M2, 2022)",
+    "cpuBrand": "Apple M2",
+    "memoryBytes": 8589934592,
+    "memoryGiB": "8.0"
+  },
+  "git": {
+    "commit": "3d6d4540d69bf7eec364dc742d2715767a2dd790",
+    "branch": "main",
+    "dirty": true
+  },
+  "sampleCount": 5,
+  "scenarios": [
+    {
+      "name": "command_flush",
+      "entities": 20000,
+      "runs": 5,
+      "commandCount": 20000,
+      "archetypeCountBefore": 2,
+      "archetypeCountAfter": 3,
+      "structuralRevision": 2,
+      "rssDeltaBytes": 38502400,
+      "phaseTimingsMicros": {
+        "enqueue_upsert": {
+          "median": 189,
+          "min": 184,
+          "max": 1064,
+          "samples": [
+            1064,
+            437,
+            189,
+            184,
+            187
+          ]
+        },
+        "flush": {
+          "median": 4692,
+          "min": 3828,
+          "max": 30891,
+          "samples": [
+            30891,
+            12537,
+            4692,
+            3918,
+            3828
+          ]
+        }
+      },
+      "notes": [
+        "Splits command enqueue from world.flush for object-component upsert.",
+        "RSS is coarse process context, not allocator proof."
+      ]
+    },
+    {
+      "name": "migration",
+      "entities": 15000,
+      "runs": 5,
+      "commandCount": 30000,
+      "archetypeCountBefore": 2,
+      "archetypeCountAfter": 3,
+      "structuralRevision": 3,
+      "rssDeltaBytes": 851968,
+      "phaseTimingsMicros": {
+        "add_command_enqueue": {
+          "median": 1,
+          "min": 0,
+          "max": 86,
+          "samples": [
+            86,
+            4,
+            1,
+            0,
+            0
+          ]
+        },
+        "add_flush": {
+          "median": 2717,
+          "min": 2202,
+          "max": 7407,
+          "samples": [
+            7407,
+            6006,
+            2717,
+            2202,
+            2342
+          ]
+        },
+        "remove_command_enqueue": {
+          "median": 1,
+          "min": 0,
+          "max": 57,
+          "samples": [
+            57,
+            1,
+            1,
+            1,
+            0
+          ]
+        },
+        "remove_flush": {
+          "median": 1406,
+          "min": 1262,
+          "max": 6705,
+          "samples": [
+            6705,
+            2201,
+            1406,
+            1262,
+            1320
+          ]
+        }
+      },
+      "notes": [
+        "Splits batch add/remove enqueue from each migration flush.",
+        "Use VM-service profiling only after these phase timings identify a hot phase."
+      ]
+    }
+  ]
+}

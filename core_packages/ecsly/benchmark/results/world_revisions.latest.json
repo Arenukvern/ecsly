@@ -1,0 +1,45 @@
+{
+  "schemaId": "ecsly.core.world_revisions",
+  "package": "ecsly",
+  "generatedAt": "2026-06-30T23:58:22.149167Z",
+  "command": "dart run benchmark/world_revisions.dart --json --out=benchmark/results/world_revisions.latest.json",
+  "mode": "topology_revisions_only",
+  "environment": {
+    "os": "macos",
+    "osVersion": "Version 27.0 (Build 26A5368g)",
+    "dartVersion": "3.12.1 (stable) (Tue May 26 01:02:21 2026 -0700) on \"macos_arm64\"",
+    "processors": 8,
+    "executable": "dart",
+    "machineModel": "Mac14,2",
+    "machineName": "MacBook Air (M2, 2022)",
+    "cpuBrand": "Apple M2",
+    "memoryBytes": 8589934592,
+    "memoryGiB": "8.0"
+  },
+  "git": {
+    "commit": "3d6d4540d69bf7eec364dc742d2715767a2dd790",
+    "branch": "main",
+    "dirty": true
+  },
+  "runCount": 1,
+  "entityCount": 12000,
+  "writeRuns": 20000,
+  "metrics": [
+    {
+      "name": "topology_structural_churn",
+      "samples": 1,
+      "opsPerSec": 495223.15993644635,
+      "elapsedMicros": 48463,
+      "rssDeltaBytes": 2621440,
+      "structuralRevision": 2
+    },
+    {
+      "name": "resource_in_place_writes_no_core_tracking",
+      "samples": 1,
+      "opsPerSec": 4740459.824602987,
+      "elapsedMicros": 4219,
+      "rssDeltaBytes": 16384,
+      "structuralRevision": 0
+    }
+  ]
+}

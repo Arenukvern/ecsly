@@ -1,0 +1,32 @@
+name: ecsly_codegen
+description: Builder and annotations for ecsly typed-column component code generation.
+homepage: https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_codegen
+documentation: https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_codegen#readme
+repository: https://github.com/Arenukvern/ecsly
+issue_tracker: https://github.com/Arenukvern/ecsly/issues
+license: MIT
+topics:
+  - ecs
+  - codegen
+  - build-runner
+# Requires ecsly >=0.0.1-dev.9 for generated ColumnFactory / FacadeFactory APIs.
+# Publish-prepared prerelease; do not claim hosted availability until pub.dev is verified.
+version: 0.1.0-dev.1
+
+environment:
+  sdk: ">=3.12.0 <4.0.0"
+
+resolution: workspace
+# This package owns the annotation surface and the build_runner builder used by
+# component packages. Runtime storage remains in package:ecsly.
+dependencies:
+  analyzer: ^8.0.0
+  build: ^3.0.0
+  source_gen: ^4.0.0
+
+dev_dependencies:
+  build_runner: ^2.7.1
+  ecsly:
+  lints: ^6.0.0
+  test: ^1.24.0
+  xsoulspace_lints: ^0.1.2

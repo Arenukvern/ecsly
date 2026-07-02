@@ -1,0 +1,6 @@
+include: package:xsoulspace_lints/library.yaml
+
+linter:
+  rules:
+    lines_longer_than_80_chars: false
+    cascade_invocations: false

@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" role="img" aria-labelledby="title desc">
+  <title id="title">ecsly usage card</title>
+  <desc id="desc">A deterministic README card showing the ecsly import path and tiny World usage example.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f7fdff"/>
+      <stop offset="0.58" stop-color="#e9f8fc"/>
+      <stop offset="1" stop-color="#dff4f0"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#18b7d9"/>
+      <stop offset="1" stop-color="#075e73"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="24" flood-color="#0a5670" flood-opacity="0.16"/>
+    </filter>
+  </defs>
+  <rect width="1280" height="720" rx="48" fill="url(#bg)"/>
+  <circle cx="1136" cy="112" r="96" fill="#c9f4ff" opacity="0.7"/>
+  <circle cx="100" cy="622" r="130" fill="#d9f7ed" opacity="0.8"/>
+
+  <g transform="translate(72 70)">
+    <rect width="360" height="118" rx="36" fill="#ffffff" filter="url(#shadow)"/>
+    <rect x="28" y="28" width="68" height="62" rx="20" fill="#d8f6ff"/>
+    <circle cx="48" cy="49" r="6" fill="#18b7d9"/>
+    <circle cx="76" cy="49" r="6" fill="#18b7d9"/>
+    <circle cx="48" cy="72" r="6" fill="#0e89bf"/>
+    <circle cx="76" cy="72" r="6" fill="#075e73"/>
+    <path d="M48 49H76M48 72H76M48 49V72M76 49V72" stroke="#7bdff2" stroke-width="4" stroke-linecap="round"/>
+    <text x="118" y="78" font-family="Nunito, Avenir Next, Arial Rounded MT Bold, sans-serif" font-size="66" font-weight="900" letter-spacing="-3" fill="url(#brand)">ecsly</text>
+  </g>
+
+  <text x="72" y="250" font-family="Nunito, Avenir Next, sans-serif" font-size="54" font-weight="850" fill="#083b4d">Tiny ECS for Dart apps</text>
+  <text x="72" y="306" font-family="Nunito, Avenir Next, sans-serif" font-size="27" font-weight="650" fill="#386474">Keep simulation in systems. Host it from Flutter, Jaspr, CLI tools, or tests.</text>
+
+  <g transform="translate(684 78)" filter="url(#shadow)">
+    <rect width="524" height="538" rx="34" fill="#062b38"/>
+    <rect x="0" y="0" width="524" height="58" rx="34" fill="#0b4152"/>
+    <circle cx="36" cy="29" r="8" fill="#ff6b6b"/>
+    <circle cx="62" cy="29" r="8" fill="#ffd166"/>
+    <circle cx="88" cy="29" r="8" fill="#65d6ad"/>
+    <text x="30" y="104" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#8ce8ff">import</text>
+    <text x="114" y="104" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#f7f9fb">'package:ecsly/ecsly.dart';</text>
+    <text x="30" y="166" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#8ce8ff">final</text>
+    <text x="102" y="166" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#f7f9fb">world = World();</text>
+    <text x="30" y="214" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#f7f9fb">world.components</text>
+    <text x="30" y="248" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#f7f9fb">  .registerObjectComponent&lt;CounterComponent&gt;();</text>
+    <text x="30" y="310" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#8ce8ff">final</text>
+    <text x="102" y="310" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#f7f9fb">entity = world.reserveEmptyEntity().entity;</text>
+    <text x="30" y="358" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#f7f9fb">world.spawnBundle(entity, bundle);</text>
+    <text x="30" y="406" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#f7f9fb">world.flush();</text>
+    <text x="30" y="468" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#8ce8ff">for</text>
+    <text x="78" y="468" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#f7f9fb">(final (_, c) in world.queryMut&lt;CounterComponent&gt;()) {</text>
+    <text x="58" y="502" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#f7f9fb">c.value += 1;</text>
+    <text x="30" y="536" font-family="SFMono-Regular, Menlo, Consolas, monospace" font-size="22" fill="#f7f9fb">}</text>
+  </g>
+
+  <g transform="translate(72 382)">
+    <rect width="164" height="82" rx="24" fill="#ffffff"/>
+    <text x="28" y="35" font-family="Nunito, Avenir Next, sans-serif" font-size="18" font-weight="800" fill="#0c5063">World</text>
+    <text x="28" y="61" font-family="Nunito, Avenir Next, sans-serif" font-size="17" fill="#53717b">state owner</text>
+    <rect x="196" width="196" height="82" rx="24" fill="#ffffff"/>
+    <text x="224" y="35" font-family="Nunito, Avenir Next, sans-serif" font-size="18" font-weight="800" fill="#0c5063">Components</text>
+    <text x="224" y="61" font-family="Nunito, Avenir Next, sans-serif" font-size="17" fill="#53717b">data columns</text>
+    <rect x="424" width="164" height="82" rx="24" fill="#ffffff"/>
+    <text x="452" y="35" font-family="Nunito, Avenir Next, sans-serif" font-size="18" font-weight="800" fill="#0c5063">Systems</text>
+    <text x="452" y="61" font-family="Nunito, Avenir Next, sans-serif" font-size="17" fill="#53717b">behavior</text>
+    <path d="M164 41H196M392 41H424" stroke="#16b8d8" stroke-width="6" stroke-linecap="round"/>
+  </g>
+</svg>

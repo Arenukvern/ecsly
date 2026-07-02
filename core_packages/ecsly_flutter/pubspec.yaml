@@ -1,0 +1,33 @@
+name: ecsly_flutter
+description: Thin Flutter bindings for ecsly worlds, components, actions, and schedules.
+homepage: https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_flutter
+documentation: https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_flutter#readme
+repository: https://github.com/Arenukvern/ecsly
+issue_tracker: https://github.com/Arenukvern/ecsly/issues
+license: MIT
+topics:
+  - ecs
+  - flutter
+  - state-management
+# Requires ecsly >=0.0.1-dev.9 and ecsly_app ^0.1.0-dev.1. Flutter >=3.35.0.
+# Publish-prepared prerelease; do not claim hosted availability until pub.dev is verified.
+version: 0.1.0-dev.1
+
+environment:
+  sdk: ">=3.12.0 <4.0.0"
+  flutter: ">=3.35.0"
+
+resolution: workspace
+
+dependencies:
+  ecsly: ^0.0.1-dev.9
+  ecsly_app: ^0.1.0-dev.1
+  flutter:
+    sdk: flutter
+  meta: ^1.16.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  lints: ^6.0.0
+  xsoulspace_lints: ^0.1.2

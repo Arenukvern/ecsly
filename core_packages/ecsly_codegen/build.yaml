@@ -1,0 +1,7 @@
+builders:
+  ecs_component:
+    import: "package:ecsly_codegen/builder.dart"
+    builder_factories: ["ecsComponentBuilder"]
+    build_extensions: {".dart": [".ecs.g.dart"]}
+    auto_apply: dependents
+    build_to: source

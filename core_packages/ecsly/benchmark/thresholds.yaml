@@ -1,0 +1,23 @@
+query_iteration_ops_per_sec: 10000000
+raw_query_chunk_ops_per_sec: 20000000
+query_count_ops_per_sec: 8000
+query_any_ops_per_sec: 800000
+mutable_query_iteration_ops_per_sec: 12000000
+command_flush_ops_per_sec: 3000000
+migration_ops_per_sec: 1000000
+query_cache_hit_ops_per_sec: 10000000
+query_cache_miss_ops_per_sec: 300000
+event_send_ops_per_sec: 2000000
+event_read_ops_per_sec: 1000000
+game_frame_20k_p50_micros:
+  max: 3000
+  lowerIsBetter: true
+game_frame_20k_p95_micros:
+  max: 5000
+  lowerIsBetter: true
+game_frame_20k_p99_micros:
+  max: 10000
+  lowerIsBetter: true
+frame_rss_delta_bytes:
+  max: 67108864
+  lowerIsBetter: true
