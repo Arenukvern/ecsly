@@ -60,5 +60,8 @@ jobs:
         working-directory: core_packages/ecsly_flutter
         run: flutter test
 
+      - name: Check release pubspec versions
+        run: dart tool/release/sync_release_pubspec_versions.dart --check
+
       - name: Publish dry-run all packages
         run: dart tool/release/pub_package.dart --all --skip-existing

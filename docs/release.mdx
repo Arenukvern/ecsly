@@ -66,6 +66,17 @@ The release helper keeps the same package order for automation, uses
 `flutter pub publish` for `ecsly_flutter`, checks package changelog entries, and
 waits for internal hosted dependencies before publishing dependent packages.
 
+Release Please is still the source of truth for release PR versions through
+`.release-please-manifest.json`. Because the Dart updater can format prerelease
+pubspec versions incorrectly, release PRs run
+`.github/workflows/release-pr-sync-pubspecs.yml`, which normalizes each package
+`pubspec.yaml` from the manifest. Maintainers can run the same sync locally:
+
+```sh
+just sync-release-pubspecs
+just check-release-pubspecs
+```
+
 Agent auto-approval is label-gated. Configure `AUTO_APPROVE_TOKEN` with a
 separate write-capable machine user token. Release Please PRs from
 `github-actions[bot]` are labeled automatically; trusted same-repo `codex/` PRs

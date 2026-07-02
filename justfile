@@ -58,6 +58,14 @@ publish-core-dry-run:
 publish-dry-run:
     dart tool/release/pub_package.dart --all --skip-existing
 
+# Sync pubspec versions from the Release Please manifest.
+sync-release-pubspecs:
+    dart tool/release/sync_release_pubspec_versions.dart
+
+# Check pubspec versions against the Release Please manifest.
+check-release-pubspecs:
+    dart tool/release/sync_release_pubspec_versions.dart --check
+
 # Run publish dry-run preflight for one release tag.
 publish-tag-dry-run tag:
     dart tool/release/pub_package.dart --tag "{{tag}}" --skip-existing
@@ -70,4 +78,4 @@ publish-tag-execute tag:
 check: probe get analyze-core test docs-check
 
 # Run the release-oriented local gate.
-release-check: check publish-dry-run
+release-check: check check-release-pubspecs publish-dry-run
