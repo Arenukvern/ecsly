@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-dev.3](https://github.com/Arenukvern/ecsly/compare/ecsly_flutter-v0.1.0-dev.2...ecsly_flutter-v0.1.0-dev.3) (2026-07-03)
+
+
+### Documentation
+
+* update DESIGN_FAQ and README to clarify `flutterFrame` terminology and its implications for ECS schedules ([0abf728](https://github.com/Arenukvern/ecsly/commit/0abf728c8a14a47ff286c69c9c154258740ce15b))
+
 ## [0.1.0-dev.2](https://github.com/Arenukvern/ecsly/compare/ecsly_flutter-v0.1.0-dev.1...ecsly_flutter-v0.1.0-dev.2) (2026-07-02)
 
 
