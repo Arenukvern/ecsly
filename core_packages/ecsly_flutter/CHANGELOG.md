@@ -33,6 +33,9 @@
   ECS state from stable app data such as selected ids or route ids.
 - Added action-context bundle spawning helpers and a loop-free, component-first
   example app that hydrates after `runApp`.
+- Renamed public frame schedule terminology from `vsync` to `flutterFrame` and
+  clarified that the bridge proves Flutter engine frame pacing, not renderer
+  presentation.
 - Added host-declared frame schedule invalidation for `EcsLoop`,
   `EcsFixedStepLoop`, and `EcsFrameSchedule`.
 - Release packaging: SPDX MIT license, pub.dev metadata, README install/API lanes,

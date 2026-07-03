@@ -32,7 +32,9 @@ package.
 ## Storage Architecture
 
 **Q: Why archetype-based storage instead of sparse sets?**  
-A: Optimizes iteration speed (hot path) over mutation speed (cold path). Cache-friendly columnar storage enables SIMD. Trade-off: Entity migration cost acceptable for 60fps iteration.
+A: Optimizes iteration speed (hot path) over mutation speed (cold path).
+Cache-friendly columnar storage enables SIMD. Trade-off: Entity migration cost
+should stay acceptable inside a typical game-frame CPU budget.
 
 **Q: Why Structure of Arrays (SoA) with dart:typed_data?**  
 A: Eliminates GC in hot loop, maximizes cache locality, enables SIMD. Components stored as Float32List/Int32List, not heap objects.

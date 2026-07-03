@@ -1005,6 +1005,40 @@ void main() {
     expect(events.last.scheduleName, 'afterAction');
   });
 
+  testWidgets('EcsAppScope runs flutterFrame frame schedules', (
+    final tester,
+  ) async {
+    final world = World()..upsertResource(CounterResource());
+    world.getOrCreateSchedule('frame').add((final world) {
+      world.getResource<CounterResource>().count += 1;
+    });
+    final controller = EcsController(world: world);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: EcsAppScope(
+          world: world,
+          controller: controller,
+          schedules: const EcsFlutterSchedules(
+            frame: EcsFrameSchedule.flutterFrame('frame'),
+          ),
+          child: const SizedBox(),
+        ),
+      ),
+    );
+
+    expect(
+      const EcsFrameSchedule.flutterFrame('frame').mode,
+      EcsFrameScheduleMode.flutterFrame,
+    );
+
+    await tester.pump(const Duration(milliseconds: 16));
+
+    expect(world.getResource<CounterResource>().count, 1);
+
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   testWidgets('EcsLoop can narrow frame invalidation to schedule hints', (
     final tester,
   ) async {
@@ -1118,66 +1152,67 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
   });
 
-  testWidgets('EcsFixedStepLoop coalesces narrow invalidation per vsync', (
-    final tester,
-  ) async {
-    final world = _todoWorld();
-    final entity = world.spawnComponents(const [TodoTitle('initial')]);
-    world.flush();
-    final controller = EcsController(world: world);
-    var notifications = 0;
-    var componentSelects = 0;
-    var frame = 0;
-    controller.addListener(() => notifications += 1);
-    world.getOrCreateSchedule('fixed').add((final world) {
-      frame += 1;
-      world.upsertComponent(entity, TodoTitle('step $frame'));
-    });
+  testWidgets(
+    'EcsFixedStepLoop coalesces narrow invalidation per ticker frame',
+    (final tester) async {
+      final world = _todoWorld();
+      final entity = world.spawnComponents(const [TodoTitle('initial')]);
+      world.flush();
+      final controller = EcsController(world: world);
+      var notifications = 0;
+      var componentSelects = 0;
+      var frame = 0;
+      controller.addListener(() => notifications += 1);
+      world.getOrCreateSchedule('fixed').add((final world) {
+        frame += 1;
+        world.upsertComponent(entity, TodoTitle('step $frame'));
+      });
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: EcsScope(
-          world: world,
-          controller: controller,
-          child: EcsFixedStepLoop(
+      await tester.pumpWidget(
+        MaterialApp(
+          home: EcsScope(
             world: world,
             controller: controller,
-            schedules: const ['fixed'],
-            fixedDt: 0.01,
-            scheduleInvalidation: (_) =>
-                EcsInvalidationBatch.component<TodoTitle>(entity: entity),
-            child: EcsComponentSelector<TodoTitle, String>(
-              entity: entity,
-              select: (final title) {
-                componentSelects += 1;
-                return title.value;
-              },
-              builder: (final context, final title) => Text(title),
+            child: EcsFixedStepLoop(
+              world: world,
+              controller: controller,
+              schedules: const ['fixed'],
+              fixedDt: 0.01,
+              scheduleInvalidation: (_) =>
+                  EcsInvalidationBatch.component<TodoTitle>(entity: entity),
+              child: EcsComponentSelector<TodoTitle, String>(
+                entity: entity,
+                select: (final title) {
+                  componentSelects += 1;
+                  return title.value;
+                },
+                builder: (final context, final title) => Text(title),
+              ),
             ),
           ),
         ),
-      ),
-    );
-    final initialComponentSelects = componentSelects;
+      );
+      final initialComponentSelects = componentSelects;
 
-    await tester.pump(const Duration(milliseconds: 16));
-    await tester.pump(const Duration(milliseconds: 40));
+      await tester.pump(const Duration(milliseconds: 16));
+      await tester.pump(const Duration(milliseconds: 40));
 
-    expect(notifications, 1);
-    expect(componentSelects, initialComponentSelects + 1);
-    expect(frame, greaterThan(0));
-    expect(find.text('step $frame'), findsOneWidget);
-    expect(controller.lastInvalidation.broad, isFalse);
-    expect(
-      controller.lastInvalidation.matchesComponentType(
-        TodoTitle,
-        entity: entity,
-      ),
-      isTrue,
-    );
+      expect(notifications, 1);
+      expect(componentSelects, initialComponentSelects + 1);
+      expect(frame, greaterThan(0));
+      expect(find.text('step $frame'), findsOneWidget);
+      expect(controller.lastInvalidation.broad, isFalse);
+      expect(
+        controller.lastInvalidation.matchesComponentType(
+          TodoTitle,
+          entity: entity,
+        ),
+        isTrue,
+      );
 
-    await tester.pumpWidget(const SizedBox.shrink());
-  });
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
 
   test('after-action schedules run after app actions', () async {
     final world = World()
@@ -1224,57 +1259,63 @@ void main() {
     expect(controller.lastInvalidation.broad, isTrue);
   });
 
-  test('after-action schedule specs gate work and preserve narrow invalidation', () async {
-    final world = World()
-      ..upsertResource(CounterResource())
-      ..upsertResource(OtherResource())
-      ..upsertResource(DerivedResource())
-      ..flush();
-    world.getOrCreateSchedule('afterAction').add((final world) {
-      world.getResource<DerivedResource>()
-        ..runs += 1
-        ..value = world.getResource<CounterResource>().count * 2;
-    });
-    final controller = EcsController(
-      world: world,
-      afterActionScheduleSpec: EcsHostSchedule(
-        'afterAction',
-        invalidation: EcsInvalidationBatch.resource<DerivedResource>(),
-        runWhen: (final trigger) =>
-            trigger.matchesResourceType(CounterResource),
-      ),
-    );
+  test(
+    'after-action schedule specs gate work and preserve narrow invalidation',
+    () async {
+      final world = World()
+        ..upsertResource(CounterResource())
+        ..upsertResource(OtherResource())
+        ..upsertResource(DerivedResource())
+        ..flush();
+      world.getOrCreateSchedule('afterAction').add((final world) {
+        world.getResource<DerivedResource>()
+          ..runs += 1
+          ..value = world.getResource<CounterResource>().count * 2;
+      });
+      final controller = EcsController(
+        world: world,
+        afterActionScheduleSpec: EcsHostSchedule(
+          'afterAction',
+          invalidation: EcsInvalidationBatch.resource<DerivedResource>(),
+          runWhen: (final trigger) =>
+              trigger.matchesResourceType(CounterResource),
+        ),
+      );
 
-    await controller.runAction(const MarkOtherAction());
+      await controller.runAction(const MarkOtherAction());
 
-    expect(world.getResource<DerivedResource>().runs, 0);
-    expect(controller.lastInvalidation.broad, isFalse);
-    expect(controller.lastInvalidation.matchesResourceType(OtherResource), isTrue);
-    expect(
-      controller.lastInvalidation.matchesResourceType(DerivedResource),
-      isFalse,
-    );
+      expect(world.getResource<DerivedResource>().runs, 0);
+      expect(controller.lastInvalidation.broad, isFalse);
+      expect(
+        controller.lastInvalidation.matchesResourceType(OtherResource),
+        isTrue,
+      );
+      expect(
+        controller.lastInvalidation.matchesResourceType(DerivedResource),
+        isFalse,
+      );
 
-    await controller.runAction(const MarkCounterAction());
+      await controller.runAction(const MarkCounterAction());
 
-    expect(world.getResource<DerivedResource>().runs, 1);
-    expect(world.getResource<DerivedResource>().value, 2);
-    expect(controller.lastInvalidation.broad, isFalse);
-    expect(
-      controller.lastInvalidation.matchesResourceType(CounterResource),
-      isTrue,
-    );
-    expect(
-      controller.lastInvalidation.matchesResourceType(DerivedResource),
-      isTrue,
-    );
-    expect(
-      controller.lastInvalidation.matchesResourceType(
-        EcsActionStatusResource,
-      ),
-      isTrue,
-    );
-  });
+      expect(world.getResource<DerivedResource>().runs, 1);
+      expect(world.getResource<DerivedResource>().value, 2);
+      expect(controller.lastInvalidation.broad, isFalse);
+      expect(
+        controller.lastInvalidation.matchesResourceType(CounterResource),
+        isTrue,
+      );
+      expect(
+        controller.lastInvalidation.matchesResourceType(DerivedResource),
+        isTrue,
+      );
+      expect(
+        controller.lastInvalidation.matchesResourceType(
+          EcsActionStatusResource,
+        ),
+        isTrue,
+      );
+    },
+  );
 
   test('after-action schedules see deferred command changes', () async {
     final world = _todoWorld()

@@ -7,20 +7,47 @@ import 'ecs_loop.dart';
 import 'ecs_schedule_observer.dart';
 import 'ecs_scope.dart';
 
-enum EcsFrameScheduleMode { vsync, fixedStep }
+enum EcsFrameScheduleMode { flutterFrame, fixedStep }
 
 @immutable
 class EcsFrameSchedule {
-  const EcsFrameSchedule.vsync(
+  /// Runs [schedule] once for each active Flutter ticker frame.
+  ///
+  /// This is Flutter engine frame pacing, not renderer surface-present proof.
+  /// `EcsLoop` creates a Flutter `Ticker`; Flutter `Ticker` is driven by
+  /// `SchedulerBinding.scheduleFrameCallback`, and transient frame callbacks run
+  /// from `SchedulerBinding.handleBeginFrame`. In normal operation,
+  /// `SchedulerBinding.scheduleFrame` asks the engine for a frame that is
+  /// serviced by the operating system's conceptual frame signal. Flutter also
+  /// has warm-up and forced-frame paths that can bypass normal frame pacing.
+  ///
+  /// Source evidence in Flutter 3.44.1:
+  ///
+  /// - `packages/flutter/lib/src/scheduler/ticker.dart`: `Ticker.scheduleTick`.
+  /// - `packages/flutter/lib/src/scheduler/binding.dart`: `scheduleFrame`,
+  ///   `scheduleFrameCallback`, `scheduleWarmUpFrame`, and `handleBeginFrame`.
+  /// - Engine/platform frame waiters use `CADisplayLink` on iOS,
+  ///   `Choreographer` on Android, and `requestAnimationFrame` on web.
+  ///
+  /// Treat game-render proof separately at the rendering backend boundary:
+  /// acquire, submit, and present evidence belongs to that backend, not this
+  /// Flutter bridge.
+  const EcsFrameSchedule.flutterFrame(
     this.schedule, {
     this.paused,
     this.flushAfterTick = true,
     this.scheduleOrderingPolicy,
     this.invalidation,
-  }) : mode = EcsFrameScheduleMode.vsync,
+  }) : mode = EcsFrameScheduleMode.flutterFrame,
        fixedDt = null,
        maxCatchUpStepsPerTick = null;
 
+  /// Runs [schedule] through a fixed-step accumulator driven by Flutter ticker
+  /// frames.
+  ///
+  /// Prefer this mode for game simulation and other deterministic update loops.
+  /// Flutter frame pacing determines when catch-up is attempted; [fixedDt]
+  /// determines the simulation step size.
   const EcsFrameSchedule.fixed(
     this.schedule, {
     this.fixedDt = 1 / 60,
@@ -80,9 +107,13 @@ class EcsFlutterSchedules {
           onResumeSpec ?? _hostScheduleFrom(onResume),
         EcsFlutterScheduleReason.onPause =>
           onPauseSpec ?? _hostScheduleFrom(onPause),
-        EcsFlutterScheduleReason.frame => frame == null
-            ? null
-            : EcsHostSchedule(frame!.schedule, invalidation: frame!.invalidation),
+        EcsFlutterScheduleReason.frame =>
+          frame == null
+              ? null
+              : EcsHostSchedule(
+                  frame!.schedule,
+                  invalidation: frame!.invalidation,
+                ),
       };
 }
 
@@ -194,7 +225,7 @@ class _EcsAppScopeState extends State<EcsAppScope> with WidgetsBindingObserver {
     final frame = widget.schedules.frame;
     if (frame == null) return child;
     return switch (frame.mode) {
-      EcsFrameScheduleMode.vsync => EcsLoop(
+      EcsFrameScheduleMode.flutterFrame => EcsLoop(
         world: widget.world,
         controller: _controller,
         schedules: [frame.schedule],

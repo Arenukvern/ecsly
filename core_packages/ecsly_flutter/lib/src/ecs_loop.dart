@@ -18,17 +18,17 @@ class EcsFixedStepMetrics {
   const EcsFixedStepMetrics({
     required this.fixedDt,
     required this.elapsedMicros,
-    required this.stepsRunThisVsync,
+    required this.stepsRunThisTickerFrame,
     required this.catchUpClamped,
   });
 
   final double fixedDt;
   final int elapsedMicros;
-  final int stepsRunThisVsync;
+  final int stepsRunThisTickerFrame;
   final bool catchUpClamped;
 }
 
-/// Drives named ECS schedules from Flutter vsync.
+/// Ticker-driven Flutter frame loop.
 class EcsLoop extends StatefulWidget {
   const EcsLoop({
     required this.world,
@@ -244,7 +244,7 @@ class _EcsFixedStepLoopState extends State<EcsFixedStepLoop>
       EcsFixedStepMetrics(
         fixedDt: widget.fixedDt,
         elapsedMicros: stopwatch.elapsedMicroseconds,
-        stepsRunThisVsync: stepsRun,
+        stepsRunThisTickerFrame: stepsRun,
         catchUpClamped: catchUpClamped,
       ),
     );

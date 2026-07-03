@@ -175,6 +175,22 @@ pass a component/resource/structural `EcsInvalidationBatch`. The loop always
 merges in `DeltaTimeResource` and `ScheduleTimeResource` because it updates
 those resources every tick.
 
+## What does `EcsFrameSchedule.flutterFrame` mean?
+
+It means the schedule runs from Flutter's ticker/frame machinery. The bridge
+creates a Flutter `Ticker`; Flutter `Ticker` is driven by
+`SchedulerBinding.scheduleFrameCallback`, whose transient callbacks run from
+`SchedulerBinding.handleBeginFrame`. `SchedulerBinding.scheduleFrame` normally
+asks the engine for a frame serviced by the operating system's conceptual frame
+signal. Flutter warm-up and forced frames can bypass normal frame pacing.
+
+Flutter engine platform evidence: iOS uses `CADisplayLink`, Android uses
+`Choreographer`, and web uses `requestAnimationFrame`.
+
+This is engine frame pacing, not renderer surface-present proof. If a game
+renderer needs a frame proof claim, keep that proof at the backend boundary that
+can show acquire, submit, and present evidence.
+
 ## How do I measure selector invalidation?
 
 Use the counter profile before opening DevTools:
@@ -283,7 +299,9 @@ callbacks into ECS resources.
 ## Can games use this package?
 
 Yes. Games should use the same `EcsScope`, selectors, and actions. Add `EcsLoop`
-or `EcsFixedStepLoop` only where a frame driver is needed.
+or `EcsFixedStepLoop` only where a frame driver is needed. Prefer fixed-step
+simulation for gameplay state, and use a Flutter-frame schedule only when the
+schedule intentionally follows host frame cadence.
 
 ## What should stay outside this package?
 

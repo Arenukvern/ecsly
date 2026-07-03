@@ -255,7 +255,9 @@ controllers, navigation, or callbacks into ECS resources.
 
 ## Game Usage
 
-Games use the same scope and selectors, then add a loop host:
+Games use the same scope and selectors, then add a loop host. Prefer
+`EcsFrameSchedule.fixed` for simulation so gameplay steps have a stable `fixedDt`
+even when Flutter engine frames arrive irregularly:
 
 ```dart
 EcsAppScope(
@@ -276,6 +278,28 @@ EcsAppScope(
 For lower-level control, keep using `EcsLoop` or `EcsFixedStepLoop` directly.
 The app host simply packages the common lifecycle/action/frame policy in one
 place.
+
+Use `EcsFrameSchedule.flutterFrame` only when the ECS schedule should run once
+per active Flutter ticker frame, such as host/UI derivation that intentionally
+tracks Flutter's frame cadence:
+
+```dart
+const EcsFlutterSchedules(
+  frame: EcsFrameSchedule.flutterFrame('ui.frame'),
+);
+```
+
+`flutterFrame` means Flutter engine frame pacing. The bridge creates a Flutter
+`Ticker`; Flutter `Ticker` is driven by `SchedulerBinding.scheduleFrameCallback`,
+whose transient callbacks run from `SchedulerBinding.handleBeginFrame`.
+`SchedulerBinding.scheduleFrame` is normally serviced by the operating system's
+conceptual frame signal. Flutter also has warm-up and forced-frame paths that can
+bypass normal frame pacing. In the Flutter engine, normal platform pacing uses
+`CADisplayLink` on iOS, `Choreographer` on Android, and
+`requestAnimationFrame` on web.
+
+That is not renderer surface-present proof. Game-render proof belongs at the
+backend boundary that can show acquire, submit, and present evidence.
 
 Frame schedules broad-invalidate by default because schedule systems are opaque
 to Flutter. If a host owns a schedule and knows the exact UI-facing slice it

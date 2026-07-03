@@ -77,6 +77,19 @@ semantic component/resource writes, so unknown schedules remain broad. A host
 that owns a schedule can provide an app-layer `EcsInvalidationBatch` for
 selective Flutter rebuilds without adding revision maps to core.
 
+## Why `flutterFrame` instead of `vsync`?
+
+`ecsly_flutter` is driven through Flutter ticker callbacks, so the public API
+names the contract the package actually owns. Flutter normally services frame
+requests from the operating system's conceptual frame signal, with platform
+implementations such as iOS `CADisplayLink`, Android `Choreographer`, and web
+`requestAnimationFrame`. Flutter can also run warm-up and forced frames outside
+normal frame pacing.
+
+Calling this `flutterFrame` avoids implying true display synchronization or
+renderer surface-present proof. Rendering backends should prove presentation at
+their own acquire, submit, and present boundary.
+
 ## Why are actions and drafts in `ecsly_app` instead of core?
 
 `EcsAction` carries app/host status details such as wall-clock timestamps,
