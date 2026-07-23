@@ -93,12 +93,12 @@ early integration surface and pin versions deliberately.
 
 ## Packages
 
-| Package | Version | Pub.dev | Role |
-| --- | --- | --- | --- |
-| `ecsly` | `0.0.1-dev.10` | [![pub package](https://img.shields.io/pub/v/ecsly.svg?include_prereleases)](https://pub.dev/packages/ecsly) | Pure ECS runtime, systems, queries, commands, resources, events, benchmarks |
-| `ecsly_app` | `0.1.0-dev.1` | [![pub package](https://img.shields.io/pub/v/ecsly_app.svg?include_prereleases)](https://pub.dev/packages/ecsly_app) | Pure Dart app workflow layer |
-| `ecsly_codegen` | `0.1.0-dev.1` | [![pub package](https://img.shields.io/pub/v/ecsly_codegen.svg?include_prereleases)](https://pub.dev/packages/ecsly_codegen) | Typed-column factory annotations and builder |
-| `ecsly_flutter` | `0.1.0-dev.1` | [![pub package](https://img.shields.io/pub/v/ecsly_flutter.svg?include_prereleases)](https://pub.dev/packages/ecsly_flutter) | Flutter bindings for ECS worlds and app workflows |
+| Package | Pub.dev | Role |
+| --- | --- | --- |
+| `ecsly` | [![pub package](https://img.shields.io/pub/v/ecsly.svg?include_prereleases)](https://pub.dev/packages/ecsly) | Pure ECS runtime, systems, queries, commands, resources, events, benchmarks |
+| `ecsly_app` | [![pub package](https://img.shields.io/pub/v/ecsly_app.svg?include_prereleases)](https://pub.dev/packages/ecsly_app) | Pure Dart app workflow layer |
+| `ecsly_codegen` | [![pub package](https://img.shields.io/pub/v/ecsly_codegen.svg?include_prereleases)](https://pub.dev/packages/ecsly_codegen) | Typed-column factory annotations and builder |
+| `ecsly_flutter` | [![pub package](https://img.shields.io/pub/v/ecsly_flutter.svg?include_prereleases)](https://pub.dev/packages/ecsly_flutter) | Flutter bindings for ECS worlds and app workflows |
 
 Package docs:
 
