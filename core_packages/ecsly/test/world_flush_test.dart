@@ -48,15 +48,15 @@ void main() {
     test('world query revisions describe structural flushes only', () {
       final world = buildTestWorld();
 
-      expect(world.queryRevision, 0);
+      expect(world.structuralRevision, 0);
 
       world.ensureFlushed();
-      expect(world.queryRevision, 0);
+      expect(world.structuralRevision, 0);
 
       world.upsertResource(TickResource(1));
       world.ensureFlushed();
 
-      expect(world.queryRevision, 0);
+      expect(world.structuralRevision, 0);
 
       final entity = world.reserveEmptyEntity().entity;
       world.spawnBundle(
@@ -65,7 +65,7 @@ void main() {
       );
       world.ensureFlushed();
 
-      expect(world.queryRevision, 1);
+      expect(world.structuralRevision, 1);
     });
 
     test('query revision is one topology epoch per structural flush', () {
@@ -83,13 +83,13 @@ void main() {
       );
       world.ensureFlushed();
 
-      expect(world.queryRevision, 1);
+      expect(world.structuralRevision, 1);
 
       world.removeComponent<NameComponent>(e1);
       world.despawnEntity(e2);
       world.ensureFlushed();
 
-      expect(world.queryRevision, 2);
+      expect(world.structuralRevision, 2);
     });
 
     test('in-place component updates do not bump query revision', () {
@@ -101,7 +101,7 @@ void main() {
         ComponentBundle.fromLists(const [NameComponent('before')]),
       );
       world.ensureFlushed();
-      final revision = world.queryRevision;
+      final revision = world.structuralRevision;
 
       world.upsertComponent<NameComponent>(
         entity,
@@ -110,13 +110,13 @@ void main() {
       world.ensureFlushed();
 
       expect(world.getComponent<NameComponent>(entity).value, 'after');
-      expect(world.queryRevision, revision);
+      expect(world.structuralRevision, revision);
     });
 
     test('flush resets isFlushing even when execution throws', () {
       final world = buildTestWorld();
       final e = world.reserveEmptyEntity().entity;
-      final queryRevision = world.queryRevision;
+      final queryRevision = world.structuralRevision;
 
       world.upsertComponent<UnregisteredComponent>(
         e,
@@ -125,7 +125,7 @@ void main() {
 
       expect(world.flush, throwsA(isA<ComponentNotRegisteredError>()));
       expect(world.isFlushing, isFalse);
-      expect(world.queryRevision, queryRevision);
+      expect(world.structuralRevision, queryRevision);
     });
 
     test('partial structural flush failure still records one epoch', () {
@@ -144,7 +144,7 @@ void main() {
       );
 
       expect(world.flush, throwsA(isA<EntityNotFoundError>()));
-      expect(world.queryRevision, 1);
+      expect(world.structuralRevision, 1);
       expect(world.getComponent<NameComponent>(live).value, 'ok');
     });
 
