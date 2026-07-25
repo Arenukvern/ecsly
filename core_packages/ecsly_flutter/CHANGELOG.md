@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-dev.4](https://github.com/Arenukvern/ecsly/compare/ecsly_flutter-v0.1.0-dev.3...ecsly_flutter-v0.1.0-dev.4) (2026-07-25)
+
+
+### Documentation
+
+* clarify purpose and usage of structuralRevision in documentation ([239dc86](https://github.com/Arenukvern/ecsly/commit/239dc86ef73aff1dba887df94f7a044a44b57ad2))
+
 ## [0.1.0-dev.3](https://github.com/Arenukvern/ecsly/compare/ecsly_flutter-v0.1.0-dev.2...ecsly_flutter-v0.1.0-dev.3) (2026-07-03)
 
 
