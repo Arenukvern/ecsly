@@ -10,18 +10,15 @@ add `EcsLoop` or `EcsFixedStepLoop` around the same scope.
 
 **Status:** published prerelease. Pin the `dev` version deliberately.
 
-**Compatibility:** `ecsly_flutter` `0.1.0-dev.x` requires `ecsly` `>=0.0.1-dev.9`,
-`ecsly_app` `^0.1.0-dev.1`, and Flutter `>=3.35.0`.
-
 Further docs: [DX_FAQ.md](DX_FAQ.md) (how) · [DESIGN_FAQ.md](DESIGN_FAQ.md) (why)
 
 ## Install
 
 ```yaml
 dependencies:
-  ecsly: ^0.0.1-dev.9
-  ecsly_app: ^0.1.0-dev.1
-  ecsly_flutter: ^0.1.0-dev.1
+  ecsly: 
+  ecsly_app: 
+  ecsly_flutter: 
   flutter:
     sdk: flutter
 ```

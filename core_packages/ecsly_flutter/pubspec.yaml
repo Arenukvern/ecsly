@@ -9,13 +9,12 @@ topics:
   - ecs
   - flutter
   - state-management
-# Requires ecsly >=0.0.1-dev.9 and ecsly_app ^0.1.0-dev.1. Flutter >=3.35.0.
 # Published prerelease.
 version: 0.1.0-dev.3
 
 environment:
   sdk: ">=3.12.0 <4.0.0"
-  flutter: ">=3.35.0"
+  flutter: ">=3.44.0"
 
 resolution: workspace
 
@@ -24,7 +23,6 @@ dependencies:
   ecsly_app: ^0.1.0-dev.2
   flutter:
     sdk: flutter
-  meta: ^1.18.0
 
 dev_dependencies:
   flutter_test:
