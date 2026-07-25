@@ -16,9 +16,9 @@ Further docs: [DX_FAQ.md](DX_FAQ.md) (how) · [DESIGN_FAQ.md](DESIGN_FAQ.md) (wh
 
 ```yaml
 dependencies:
-  ecsly: 
-  ecsly_app: 
-  ecsly_flutter: 
+  ecsly: ^0.0.1-dev.12
+  ecsly_app: ^0.1.0-dev.2
+  ecsly_flutter: ^0.1.0-dev.3
   flutter:
     sdk: flutter
 ```

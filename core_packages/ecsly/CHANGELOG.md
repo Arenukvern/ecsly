@@ -25,7 +25,7 @@
 - Kept core revision state scoped to structural/query topology only. Removed
   host-facing component/resource revision maps and mutation markers; semantic
   UI/app invalidation now belongs to `ecsly_app` / `ecsly_flutter`.
-- Coalesced `structuralRevision` / `queryRevision` into topology epochs at
+- Coalesced `structuralRevision` into topology epochs at
   command-flush boundaries instead of per-entity structural operation counts.
 - Added prepared query helpers (`prepareQuery*`) so callers can cache query
   shapes while `ecsly` keeps membership invalidation tied to structural flushes.

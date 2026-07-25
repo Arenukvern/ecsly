@@ -116,7 +116,7 @@ void main() {
     test('flush resets isFlushing even when execution throws', () {
       final world = buildTestWorld();
       final e = world.reserveEmptyEntity().entity;
-      final queryRevision = world.structuralRevision;
+      final structuralRevision = world.structuralRevision;
 
       world.upsertComponent<UnregisteredComponent>(
         e,
@@ -125,7 +125,7 @@ void main() {
 
       expect(world.flush, throwsA(isA<ComponentNotRegisteredError>()));
       expect(world.isFlushing, isFalse);
-      expect(world.structuralRevision, queryRevision);
+      expect(world.structuralRevision, structuralRevision);
     });
 
     test('partial structural flush failure still records one epoch', () {

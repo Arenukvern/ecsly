@@ -26,7 +26,7 @@
     },
     {
       "title": "Package Layout and Dependency Hierarchy",
-      "purpose": "Explains the four-package monorepo structure under `core_packages/`, the strict dependency chain (ecsly → ecsly_app → ecsly_flutter), and why ecsly_codegen is a build-time sibling. Covers the `core_packages/` directory layout and package boundary rules.",
+      "purpose": "Explains the four-package monorepo structure under `core_packages/`, the dependency graph (ecsly_app builds on ecsly; ecsly_flutter depends on both; ecsly_codegen is a build-time sibling). Covers the `core_packages/` directory layout and package boundary rules and when to use what.",
       "parent": "ecsly Overview",
       "page_notes": [
         {
