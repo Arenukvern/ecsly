@@ -15,7 +15,7 @@ Further docs: [DX_FAQ.md](DX_FAQ.md) (how) · [DESIGN_FAQ.md](DESIGN_FAQ.md) (wh
 ```yaml
 dependencies:
   ecsly: ^0.0.1-dev.13
-  ecsly_app: ^0.1.0-dev.3
+  ecsly_app: ^0.1.0-dev.4
 ```
 
 ```dart

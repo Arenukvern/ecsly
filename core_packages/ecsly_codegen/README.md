@@ -18,7 +18,7 @@ Add to a component or plugin package that defines marker components:
 ```yaml
 dependencies:
   ecsly: ^0.0.1-dev.13
-  ecsly_codegen: ^0.1.0-dev.3
+  ecsly_codegen: ^0.1.0-dev.4s
 
 dev_dependencies:
   build_runner: ^2.15.0
