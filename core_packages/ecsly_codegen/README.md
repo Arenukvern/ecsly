@@ -9,8 +9,6 @@ annotations and generated source only.
 
 **Status:** published prerelease. Pin the `dev` version deliberately.
 
-**Compatibility:** `ecsly_codegen` `0.1.0-dev.x` requires `ecsly` `>=0.0.1-dev.9`.
-
 Further docs: [DX_FAQ.md](DX_FAQ.md) (how) · [DESIGN_FAQ.md](DESIGN_FAQ.md) (why)
 
 ## Install
@@ -19,11 +17,11 @@ Add to a component or plugin package that defines marker components:
 
 ```yaml
 dependencies:
-  ecsly: ^0.0.1-dev.9
-  ecsly_codegen: ^0.1.0-dev.1
+  ecsly: ^0.0.1-dev.13
+  ecsly_codegen: ^0.1.0-dev.3
 
 dev_dependencies:
-  build_runner: ^2.7.1
+  build_runner: ^2.15.0
 ```
 
 `ecsly_codegen` belongs in `dependencies` (not only `dev_dependencies`) because

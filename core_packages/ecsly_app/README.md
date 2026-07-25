@@ -8,16 +8,14 @@ and derived infrastructure that are not core simulation machinery.
 
 **Status:** published prerelease. Pin the `dev` version deliberately.
 
-**Compatibility:** `ecsly_app` `0.1.0-dev.x` requires `ecsly` `>=0.0.1-dev.9`.
-
 Further docs: [DX_FAQ.md](DX_FAQ.md) (how) · [DESIGN_FAQ.md](DESIGN_FAQ.md) (why)
 
 ## Install
 
 ```yaml
 dependencies:
-  ecsly: ^0.0.1-dev.9
-  ecsly_app: ^0.1.0-dev.1
+  ecsly: ^0.0.1-dev.13
+  ecsly_app: ^0.1.0-dev.3
 ```
 
 ```dart
