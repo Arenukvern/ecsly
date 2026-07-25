@@ -93,10 +93,9 @@ class World {
   bool get isInHotSchedule => _hotScheduleDepth > 0;
 
   /// Monotonic revision for spawn, despawn, add, or remove structural changes.
+  ///
+  /// intended for query membership caches.
   int get structuralRevision => _structuralRevision;
-
-  /// Alias for [structuralRevision], intended for query membership caches.
-  int get queryRevision => _structuralRevision;
 
   /// Sets the flushing state. Used internally by flush() to prevent recursion.
   @internal

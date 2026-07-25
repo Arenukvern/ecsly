@@ -20,7 +20,7 @@
 - Initial public prerelease aligned with `ecsly` `0.0.1-dev.x` and
   `ecsly_app` `0.1.0-dev.x`.
 - **Compatibility:** requires `ecsly >=0.0.1-dev.9`, `ecsly_app ^0.1.0-dev.1`,
-  Flutter `>=3.35.0`.
+  Flutter `>=3.44.0`.
 - Reexported pure Dart app helpers from `package:ecsly_app`; Flutter now owns
   host glue while actions, drafts, cold lookup, and id projections live in the
   app package.

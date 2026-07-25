@@ -1,0 +1,252 @@
+{
+  "repo_notes": [
+    {
+      "content": ""
+    }
+  ],
+  "pages": [
+    {
+      "title": "ecsly Overview",
+      "purpose": "High-level introduction to the ecsly monorepo: what it is, why it exists, the four-package architecture, and how to navigate the wiki. Links to all child sections for deeper reading.",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Getting Started",
+      "purpose": "Practical onboarding guide: prerequisites, cloning the repo, running `dart pub get` across packages, executing the validation loop (`dart analyze`, `dart test`, `dart pub publish --dry-run`), and using `just check` as the local gate.",
+      "parent": "ecsly Overview",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Package Layout and Dependency Hierarchy",
+      "purpose": "Explains the four-package monorepo structure under `core_packages/`, the dependency graph (ecsly_app builds on ecsly; ecsly_flutter depends on both; ecsly_codegen is a build-time sibling). Covers the `core_packages/` directory layout and package boundary rules and when to use what.",
+      "parent": "ecsly Overview",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Core ECS Runtime (ecsly)",
+      "purpose": "Overview of the pure-Dart `ecsly` package: its role as the platform-agnostic engine, the major subsystems it contains, and links to child pages covering each subsystem in depth.",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "World and Entity Management",
+      "purpose": "Deep dive into `World` as the central coordinator, `Entities` (generational IDs, free-list recycling, SoA metadata buffers), entity lifecycle (spawn/despawn), and the `WorldCommands` shortcut. Covers `world.dart`, `entities.dart`, `world_extensions.dart`, and `world_observers.dart`.",
+      "parent": "Core ECS Runtime (ecsly)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Archetypes and Component Storage",
+      "purpose": "Explains archetype-based SoA storage: `Archetype`, `ArchetypeSignature`, `ArchetypeRegistry`, entity migration between archetypes, and the `SparseColumnList`. Covers both object components (`ObjectColumn`) and extension/typed-column components (`FloatColumn`, `IntColumn`, `Uint8Column`) including SIMD stride-4 views.",
+      "parent": "Core ECS Runtime (ecsly)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Queries and Query Cache",
+      "purpose": "Covers `ComponentQuery`, `ComponentMask` bitmask filtering, `QueryCache` with structural-touch tracking, `prepareQuery*` helpers, and how topology epochs drive cache invalidation at command-flush boundaries.",
+      "parent": "Core ECS Runtime (ecsly)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Commands and Deferred Mutations",
+      "purpose": "Explains the command-deferral pattern: `EcsCommand` subtypes (spawn, despawn, add/remove component, batch variants), `CommandQueue`, flush boundaries, the re-entrancy guard (`isFlushing`), and `flushAllSystem` / `flushCommandsSystem` phase helpers.",
+      "parent": "Core ECS Runtime (ecsly)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Systems, Schedules, and Execution",
+      "purpose": "Covers `System` / `AsyncSystem` typedefs, `Schedule` with DAG-based dependency ordering (`directed_graph`), `then()` chaining, `ExecutionMode` (sync/async/asyncParallel/isolate), `SystemExecutor`, `CertifiedScheduleJobSystem`, `ScheduleTrigger` variants (ConditionTrigger, EventTrigger, TimeTrigger), and `ScheduleExecutionPolicy`.",
+      "parent": "Core ECS Runtime (ecsly)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Resources, Events, and Plugins",
+      "purpose": "Covers `Resource` (global singletons, `ResourceId`, `ResourceRegistry`), `EventChannel` (ring-buffer pub/sub, `EventCapacityPolicy`, frame-bound lifecycle, SIMD-backed column storage), and `Plugin` (modular feature bundles that install systems, resources, and schedules into a `World`).",
+      "parent": "Core ECS Runtime (ecsly)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Application Layer (ecsly_app)",
+      "purpose": "Overview of the `ecsly_app` package: its role as the pure-Dart app-logic tier between the core engine and Flutter, and links to child pages on actions, drafts, and identity projection.",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "EcsAction and Action Runner",
+      "purpose": "Deep dive into `EcsAction<T>`, `EcsActionPhase`, `EcsActionStatus`, `EcsActionStatusResource`, and `EcsActionRunner`. Covers the action execution lifecycle (idle → running → succeeded/failed/cancelled), async support, progress tracking, and the `statusKey` pattern for shared status slots.",
+      "parent": "Application Layer (ecsly_app)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "EcsDraft, Invalidation, and Entity Index",
+      "purpose": "Covers `EcsDraft<T>` (headless form-state with dirty/touched/error tracking), `EcsInvalidationBatch` (broad vs. narrow invalidation hints for UI layers), `EcsHostSchedule`, and `EntityIndexResource<TScope, K>` (stable app-ID to ECS entity mapping).",
+      "parent": "Application Layer (ecsly_app)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Flutter Integration (ecsly_flutter)",
+      "purpose": "Overview of the `ecsly_flutter` package: its role as the 'host glue' connecting the ECS world to the Flutter widget tree, and links to child pages on scope/controller, selectors, and the frame loop.",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "EcsScope and EcsController",
+      "purpose": "Covers `EcsScope` (InheritedModel provider widget, `worldOf`/`controllerOf` static accessors, `EcsIdentityScope`), `EcsController` (ChangeNotifier bridge, `runAction`, `runTransaction`, `notifyWorldChanged`, `notificationRevision`), and `EcsActionOnMount` lifecycle helper.",
+      "parent": "Flutter Integration (ecsly_flutter)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Selectors and Reactive UI",
+      "purpose": "Covers `EcsResourceSelector<T,R>`, `EcsComponentSelector<T,R>`, `EcsWorldSelector<R>` with `EcsWorldSelectorDependencies`, `EcsActionStatusSelector`, tracked-change filtering, conservative refresh fallback, and `BuildContext` extension methods (`selectEcsResource`, `runEcsAction`, etc.).",
+      "parent": "Flutter Integration (ecsly_flutter)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "EcsLoop, EcsFixedStepLoop, and Frame Scheduling",
+      "purpose": "Covers `EcsLoop` (variable frame-rate ticker), `EcsFixedStepLoop` (accumulator-based fixed timestep, `maxCatchUpStepsPerTick`, `EcsFixedStepMetrics`), `EcsAppScope` (app lifecycle schedules: onMount, onPause, onResume, afterAction), `EcsFlutterSchedules`, `DeltaTimeResource`, `ScheduleTimeResource`, and the `flutterFrame` contract.",
+      "parent": "Flutter Integration (ecsly_flutter)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Code Generation (ecsly_codegen)",
+      "purpose": "Overview and deep dive into the `ecsly_codegen` build-time package: annotations, `build_runner` integration, `ColumnFactory` generation for typed-column components, `FacadeFactory` generation for extension facades, and how generated code integrates with the core runtime.",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Annotations and Builder Configuration",
+      "purpose": "Covers the annotation types used to mark component classes for generation, `build.yaml` / `builder.dart` configuration, how `build_runner` discovers and processes annotated sources, and the generated file naming conventions.",
+      "parent": "Code Generation (ecsly_codegen)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "ColumnFactory and FacadeFactory Generation",
+      "purpose": "Explains what `ColumnFactory` and `FacadeFactory` generated classes look like, how they wire into `world.components.registerExtension<>()`, the typed-column storage optimization they enable, and a worked example comparing hand-written vs. generated code.",
+      "parent": "Code Generation (ecsly_codegen)",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Developer Tooling and Repository Governance",
+      "purpose": "Overview of the tooling ecosystem: `just` command runner, `steward` contract validator, benchmarking, and CI/CD automation. Links to child pages for release pipeline and agent/skill infrastructure.",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Release Pipeline and Publishing",
+      "purpose": "Covers the full release automation: `Release Please` config (`release-please-config.json`, `.release-please-manifest.json`), tagging convention (`<package>-v<version>`), `sync_release_pubspec_versions.dart` version drift correction, `pub_package.dart` publish helper, bootstrap order for inter-package dependencies, OIDC pub.dev authentication, and the `agent-auto-approve` workflow.",
+      "parent": "Developer Tooling and Repository Governance",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Steward, Agent Skills, and Repository Health",
+      "purpose": "Covers the Steward contract (`steward.yaml`), `steward map` / `steward doctor` / `steward probe` commands, the `.agents/skills/` directory (GitNexus skills for exploring, debugging, impact analysis, refactoring, CLI; mcp-harness-repo-maintainer skills; repository-governance-lifecycle skills), `skills.json` / `skills-lock.json`, and the ADR process under `docs/decisions/`.",
+      "parent": "Developer Tooling and Repository Governance",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Benchmarking and Performance Profiling",
+      "purpose": "Covers the `core_packages/ecsly/benchmark/` suite: `run.dart` CLI flags (`--check`, `--json`, `--markdown`, `--limits`, `--samples`), `thresholds.yaml` regression gates, benchmark result formats, and the `just profile-flutter-selectors` selector invalidation profiling pipeline.",
+      "parent": "Developer Tooling and Repository Governance",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    },
+    {
+      "title": "Glossary",
+      "purpose": "Definitions of all codebase-specific terms, abbreviations, and domain concepts that an onboarding engineer needs to know, each with code pointers to the relevant file or class.",
+      "page_notes": [
+        {
+          "content": ""
+        }
+      ]
+    }
+  ]
+}

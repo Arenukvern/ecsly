@@ -73,7 +73,7 @@ App-layer and Flutter host packages live in this public repo under
 `core_packages/ecsly_app` and `core_packages/ecsly_flutter`. Their source has
 moved; hosted pub.dev publication is tracked separately.
 
-Core exposes `queryRevision` / `structuralRevision` for topology changes that
+Core exposes `structuralRevision` for topology changes that
 affect archetype membership and query caches. Treat them as topology epochs, not
 operation counters: one command flush that applies any number of spawn, despawn,
 add-component, or remove-component changes advances the epoch once. Query-cache

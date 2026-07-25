@@ -218,7 +218,7 @@ void main() {
     });
 
     test('queryMut/queryMut2/queryMut3/queryMut4 mutate in place', () {
-      final queryRevision = world.queryRevision;
+      final structuralRevision = world.structuralRevision;
       final (_, c1) = world.queryMut<C1>().single;
       c1.value = 10;
 
@@ -241,7 +241,7 @@ void main() {
       expect(world.query<C2>().single.$2.value, 17);
       expect(world.query<C3>().single.$2.value, 18);
       expect(world.query<C4>().single.$2.value, 19);
-      expect(world.queryRevision, queryRevision);
+      expect(world.structuralRevision, structuralRevision);
     });
 
     test('queryBuilder supports required and excluded component IDs', () {

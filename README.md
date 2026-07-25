@@ -11,6 +11,7 @@ _Experimental ECS packages for Dart and Flutter._
 [![Release Please](https://github.com/Arenukvern/ecsly/actions/workflows/release-please.yml/badge.svg?branch=main)](https://github.com/Arenukvern/ecsly/actions/workflows/release-please.yml)
 [![Publish pub.dev package](https://github.com/Arenukvern/ecsly/actions/workflows/pub-publish.yml/badge.svg?branch=main)](https://github.com/Arenukvern/ecsly/actions/workflows/pub-publish.yml)
 [![Docs](https://img.shields.io/badge/docs-docs.page-blue)](https://docs.page/arenukvern/ecsly)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/arenukvern/ecsly)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE-MIT)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE-APACHE)
 [![All Contributors](https://img.shields.io/github/all-contributors/Arenukvern/ecsly?color=ee8449&style=flat-square)](#contributors)
