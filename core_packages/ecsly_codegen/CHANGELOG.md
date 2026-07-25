@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.0-dev.4](https://github.com/Arenukvern/ecsly/compare/ecsly_codegen-v0.1.0-dev.3...ecsly_codegen-v0.1.0-dev.4) (2026-07-25)
+
+
+### Documentation
+
+* **ecsly_app:** update readme ([4ec8331](https://github.com/Arenukvern/ecsly/commit/4ec83311501b04a0781088b880c23e013a89514b))
+* **ecsly_codegen:** update readme ([4ec8331](https://github.com/Arenukvern/ecsly/commit/4ec83311501b04a0781088b880c23e013a89514b))
+
 ## [0.1.0-dev.3](https://github.com/Arenukvern/ecsly/compare/ecsly_codegen-v0.1.0-dev.2...ecsly_codegen-v0.1.0-dev.3) (2026-07-25)
 
 
