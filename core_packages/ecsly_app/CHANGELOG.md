@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.0-dev.3](https://github.com/Arenukvern/ecsly/compare/ecsly_app-v0.1.0-dev.2...ecsly_app-v0.1.0-dev.3) (2026-07-25)
+
+
+### Documentation
+
+* **ecsly_app:** update readme ([b49598e](https://github.com/Arenukvern/ecsly/commit/b49598e7baf7fd496786df06759a20ba94271706))
+* **ecsly_codegen:** update readme ([b49598e](https://github.com/Arenukvern/ecsly/commit/b49598e7baf7fd496786df06759a20ba94271706))
+
 ## [0.1.0-dev.2](https://github.com/Arenukvern/ecsly/compare/ecsly_app-v0.1.0-dev.1...ecsly_app-v0.1.0-dev.2) (2026-07-02)
 
 
