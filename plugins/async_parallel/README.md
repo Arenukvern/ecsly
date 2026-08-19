@@ -16,7 +16,7 @@ Provides TransferableTypedData double buffering and malloc.allocate shared memor
 ### Double Buffering (Primary Strategy)
 
 ```dart
-import 'package:ecs_async_parallel/ecs_async_parallel.dart';
+import 'lib/async_parallel.dart';
 
 // Create isolate manager
 final isolateManager = IsolateManager(_computeFunction);
@@ -110,7 +110,7 @@ class SIMDPhysicsStepper {
   }
 }
 
-// ecs_async_parallel handles concurrent execution
+// async_parallel handles concurrent execution
 void computeIsolate(_ComputeIsolateArgs args) {
   final stepper = SIMDPhysicsStepper();
   final buffer = DoubleBuffer(args.bufferSizeBytes);

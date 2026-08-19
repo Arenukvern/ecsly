@@ -1,4 +1,4 @@
-import '../world/world.dart';
+import 'package:ecsly/ecsly.dart';
 
 /// {@template isolate_config}
 /// Configuration for running a system in an isolate.

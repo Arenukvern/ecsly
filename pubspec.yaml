@@ -7,4 +7,5 @@ environment:
 
 workspace:
   - core_packages/*
+  - core_packages/ecsly_flutter/example
   - plugins/*

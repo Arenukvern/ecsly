@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'dart:isolate';
 
-import '../resources/resources.dart';
-import '../world/world.dart';
+import 'package:ecsly/ecsly.dart';
+
+import 'resource.dart';
 import 'schedule_job_types.dart';
 
 int currentScheduleExecutionFrame(final World world) {
@@ -30,8 +31,8 @@ ScheduleJobResultQueueResource resolveScheduleJobResultQueue(
   return ScheduleJobResultQueueResource();
 }
 
-abstract class ParallelJobSystem {
-  const ParallelJobSystem();
+abstract class ScheduleParallelTaskSystem {
+  const ScheduleParallelTaskSystem();
 
   String get jobKey;
 
@@ -72,7 +73,7 @@ abstract class PartitionedScheduleJobSystem<
   TChunk extends Object,
   TResult extends Object
 >
-    extends ParallelJobSystem {
+    extends ScheduleParallelTaskSystem {
   const PartitionedScheduleJobSystem();
 
   bool canRunInBackground(

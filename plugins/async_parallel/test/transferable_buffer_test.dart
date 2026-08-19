@@ -1,8 +1,8 @@
 import 'dart:isolate';
 import 'dart:typed_data';
 
-import 'package:ecs_async_parallel/ecs_async_parallel.dart';
-import 'package:flutter_test/flutter_test.dart';
+import 'package:async_parallel/async_parallel.dart';
+import 'package:test/test.dart';
 
 void main() {
   group('TransferableBuffer', () {

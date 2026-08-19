@@ -1,7 +1,8 @@
 import 'package:ecsly/ecsly.dart';
+import 'package:ecsly_async_parallel/ecsly_async_parallel.dart';
 import 'package:test/test.dart';
 
-class _AliveFilteringQueueJobSystem extends ParallelJobSystem {
+class _AliveFilteringQueueJobSystem extends ScheduleParallelTaskSystem {
   _AliveFilteringQueueJobSystem(this.mergedEntities);
 
   final List<_QueuedEntityRef> mergedEntities;

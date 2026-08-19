@@ -3,7 +3,7 @@ _Spatial organization for AI agent memory retention. Isolate management for conc
 
 ## 🏃‍♂️ Isolate Factory
 ```dart
-import 'package:ecs_async_parallel/ecs_async_parallel.dart';
+import 'package:async_parallel/async_parallel.dart';
 
 // Create isolate pool
 final pool = IsolatePool(size: 4);

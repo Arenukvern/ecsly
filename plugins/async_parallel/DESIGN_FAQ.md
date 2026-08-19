@@ -1,10 +1,10 @@
-# Design Decisions FAQ - ecs_async_parallel
+# Design Decisions FAQ - async_parallel
 
-Quick reference for ecs_async_parallel architectural choices and rationale. Focus: **Why** isolate management exists and key design decisions. See main ECS DESIGN_FAQ.md for core ECS architecture.
+Quick reference for async_parallel architectural choices and rationale. Focus: **Why** isolate management exists and key design decisions. See main ECS DESIGN_FAQ.md for core ECS architecture.
 
 ## Package Purpose
 
-**Q: Why does ecs_async_parallel exist as a separate package?**  
+**Q: Why does async_parallel exist as a separate package?**  
 A: Provides zero-cost isolate management for high-performance Dart applications. Enables concurrent computation without GC pressure. Decouples execution model from algorithm implementations. Trade-off: Isolate complexity vs single-threaded simplicity.
 
 **Q: Why isolate management instead of async/await?**  

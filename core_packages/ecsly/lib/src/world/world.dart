@@ -54,7 +54,6 @@ class World {
     // Initialize resources with world reference
     this.resources = resources ?? ResourceRegistry(world: this);
     this.resources.push(ScheduleExecutionPolicyResource());
-    this.resources.push(ScheduleJobResultQueueResource());
     this.resources.flush();
     this.events = events ?? EventRegistry(this);
     // Initialize query cache first (needed for archetype registry)
