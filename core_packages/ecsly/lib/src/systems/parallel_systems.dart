@@ -30,8 +30,8 @@ ScheduleJobResultQueueResource resolveScheduleJobResultQueue(
   return ScheduleJobResultQueueResource();
 }
 
-abstract class CertifiedScheduleJobSystem {
-  const CertifiedScheduleJobSystem();
+abstract class ParallelJobSystem {
+  const ParallelJobSystem();
 
   String get jobKey;
 
@@ -72,7 +72,7 @@ abstract class PartitionedScheduleJobSystem<
   TChunk extends Object,
   TResult extends Object
 >
-    extends CertifiedScheduleJobSystem {
+    extends ParallelJobSystem {
   const PartitionedScheduleJobSystem();
 
   bool canRunInBackground(

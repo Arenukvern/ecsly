@@ -397,8 +397,13 @@ extension EventColumnStorage on DataColumn {
   /// - TypedData columns (FloatColumn, IntColumn): no-op (value types)
   /// - ObjectColumn: sets reference to null
   void clearEvent(final int index) {
-    if (this is ObjectColumn) {
-      (this as ObjectColumn).setValue(index, null);
+    final column = this;
+    if (column case final ObjectColumn objectColumn) {
+      // Ensure the column has capacity at this index before clearing.
+      while (index >= objectColumn.length) {
+        objectColumn.addBlank();
+      }
+      objectColumn.setValue(index, null);
     }
     // FloatColumn and IntColumn don't need explicit clearing (TypedData is value types)
     // The values will be overwritten on next write
@@ -468,6 +473,12 @@ extension EventColumnStorage on DataColumn {
   void storeEvent<T extends EcsEvent>(final int index, final T event) {
     switch (this) {
       case final ObjectColumn<T> objectColumn:
+        // Ensure the column has capacity at this index before writing.
+        // ObjectColumn.setValue asserts index < _length, so we grow via
+        // addBlank() until the index is valid.
+        while (index >= objectColumn.length) {
+          objectColumn.addBlank();
+        }
         objectColumn.setValue(index, event);
       case final FloatColumn floatColumn:
         if (event is! TypedDataEventMixin) {

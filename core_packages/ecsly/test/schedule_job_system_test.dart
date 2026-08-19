@@ -1,7 +1,7 @@
 import 'package:ecsly/ecsly.dart';
 import 'package:test/test.dart';
 
-class _AliveFilteringQueueJobSystem extends CertifiedScheduleJobSystem {
+class _AliveFilteringQueueJobSystem extends ParallelJobSystem {
   _AliveFilteringQueueJobSystem(this.mergedEntities);
 
   final List<_QueuedEntityRef> mergedEntities;

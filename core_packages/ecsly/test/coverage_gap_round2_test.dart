@@ -178,9 +178,12 @@ void main() {
 
       final batch = reader.drain();
       expect(batch.map((final e) => e.a), [1, 2]);
+
+      // drain() consumes events — channel should be empty now
+      expect(reader.isEmpty, isTrue);
       final iterValues = <double>[];
       reader.forEach((final e) => iterValues.add(e.a));
-      expect(iterValues, [1, 2]);
+      expect(iterValues, isEmpty);
 
       channel.clear();
       expect(reader.isEmpty, isTrue);

@@ -1,5 +1,5 @@
-import 'certified_job_system.dart';
 import 'isolate_config.dart';
+import 'parallel_systems.dart';
 import 'system.dart';
 
 /// {@template system_descriptor}
@@ -27,7 +27,7 @@ class SystemDescriptor {
   /// Optional certified job system used by async schedules.
   ///
   /// Sync schedule execution falls back to [runSerial] semantics.
-  final CertifiedScheduleJobSystem? jobSystem;
+  final ParallelJobSystem? jobSystem;
 
   /// Optional name for the system (used for dependencies)
   final String? name;
@@ -52,7 +52,7 @@ class SystemDescriptor {
   /// Create a copy with updated values
   SystemDescriptor copyWith({
     final System? system,
-    final CertifiedScheduleJobSystem? jobSystem,
+    final ParallelJobSystem? jobSystem,
     final String? name,
     final List<String>? runAfter,
     final List<String>? runBefore,

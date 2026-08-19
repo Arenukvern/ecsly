@@ -365,13 +365,19 @@ class EventReader<T extends EcsEvent> {
     }
   }
 
-  /// Drain all events into a list.
+  /// Drain all events into a list, consuming them from the channel.
   ///
-  /// Returns a list of all current events. The channel will be empty after this call.
-  /// Note: Events are not automatically cleared - call clearAll() on the registry when appropriate.
+  /// Returns a list of all current events in FIFO order (oldest first).
+  /// The channel will be empty after this call — events are consumed, not just
+  /// snapshotted. This matches the conventional "drain" semantic in ECS and
+  /// event-queue systems: the source is emptied so events are not re-read.
+  ///
+  /// For frame-level cleanup of all event types at once, use
+  /// [EventRegistry.clearAll] instead.
   List<T> drain() {
     final snapshot = cursor();
     final result = List<T>.generate(snapshot.length, snapshot.readAt);
+    _channel.clear();
     return result;
   }
 

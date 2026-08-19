@@ -55,7 +55,7 @@ import 'package:directed_graph/directed_graph.dart';
 
 import '../errors/ecs_errors.dart';
 import '../world/world.dart';
-import 'certified_job_system.dart';
+import 'parallel_systems.dart';
 import 'schedule_trigger.dart';
 import 'system.dart';
 import 'system_descriptor.dart';
@@ -168,7 +168,7 @@ class Schedule {
 
   /// Add a certified job system to the schedule.
   Schedule addJobSystem(
-    final CertifiedScheduleJobSystem jobSystem, {
+    final ParallelJobSystem jobSystem, {
     required final String name,
     final List<String> runAfter = const [],
     final List<String> runBefore = const [],
@@ -325,7 +325,7 @@ class Schedule {
 
   /// Add a certified job system sequentially after the last added system.
   Schedule thenJobSystem(
-    final CertifiedScheduleJobSystem jobSystem, {
+    final ParallelJobSystem jobSystem, {
     required final String name,
   }) => addJobSystem(
     jobSystem,
