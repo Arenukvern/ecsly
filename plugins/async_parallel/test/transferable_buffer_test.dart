@@ -104,5 +104,20 @@ void main() {
       // Transferred data should not reflect the modification
       expect(newBuffer.data[0], equals(1), reason: 'Transfer should copy data');
     });
+
+    test('transfer resets byteLength and isOwned to reflect lost ownership', () {
+      final buffer = TransferableBuffer(64);
+      expect(buffer.byteLength, equals(64));
+      expect(buffer.isOwned, isTrue);
+
+      buffer.transfer();
+
+      // After transfer the local isolate no longer owns the data, so both the
+      // size and the ownership flag must report it. Previously byteLength kept
+      // its old value while data was empty — a stale-size footgun.
+      expect(buffer.byteLength, equals(0));
+      expect(buffer.data.isEmpty, isTrue);
+      expect(buffer.isOwned, isFalse);
+    });
   });
 }

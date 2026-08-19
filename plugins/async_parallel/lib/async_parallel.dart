@@ -13,6 +13,7 @@ library;
 
 export 'src/buffer_pool.dart';
 export 'src/double_buffer.dart';
+export 'src/isolate_executor.dart';
 export 'src/isolate_manager.dart';
 export 'src/shared_memory.dart';
 export 'src/transferable_buffer.dart';

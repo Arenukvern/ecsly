@@ -9,7 +9,9 @@ Provides TransferableTypedData double buffering and malloc.allocate shared memor
 - **Zero-Cost**: Minimal abstraction overhead, direct TypedData operations
 - **Double Buffering**: Automatic ownership transfer between isolates
 - **Shared Memory**: Optional malloc.allocate for zero-latency access
-- **SIMD-Friendly**: Preserves TypedData layout across isolate boundaries
+- **Typed-Data Friendly**: TypedData layout is preserved across isolate
+  boundaries via `TransferableTypedData`, so views such as `Float32List` and
+  `Int32List` remain valid on the receiving side
 
 ## Usage
 

@@ -2,9 +2,14 @@ import 'package:ecsly/ecsly.dart';
 
 import 'schedule_parallel_task_system.dart';
 
-/// Job system integration into schedule
+/// Job-system integration extensions on [Schedule].
 extension ScheduleExt on Schedule {
-  /// Add a certified job system to the schedule.
+  /// Adds a [ScheduleParallelTaskSystem] to this schedule.
+  ///
+  /// The job system is registered as a system descriptor running [runAsync],
+  /// so it participates in dependency ordering via [runAfter] / [runBefore].
+  ///
+  /// Returns `this` for chaining.
   Schedule addJobSystem(
     final ScheduleParallelTaskSystem jobSystem, {
     required final String name,
@@ -24,7 +29,7 @@ extension ScheduleExt on Schedule {
     return this;
   }
 
-  /// Add a certified job system sequentially after the last added system.
+  /// Adds a job system that runs sequentially after the last added system.
   Schedule thenJobSystem(
     final ScheduleParallelTaskSystem jobSystem, {
     required final String name,

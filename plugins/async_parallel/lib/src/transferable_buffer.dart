@@ -27,7 +27,7 @@ class TransferableBuffer {
   Uint8List get data => _data;
 
   /// Whether this isolate currently owns the buffer.
-  bool get isOwned => _data.isNotEmpty;
+  bool get isOwned => byteLength > 0;
 
   /// Receives ownership from a transfer.
   ///
@@ -44,10 +44,16 @@ class TransferableBuffer {
   ///
   /// After calling this, the current isolate loses access to the data.
   /// Returns a TransferableTypedData that can be sent via SendPort.
+  ///
+  /// Note: [byteLength] is reset to 0 alongside [data] so the buffer cannot
+  /// report a stale size while holding no data. Capture the size first if you
+  /// need it after transfer.
   TransferableTypedData transfer() {
     final transferable = TransferableTypedData.fromList([_data]);
-    // Clear local reference after transfer
+    // Clear local reference after transfer. byteLength must be reset too,
+    // otherwise the buffer lies about its size while owning no data.
     _data = Uint8List(0);
+    byteLength = 0;
     return transferable;
   }
 }

@@ -14,6 +14,15 @@ class _AliveFilteringQueueJobSystem extends ScheduleParallelTaskSystem {
   void runSerial(final World world) {}
 
   @override
+  Future<void> runDeterministic(
+    final World world, {
+    required final ScheduleExecutionPolicyResource policy,
+    required final ScheduleJobResultQueueResource queue,
+  }) async {
+    runSerial(world);
+  }
+
+  @override
   Future<void> runBestEffort(
     final World world, {
     required final ScheduleExecutionPolicyResource policy,
@@ -101,6 +110,7 @@ void main() {
       'result queue takes matching frame results and drops stale entries',
       () {
         final world = World();
+        world.upsertResource(ScheduleJobResultQueueResource());
         final queue = world.getResource<ScheduleJobResultQueueResource>();
 
         queue.completeInFlight(
@@ -138,6 +148,7 @@ void main() {
         ..mode = ScheduleExecutionPolicy.bestEffort
         ..workerCount = 2
         ..markFrame(7);
+      world.upsertResource(ScheduleJobResultQueueResource());
       final queue = world.getResource<ScheduleJobResultQueueResource>();
 
       final entity = world.entities.create();
@@ -177,6 +188,7 @@ void main() {
           ..mode = ScheduleExecutionPolicy.bestEffort
           ..workerCount = 4
           ..markFrame(9);
+        world.upsertResource(ScheduleJobResultQueueResource());
         final queue = world.getResource<ScheduleJobResultQueueResource>();
         queue.completeInFlight(
           const ScheduleJobResultEnvelope<int>(
@@ -206,6 +218,7 @@ void main() {
           ..mode = ScheduleExecutionPolicy.bestEffort
           ..workerCount = 4
           ..markFrame(9);
+        world.upsertResource(ScheduleJobResultQueueResource());
         final queue = world.getResource<ScheduleJobResultQueueResource>();
         queue.completeInFlight(
           const ScheduleJobResultEnvelope<int>(

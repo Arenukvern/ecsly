@@ -2,16 +2,26 @@ import 'package:ecsly/ecsly.dart';
 
 import 'schedule_job_types.dart';
 
+/// Holds completed job results and tracks in-flight work for best-effort jobs.
+///
+/// The [ScheduleExecutionPolicy] enum and [ScheduleExecutionPolicyResource]
+/// are owned by the `ecsly` core package and re-exported through it; this file
+/// only adds the result queue used by job systems.
 class ScheduleJobResultQueueResource extends Resource {
+  /// {@macro schedule_job_result_queue_resource}
+  ScheduleJobResultQueueResource();
+
   final List<ScheduleJobResultEnvelope<Object>> _completed =
       <ScheduleJobResultEnvelope<Object>>[];
   final Set<String> _inFlight = <String>{};
 
+  /// Marks a job's work for a frame as in-flight.
   bool beginInFlight({
     required final String jobKey,
     required final int frameId,
   }) => _inFlight.add(_composeInFlightKey(jobKey, frameId));
 
+  /// Cancels the in-flight marker for a frame (e.g. on error).
   void cancelInFlight({
     required final String jobKey,
     required final int frameId,
@@ -19,6 +29,7 @@ class ScheduleJobResultQueueResource extends Resource {
     _inFlight.remove(_composeInFlightKey(jobKey, frameId));
   }
 
+  /// Records a completed frame's results and clears its in-flight marker.
   void completeInFlight<T extends Object>(
     final ScheduleJobResultEnvelope<T> envelope,
   ) {
@@ -26,6 +37,9 @@ class ScheduleJobResultQueueResource extends Resource {
     _completed.add(_eraseEnvelope(envelope));
   }
 
+  /// Drops results and in-flight markers older than [minFrameId].
+  ///
+  /// If [jobKey] is provided, only that job's entries are dropped.
   int dropStaleResults({required final int minFrameId, final String? jobKey}) {
     final before = _completed.length;
     _completed.removeWhere(
@@ -44,9 +58,11 @@ class ScheduleJobResultQueueResource extends Resource {
     return before - _completed.length;
   }
 
+  /// Whether any work for [jobKey] is currently in flight.
   bool hasInFlightJob(final String jobKey) =>
       _inFlight.any((final key) => key.startsWith('$jobKey#'));
 
+  /// Returns and removes the completed results for a frame.
   List<ScheduleJobChunkResult<T>> takeForFrame<T extends Object>({
     required final String jobKey,
     required final int frameId,
