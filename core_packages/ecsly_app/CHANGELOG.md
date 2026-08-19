@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.0-dev.5](https://github.com/Arenukvern/ecsly/compare/ecsly_app-v0.1.0-dev.4...ecsly_app-v0.1.0-dev.5) (2026-08-19)
+
+
+### Bug Fixes
+
+* **ecsly:** EventReader.drain ([5afd0ac](https://github.com/Arenukvern/ecsly/commit/5afd0ac9445cf05655d830ad82f53fc520ff1cd2))
+
 ## [0.1.0-dev.4](https://github.com/Arenukvern/ecsly/compare/ecsly_app-v0.1.0-dev.3...ecsly_app-v0.1.0-dev.4) (2026-07-25)
 
 

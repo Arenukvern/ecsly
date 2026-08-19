@@ -6,6 +6,13 @@
 
 * **ecsly:** fix `EventReader.drain()` to actually consume events from the channel, matching its documented contract and the conventional drain semantic in ECS/event-queue systems. Previously `drain()` returned a snapshot without clearing the channel, leaving events for re-processing.
 
+## [0.0.1-dev.14](https://github.com/Arenukvern/ecsly/compare/ecsly-v0.0.1-dev.13...ecsly-v0.0.1-dev.14) (2026-08-19)
+
+
+### Bug Fixes
+
+* **ecsly:** EventReader.drain ([5afd0ac](https://github.com/Arenukvern/ecsly/commit/5afd0ac9445cf05655d830ad82f53fc520ff1cd2))
+
 ## [0.0.1-dev.13](https://github.com/Arenukvern/ecsly/compare/ecsly-v0.0.1-dev.12...ecsly-v0.0.1-dev.13) (2026-07-25)
 
 

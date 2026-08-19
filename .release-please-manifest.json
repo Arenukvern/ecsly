@@ -1,6 +1,6 @@
 {
-  "core_packages/ecsly": "0.0.1-dev.13",
-  "core_packages/ecsly_app": "0.1.0-dev.4",
-  "core_packages/ecsly_codegen": "0.1.0-dev.4",
-  "core_packages/ecsly_flutter": "0.1.0-dev.4"
+  "core_packages/ecsly": "0.0.1-dev.14",
+  "core_packages/ecsly_app": "0.1.0-dev.5",
+  "core_packages/ecsly_codegen": "0.1.0-dev.5",
+  "core_packages/ecsly_flutter": "0.1.0-dev.5"
 }
