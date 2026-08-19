@@ -9,4 +9,5 @@ export 'src/ecs_component_lookup.dart';
 export 'src/ecs_draft.dart';
 export 'src/ecs_host_schedule.dart';
 export 'src/ecs_invalidation_batch.dart';
+export 'src/ecs_loop.dart';
 export 'src/entity_index_resource.dart';

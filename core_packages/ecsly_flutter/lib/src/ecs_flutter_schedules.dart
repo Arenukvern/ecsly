@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
 import 'ecs_controller.dart';
-import 'ecs_loop.dart';
+import 'ecs_flutter_loop.dart';
 import 'ecs_schedule_observer.dart';
 import 'ecs_scope.dart';
 
@@ -225,7 +225,7 @@ class _EcsAppScopeState extends State<EcsAppScope> with WidgetsBindingObserver {
     final frame = widget.schedules.frame;
     if (frame == null) return child;
     return switch (frame.mode) {
-      EcsFrameScheduleMode.flutterFrame => EcsLoop(
+      EcsFrameScheduleMode.flutterFrame => EcsFlutterLoop(
         world: widget.world,
         controller: _controller,
         schedules: [frame.schedule],

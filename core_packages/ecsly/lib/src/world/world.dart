@@ -13,6 +13,11 @@ import 'world_observers.dart';
 export 'world_extensions.dart';
 export 'world_observers.dart';
 
+/// Unique id of [World]
+extension type const WorldId(int value) {
+  static const zero = WorldId(0);
+}
+
 /// Central coordinator for the ECS world.
 ///
 /// World provides shortcuts and delegates to specialized registries:
@@ -37,6 +42,7 @@ class World {
     final SystemsRegistry? systems,
     final QueryCache? queryCache,
     final EventRegistry? events,
+    this.id = WorldId.zero,
     this.executionObserver,
     this.flushObserver,
   }) : systems = systems ?? SystemsRegistry() {
@@ -70,6 +76,7 @@ class World {
   late final QueryCache queryCache;
   late final EventRegistry events;
   final SystemsRegistry systems;
+  final WorldId id;
   bool isInitialized = false;
   bool enforceSoAForHotSchedules = false;
   int _hotScheduleDepth = 0;

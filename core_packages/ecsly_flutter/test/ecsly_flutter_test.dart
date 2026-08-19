@@ -1059,7 +1059,7 @@ void main() {
         home: EcsScope(
           world: world,
           controller: controller,
-          child: EcsLoop(
+          child: EcsFlutterLoop(
             world: world,
             controller: controller,
             schedules: const ['frame'],
@@ -1127,7 +1127,7 @@ void main() {
         home: EcsScope(
           world: world,
           controller: controller,
-          child: EcsLoop(
+          child: EcsFlutterLoop(
             world: world,
             controller: controller,
             schedules: const ['frame'],

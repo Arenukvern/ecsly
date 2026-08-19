@@ -13,24 +13,9 @@ typedef ScheduleOrderingPolicy =
 typedef EcsScheduleInvalidation =
     EcsInvalidationBatch? Function(String scheduleName);
 
-@immutable
-class EcsFixedStepMetrics {
-  const EcsFixedStepMetrics({
-    required this.fixedDt,
-    required this.elapsedMicros,
-    required this.stepsRunThisTickerFrame,
-    required this.catchUpClamped,
-  });
-
-  final double fixedDt;
-  final int elapsedMicros;
-  final int stepsRunThisTickerFrame;
-  final bool catchUpClamped;
-}
-
 /// Ticker-driven Flutter frame loop.
-class EcsLoop extends StatefulWidget {
-  const EcsLoop({
+class EcsFlutterLoop extends StatefulWidget {
+  const EcsFlutterLoop({
     required this.world,
     required this.schedules,
     required this.child,
@@ -56,7 +41,7 @@ class EcsLoop extends StatefulWidget {
   final EcsScheduleRunObserver? onScheduleRun;
 
   @override
-  State<EcsLoop> createState() => _EcsLoopState();
+  State<EcsFlutterLoop> createState() => _EcsFlutterLoopState();
 }
 
 /// Drives named ECS schedules with fixed-step accumulation.
@@ -94,7 +79,8 @@ class EcsFixedStepLoop extends StatefulWidget {
   State<EcsFixedStepLoop> createState() => _EcsFixedStepLoopState();
 }
 
-class _EcsLoopState extends State<EcsLoop> with SingleTickerProviderStateMixin {
+class _EcsFlutterLoopState extends State<EcsFlutterLoop>
+    with SingleTickerProviderStateMixin {
   late final Ticker _ticker;
   Duration _lastElapsed = Duration.zero;
 
@@ -117,7 +103,7 @@ class _EcsLoopState extends State<EcsLoop> with SingleTickerProviderStateMixin {
   }
 
   @override
-  void didUpdateWidget(covariant final EcsLoop oldWidget) {
+  void didUpdateWidget(covariant final EcsFlutterLoop oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.paused, widget.paused)) {
       oldWidget.paused?.removeListener(_applyPaused);
