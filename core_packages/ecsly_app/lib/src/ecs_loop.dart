@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ecsly/ecsly.dart';
 import 'package:meta/meta.dart';
 
 import '../ecsly_app.dart';
@@ -112,17 +113,15 @@ class EcsFixedLoop extends EcsLoop {
 
   void _runFixedStep(final World world) {
     _updateTimeResources(world, config.fixedDt);
-    for (final (:isAsync, :name) in config.schedules) {
-      if (isAsync) {
-        // TODO: fix problem with async - it should never block
-        // the sync call.
-        //
-        // as example - see flutter scheduler.scheduleTask
-        // or bevy AsyncComputeTaskPool::
-        unawaited(world.runScheduleAsync(name));
-      } else {
-        world.runSchedule(name);
-      }
+    // Advance the schedule execution frame so that best-effort job systems
+    // (ScheduleJobResultQueueResource) can pipeline across frames.
+    syncScheduleExecutionFrame(world);
+    for (final schedule in config.schedules) {
+      // Use runSchedule (sync path) for all schedules. The sync executor's
+      // _executeGroup already does fire-and-forget for asyncParallel systems
+      // — the returned Future is discarded. Using runScheduleAsync would
+      // incorrectly await via Future.wait, blocking the loop.
+      world.runSchedule(schedule.name);
     }
   }
 }

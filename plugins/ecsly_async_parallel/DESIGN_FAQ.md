@@ -10,10 +10,11 @@ primitives.
 **Q: Why does ecsly_async_parallel exist as a separate package?**
 A: It owns the ECS-specific job-system layer: the `Schedule` extension
 (`addJobSystem` / `thenJobSystem`), the `ScheduleParallelTaskSystem` /
-`PartitionedScheduleJobSystem` base classes, and the result-queue resource.
-The low-level primitives (`DoubleBuffer`, `TransferableBuffer`, `BufferPool`,
-`SharedMemory`, `IsolateManager`, `IsolateExecutor`) live in `async_parallel`,
-which is ECS-agnostic and publishable on its own. Splitting them lets algorithm
+`PartitionedScheduleJobSystem` / `BufferedScheduleJobSystem` base classes, and
+the result-queue resource. The low-level primitives (`DoubleBuffer`,
+`TransferableBuffer`, `BufferPool`, `SharedMemory`, `IsolateManager`,
+`IsolateExecutor`, `IsolateExecutorPool`) live in `async_parallel`, which is
+ECS-agnostic and publishable on its own. Splitting them lets algorithm
 libraries consume the primitives without depending on `ecsly`, while ECS users
 get the job-system wiring for free.
 
@@ -39,6 +40,24 @@ It belongs in the generalized package so non-ECS consumers can use it, and so
 the job layer can depend on it without creating a cycle (`async_parallel` does
 not depend on `ecsly`; `ecsly_async_parallel` depends on both).
 
+**Q: What pooled executor is available?**
+A: `IsolateExecutorPoolDart` wraps `IsolateExecutorPool` +
+`IsolateExecutorPoolAdapter` from `async_parallel`. It keeps worker isolates
+alive and dispatches work to idle workers, amortizing isolate startup cost.
+The worker entry point must be a top-level or static function — the work logic
+is fixed at pool construction. Override `isolateExecutor` on your job system
+to use it:
+
+```dart
+class MyJobSystem extends PartitionedScheduleJobSystem<...> {
+  @override
+  IsolateExecutor get isolateExecutor => IsolateExecutorPoolDart(
+    workerEntry: _myWorkerEntry,
+    size: 4,
+  );
+}
+```
+
 ## Job System Abstractions
 
 **Q: Why `ScheduleParallelTaskSystem` rather than a plain `System`?**
@@ -53,10 +72,24 @@ A: Most jobs share the same shape: extract → partition → execute chunk → m
 The base class implements that loop and only calls the four hooks. Subclasses
 stay small; the chunking, ordering, and isolate dispatch live in one place.
 
+**Q: Why `BufferedScheduleJobSystem` as a third layer?**
+A: `PartitionedScheduleJobSystem` sends arbitrary Dart objects across isolate
+boundaries, which the VM copies. `BufferedScheduleJobSystem` constrains `TChunk`
+to `TypedData` and routes chunk payloads through `TransferableBuffer`, so the
+worker views the *same* memory the owner handed over — zero-copy transfer.
+Adopt this base class when your extract/merge can operate on raw buffers.
+
 **Q: Why chunk-key ordering?**
 A: Deterministic results require a stable merge order. Each chunk carries an
 integer `chunkKey`; results are sorted by it before `merge` is called. This
 makes `deterministic` mode reproducible across runs and platforms.
+
+**Q: Why `dispatchChunk` instead of `isolateExecutor` in `BufferedScheduleJobSystem`?**
+A: `BufferedScheduleJobSystem` needs to pass a `TransferableTypedData` chunk
+and a `workerEntry` function to the isolate. The `IsolateExecutor.compute`
+interface takes a closure and a message, which doesn't fit the zero-copy
+transfer pattern. `dispatchChunk` is a seam that defaults to `Isolate.spawn`
+but can be overridden to route through a pooled executor.
 
 ## Best-Effort Pipelining
 
@@ -90,16 +123,28 @@ the core's execution model simple and the plugin's policy logic isolated.
 
 ## Performance
 
-**Q: Why not zero-copy transfer for chunk results today?**
-A: Chunk payloads and results are arbitrary Dart objects (e.g. the collision
-plugin's `_BroadPhaseChunkInput` holding `Int32List`/`Float32List` references).
-They are copied across isolate boundaries by the VM. Zero-copy via
-`TransferableBuffer` is available in `async_parallel` for callers whose data is
-already a flat `TypedData` buffer — the job layer is the natural consumer once
-extract/merge are refactored to work on raw buffers. Trade-off: generality vs.
-zero-copy for hot paths.
+**Q: When should I use `BufferedScheduleJobSystem` vs `PartitionedScheduleJobSystem`?**
+A: Use `BufferedScheduleJobSystem` when your chunk data is already flat
+`TypedData` (e.g. `Float32List` bounds, `Int32List` pair indices). The chunk
+input is transferred zero-copy via `TransferableTypedData` — no VM copy. Use
+`PartitionedScheduleJobSystem` when your chunk types are arbitrary Dart objects
+that can't be flattened into `TypedData`.
+
+**Q: What is zero-copy in the buffered path?**
+A: **Chunk input** is transferred via `TransferableTypedData` — the worker
+materializes the exact buffer the owner produced, no copy. **Chunk output** is
+returned through the isolate's result channel, so it is copied. Outputs are
+typically small (a frame's worth of manifolds), so this is the right place to
+accept a copy.
 
 **Q: When should I not use background isolates?**
 A: When there are fewer than two chunks, when `workerCount <= 1`, or when the
 per-chunk work is smaller than isolate startup cost. All three modes fall back
 to `runSerial` automatically, so the caller does not need to special-case them.
+
+**Q: When should I use a pooled executor?**
+A: When you have many small, frequent tasks where isolate startup cost
+(~ms per `Isolate.spawn`) dominates. `IsolateExecutorPoolDart` keeps workers
+alive and reuses them. The worker entry point must be a top-level or static
+function — the work logic is fixed at pool construction. For
+`BufferedScheduleJobSystem`, override `dispatchChunk` to route through the pool.

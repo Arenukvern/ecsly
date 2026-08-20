@@ -53,6 +53,32 @@ if (sharedMem != null) {
 }
 ```
 
+### Isolate Executor & Pooling
+
+`IsolateExecutor` is the pluggable seam for isolate execution:
+
+```dart
+// Fresh isolate per call (default)
+final executor = IsolateExecutorDart();
+await executor.compute(myFunction, message);
+
+// Pooled isolates — amortizes startup cost for many small tasks
+final pool = IsolateExecutorPoolDart(
+  workerEntry: _myWorkerEntry,
+  size: 4,
+);
+try {
+  await pool.compute(myFunction, message);
+} finally {
+  await pool.shutdown();
+}
+```
+
+`IsolateExecutorPool` keeps workers alive and dispatches work to idle
+workers. The worker entry point must be a top-level or static function — the
+work logic is fixed at pool construction. `IsolateExecutorPoolAdapter` wraps
+the pool to satisfy the `IsolateExecutor` interface.
+
 ## Architecture
 
 ### TransferableTypedData Strategy

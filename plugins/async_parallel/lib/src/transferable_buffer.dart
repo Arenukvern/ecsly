@@ -16,7 +16,9 @@ class TransferableBuffer {
   /// modify it after creation.
   TransferableBuffer.fromTypedData(final TypedData data)
     : byteLength = data.lengthInBytes,
-      _data = Uint8List.fromList(data.buffer.asUint8List());
+      _data = Uint8List.fromList(
+        data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+      );
 
   /// Size of the buffer in bytes.
   int byteLength;

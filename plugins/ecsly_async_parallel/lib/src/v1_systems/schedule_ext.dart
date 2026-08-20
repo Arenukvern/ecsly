@@ -15,19 +15,12 @@ extension ScheduleExt on Schedule {
     required final String name,
     final List<String> runAfter = const [],
     final List<String> runBefore = const [],
-  }) {
-    systems.add(
-      SystemDescriptor(
-        system: jobSystem.runAsync,
-        name: name,
-        runAfter: runAfter,
-        runBefore: runBefore,
-      ),
-    );
-    lastSystemName = name;
-    invalidateCache();
-    return this;
-  }
+  }) => add(
+    jobSystem.runAsync,
+    name: name,
+    runAfter: runAfter,
+    runBefore: runBefore,
+  );
 
   /// Adds a job system that runs sequentially after the last added system.
   Schedule thenJobSystem(

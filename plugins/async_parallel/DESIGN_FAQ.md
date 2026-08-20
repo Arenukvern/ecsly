@@ -43,6 +43,14 @@ A: Dart isolates are memory-isolated by design. Message passing is the only safe
 **Q: Why automatic buffer swapping in IsolateManager?**  
 A: Eliminates manual buffer coordination errors. Ensures correct read/write separation. Handles ownership transfer automatically. Trade-off: Less control vs safety guarantees.
 
+## Isolate Executor Design
+
+**Q: Why IsolateExecutor abstraction instead of direct isolate usage?**  
+A: Decouples job systems from a specific isolate strategy. `IsolateExecutorDart` (fresh isolate per call) is the default; a pooled or native implementation can be substituted. Trade-off: One indirection per chunk vs hard-coded strategy.
+
+**Q: Why IsolateExecutorPool for isolate reuse?**  
+A: Isolate startup costs ~ms per `Isolate.spawn`. `IsolateExecutorPool` keeps workers alive and dispatches work to idle workers, amortizing startup cost for many small, frequent tasks. The worker entry point must be a top-level or static function — the work logic is fixed at pool construction. `IsolateExecutorPoolAdapter` wraps the pool to satisfy the `IsolateExecutor` interface. Trade-off: Pool management vs per-call isolate spawn.
+
 ## Performance Characteristics
 
 **Q: Why zero-copy buffer transfer?**  
@@ -77,4 +85,3 @@ A: Isolate failures indicate serious bugs (algorithm errors, memory issues). Aut
 
 **Q: Why explicit shutdown required?**  
 A: Ensures proper cleanup of isolate resources. Prevents resource leaks. Enables controlled shutdown sequence. Trade-off: Manual management vs automatic cleanup.
-
