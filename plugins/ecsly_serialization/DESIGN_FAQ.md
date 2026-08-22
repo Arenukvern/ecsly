@@ -17,7 +17,7 @@ The design layers three mechanisms, in increasing invasiveness:
 
 ### 1. Stable identity by type name (automatic)
 
-Snapshots (format v2+) embed a `componentIds` table mapping component _type
+Snapshots (format v3) embed a `componentIds` table mapping component _type
 names_ to the source world's local numeric IDs. On restore, the plugin builds
 a snapshot-ID → target-ID remap from those names and rewrites all column keys.
 Registration reorder, added components, and removed components therefore need
@@ -62,13 +62,47 @@ versions, Bevy's explicit scene type registration) requires the developer to
 declare semantics. The framework's job is to make declaring them cheap and to
 fail loudly when a declaration is missing — which is what layers 1–3 do.
 
-## Why does restore require pre-spawned entities?
+## Why PersistentId instead of serializing entity handles?
 
-Structural identity (which archetype an entity belongs to) depends on
-registration order and spawn sequence, which are app concerns. Serializing
-state only keeps the plugin small and avoids duplicating spawn logic. The
-snapshot stores each entity's index/generation so handles stay valid when the
-target world reproduces the same layout.
+Runtime `Entity` handles are world-local: index + generation, recycled on
+despawn. Serializing them would make saves fragile (any spawn-order change
+invalidates every reference) and would couple the format to core's internal
+entity encoding.
+
+This matches how Bevy and networked ECS engines treat identity: the runtime
+handle is disposable; stable identity lives in a component (`PersistentId`
+here, Bevy's `PrimaryEntity`/BSN `Context`-scoped ids, or MMO persistent
+object GUIDs). The snapshot stores only `PersistentId` carriers and re-spawns
+them into any target world — including a completely empty one — returning a
+`persistentId → Entity` map so apps can re-resolve references.
+
+Consequences:
+
+- Transient entities (particles, VFX) are excluded by default — an explicit,
+  cheap opt-in to persistence rather than a global filter list.
+- Restore is idempotent per id: applying a snapshot twice is a no-op for
+  entities already present.
+- Duplicate ids fail capture loudly; silent aliasing is worse than an error.
+
+## Why samples at registration time for object components?
+
+Dart has no runtime reflection, so restore cannot construct an object-tier
+component from its type name. Two options existed: ad-hoc factory maps passed
+to every restore call, or a representative instance registered once where the
+type is already being registered. The sample follows the existing event-side
+`sampleEvent` pattern: one canonical place per type, validated at registration
+time, no per-call ceremony. Per-call `componentFactories` remain as an escape
+hatch for one-off constructions. SoA/tag components need nothing — their
+columns are zero-initialized and filled from snapshot data.
+
+## Why does restore spawn fresh entities instead of writing into pre-existing ones?
+
+Writing into pre-spawned entities required the target world to reproduce the
+exact entity layout of the source — brittle across sessions and useless for
+the primary flow (load a save into a freshly constructed world). Spawning
+from the snapshot itself makes the target world's live state irrelevant:
+structure travels with the snapshot as type names, data lands via the ID
+remap, and empty-world restores are the tested default path.
 
 ## Why per-type codecs for object components?
 

@@ -188,7 +188,7 @@ void main() {
         oldName: 'Transform',
         newName: 'PositionComponent',
       ),
-    ]);
+    ], targetVersion: 2);
 
     final target = buildSerializationTestWorld();
     restoreWorldSnapshot(target, restored);
