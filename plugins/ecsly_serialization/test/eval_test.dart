@@ -142,7 +142,7 @@ void main() {
       resourceFactories: {'_Meta': _Meta.fromJson},
     );
 
-    final meta = target.resources.getByType(_Meta)! as _Meta;
+    final meta = (target.resources.getByType(_Meta) ?? _Meta()) as _Meta;
     expect(meta.values.length, 1000);
     expect(meta.values.last, 999);
   });
@@ -154,6 +154,8 @@ void main() {
     // Corrupt one entry's generation so it no longer matches any live entity.
     final corrupted = WorldSnapshot(
       version: snapshot.version,
+      schemaVersion: snapshot.schemaVersion,
+      componentIds: snapshot.componentIds,
       resources: snapshot.resources,
       entities: [
         ...snapshot.entities.take(1),

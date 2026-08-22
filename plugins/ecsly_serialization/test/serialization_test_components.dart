@@ -133,3 +133,13 @@ World buildSerializationTestWorld() {
   world.components.registerObjectComponent<NameComponent>();
   return world;
 }
+
+/// World with only Position registered (subset of the full set).
+World buildPositionOnlyWorld() {
+  final world = World();
+  world.components.registerExtension<PositionComponent, Position>(
+    columnFactory: _PositionColumnFactory(),
+    facadeFactory: _PositionFacadeFactory(),
+  );
+  return world;
+}

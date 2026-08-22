@@ -62,10 +62,11 @@ world.addPlugin(const SerializationPlugin());
 
 ## Constraints
 
-- Component IDs are world-local and positional; the target world must register
-  the same component types in the same order as the source world.
-- Restore re-uses original entity index/generation values; entities must be
-  spawned in the target world beforehand (structural layout is not serialized).
+- Restore requires entities to pre-exist in the target world (state, not
+  structure, is serialized).
+- Component data is remapped by type name (format v2+), so registration
+  reorder/add/remove is handled automatically. Renames and value transforms
+  need an explicit `SnapshotMigration` chain keyed on `schemaVersion`.
 - Object-tier components need a codec registered in
   `ObjectComponentCodecRegistry`.
 

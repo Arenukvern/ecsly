@@ -44,9 +44,41 @@ captureWorldSnapshot(world, options: WorldSnapshotOptions(codecs: codecs));
 
 ## Why does restore fail / produce empty columns?
 
-The target world must have identical component registration order — component
-IDs are positional per-world. Entities must also already exist in the target
-world; this plugin serializes state, not structure.
+Entities must already exist in the target world — this plugin serializes
+state, not structure. If component data lands on the wrong components after a
+registration change, upgrade to format v2+ (component name table remaps
+data automatically).
+
+## How do I handle renamed or restructured components?
+
+Bump `schemaVersion` when capturing and declare a migration:
+
+```dart
+final snapshot = decodeAndMigrateWorldSnapshot(saveJson, [
+  const RenameComponentMigration(
+    fromVersion: 1,
+    oldName: 'Transform',
+    newName: 'PositionComponent',
+  ),
+], targetVersion: 2);
+restoreWorldSnapshot(world, snapshot);
+```
+
+For value transforms (not just renames), extend `SnapshotMigration` and edit
+the raw JSON map directly.
+
+## How do I make restore fail loudly on unknown components?
+
+```dart
+restoreWorldSnapshot(
+  world,
+  snapshot,
+  options: const WorldSnapshotOptions(strictComponents: true),
+);
+```
+
+Default skips unregistered components; strict mode throws. Use strict for
+authoritative saves, lenient for tooling.
 
 ## How do I exclude components from snapshots?
 

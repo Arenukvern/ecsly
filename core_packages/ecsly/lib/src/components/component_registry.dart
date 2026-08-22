@@ -69,6 +69,12 @@ class ComponentRegistry {
     return type;
   }
 
+  /// All registered component types mapped to their IDs.
+  ///
+  /// Read-only view; useful for reflection-style tooling such as
+  /// serialization name resolution where entities may not exist yet.
+  Map<ComponentId, Type> get registeredTypes => Map.unmodifiable(_idToType);
+
   ComponentStorageTier getStorageTier(final ComponentId id) {
     final tier = _idToTier[id.value];
     if (tier == null) {
