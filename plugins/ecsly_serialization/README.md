@@ -10,6 +10,8 @@ Captures and restores JSON snapshots of:
 - Resources implementing `SnapshotableResource`;
 - Whole worlds via a versioned snapshot envelope (format v3).
 
+Vision and boundaries: [NORTH_STAR.md](NORTH_STAR.md).
+
 ## Identity model
 
 Runtime `Entity` handles are world-local and never serialized — they are
@@ -37,6 +39,9 @@ dependencies:
 ```
 
 ## Usage
+
+A complete runnable save/load story lives in [example/main.dart](example/main.dart)
+(`dart run example/main.dart`).
 
 ### Whole world save/load
 
