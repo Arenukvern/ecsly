@@ -1,0 +1,16 @@
+include: package:xsoulspace_lints/public_library.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
+
+linter:
+  rules:
+    lines_longer_than_80_chars: false
+    cascade_invocations: false

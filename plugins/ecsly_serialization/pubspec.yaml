@@ -1,0 +1,17 @@
+name: ecsly_serialization
+description: "Serialization and deserialization plugin for ecsly worlds: JSON snapshots of resources, entities, and SoA component columns."
+version: 0.1.0-dev.1
+homepage: https://github.com/arenukvern/ecsly/plugins/ecsly_serialization
+
+environment:
+  sdk: ">=3.12.0 <4.0.0"
+
+resolution: workspace
+
+dependencies:
+  ecsly:
+
+dev_dependencies:
+  lints: ^6.1.0
+  test: ^1.25.8
+  xsoulspace_lints: ^0.1.2

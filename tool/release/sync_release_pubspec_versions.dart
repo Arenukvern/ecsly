@@ -6,6 +6,7 @@ const _packages = <String, String>{
   'core_packages/ecsly_app': 'ecsly_app',
   'core_packages/ecsly_codegen': 'ecsly_codegen',
   'core_packages/ecsly_flutter': 'ecsly_flutter',
+  'plugins/ecsly_serialization': 'ecsly_serialization',
 };
 
 void main(List<String> args) {

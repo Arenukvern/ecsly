@@ -43,8 +43,16 @@ test-codegen:
 test-flutter:
     cd core_packages/ecsly_flutter && flutter test
 
+# Run serialization plugin tests.
+test-serialization:
+    cd plugins/ecsly_serialization && flutter test
+
+# Run serialization benchmarks.
+bench-serialization:
+    cd plugins/ecsly_serialization && flutter test test/benchmark_test.dart
+
 # Run all package tests that do not publish.
-test: test-core test-app test-codegen test-flutter
+test: test-core test-app test-codegen test-flutter test-serialization
 
 # Check docs.page configuration and pages.
 docs-check:
