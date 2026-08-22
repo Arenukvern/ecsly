@@ -1040,13 +1040,7 @@ bool _isEntityRowCurrentAtLocation(
   final ArchetypeId archetypeId,
   final Entity entity,
   final int row,
-) {
-  if (!world.entities.isAlive(entity)) {
-    return false;
-  }
-  final location = world.entities.getLocation(entity);
-  return location.archetypeId == archetypeId && location.archetypeRow == row;
-}
+) => world.entities.isAt(entity, archetypeId, row);
 
 int _packPlanKey(final List<ComponentId> ids) {
   var key = ids.length & 0xF;
@@ -1713,8 +1707,7 @@ class _QueryIterator1<T1 extends Component>
         }
 
         final entity = archetype.entities[_entityIndex];
-        final (entityWrapper, isValid) = _world.getEntityFast(entity);
-        if (!isValid) {
+        if (!_world.entities.isAlive(entity)) {
           _entityIndex++;
           continue;
         }
@@ -1722,7 +1715,14 @@ class _QueryIterator1<T1 extends Component>
         // Get component: Use cached factory (no HashMap lookup)
         final component1 = _cachedFactory!.create(_entityIndex) as T1;
 
-        _current = (entityWrapper, component1);
+        _current = (
+          WorldEntity(
+            world: _world,
+            entity: entity,
+            location: EntityLocation(archetype.archetypeId, _entityIndex),
+          ),
+          component1,
+        );
         _entityIndex++;
         return true;
       }
@@ -1773,8 +1773,7 @@ class _QueryIterator1Where<T1 extends Component>
       while (entityIndex < archetype.entityCount - 1) {
         entityIndex++;
         final entity = archetype.entities[entityIndex];
-        final (entityWrapper, isValid) = world.getEntityFast(entity);
-        if (!isValid) {
+        if (!world.entities.isAlive(entity)) {
           continue;
         }
 
@@ -1782,7 +1781,14 @@ class _QueryIterator1Where<T1 extends Component>
             .createFacade<T1>(componentId, entityIndex, column);
 
         if (predicate(component)) {
-          _current = (entityWrapper, component);
+          _current = (
+            WorldEntity(
+              world: world,
+              entity: entity,
+              location: EntityLocation(archetype.archetypeId, entityIndex),
+            ),
+            component,
+          );
           return true;
         }
       }
@@ -1850,8 +1856,7 @@ class _QueryIterator2<T1 extends Component, T2 extends Component>
         }
 
         final entity = archetype.entities[_entityIndex];
-        final (entityWrapper, isValid) = _world.getEntityFast(entity);
-        if (!isValid) {
+        if (!_world.entities.isAlive(entity)) {
           _entityIndex++;
           continue;
         }
@@ -1860,7 +1865,15 @@ class _QueryIterator2<T1 extends Component, T2 extends Component>
         final component1 = _cachedFactory1!.create(_entityIndex) as T1;
         final component2 = _cachedFactory2!.create(_entityIndex) as T2;
 
-        _current = (entityWrapper, component1, component2);
+        _current = (
+          WorldEntity(
+            world: _world,
+            entity: entity,
+            location: EntityLocation(archetype.archetypeId, _entityIndex),
+          ),
+          component1,
+          component2,
+        );
         _entityIndex++;
         return true;
       }
@@ -1944,8 +1957,7 @@ class _QueryIterator3<
         }
 
         final entity = archetype.entities[_entityIndex];
-        final (entityWrapper, isValid) = _world.getEntityFast(entity);
-        if (!isValid) {
+        if (!_world.entities.isAlive(entity)) {
           _entityIndex++;
           continue;
         }
@@ -1955,7 +1967,16 @@ class _QueryIterator3<
         final component2 = _cachedFactory2!.create(_entityIndex) as T2;
         final component3 = _cachedFactory3!.create(_entityIndex) as T3;
 
-        _current = (entityWrapper, component1, component2, component3);
+        _current = (
+          WorldEntity(
+            world: _world,
+            entity: entity,
+            location: EntityLocation(archetype.archetypeId, _entityIndex),
+          ),
+          component1,
+          component2,
+          component3,
+        );
         _entityIndex++;
         return true;
       }
@@ -2053,8 +2074,7 @@ class _QueryIterator4<
         }
 
         final entity = archetype.entities[_entityIndex];
-        final (entityWrapper, isValid) = _world.getEntityFast(entity);
-        if (!isValid) {
+        if (!_world.entities.isAlive(entity)) {
           _entityIndex++;
           continue;
         }
@@ -2066,7 +2086,11 @@ class _QueryIterator4<
         final component4 = _cachedFactory4!.create(_entityIndex) as T4;
 
         _current = (
-          entityWrapper,
+          WorldEntity(
+            world: _world,
+            entity: entity,
+            location: EntityLocation(archetype.archetypeId, _entityIndex),
+          ),
           component1,
           component2,
           component3,
@@ -2180,8 +2204,7 @@ class _QueryIterator5<
         }
 
         final entity = archetype.entities[_entityIndex];
-        final (entityWrapper, isValid) = _world.getEntityFast(entity);
-        if (!isValid) {
+        if (!_world.entities.isAlive(entity)) {
           _entityIndex++;
           continue;
         }
@@ -2194,7 +2217,11 @@ class _QueryIterator5<
         final component5 = _cachedFactory5!.create(_entityIndex) as T5;
 
         _current = (
-          entityWrapper,
+          WorldEntity(
+            world: _world,
+            entity: entity,
+            location: EntityLocation(archetype.archetypeId, _entityIndex),
+          ),
           component1,
           component2,
           component3,
@@ -2320,8 +2347,7 @@ class _QueryIterator6<
         }
 
         final entity = archetype.entities[_entityIndex];
-        final (entityWrapper, isValid) = _world.getEntityFast(entity);
-        if (!isValid) {
+        if (!_world.entities.isAlive(entity)) {
           _entityIndex++;
           continue;
         }
@@ -2335,7 +2361,11 @@ class _QueryIterator6<
         final component6 = _cachedFactory6!.create(_entityIndex) as T6;
 
         _current = (
-          entityWrapper,
+          WorldEntity(
+            world: _world,
+            entity: entity,
+            location: EntityLocation(archetype.archetypeId, _entityIndex),
+          ),
           component1,
           component2,
           component3,
@@ -2402,10 +2432,7 @@ class _QueryIteratorExt1<TComp extends Component, TExt>
         }
 
         final entity = archetype.entities[_entityIndex];
-        final (entityExtension, isValid) = _world.getEntityExtensionFast(
-          entity,
-        );
-        if (!isValid) {
+        if (!_world.entities.isAlive(entity)) {
           _entityIndex++;
           continue;
         }
@@ -2413,7 +2440,16 @@ class _QueryIteratorExt1<TComp extends Component, TExt>
         // Get component: Use cached factory (no HashMap lookup)
         final component1 = _cachedFactory!.create(_entityIndex) as TExt;
 
-        _current = (entityExtension, component1);
+        _current = (
+          WorldEntityExtension(
+            WorldEntity(
+              world: _world,
+              entity: entity,
+              location: EntityLocation(archetype.archetypeId, _entityIndex),
+            ),
+          ),
+          component1,
+        );
         _entityIndex++;
         return true;
       }
@@ -2465,8 +2501,7 @@ class _QueryIteratorExt1Where<TComp extends Component, TExt>
       while (entityIndex < archetype.entityCount - 1) {
         entityIndex++;
         final entity = archetype.entities[entityIndex];
-        final (entityExtension, isValid) = world.getEntityExtensionFast(entity);
-        if (!isValid) {
+        if (!world.entities.isAlive(entity)) {
           continue;
         }
 
@@ -2474,7 +2509,16 @@ class _QueryIteratorExt1Where<TComp extends Component, TExt>
             .createFacade<TExt>(componentId, entityIndex, column);
 
         if (predicate(extensionType)) {
-          _current = (entityExtension, extensionType);
+          _current = (
+            WorldEntityExtension(
+              WorldEntity(
+                world: world,
+                entity: entity,
+                location: EntityLocation(archetype.archetypeId, entityIndex),
+              ),
+            ),
+            extensionType,
+          );
           return true;
         }
       }
@@ -2550,10 +2594,7 @@ class _QueryIteratorExt2<
         }
 
         final entity = archetype.entities[_entityIndex];
-        final (entityExtension, isValid) = _world.getEntityExtensionFast(
-          entity,
-        );
-        if (!isValid) {
+        if (!_world.entities.isAlive(entity)) {
           _entityIndex++;
           continue;
         }
@@ -2562,7 +2603,17 @@ class _QueryIteratorExt2<
         final component1 = _cachedFactory1!.create(_entityIndex) as TExt;
         final component2 = _cachedFactory2!.create(_entityIndex) as T2Ext;
 
-        _current = (entityExtension, component1, component2);
+        _current = (
+          WorldEntityExtension(
+            WorldEntity(
+              world: _world,
+              entity: entity,
+              location: EntityLocation(archetype.archetypeId, _entityIndex),
+            ),
+          ),
+          component1,
+          component2,
+        );
         _entityIndex++;
         return true;
       }
@@ -2622,8 +2673,7 @@ class _QueryIteratorExt2WhereIterator<
       while (entityIndex < archetype.entityCount - 1) {
         entityIndex++;
         final entity = archetype.entities[entityIndex];
-        final (entityExtension, isValid) = world.getEntityExtensionFast(entity);
-        if (!isValid) {
+        if (!world.entities.isAlive(entity)) {
           continue;
         }
 
@@ -2633,7 +2683,17 @@ class _QueryIteratorExt2WhereIterator<
         if (predicate(extensionType1)) {
           final extensionType2 = world.components.componentFacadeRegistry
               .createFacade<T2Ext>(componentId2, entityIndex, column2);
-          _current = (entityExtension, extensionType1, extensionType2);
+          _current = (
+            WorldEntityExtension(
+              WorldEntity(
+                world: world,
+                entity: entity,
+                location: EntityLocation(archetype.archetypeId, entityIndex),
+              ),
+            ),
+            extensionType1,
+            extensionType2,
+          );
           return true;
         }
       }
@@ -2706,10 +2766,7 @@ class _QueryIteratorExt3<
           _entityIndex < column2.length &&
           _entityIndex < column3.length) {
         final entity = archetype.entities[_entityIndex];
-        final (entityExtension, isValid) = _world.getEntityExtensionFast(
-          entity,
-        );
-        if (!isValid) {
+        if (!_world.entities.isAlive(entity)) {
           _entityIndex++;
           continue;
         }
@@ -2738,7 +2795,18 @@ class _QueryIteratorExt3<
         final component2 = _cachedFactory2!.create(_entityIndex) as T2Ext;
         final component3 = _cachedFactory3!.create(_entityIndex) as T3Ext;
 
-        _current = (entityExtension, component1, component2, component3);
+        _current = (
+          WorldEntityExtension(
+            WorldEntity(
+              world: _world,
+              entity: entity,
+              location: EntityLocation(archetype.archetypeId, _entityIndex),
+            ),
+          ),
+          component1,
+          component2,
+          component3,
+        );
         _entityIndex++;
         return true;
       }
@@ -2818,10 +2886,7 @@ class _QueryIteratorExt4<
           _entityIndex < column3.length &&
           _entityIndex < column4.length) {
         final entity = archetype.entities[_entityIndex];
-        final (entityExtension, isValid) = _world.getEntityExtensionFast(
-          entity,
-        );
-        if (!isValid) {
+        if (!_world.entities.isAlive(entity)) {
           _entityIndex++;
           continue;
         }
@@ -2856,7 +2921,13 @@ class _QueryIteratorExt4<
         final component4 = _cachedFactory4!.create(_entityIndex) as T4Ext;
 
         _current = (
-          entityExtension,
+          WorldEntityExtension(
+            WorldEntity(
+              world: _world,
+              entity: entity,
+              location: EntityLocation(archetype.archetypeId, _entityIndex),
+            ),
+          ),
           component1,
           component2,
           component3,
@@ -2915,14 +2986,7 @@ class _QueryIteratorMut1<T extends Component>
       }
 
       final entity = archetype.entities[_entityIndex];
-      if (!_world.entities.isAlive(entity)) {
-        _entityIndex++;
-        continue;
-      }
-
-      final location = _world.entities.getLocation(entity);
-      if (location.archetypeId != archetype.archetypeId ||
-          location.archetypeRow != _entityIndex) {
+      if (!_world.entities.isAt(entity, archetype.archetypeId, _entityIndex)) {
         _entityIndex++;
         continue;
       }
@@ -2930,7 +2994,7 @@ class _QueryIteratorMut1<T extends Component>
       final worldEntity = WorldEntity(
         world: _world,
         entity: entity,
-        location: location,
+        location: EntityLocation(archetype.archetypeId, _entityIndex),
       );
       final entityMut = WorldEntityMut(worldEntity);
       final component = _cachedFactory!.create(_entityIndex) as T;
@@ -3083,20 +3147,17 @@ class _QueryIteratorMut3<
       }
 
       final entity = archetype.entities[_entityIndex];
-      if (!_world.entities.isAlive(entity)) {
-        _entityIndex++;
-        continue;
-      }
-
-      final location = _world.entities.getLocation(entity);
-      if (location.archetypeId != archetype.archetypeId ||
-          location.archetypeRow != _entityIndex) {
+      if (!_world.entities.isAt(entity, archetype.archetypeId, _entityIndex)) {
         _entityIndex++;
         continue;
       }
 
       final entityMut = WorldEntityMut(
-        WorldEntity(world: _world, entity: entity, location: location),
+        WorldEntity(
+          world: _world,
+          entity: entity,
+          location: EntityLocation(archetype.archetypeId, _entityIndex),
+        ),
       );
       final component1 = _cachedFactory1!.create(_entityIndex) as T1;
       final component2 = _cachedFactory2!.create(_entityIndex) as T2;
@@ -3182,20 +3243,17 @@ class _QueryIteratorMut4<
       }
 
       final entity = archetype.entities[_entityIndex];
-      if (!_world.entities.isAlive(entity)) {
-        _entityIndex++;
-        continue;
-      }
-
-      final location = _world.entities.getLocation(entity);
-      if (location.archetypeId != archetype.archetypeId ||
-          location.archetypeRow != _entityIndex) {
+      if (!_world.entities.isAt(entity, archetype.archetypeId, _entityIndex)) {
         _entityIndex++;
         continue;
       }
 
       final entityMut = WorldEntityMut(
-        WorldEntity(world: _world, entity: entity, location: location),
+        WorldEntity(
+          world: _world,
+          entity: entity,
+          location: EntityLocation(archetype.archetypeId, _entityIndex),
+        ),
       );
       final component1 = _cachedFactory1!.create(_entityIndex) as T1;
       final component2 = _cachedFactory2!.create(_entityIndex) as T2;

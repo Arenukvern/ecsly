@@ -5,8 +5,7 @@ import 'object_component_codec.dart';
 /// Captures all SoA column data for an entity as a flat JSON map.
 ///
 /// Reads every typed component column the entity participates in and
-/// serializes the raw values. With [fieldNames], keys are human-readable;
-/// without, keys are `{componentId}_{offset}`.
+/// serializes the raw values. Keys are `{componentId}_{offset}`.
 ///
 /// Object-tier components are captured only when a codec for their type is
 /// present in [codecs]; otherwise they are skipped.
@@ -15,7 +14,6 @@ import 'object_component_codec.dart';
 Map<String, Object?>? captureEntityColumns(
   final World world,
   final Entity entity, {
-  final Map<ComponentId, List<String>>? fieldNames,
   final Set<ComponentId>? includeOnly,
   final ObjectComponentCodecRegistry? codecs,
 }) {
@@ -35,22 +33,17 @@ Map<String, Object?>? captureEntityColumns(
     final column = archetype.getColumn(componentId);
     if (column == null) continue;
 
-    final names = fieldNames?[componentId];
-
     switch (column) {
       case final FloatColumn fc:
         for (var i = 0; i < fc.stride; i++) {
-          final key = _keyFor(names, componentId, i);
-          snapshot[key] = fc.getValue(row, i);
+          snapshot['${componentId.value}_$i'] = fc.getValue(row, i);
         }
       case final IntColumn ic:
         for (var i = 0; i < ic.stride; i++) {
-          final key = _keyFor(names, componentId, i);
-          snapshot[key] = ic.getValue(row, i);
+          snapshot['${componentId.value}_$i'] = ic.getValue(row, i);
         }
       case final Uint8Column uc:
-        final key = _keyFor(names, componentId, 0);
-        snapshot[key] = uc.getValue(row);
+        snapshot['${componentId.value}_0'] = uc.getValue(row);
       case final ObjectColumn _:
         _captureObjectColumn(
           world,
@@ -74,7 +67,6 @@ void restoreEntityColumns(
   final World world,
   final Entity entity,
   final Map<String, Object?> snapshot, {
-  final Map<ComponentId, List<String>>? fieldNames,
   final Set<ComponentId>? includeOnly,
   final ObjectComponentCodecRegistry? codecs,
 }) {
@@ -91,25 +83,23 @@ void restoreEntityColumns(
     final column = archetype.getColumn(componentId);
     if (column == null) continue;
 
-    final names = fieldNames?[componentId];
-
     switch (column) {
       case final FloatColumn fc:
         for (var i = 0; i < fc.stride; i++) {
-          final value = snapshot[_keyFor(names, componentId, i)];
+          final value = snapshot['${componentId.value}_$i'];
           if (value is num) {
             fc.setValue(row, i, value.toDouble());
           }
         }
       case final IntColumn ic:
         for (var i = 0; i < ic.stride; i++) {
-          final value = snapshot[_keyFor(names, componentId, i)];
+          final value = snapshot['${componentId.value}_$i'];
           if (value is num) {
             ic.setValue(row, i, value.toInt());
           }
         }
       case final Uint8Column uc:
-        final value = snapshot[_keyFor(names, componentId, 0)];
+        final value = snapshot['${componentId.value}_0'];
         if (value is num) {
           uc.setValue(row, value.toInt());
         }
@@ -125,14 +115,6 @@ void restoreEntityColumns(
     }
   }
 }
-
-String _keyFor(
-  final List<String>? names,
-  final ComponentId componentId,
-  final int offset,
-) => names != null && offset < names.length
-    ? names[offset]
-    : '${componentId.value}_$offset';
 
 void _captureObjectColumn(
   final World world,

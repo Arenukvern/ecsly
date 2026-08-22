@@ -87,12 +87,25 @@ class Entities {
     );
   }
 
-  /// Live archetype id for [entity] (O(1), no [EntityLocation] allocation).
+  /// Live archetype id for [entity] (O(1), no [EntityLocation] alloc).
   ///
   /// Matches [getLocation].entity; use when only the id is needed, e.g. cache
   /// checks while the entity may have migrated after a [WorldEntity] snapshot.
   ArchetypeId archetypeIdOf(final Entity entity) =>
       ArchetypeId(_archetypeIds[entity.indexValue]);
+
+  /// Allocation-free check that [entity] is alive and still located at
+  /// ([archetypeId], [row]).
+  ///
+  /// Hot-path variant of comparing [getLocation] fields; avoids the
+  /// per-row [EntityLocation] allocation in query iteration.
+  bool isAt(final Entity entity, final ArchetypeId archetypeId, final int row) {
+    final index = entity.indexValue;
+    return index < _capacity &&
+        _generations[index] == entity.generation &&
+        _archetypeIds[index] == archetypeId.value &&
+        _archetypeRows[index] == row;
+  }
 
   /// Checks if an entity handle is still valid ("alive").
   ///

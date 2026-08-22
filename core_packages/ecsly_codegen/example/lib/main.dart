@@ -20,10 +20,9 @@ extension type const ExamplePosition((int, FloatColumn) data) {
 
 void main() {
   final world = World();
-  world.components.registerExtension<ExamplePositionComponent, ExamplePosition>(
-    columnFactory: ExamplePositionColumnFactory(),
-    facadeFactory: ExamplePositionFacadeFactory(),
-  );
+  // One-call registration from generated code — replaces the four-way
+  // registerExtension wiring with marker + facade + factories.
+  ExamplePositionRegistration.register(world);
 
   final entity = world.entities.create();
   world.spawnBundle(

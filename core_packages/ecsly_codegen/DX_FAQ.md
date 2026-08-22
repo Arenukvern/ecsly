@@ -22,12 +22,12 @@ Keep `ecsly_codegen` in `dependencies` — the builder auto-applies via `build.y
 
 ## Package chooser
 
-| Need | Package | Status |
-|------|---------|--------|
-| Systems, queries, hot loops | `ecsly` | Public package |
-| Actions, drafts, invalidation, cold lookup | `ecsly_app` | Published prerelease |
-| Typed-column builders | `ecsly_codegen` | Published prerelease |
-| Widgets, scope, controller | `ecsly_flutter` | Published prerelease |
+| Need                                       | Package         | Status               |
+| ------------------------------------------ | --------------- | -------------------- |
+| Systems, queries, hot loops                | `ecsly`         | Public package       |
+| Actions, drafts, invalidation, cold lookup | `ecsly_app`     | Published prerelease |
+| Typed-column builders                      | `ecsly_codegen` | Published prerelease |
+| Widgets, scope, controller                 | `ecsly_flutter` | Published prerelease |
 
 ## First use
 
@@ -57,7 +57,15 @@ dart run build_runner build
 
 ## Register with World
 
-Codegen output is dead code until factories are registered:
+Codegen output is dead code until registered. Use the generated one-call
+registration handle:
+
+```dart
+world.flush();
+VelocityRegistration.register(world);
+```
+
+Equivalent manual wiring (use when you need custom factories):
 
 ```dart
 world.components.registerExtension<VelocityComponent, Velocity>(
@@ -74,26 +82,27 @@ For each marker class, the builder emits:
 
 - `{BaseName}ColumnFactory` — strips a trailing `Component` suffix from the marker name
 - `{Facade}FacadeFactory` — uses the `facade:` string, not the marker class name
+- `{BaseName}Registration` — static `register(World)` returning the `ComponentId`
 
 Example: `TagComponent` with `facade: 'EntityTags'` → `TagColumnFactory` +
 `EntityTagsFacadeFactory`.
 
 Supported storage:
 
-| `EcsColumnType` | Column | `stride` |
-|-----------------|--------|----------|
-| `float32` | `FloatColumn` | honored |
-| `int32` | `IntColumn` | honored |
-| `uint8` | `Uint8Column` | ignored (one byte per entity) |
+| `EcsColumnType` | Column        | `stride`                      |
+| --------------- | ------------- | ----------------------------- |
+| `float32`       | `FloatColumn` | honored                       |
+| `int32`         | `IntColumn`   | honored                       |
+| `uint8`         | `Uint8Column` | ignored (one byte per entity) |
 
 ## Codegen vs hand-written
 
-| Scenario | Approach |
-|----------|----------|
-| Hot SoA numeric state (`FloatColumn`, etc.) | `@EcsComponent` + codegen |
-| Variable-length / cold data (`ObjectColumn`) | Hand-write `ColumnFactory` + `FacadeFactory` |
-| Custom `createColumn` logic | Hand-write |
-| Plugin shipping many typed components | Codegen per component + `registerExtension` in `Plugin` |
+| Scenario                                     | Approach                                                |
+| -------------------------------------------- | ------------------------------------------------------- |
+| Hot SoA numeric state (`FloatColumn`, etc.)  | `@EcsComponent` + codegen                               |
+| Variable-length / cold data (`ObjectColumn`) | Hand-write `ColumnFactory` + `FacadeFactory`            |
+| Custom `createColumn` logic                  | Hand-write                                              |
+| Plugin shipping many typed components        | Codegen per component + `registerExtension` in `Plugin` |
 
 ## Boundary
 
@@ -102,12 +111,12 @@ test fixtures may depend on it where annotations are present.
 
 ## Troubleshooting
 
-| Symptom | Fix |
-|---------|-----|
-| `part 'x.ecs.g.dart'` not found | Run `dart run build_runner build` |
-| Stale generated API | `dart run build_runner build --delete-conflicting-outputs` |
-| `ComponentNotRegisteredError` | Call `registerExtension` with generated factories |
-| Wrong factory class name | Check `facade:` — `FacadeFactory` uses that name, not the marker class |
-| `@EcsComponent` build error on class | Marker must be a `class` that `extends Component` |
-| `stride must be > 0` | Set `stride` to at least `1` for `float32` / `int32` |
-| `facade must be a valid Dart identifier` | Use a legal type name (e.g. `Position`, `EntityTags`) |
+| Symptom                                  | Fix                                                                    |
+| ---------------------------------------- | ---------------------------------------------------------------------- |
+| `part 'x.ecs.g.dart'` not found          | Run `dart run build_runner build`                                      |
+| Stale generated API                      | `dart run build_runner build --delete-conflicting-outputs`             |
+| `ComponentNotRegisteredError`            | Call `registerExtension` with generated factories                      |
+| Wrong factory class name                 | Check `facade:` — `FacadeFactory` uses that name, not the marker class |
+| `@EcsComponent` build error on class     | Marker must be a `class` that `extends Component`                      |
+| `stride must be > 0`                     | Set `stride` to at least `1` for `float32` / `int32`                   |
+| `facade must be a valid Dart identifier` | Use a legal type name (e.g. `Position`, `EntityTags`)                  |

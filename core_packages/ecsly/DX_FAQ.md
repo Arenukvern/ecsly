@@ -12,7 +12,7 @@ ENTITIES: world.entities.create()
 RESOURCES: world.resources.push/get<T>()
 RESOURCE_DEFAULT: world.addResourceIfAbsent<T>(() => T())
 EVENTS: world.events.register<T>()
-SCHEDULES: world.createSchedule('Update')
+SCHEDULES: world.createSchedule(ScheduleId.update)
 TIME: world.upsertResource(ScheduleTimeResource(...))
 ```
 
@@ -293,13 +293,13 @@ resource as a small index, selected-id set, filter, queue, status table, or cach
 A: User-visible records and independently changing slices usually become
 components. World/session state becomes resources.
 
-| State shape | Prefer |
-| --- | --- |
-| Todo item, coffee card, content block, unit, form section | Component(s) |
-| Dirty flag, load request, per-item error, selection marker | Component/tag |
-| Current route, active filter, selected id set, viewport | Resource |
-| Action/sync status table, outbox, cache, metrics | Resource |
-| Spawn/despawn/add/remove request | `EcsCommand` / command queue |
+| State shape                                                | Prefer                       |
+| ---------------------------------------------------------- | ---------------------------- |
+| Todo item, coffee card, content block, unit, form section  | Component(s)                 |
+| Dirty flag, load request, per-item error, selection marker | Component/tag                |
+| Current route, active filter, selected id set, viewport    | Resource                     |
+| Action/sync status table, outbox, cache, metrics           | Resource                     |
+| Spawn/despawn/add/remove request                           | `EcsCommand` / command queue |
 
 ```dart
 world.upsertResource(FrameClockResource(deltaSeconds: 1 / 60));
@@ -318,17 +318,35 @@ void queueSpawnOrRemoveSystem(World world) {
 ## 🚀 Schedule Launchpad
 
 ```dart
-CREATE: world.createSchedule('Update')
+CREATE: world.createSchedule(ScheduleId.update)
 ADD: schedule.add(systemFunction)
 CHAIN: schedule.add(sys1).then(sys2)
 JOB: schedule.addJobSystem(certifiedJobSystem, name: 'collision')
 PARALLEL: schedule.parallel([sys1, sys2])
-RUN: world.runSchedule('Update')
-RUN_ASYNC: await world.runScheduleAsync('Update')
+RUN: world.runSchedule(ScheduleId.update)
+RUN_ASYNC: await world.runScheduleAsync(ScheduleId.update)
 FLUSH: add flushAllWithTimingSystem at end
 TIME_SOURCE: ScheduleTimeResource(deltaSeconds: dt, elapsedSeconds: t)
 POLICY: world.getResource<ScheduleExecutionPolicyResource>()..mode = ScheduleExecutionPolicy.deterministic..workerCount = 4
 ```
+
+Schedules are addressed by `ScheduleId`, a const wrapper over `String`. Define
+package-owned vocabularies as constants so hosts and plugins compose schedules
+without sharing magic strings:
+
+```dart
+abstract final class GameSchedules {
+  static const input = ScheduleId('input');
+  static const simulation = ScheduleId('simulation');
+}
+
+world.createSchedule(GameSchedules.simulation).add(movementSystem);
+world.runSchedule(GameSchedules.simulation);
+```
+
+Core ships default ids: `ScheduleId.preUpdate`, `.update`, `.postUpdate`, and
+`.highFrequency` (used by the built-in debug plugin). A missing schedule fails
+at lookup time with the id's value in the error message.
 
 `schedule.parallel(...)` is still shared-world async work. Use `addJobSystem(...)`
 plus `runScheduleAsync(...)` when a hot path has a certified extract/partition/

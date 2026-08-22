@@ -33,12 +33,12 @@ together.
 
 ## Package chooser
 
-| Need | Package | Public status |
-|------|---------|---------------|
-| Hot simulation | `ecsly` | Public package |
-| Cold app path | `ecsly_app` | Published prerelease |
+| Need                  | Package         | Public status        |
+| --------------------- | --------------- | -------------------- |
+| Hot simulation        | `ecsly`         | Public package       |
+| Cold app path         | `ecsly_app`     | Published prerelease |
 | Typed-column builders | `ecsly_codegen` | Published prerelease |
-| Flutter host | `ecsly_flutter` | Published prerelease |
+| Flutter host          | `ecsly_flutter` | Published prerelease |
 
 ## Use
 
@@ -74,36 +74,47 @@ Generated files use the `.ecs.g.dart` suffix and emit:
 
 - `{BaseName}ColumnFactory` — from the marker class name (`PositionComponent` → `Position`)
 - `{Facade}FacadeFactory` — from the `facade` argument (`facade: 'EntityTags'` → `EntityTagsFacadeFactory`)
+- `{BaseName}Registration` — one-call `register(World)` handle binding marker,
+  facade, and both factories
 
 ### 3. Register with a World
 
-Generated factories are inert until registered:
+Generated factories are inert until registered. Use the generated one-call
+registration handle:
 
 ```dart
 final world = World();
+PositionRegistration.register(world);
+world.flush();
+```
+
+The handle is equivalent to the manual wiring:
+
+```dart
 world.components.registerExtension<PositionComponent, Position>(
   columnFactory: PositionColumnFactory(),
   facadeFactory: PositionFacadeFactory(),
 );
-world.flush();
 ```
 
-See [example/main.dart](example/main.dart) for a runnable end-to-end sample.
+See [example/](example/) for a runnable end-to-end sample.
 
 ## When to use codegen
 
-| Use codegen | Hand-write factories instead |
-|-------------|------------------------------|
+| Use codegen                               | Hand-write factories instead                 |
+| ----------------------------------------- | -------------------------------------------- |
 | `FloatColumn`, `IntColumn`, `Uint8Column` | `ObjectColumn` (cold / variable-length data) |
-| Fixed stride per entity | Custom column construction logic |
-| Standard facade wiring | Non-standard `initialize` behavior |
+| Fixed stride per entity                   | Custom column construction logic             |
+| Standard facade wiring                    | Non-standard `initialize` behavior           |
 
 ## Limitations
 
-- Generates factories only — extension type facades stay hand-written.
+- Generates factories and a registration handle only — extension type facades
+  stay hand-written.
 - Typed columns only (`float32`, `int32`, `uint8`). `uint8` ignores `stride`.
 - Marker classes must `extend Component`.
-- Plugin/world registration (`registerExtension`) is always manual.
+- Annotated components belong under `lib/`; the builder applies to dependent
+  packages' `lib/` sources.
 
 ## Related packages
 

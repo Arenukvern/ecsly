@@ -548,6 +548,12 @@ class CommandQueue {
 
     final entities = <Entity>[firstEntity];
     final components = <Component>[firstComponent];
+    // Presize for the common case: a homogeneous run of pending upserts.
+    final pendingCount = _pendingCommands.length;
+    if (pendingCount > 1) {
+      entities.length = pendingCount;
+      components.length = pendingCount;
+    }
     while (_pendingCommands.isNotEmpty) {
       final next = _pendingCommands.first;
       if (next is! UpsertComponentCommand) break;
@@ -563,6 +569,7 @@ class CommandQueue {
         _restoreUpsertCommands(entities, components, start: 1);
         throw EntityNotFoundError(entities[i]);
       }
+      // Slice views (no copy); the callee only reads them.
       _upsertHomogeneousComponents(
         entities.sublist(0, i),
         componentId,

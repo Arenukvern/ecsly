@@ -110,6 +110,14 @@ A: Registration maps a Dart component type to a compact `ComponentId` and choose
 its storage strategy. Archetype signatures, query masks, and column lookup all
 depend on those IDs being known before data is inserted.
 
+**Q: Why ScheduleId instead of String schedule names?**  
+A: `ScheduleId` is a const wrapper over `String`, so registry lookups keep the
+same representation and hot-path cost. The type exists to make schedule
+references greppable constants instead of magic strings: typos fail at compile
+time, and plugins can export their own ids for explicit cross-package ordering.
+Trade-off: call sites wrap literals in `const ScheduleId('...')` unless they use
+the built-in ids (`ScheduleId.update`, etc.).
+
 **Q: Why extension types vs classes for components?**  
 A: Extension types are zero-cost facades (compile away), classes provide runtime type identity. Trade-off: Extension types need separate class for ComponentId lookup, classes allocate on heap.
 

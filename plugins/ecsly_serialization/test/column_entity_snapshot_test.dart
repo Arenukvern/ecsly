@@ -39,24 +39,6 @@ void main() {
     expect(ext2.getOrCreate<ScoreComponent, Score>().value, 1234);
   });
 
-  test('fieldNames produce human-readable keys', () {
-    final world = buildSerializationTestWorld();
-    final entity = world.spawnComponents([const PositionComponent()]);
-    world.flush();
-
-    final positionId = world.components.getComponentId<PositionComponent>();
-    final snapshot = captureEntityColumns(
-      world,
-      entity,
-      fieldNames: {
-        positionId: ['px', 'py'],
-      },
-    );
-
-    expect(snapshot!.containsKey('px'), isTrue);
-    expect(snapshot.containsKey('py'), isTrue);
-  });
-
   test('includeOnly limits captured components', () {
     final world = buildSerializationTestWorld();
     final entity = world.spawnComponents([

@@ -151,7 +151,9 @@ void main() {
     final source = _worldWith(3);
     final snapshot = captureWorldSnapshot(source);
 
-    // Corrupt one entry's generation so it no longer matches any live entity.
+    // Corrupt one entry's persistent id so it no longer matches any live
+    // entity — restore spawns fresh entities from the snapshot itself, so a
+    // duplicate/odd key must not break the loop.
     final corrupted = WorldSnapshot(
       version: snapshot.version,
       schemaVersion: snapshot.schemaVersion,
@@ -159,9 +161,9 @@ void main() {
       resources: snapshot.resources,
       entities: [
         ...snapshot.entities.take(1),
-        EntitySnapshotEntry(
-          index: snapshot.entities[1].index,
-          generation: snapshot.entities[1].generation + 100,
+        EntityEntry(
+          persistentId: -1,
+          components: snapshot.entities[1].components,
           columns: snapshot.entities[1].columns,
         ),
         ...snapshot.entities.skip(2),
@@ -169,7 +171,7 @@ void main() {
     );
 
     final target = _worldWith(3);
-    // Must not throw; the stale entry is skipped.
+    // Must not throw; all entries are spawned fresh.
     restoreWorldSnapshot(target, corrupted);
   });
 }
