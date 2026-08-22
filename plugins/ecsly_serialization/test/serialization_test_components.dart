@@ -130,7 +130,9 @@ World buildSerializationTestWorld() {
     columnFactory: _ScoreColumnFactory(),
     facadeFactory: _ScoreFacadeFactory(),
   );
-  world.components.registerObjectComponent<NameComponent>();
+  world.components.registerObjectComponent<NameComponent>(
+    sample: const NameComponent(''),
+  );
   return world;
 }
 

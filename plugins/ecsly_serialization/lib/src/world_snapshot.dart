@@ -218,11 +218,10 @@ WorldSnapshot captureWorldSnapshot(
 /// queue and flushed once; then column data is written through the
 /// snapshot-ID → local-ID remap built from the component name table.
 ///
-/// [componentFactories] provides zero-arg constructors for persisted
-/// component types that need real instances at spawn time (object-tier
-/// components); their actual values are overwritten afterwards from column
-/// data. SoA/tag components are resolved automatically via registered
-/// factories when possible.
+/// Restores instances from the registry's registered sample instances
+/// (the component-side mirror of `sampleEvent`). Component types that are
+/// needed at spawn time must be registered with a `sample:` instance;
+/// restore throws a [StateError] naming the missing type otherwise.
 ///
 /// Returns the mapping of snapshot persistent IDs to newly created entities.
 Map<int, Entity> restoreWorldSnapshot(
@@ -257,9 +256,22 @@ Map<int, Entity> restoreWorldSnapshot(
       final factory = componentFactories[typeName];
       if (factory != null) {
         instances.add(factory());
-      } else {
-        instances.add(_placeholderFor(typeName));
+        continue;
       }
+      final localId = world.components.getComponentIdByType(
+        _localTypeFor(world, typeName)!,
+      );
+      final sample = localId == null
+          ? null
+          : world.components.sampleFor(localId);
+      if (sample == null) {
+        throw StateError(
+          'No sample registered for component "$typeName". Register it with '
+          'registerObjectComponent<$typeName>(sample: $typeName()) or provide '
+          'a componentFactories entry in restoreWorldSnapshot.',
+        );
+      }
+      instances.add(sample);
     }
     newEntities[entry.persistentId] = world.spawnComponents(instances);
   }
@@ -287,18 +299,6 @@ Type? _localTypeFor(final World world, final String typeName) {
     if (entry.value.toString() == typeName) return entry.value;
   }
   return null;
-}
-
-/// Placeholder instance used when no app-provided factory exists for a
-/// component type. Safe because spawn only needs the runtimeType for
-/// registration lookup; actual values come from column data afterwards.
-Component _placeholderFor(final String typeName) =>
-    _placeholders.putIfAbsent(typeName, _Placeholder.new);
-
-final Map<String, Component> _placeholders = {};
-
-class _Placeholder extends Component {
-  _Placeholder();
 }
 
 /// Builds snapshot-ID → local-ID remap from the component name table.

@@ -27,6 +27,10 @@ class ComponentRegistry {
       List<ComponentStorageTier?>.filled(ComponentId.maxValue + 1, null);
   final ColumnFactoryRegistry _columnFactoryRegistry;
   final ComponentFacadeRegistry _componentFacadeRegistry;
+  final List<Component?> _idToSample = List<Component?>.filled(
+    ComponentId.maxValue + 1,
+    null,
+  );
   int _nextId = 0;
 
   ColumnFactoryRegistry get columnFactoryRegistry => _columnFactoryRegistry;
@@ -75,6 +79,13 @@ class ComponentRegistry {
   /// serialization name resolution where entities may not exist yet.
   Map<ComponentId, Type> get registeredTypes => Map.unmodifiable(_idToType);
 
+  /// Sample instance registered for [id], or null.
+  ///
+  /// Mirrors the event-side `sampleEvent` pattern: a representative instance
+  /// provided at registration time so reflection-free tooling (serialization,
+  /// replay) can construct components by ID without app-provided factories.
+  Component? sampleFor(final ComponentId id) => _idToSample[id.value];
+
   ComponentStorageTier getStorageTier(final ComponentId id) {
     final tier = _idToTier[id.value];
     if (tier == null) {
@@ -87,19 +98,29 @@ class ComponentRegistry {
       getStorageTier(id) == ComponentStorageTier.object;
 
   /// Register a SoA (typed-data) component for hot simulation paths.
+  ///
+  /// [sample] is an optional representative instance used by reflection-free
+  /// tooling such as snapshot restore to construct spawn-time placeholders.
   ComponentId registerSoAComponent<T extends Component>({
     required final ColumnFactory columnFactory,
+    final T? sample,
   }) => _registerComponentInternal<T>(
     columnFactory: columnFactory,
     tier: ComponentStorageTier.soa,
+    sample: sample,
   );
 
   /// Register an object component for cold paths.
+  ///
+  /// [sample] is an optional representative instance used by reflection-free
+  /// tooling such as snapshot restore to construct spawn-time placeholders.
   ComponentId registerObjectComponent<T extends Component>({
     final ColumnFactory? columnFactory,
+    final T? sample,
   }) => _registerComponentInternal<T>(
     columnFactory: columnFactory ?? ObjectColumnFactory<T>(),
     tier: ComponentStorageTier.object,
+    sample: sample,
   );
 
   /// Register a presence-only SoA tag component backed by a compact byte column.
@@ -112,6 +133,7 @@ class ComponentRegistry {
   ComponentId _registerComponentInternal<T extends Component>({
     required final ColumnFactory columnFactory,
     required final ComponentStorageTier tier,
+    final T? sample,
   }) {
     if (_typeToId.contains(T)) {
       final existingId = _typeToId.get(T)!;
@@ -133,6 +155,7 @@ class ComponentRegistry {
     _typeToId.set(T, id);
     _idToType[id] = T;
     _idToTier[id.value] = tier;
+    _idToSample[id.value] = sample;
 
     _columnFactoryRegistry.registerFactory(id, columnFactory);
 

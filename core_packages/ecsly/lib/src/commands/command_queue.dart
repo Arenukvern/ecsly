@@ -548,12 +548,6 @@ class CommandQueue {
 
     final entities = <Entity>[firstEntity];
     final components = <Component>[firstComponent];
-    // Presize for the common case: a homogeneous run of pending upserts.
-    final pendingCount = _pendingCommands.length;
-    if (pendingCount > 1) {
-      entities.length = pendingCount;
-      components.length = pendingCount;
-    }
     while (_pendingCommands.isNotEmpty) {
       final next = _pendingCommands.first;
       if (next is! UpsertComponentCommand) break;

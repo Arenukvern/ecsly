@@ -365,10 +365,15 @@ class ComponentQuery {
   Iterable<(WorldEntityExtension, TExt)>
   iterExt1<TComp extends Component, TExt>() {
     if (TComp == TExt) {
-      return iter1<TComp>().map((final tuple) {
-        final (entity, comp) = tuple;
-        return (entity.toExtension(), comp as TExt);
-      });
+      // Dedicated same-type iterator: avoids per-element .map() closure and
+      // tuple re-allocation that the generic path would pay.
+      world.ensureFlushed();
+      final componentId = world.components.getComponentId<TComp>();
+      final archetypes = _resolveArchetypesForIds([componentId]);
+      if (archetypes.isEmpty) {
+        return const [];
+      }
+      return _QueryIterableExt1<TComp, TExt>(archetypes, componentId, world);
     }
     world.ensureFlushed();
     final id1 = world.components.getComponentId<TComp>();
@@ -396,12 +401,20 @@ class ComponentQuery {
     TExt
   >(final ExtensionPredicate<TExt> predicate) {
     if (TComp == TExt) {
-      return iter1Where((final component) => predicate(component as TExt)).map((
-        final tuple,
-      ) {
-        final (entity, comp) = tuple;
-        return (entity.toExtension(), comp as TExt);
-      });
+      // Dedicated same-type path: avoids per-element .map() closure and
+      // tuple re-allocation that the generic path would pay.
+      world.ensureFlushed();
+      final id1 = world.components.getComponentId<TComp>();
+      final archetypes = _resolveArchetypesForIds([id1]);
+      if (archetypes.isEmpty) {
+        return const [];
+      }
+      return _QueryIterableExt1Where<TComp, TExt>(
+        archetypes,
+        id1,
+        world,
+        predicate,
+      );
     }
     world.ensureFlushed();
     final id1 = world.components.getComponentId<TComp>();

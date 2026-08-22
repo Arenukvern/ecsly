@@ -25,7 +25,9 @@ class PersistentId extends Component {
 /// Ensures [PersistentId] is registered in [world]. Idempotent.
 void registerPersistentId(final World world) {
   if (world.components.getComponentIdByType(PersistentId) == null) {
-    world.components.registerObjectComponent<PersistentId>();
+    world.components.registerObjectComponent<PersistentId>(
+      sample: const PersistentId(0),
+    );
   }
 }
 

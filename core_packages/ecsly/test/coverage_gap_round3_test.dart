@@ -51,14 +51,14 @@ void main() {
       final sameType = q.iterExt1<NameComponent, NameComponent>().toList();
       expect(sameType, isNotEmpty);
 
-      expect(
-        () => q
-            .iterExt1Where<NameComponent, NameComponent>(
-              (final n) => n.value == 'n',
-            )
-            .toList(),
-        throwsA(isA<StateError>()),
-      );
+      // Same-type iterExt1Where now uses the dedicated fast path: ObjectColumn
+      // facades are auto-generated, so no StateError is thrown.
+      final filtered = q
+          .iterExt1Where<NameComponent, NameComponent>(
+            (final n) => n.value == 'n',
+          )
+          .toList();
+      expect(filtered, isNotEmpty);
 
       final qRequired = ComponentQuery(
         world: world,
