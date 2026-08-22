@@ -248,7 +248,11 @@ class SystemExecutor {
   ) {
     for (final index in group) {
       final desc = systems[index];
-      if (desc.mode != ExecutionMode.sync) continue;
+      // Match unobserved semantics (_executeGroup): sync runs inline;
+      // asyncParallel is fired without awaiting (fire-and-forget). Skipping
+      // async systems here would silently change execution when an observer
+      // is installed.
+      if (desc.mode == ExecutionMode.async) continue;
 
       observer.onSystemStart(world, scheduleName, desc);
       final startUs = DateTime.now().microsecondsSinceEpoch;
