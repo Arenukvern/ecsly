@@ -25,21 +25,19 @@ class _Meta extends Resource with SnapshotableResource {
   );
 }
 
-World _worldWith(
-  final int entityCount, {
-  final bool withHealth = true,
-  final bool withScore = true,
-}) {
-  final world = buildSerializationTestWorld();
-  for (var i = 0; i < entityCount; i++) {
-    world.spawnComponents([
-      const PositionComponent(),
-      if (withHealth) const HealthComponent(),
-      if (withScore) const ScoreComponent(),
-    ]);
+/// Sets Position.x = persistentId on every persisted entity of [world].
+void markPositions(final World world) {
+  for (final archetype in world.archetypes.all) {
+    for (final entity in archetype.entities) {
+      final pid = persistentIdOf(world, entity);
+      if (pid == null) continue;
+      final (ext, ok) = world.getEntityExtension(entity);
+      if (!ok) continue;
+      ext.getOrCreate<PositionComponent, Position>()
+        ..x = pid.value.toDouble()
+        ..y = 0;
+    }
   }
-  world.flush();
-  return world;
 }
 
 void main() {
@@ -54,55 +52,43 @@ void main() {
   });
 
   test('eval: restore is idempotent', () {
-    final source = _worldWith(10);
-    final entities = source.archetypes.all
-        .expand((final a) => a.entities)
-        .toList();
-    for (final e in entities) {
-      final (ext, ok) = source.getEntityExtension(e);
-      if (!ok) continue;
-      ext.getOrCreate<PositionComponent, Position>()
-        ..x = e.indexValue.toDouble()
-        ..y = 0;
-    }
+    final source = buildPopulatedWorld(10);
+    markPositions(source);
 
     final snapshot = captureWorldSnapshot(source);
-    final target = _worldWith(10);
-    restoreWorldSnapshot(target, snapshot);
-    restoreWorldSnapshot(target, snapshot); // second apply must be a no-op
+    final target = buildSerializationTestWorld();
+    final first = restoreWorldSnapshot(target, snapshot);
+    final second = restoreWorldSnapshot(target, snapshot);
 
-    for (final archetype in target.archetypes.all) {
-      for (final entity in archetype.entities) {
-        final (ext, ok) = target.getEntityExtension(entity);
-        if (!ok) continue;
-        expect(
-          ext.getOrCreate<PositionComponent, Position>().x,
-          entity.indexValue.toDouble(),
-        );
-      }
+    // Same persistent IDs resolve to the same freshly spawned entities.
+    expect(second.keys.toSet(), first.keys.toSet());
+    for (final pid in first.keys) {
+      expect(second[pid], first[pid]);
+      final (ext, ok) = target.getEntityExtension(first[pid]!);
+      expect(ok, isTrue);
+      expect(ext.getOrCreate<PositionComponent, Position>().x, pid.toDouble());
     }
   });
 
   test('eval: unmutated fields survive as zeros', () {
-    final source = _worldWith(5);
+    final source = buildPopulatedWorld(5);
     final snapshot = captureWorldSnapshot(source);
-    final target = _worldWith(5);
-    restoreWorldSnapshot(target, snapshot);
+    final target = buildSerializationTestWorld();
+    final mapping = restoreWorldSnapshot(target, snapshot);
 
-    for (final archetype in target.archetypes.all) {
-      for (final entity in archetype.entities) {
-        final (ext, ok) = target.getEntityExtension(entity);
-        if (!ok) continue;
-        expect(ext.getOrCreate<PositionComponent, Position>().x, 0);
-        expect(ext.getOrCreate<PositionComponent, Position>().y, 0);
-        expect(ext.getOrCreate<HealthComponent, Health>().value, 0);
-        expect(ext.getOrCreate<ScoreComponent, Score>().value, 0);
-      }
+    for (final entity in mapping.values) {
+      final (ext, ok) = target.getEntityExtension(entity);
+      expect(ok, isTrue);
+      expect(ext.getOrCreate<PositionComponent, Position>().x, 0);
+      expect(ext.getOrCreate<PositionComponent, Position>().y, 0);
+      expect(ext.getOrCreate<HealthComponent, Health>().value, 0);
+      expect(ext.getOrCreate<ScoreComponent, Score>().value, 0);
     }
+    expect(mapping.length, 5);
   });
 
   test('eval: NaN and infinity round-trip through JSON', () {
-    final source = _worldWith(1);
+    final source = buildPopulatedWorld(1);
     final entity = source.archetypes.all.expand((final a) => a.entities).first;
     final (ext, _) = source.getEntityExtension(entity);
     ext.getOrCreate<PositionComponent, Position>()
@@ -111,12 +97,10 @@ void main() {
 
     final encoded = encodeWorldSnapshot(captureWorldSnapshot(source));
     final decoded = decodeWorldSnapshot(encoded);
-    final target = _worldWith(1);
-    restoreWorldSnapshot(target, decoded);
+    final target = buildSerializationTestWorld();
+    final mapping = restoreWorldSnapshot(target, decoded);
 
-    final (restored, ok) = target.getEntityExtension(
-      target.archetypes.all.expand((final a) => a.entities).first,
-    );
+    final (restored, ok) = target.getEntityExtension(mapping.values.first);
     expect(ok, isTrue);
     expect(
       restored.getOrCreate<PositionComponent, Position>().x,
@@ -129,13 +113,13 @@ void main() {
   });
 
   test('eval: large list resource values round-trip', () {
-    final source = _worldWith(1);
+    final source = buildPopulatedWorld(1);
     source.upsertResource(_Meta(values: List.generate(1000, (final i) => i)));
     source.flush();
 
     final encoded = encodeWorldSnapshot(captureWorldSnapshot(source));
     final decoded = decodeWorldSnapshot(encoded);
-    final target = _worldWith(1);
+    final target = buildSerializationTestWorld();
     restoreWorldSnapshot(
       target,
       decoded,
@@ -147,13 +131,40 @@ void main() {
     expect(meta.values.last, 999);
   });
 
-  test('eval: stale generation entities are skipped on restore', () {
-    final source = _worldWith(3);
+  test('eval: duplicate persistent ids fail capture loudly', () {
+    final world = buildSerializationTestWorld();
+    registerPersistentId(world);
+    world.spawnComponents([const PersistentId(1), const PositionComponent()]);
+    world.spawnComponents([const PersistentId(1), const PositionComponent()]);
+    world.flush();
+
+    expect(() => captureWorldSnapshot(world), throwsStateError);
+  });
+
+  test('eval: restore into empty world spawns PersistentId carriers', () {
+    final source = buildPopulatedWorld(3);
+    markPositions(source);
     final snapshot = captureWorldSnapshot(source);
 
-    // Corrupt one entry's persistent id so it no longer matches any live
-    // entity — restore spawns fresh entities from the snapshot itself, so a
-    // duplicate/odd key must not break the loop.
+    final fresh = buildSerializationTestWorld(); // zero live entities
+    final mapping = restoreWorldSnapshot(fresh, snapshot);
+
+    expect(mapping.length, 3);
+    expect(fresh.entities.count, 3);
+    for (final pid in mapping.keys) {
+      final (ext, ok) = fresh.getEntityExtension(mapping[pid]!);
+      expect(ok, isTrue);
+      expect(persistentIdOf(fresh, mapping[pid]!)!.value, pid);
+      expect(ext.getOrCreate<PositionComponent, Position>().x, pid.toDouble());
+    }
+  });
+
+  test('eval: corrupted persistent id entry still restores', () {
+    final source = buildPopulatedWorld(3);
+    final snapshot = captureWorldSnapshot(source);
+
+    // Corrupt one entry's persistent id — restore spawns fresh entities from
+    // the snapshot itself, so an odd key must not break the loop.
     final corrupted = WorldSnapshot(
       version: snapshot.version,
       schemaVersion: snapshot.schemaVersion,
@@ -170,8 +181,9 @@ void main() {
       ],
     );
 
-    final target = _worldWith(3);
-    // Must not throw; all entries are spawned fresh.
-    restoreWorldSnapshot(target, corrupted);
+    final target = buildSerializationTestWorld();
+    final mapping = restoreWorldSnapshot(target, corrupted);
+    expect(mapping.length, 3);
+    expect(mapping.containsKey(-1), isTrue);
   });
 }

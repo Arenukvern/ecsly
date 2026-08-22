@@ -50,10 +50,12 @@ void main() {
   });
 
   test('dogfood: save/load cycle across process-like boundary', () {
-    // --- Session 1: play and save.
+    // --- Session 1: play and save. PersistentIds 1..50; even ids get EnemyTag.
     final session1 = _buildGame();
-    for (var i = 0; i < 50; i++) {
+    registerPersistentId(session1);
+    for (var i = 1; i <= 50; i++) {
       session1.spawnComponents([
+        PersistentId(i),
         const PositionComponent(),
         const HealthComponent(),
         const ScoreComponent(),
@@ -63,18 +65,19 @@ void main() {
     session1.upsertResource(GameMeta(level: 3, seed: 42));
     session1.flush();
 
-    // Simulate some gameplay mutation on entities with index 1..9.
-    final entities = session1.archetypes.all.expand((final a) => a.entities).toList();
-    for (final entity in entities) {
-      if (entity.indexValue < 1 || entity.indexValue > 9) continue;
-      final (ext, ok) = session1.getEntityExtension(entity);
-      if (!ok) continue;
-      ext.getOrCreate<PositionComponent, Position>()
-        ..x = entity.indexValue * 1.5
-        ..y = entity.indexValue * -2.0;
-      ext.getOrCreate<HealthComponent, Health>().value =
-          entity.indexValue % 256;
-      ext.getOrCreate<ScoreComponent, Score>().value = entity.indexValue * 100;
+    // Simulate some gameplay mutation on persistent ids 1..9.
+    for (final archetype in session1.archetypes.all) {
+      for (final entity in archetype.entities) {
+        final pid = persistentIdOf(session1, entity)!.value;
+        if (pid > 9) continue;
+        final (ext, ok) = session1.getEntityExtension(entity);
+        if (!ok) continue;
+        ext.getOrCreate<PositionComponent, Position>()
+          ..x = pid * 1.5
+          ..y = pid * -2.0;
+        ext.getOrCreate<HealthComponent, Health>().value = pid % 256;
+        ext.getOrCreate<ScoreComponent, Score>().value = pid * 100;
+      }
     }
 
     final saveFile = File('${tempDir.path}/save.json');
@@ -82,18 +85,8 @@ void main() {
       encodeWorldSnapshot(captureWorldSnapshot(session1)),
     );
 
-    // --- Session 2: fresh "process", load.
+    // --- Session 2: fresh "process", load into an empty world.
     final session2 = _buildGame();
-    // Recreate identical structure: 50 entities in spawn order.
-    for (var i = 0; i < 50; i++) {
-      session2.spawnComponents([
-        const PositionComponent(),
-        const HealthComponent(),
-        const ScoreComponent(),
-        if (i.isEven) const EnemyTag(),
-      ]);
-    }
-    session2.flush();
 
     final loaded = decodeWorldSnapshot(saveFile.readAsStringSync());
     restoreWorldSnapshot(
@@ -112,8 +105,8 @@ void main() {
       for (final entity in archetype.entities) {
         final (ext, ok) = session2.getEntityExtension(entity);
         if (!ok) continue;
-        final expectedIndex = entity.indexValue;
-        if (expectedIndex >= 10 || expectedIndex == 0) continue;
+        final expectedIndex = persistentIdOf(session2, entity)!.value;
+        if (expectedIndex >= 10) continue;
         expect(
           ext.getOrCreate<PositionComponent, Position>().x,
           closeTo(expectedIndex * 1.5, 0.01),
@@ -136,8 +129,10 @@ void main() {
   test('dogfood: snapshot determinism — same state produces same bytes', () {
     World build() {
       final world = _buildGame();
-      for (var i = 0; i < 20; i++) {
+      registerPersistentId(world);
+      for (var i = 1; i <= 20; i++) {
         world.spawnComponents([
+          PersistentId(i),
           const PositionComponent(),
           const ScoreComponent(),
         ]);

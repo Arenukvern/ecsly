@@ -1,6 +1,6 @@
 import 'package:ecsly/ecsly.dart';
+import 'package:ecsly_serialization/ecsly_serialization.dart';
 
-/// Test components mirroring `core_packages/ecsly/test/_test_components.dart`.
 ///
 /// Kept local so the plugin tests don't depend on core test helpers.
 
@@ -114,6 +114,23 @@ final class _ScoreFacadeFactory extends ComponentFacadeFactory<Score> {
 class NameComponent extends Component {
   const NameComponent(this.value);
   final String value;
+}
+
+/// Spawns [count] entities carrying [PersistentId]s `1..count` plus the
+/// standard component set. Returns the world flushed and ready to capture.
+World buildPopulatedWorld(final int count) {
+  final world = buildSerializationTestWorld();
+  registerPersistentId(world);
+  for (var i = 0; i < count; i++) {
+    world.spawnComponents([
+      PersistentId(i + 1),
+      const PositionComponent(),
+      const HealthComponent(),
+      const ScoreComponent(),
+    ]);
+  }
+  world.flush();
+  return world;
 }
 
 World buildSerializationTestWorld() {

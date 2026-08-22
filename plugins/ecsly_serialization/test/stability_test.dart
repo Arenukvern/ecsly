@@ -10,27 +10,31 @@ import 'serialization_test_components_alt.dart';
 /// Stability evals: snapshots must survive structural changes to the target
 /// world — registration reordering, added components, removed components,
 /// and renames (via explicit migration).
+///
+/// Restore spawns fresh entities, so targets are always freshly built worlds.
 
 World _populate(final World world) {
+  registerPersistentId(world);
   for (var i = 0; i < 5; i++) {
     world.spawnComponents([
+      PersistentId(i + 1),
       const PositionComponent(),
       const HealthComponent(),
       const ScoreComponent(),
     ]);
   }
   world.flush();
-  final entities = world.archetypes.all
-      .expand((final a) => a.entities)
-      .toList();
-  for (final e in entities) {
-    final (ext, ok) = world.getEntityExtension(e);
-    if (!ok) continue;
-    ext.getOrCreate<PositionComponent, Position>()
-      ..x = e.indexValue * 2.0
-      ..y = e.indexValue * 3.0;
-    ext.getOrCreate<HealthComponent, Health>().value = e.indexValue % 256;
-    ext.getOrCreate<ScoreComponent, Score>().value = e.indexValue * 10;
+  for (final archetype in world.archetypes.all) {
+    for (final entity in archetype.entities) {
+      final pid = persistentIdOf(world, entity)!.value;
+      final (ext, ok) = world.getEntityExtension(entity);
+      if (!ok) continue;
+      ext.getOrCreate<PositionComponent, Position>()
+        ..x = pid * 2.0
+        ..y = pid * 3.0;
+      ext.getOrCreate<HealthComponent, Health>().value = pid % 256;
+      ext.getOrCreate<ScoreComponent, Score>().value = pid * 10;
+    }
   }
   return world;
 }
@@ -43,113 +47,111 @@ void main() {
 
     // Target: same shapes, registered in REVERSE order.
     final reordered = buildReorderedWorld();
-    for (var i = 0; i < 5; i++) {
-      reordered.spawnComponents([
-        const AltPositionComponent(),
-        const AltHealthComponent(),
-        const AltScoreComponent(),
-      ]);
-    }
-    reordered.flush();
 
     // The alt world uses different type names, so remap by name first:
-    // rewrite the snapshot's component table to the alt names.
+    // rewrite BOTH the component table and each entity's component list.
     final snapshot = decodeWorldSnapshot(encoded);
-    final remappedIds = <String, int>{};
-    for (final entry in snapshot.componentIds.entries) {
-      final altName = switch (entry.key) {
-        'PositionComponent' => 'AltPositionComponent',
-        'HealthComponent' => 'AltHealthComponent',
-        'ScoreComponent' => 'AltScoreComponent',
-        _ => entry.key,
-      };
-      remappedIds[altName] = entry.value;
-    }
+    String altName(final String name) => switch (name) {
+      'PositionComponent' => 'AltPositionComponent',
+      'HealthComponent' => 'AltHealthComponent',
+      'ScoreComponent' => 'AltScoreComponent',
+      _ => name,
+    };
+    final remappedIds = <String, int>{
+      for (final entry in snapshot.componentIds.entries)
+        altName(entry.key): entry.value,
+    };
+    final remappedEntities = [
+      for (final entity in snapshot.entities)
+        EntityEntry(
+          persistentId: entity.persistentId,
+          components: entity.components.map(altName).toList(),
+          columns: entity.columns,
+        ),
+    ];
     final renamedSnapshot = WorldSnapshot(
       version: snapshot.version,
       schemaVersion: snapshot.schemaVersion,
       componentIds: remappedIds,
       resources: snapshot.resources,
-      entities: snapshot.entities,
+      entities: remappedEntities,
     );
 
     restoreWorldSnapshot(reordered, renamedSnapshot);
 
+    var verified = 0;
     for (final archetype in reordered.archetypes.all) {
       for (final entity in archetype.entities) {
+        final pid = persistentIdOf(reordered, entity)!.value;
         final (ext, ok) = reordered.getEntityExtension(entity);
         if (!ok) continue;
         expect(
           ext.getOrCreate<AltPositionComponent, AltPosition>().x,
-          entity.indexValue * 2.0,
-          reason: 'index ${entity.indexValue} after reorder',
+          pid * 2.0,
+          reason: 'pid $pid after reorder',
         );
-        expect(
-          ext.getOrCreate<AltScoreComponent, AltScore>().value,
-          entity.indexValue * 10,
-        );
+        expect(ext.getOrCreate<AltScoreComponent, AltScore>().value, pid * 10);
+        verified++;
       }
     }
+    expect(verified, 5);
   });
 
   test('stability: snapshot survives ADDED component in target world', () {
+    // Source entities carry only Position; the target world also registers
+    // Health — restore still works because structure comes from the snapshot.
     final source = buildSerializationTestWorld();
+    registerPersistentId(source);
     for (var i = 0; i < 3; i++) {
-      source.spawnComponents([const PositionComponent()]);
+      source.spawnComponents([PersistentId(i + 1), const PositionComponent()]);
     }
     source.flush();
-    final encoded = encodeWorldSnapshot(
-      captureWorldSnapshot(_populate(source)),
-    );
-
-    // Target adds Health on top of Position.
-    final extended = buildSerializationTestWorld();
-    for (var i = 0; i < 3; i++) {
-      extended.spawnComponents([
-        const PositionComponent(),
-        const HealthComponent(),
-      ]);
-    }
-    extended.flush();
-
-    restoreWorldSnapshot(extended, decodeWorldSnapshot(encoded));
-
-    for (final archetype in extended.archetypes.all) {
+    for (final archetype in source.archetypes.all) {
       for (final entity in archetype.entities) {
-        final (ext, ok) = extended.getEntityExtension(entity);
-        if (!ok) continue;
-        expect(
-          ext.getOrCreate<PositionComponent, Position>().x,
-          entity.indexValue * 2.0,
-        );
+        final pid = persistentIdOf(source, entity)!.value;
+        final (ext, _) = source.getEntityExtension(entity);
+        ext.getOrCreate<PositionComponent, Position>().x = pid * 2.0;
       }
     }
+    final encoded = encodeWorldSnapshot(captureWorldSnapshot(source));
+
+    final extended = buildSerializationTestWorld();
+    restoreWorldSnapshot(extended, decodeWorldSnapshot(encoded));
+
+    var verified = 0;
+    for (final archetype in extended.archetypes.all) {
+      for (final entity in archetype.entities) {
+        final pid = persistentIdOf(extended, entity)!.value;
+        final (ext, ok) = extended.getEntityExtension(entity);
+        if (!ok) continue;
+        expect(ext.getOrCreate<PositionComponent, Position>().x, pid * 2.0);
+        verified++;
+      }
+    }
+    expect(verified, 3);
   });
 
   test('stability: snapshot survives REMOVED component in target world', () {
     final source = _populate(buildSerializationTestWorld());
     final encoded = encodeWorldSnapshot(captureWorldSnapshot(source));
 
-    // Target only has Position.
+    // Target only has Position registered.
     final reduced = buildPositionOnlyWorld();
-    for (var i = 0; i < 5; i++) {
-      reduced.spawnComponents([const PositionComponent()]);
-    }
-    reduced.flush();
 
     // Must not throw; Health/Score data is skipped.
     restoreWorldSnapshot(reduced, decodeWorldSnapshot(encoded));
 
+    var verified = 0;
     for (final archetype in reduced.archetypes.all) {
       for (final entity in archetype.entities) {
+        final pid = persistentIdOf(reduced, entity)!.value;
         final (ext, ok) = reduced.getEntityExtension(entity);
         if (!ok) continue;
-        expect(
-          ext.getOrCreate<PositionComponent, Position>().x,
-          entity.indexValue * 2.0,
-        );
+        expect(ext.getOrCreate<PositionComponent, Position>().x, pid * 2.0);
+        verified++;
       }
     }
+    expect(verified, 5);
   });
 
   test('stability: strictComponents throws on missing component', () {
@@ -157,10 +159,6 @@ void main() {
     final encoded = encodeWorldSnapshot(captureWorldSnapshot(source));
 
     final reduced = buildPositionOnlyWorld();
-    for (var i = 0; i < 5; i++) {
-      reduced.spawnComponents([const PositionComponent()]);
-    }
-    reduced.flush();
 
     expect(
       () => restoreWorldSnapshot(
@@ -192,19 +190,20 @@ void main() {
       ),
     ]);
 
-    final target = _populate(buildSerializationTestWorld());
+    final target = buildSerializationTestWorld();
     restoreWorldSnapshot(target, restored);
 
+    var verified = 0;
     for (final archetype in target.archetypes.all) {
       for (final entity in archetype.entities) {
+        final pid = persistentIdOf(target, entity)!.value;
         final (ext, ok) = target.getEntityExtension(entity);
         if (!ok) continue;
-        expect(
-          ext.getOrCreate<PositionComponent, Position>().x,
-          entity.indexValue * 2.0,
-        );
+        expect(ext.getOrCreate<PositionComponent, Position>().x, pid * 2.0);
+        verified++;
       }
     }
+    expect(verified, 5);
   });
 
   test('stability: missing migration step fails loudly', () {
@@ -235,15 +234,14 @@ void main() {
     final encoded = encodeWorldSnapshot(captureWorldSnapshot(source));
 
     final fresh = buildSerializationTestWorld(); // no entities spawned
-    final snapshot = decodeWorldSnapshot(encoded);
-    restoreWorldSnapshot(fresh, snapshot);
+    final mapping = restoreWorldSnapshot(fresh, decodeWorldSnapshot(encoded));
+    expect(mapping.length, 5);
 
-    // Nothing to verify state-wise (no entities), but the remap must not
-    // have thrown and strict mode must pass too:
+    // Strict mode must pass too:
     expect(
       () => restoreWorldSnapshot(
         buildSerializationTestWorld(),
-        snapshot,
+        decodeWorldSnapshot(encoded),
         options: const WorldSnapshotOptions(strictComponents: true),
       ),
       returnsNormally,
@@ -252,7 +250,8 @@ void main() {
 
   test('stability: schemaVersion round-trips through the envelope', () {
     final source = buildSerializationTestWorld();
-    source.spawnComponents([const PositionComponent()]);
+    registerPersistentId(source);
+    source.spawnComponents([const PersistentId(1), const PositionComponent()]);
     source.flush();
 
     final snapshot = captureWorldSnapshot(

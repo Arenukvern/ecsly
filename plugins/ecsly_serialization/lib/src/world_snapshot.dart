@@ -177,11 +177,18 @@ WorldSnapshot captureWorldSnapshot(
   }
 
   final entities = <EntityEntry>[];
+  final seenIds = <int>{};
   for (final archetype in world.archetypes.all) {
     if (!archetype.signature.has(persistentIdId)) continue;
     for (final entity in archetype.entities) {
       final pid = persistentIdOf(world, entity);
       if (pid == null) continue;
+      if (!seenIds.add(pid.value)) {
+        throw StateError(
+          'Duplicate PersistentId(${pid.value}) during capture. Persistent '
+          'ids must be unique among persisted entities.',
+        );
+      }
       final columns = captureEntityColumns(
         world,
         entity,
@@ -239,11 +246,26 @@ Map<int, Entity> restoreWorldSnapshot(
   final idRemap = _buildIdRemap(world, snapshot, options);
 
   // Phase 1: spawn all entities with their structural signatures.
+  //
+  // Object-tier components spawn as real instances (from componentFactories
+  // or the registry's registered sample — the component-side mirror of
+  // `sampleEvent`). SoA/tag components are attached as extension pairs:
+  // their columns are zero-initialized at spawn and overwritten from column
+  // data in Phase 2, so no instance is ever needed.
   final newEntities = <int, Entity>{};
   for (final entry in snapshot.entities) {
+    // Idempotency: a persistent id already live in the target world is left
+    // untouched, so re-applying the same snapshot is a no-op.
+    final existing = _entityWithPersistentId(world, entry.persistentId);
+    if (existing != null) {
+      newEntities[entry.persistentId] = existing;
+      continue;
+    }
     final instances = <Component>[PersistentId(entry.persistentId)];
+    final extensions = <(Type, Type)>[];
     for (final typeName in entry.components) {
-      if (_localTypeFor(world, typeName) == null) {
+      final localType = _localTypeFor(world, typeName);
+      if (localType == null) {
         if (options.strictComponents) {
           throw StateError(
             'Snapshot entity ${entry.persistentId} requires component '
@@ -253,27 +275,31 @@ Map<int, Entity> restoreWorldSnapshot(
         }
         continue;
       }
-      final factory = componentFactories[typeName];
-      if (factory != null) {
-        instances.add(factory());
-        continue;
+      final localId = world.components.getComponentIdByType(localType)!;
+      if (world.components.isObjectComponent(localId)) {
+        final sample =
+            componentFactories[typeName]?.call() ??
+            world.components.sampleFor(localId);
+        if (sample == null) {
+          throw StateError(
+            'No sample registered for object component "$typeName". Register '
+            'it with registerObjectComponent<$typeName>(sample: ...) or '
+            'provide a componentFactories entry in restoreWorldSnapshot.',
+          );
+        }
+        instances.add(sample);
+      } else {
+        final extensionType = world.components.componentFacadeRegistry
+            .getExtensionType(localId);
+        if (extensionType != null && extensionType != Object) {
+          extensions.add((localType, extensionType));
+        }
       }
-      final localId = world.components.getComponentIdByType(
-        _localTypeFor(world, typeName)!,
-      );
-      final sample = localId == null
-          ? null
-          : world.components.sampleFor(localId);
-      if (sample == null) {
-        throw StateError(
-          'No sample registered for component "$typeName". Register it with '
-          'registerObjectComponent<$typeName>(sample: $typeName()) or provide '
-          'a componentFactories entry in restoreWorldSnapshot.',
-        );
-      }
-      instances.add(sample);
     }
-    newEntities[entry.persistentId] = world.spawnComponents(instances);
+    newEntities[entry.persistentId] = world.spawnComponents(
+      instances,
+      extensions,
+    );
   }
   world.flush();
 
@@ -297,6 +323,20 @@ Map<int, Entity> restoreWorldSnapshot(
 Type? _localTypeFor(final World world, final String typeName) {
   for (final entry in world.components.registeredTypes.entries) {
     if (entry.value.toString() == typeName) return entry.value;
+  }
+  return null;
+}
+
+/// Finds the live entity carrying [value], or null.
+Entity? _entityWithPersistentId(final World world, final int value) {
+  final persistentIdId = _persistentIdComponentIdOrNull(world);
+  if (persistentIdId == null) return null;
+  for (final archetype in world.archetypes.all) {
+    if (!archetype.signature.has(persistentIdId)) continue;
+    for (final entity in archetype.entities) {
+      final pid = persistentIdOf(world, entity);
+      if (pid?.value == value) return entity;
+    }
   }
   return null;
 }

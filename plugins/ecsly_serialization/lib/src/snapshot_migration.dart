@@ -54,6 +54,21 @@ class RenameComponentMigration extends SnapshotMigration {
     }
     final idValue = componentIds.remove(oldName);
     componentIds[newName] = idValue;
+
+    // Also rewrite each entity's structural component list.
+    final entities = json['entities'] as List<Object?>?;
+    if (entities != null) {
+      for (var i = 0; i < entities.length; i++) {
+        final entity = entities[i];
+        if (entity is! Map) continue;
+        final components = entity['components'] as List<Object?>?;
+        if (components == null) continue;
+        final index = components.indexOf(oldName);
+        if (index != -1) {
+          components[index] = newName;
+        }
+      }
+    }
     return json;
   }
 }

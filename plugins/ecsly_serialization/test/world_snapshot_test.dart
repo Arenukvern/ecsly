@@ -33,12 +33,15 @@ class GameConfig extends Resource with SnapshotableResource {
 void main() {
   test('full world round-trip: entities, columns, resources', () {
     final source = buildSerializationTestWorld();
+    registerPersistentId(source);
     final a = source.spawnComponents([
+      const PersistentId(1),
       const PositionComponent(),
       const HealthComponent(),
       const ScoreComponent(),
     ]);
     final b = source.spawnComponents([
+      const PersistentId(2),
       const PositionComponent(),
       const ScoreComponent(),
     ]);
@@ -61,19 +64,8 @@ void main() {
     expect(snapshot.version, worldSnapshotVersion);
     expect(snapshot.entities.length, 2);
 
+    // Restore into a completely fresh world — no pre-spawned structure.
     final target = buildSerializationTestWorld();
-    // Recreate the same entity layout in the target world.
-    final targetA = target.spawnComponents([
-      const PositionComponent(),
-      const HealthComponent(),
-      const ScoreComponent(),
-    ]);
-    final targetB = target.spawnComponents([
-      const PositionComponent(),
-      const ScoreComponent(),
-    ]);
-    target.flush();
-
     restoreWorldSnapshot(
       target,
       snapshot,
@@ -83,22 +75,33 @@ void main() {
     expect(target.resources.has<GameConfig>(), isTrue);
     expect((target.resources.getByType(GameConfig)! as GameConfig).speed, 7);
 
-    final (restoredA, okA) = target.getEntityExtension(targetA);
-    expect(okA, isTrue);
-    expect(restoredA.getOrCreate<PositionComponent, Position>().x, 10);
-    expect(restoredA.getOrCreate<PositionComponent, Position>().y, 20);
-    expect(restoredA.getOrCreate<HealthComponent, Health>().value, 55);
-    expect(restoredA.getOrCreate<ScoreComponent, Score>().value, 900);
-
-    final (restoredB, okB) = target.getEntityExtension(targetB);
-    expect(okB, isTrue);
-    expect(restoredB.getOrCreate<PositionComponent, Position>().x, -1);
-    expect(restoredB.getOrCreate<PositionComponent, Position>().y, -2);
+    // Resolve restored entities via their PersistentIds.
+    var verified = 0;
+    for (final archetype in target.archetypes.all) {
+      for (final entity in archetype.entities) {
+        final pid = persistentIdOf(target, entity)!.value;
+        final (ext, ok) = target.getEntityExtension(entity);
+        expect(ok, isTrue);
+        if (pid == 1) {
+          expect(ext.getOrCreate<PositionComponent, Position>().x, 10);
+          expect(ext.getOrCreate<PositionComponent, Position>().y, 20);
+          expect(ext.getOrCreate<HealthComponent, Health>().value, 55);
+          expect(ext.getOrCreate<ScoreComponent, Score>().value, 900);
+          verified++;
+        } else if (pid == 2) {
+          expect(ext.getOrCreate<PositionComponent, Position>().x, -1);
+          expect(ext.getOrCreate<PositionComponent, Position>().y, -2);
+          verified++;
+        }
+      }
+    }
+    expect(verified, 2);
   });
 
   test('JSON codec round-trip preserves snapshot', () {
     final source = buildSerializationTestWorld();
-    source.spawnComponents([const PositionComponent()]);
+    registerPersistentId(source);
+    source.spawnComponents([const PersistentId(1), const PositionComponent()]);
     source.upsertResource(GameConfig(speed: 3.5));
     source.flush();
 
@@ -116,19 +119,23 @@ void main() {
     final options = WorldSnapshotOptions(codecs: codecs);
 
     final source = buildSerializationTestWorld();
-    final entity = source.spawnComponents([const NameComponent('hero')]);
+    registerPersistentId(source);
+    source.spawnComponents([
+      const PersistentId(1),
+      const NameComponent('hero'),
+    ]);
     source.flush();
 
     final snapshot = captureWorldSnapshot(source, options: options);
     expect(snapshot.entities, isNotEmpty);
 
     final target = buildSerializationTestWorld();
-    target.spawnComponents([const NameComponent('')]);
-    target.flush();
+    final mapping = restoreWorldSnapshot(target, snapshot, options: options);
 
-    restoreWorldSnapshot(target, snapshot, options: options);
-
-    final restored = target.getEntity(entity).$1.get<NameComponent>();
+    final restored = target
+        .getEntity(mapping.values.first)
+        .$1
+        .get<NameComponent>();
     expect(restored, isNotNull);
     expect(restored!.value, 'hero');
   });

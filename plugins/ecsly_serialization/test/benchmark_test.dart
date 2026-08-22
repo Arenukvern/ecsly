@@ -39,8 +39,10 @@ int _measure(final String name, final int Function() run) {
 
 World _worldWith(final int entityCount) {
   final world = buildSerializationTestWorld();
+  registerPersistentId(world);
   for (var i = 0; i < entityCount; i++) {
     world.spawnComponents([
+      PersistentId(i + 1),
       const PositionComponent(),
       const HealthComponent(),
       const ScoreComponent(),
@@ -77,7 +79,8 @@ void main() {
           return 1;
         });
 
-        final target = _worldWith(count);
+        // Restore into an empty target — the spawn-fresh path.
+        final target = buildSerializationTestWorld();
         _measure('restore   [$count entities]', () {
           restoreWorldSnapshot(target, snapshot);
           return 1;
