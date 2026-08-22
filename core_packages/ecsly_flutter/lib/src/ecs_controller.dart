@@ -94,7 +94,8 @@ class EcsController extends ChangeNotifier {
     action,
     flush: flush,
     afterRun: (final actionInvalidation) {
-      final schedule = afterActionScheduleSpec ??
+      final schedule =
+          afterActionScheduleSpec ??
           _hostScheduleFrom(afterActionSchedule) ??
           this.afterActionScheduleSpec ??
           _hostScheduleFrom(this.afterActionSchedule);
@@ -129,7 +130,7 @@ class EcsController extends ChangeNotifier {
     final effectiveInvalidation =
         invalidation ?? const EcsInvalidationBatch.broad();
     try {
-      world.runSchedule(scheduleName);
+      world.runSchedule(ScheduleId(scheduleName));
       stopwatch.stop();
       onScheduleRun?.call(
         EcsScheduleRunEvent(

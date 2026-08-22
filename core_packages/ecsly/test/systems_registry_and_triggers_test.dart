@@ -6,23 +6,29 @@ void main() {
     test('create/get/getOrCreate/remove/tryGet/clear and names cache', () {
       final systems = SystemsRegistry();
 
-      final s1 = systems.createSchedule('A');
-      expect(systems.hasSchedule('A'), isTrue);
-      expect(systems.getSchedule('A'), same(s1));
-      expect(systems.getOrCreateSchedule('A'), same(s1));
+      final s1 = systems.createSchedule(const ScheduleId('A'));
+      expect(systems.hasSchedule(const ScheduleId('A')), isTrue);
+      expect(systems.getSchedule(const ScheduleId('A')), same(s1));
+      expect(systems.getOrCreateSchedule(const ScheduleId('A')), same(s1));
       expect(systems.scheduleNames, contains('A'));
 
-      expect(() => systems.createSchedule('A'), throwsA(isA<EcsStateError>()));
       expect(
-        () => systems.getSchedule('missing'),
+        () => systems.createSchedule(const ScheduleId('A')),
+        throwsA(isA<EcsStateError>()),
+      );
+      expect(
+        () => systems.getSchedule(const ScheduleId('missing')),
         throwsA(isA<EcsStateError>()),
       );
 
-      final s2 = systems.getOrCreateSchedule('B', trigger: const EveryFrame());
-      expect(systems.tryGetSchedule('B'), same(s2));
-      expect(systems.removeSchedule('B'), isTrue);
-      expect(systems.removeSchedule('B'), isFalse);
-      expect(systems.tryGetSchedule('B'), isNull);
+      final s2 = systems.getOrCreateSchedule(
+        const ScheduleId('B'),
+        trigger: const EveryFrame(),
+      );
+      expect(systems.tryGetSchedule(const ScheduleId('B')), same(s2));
+      expect(systems.removeSchedule(const ScheduleId('B')), isTrue);
+      expect(systems.removeSchedule(const ScheduleId('B')), isFalse);
+      expect(systems.tryGetSchedule(const ScheduleId('B')), isNull);
 
       systems.clear();
       expect(systems.scheduleNames, isEmpty);

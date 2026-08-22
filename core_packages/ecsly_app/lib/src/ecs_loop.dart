@@ -121,7 +121,7 @@ class EcsFixedLoop extends EcsLoop {
       // _executeGroup already does fire-and-forget for asyncParallel systems
       // — the returned Future is discarded. Using runScheduleAsync would
       // incorrectly await via Future.wait, blocking the loop.
-      world.runSchedule(schedule.name);
+      world.runSchedule(ScheduleId(schedule.name));
     }
   }
 }

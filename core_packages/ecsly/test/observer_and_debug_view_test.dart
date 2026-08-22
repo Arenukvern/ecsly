@@ -4,8 +4,8 @@ import 'package:test/test.dart';
 void main() {
   test('SystemExecutor does not require observer by default', () {
     final world = World();
-    world.createSchedule('Update').add((_) {});
-    expect(() => world.runSchedule('Update'), returnsNormally);
+    world.createSchedule(ScheduleId.update).add((_) {});
+    expect(() => world.runSchedule(ScheduleId.update), returnsNormally);
   });
 
   test('Execution observer receives callbacks', () {
@@ -13,11 +13,11 @@ void main() {
     final world = World(executionObserver: observer);
 
     world
-        .createSchedule('Update')
+        .createSchedule(ScheduleId.update)
         .add((_) {}, name: 'a')
         .then((_) {}, name: 'b');
 
-    world.runSchedule('Update');
+    world.runSchedule(ScheduleId.update);
 
     expect(observer.scheduleStarts, 1);
     expect(observer.scheduleEnds, 1);
@@ -27,12 +27,15 @@ void main() {
 
   test('WorldDebugView snapshot contains schedules/archetypes/resources', () {
     final world = World();
-    world.createSchedule('Update').add((_) {}, name: 'a');
+    world.createSchedule(ScheduleId.update).add((_) {}, name: 'a');
     world.upsertResource(LevelStateResource(currentLevel: 'menu'));
     world.flushResourcesOnly();
 
     final snap = WorldDebugView(world).snapshot();
-    expect(snap.schedules.any((final s) => s.name == 'Update'), isTrue);
+    expect(
+      snap.schedules.any((final s) => s.name == ScheduleId.update.value),
+      isTrue,
+    );
     expect(snap.archetypeCount, isNonNegative);
     expect(
       snap.resources.any(

@@ -971,10 +971,10 @@ void main() {
   ) async {
     final events = <EcsScheduleRunEvent>[];
     final world = World()..upsertResource(CounterResource());
-    world.getOrCreateSchedule('boot').add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('boot')).add((final world) {
       world.getResource<CounterResource>().count += 1;
     });
-    world.getOrCreateSchedule('afterAction').add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('afterAction')).add((final world) {
       world.getResource<CounterResource>().count += 10;
     });
     final controller = EcsController(world: world);
@@ -1009,7 +1009,7 @@ void main() {
     final tester,
   ) async {
     final world = World()..upsertResource(CounterResource());
-    world.getOrCreateSchedule('frame').add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('frame')).add((final world) {
       world.getResource<CounterResource>().count += 1;
     });
     final controller = EcsController(world: world);
@@ -1049,7 +1049,7 @@ void main() {
     var frame = 0;
     var resourceSelects = 0;
     var componentSelects = 0;
-    world.getOrCreateSchedule('frame').add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('frame')).add((final world) {
       frame += 1;
       world.upsertComponent(entity, TodoTitle('frame $frame'));
     });
@@ -1118,7 +1118,7 @@ void main() {
     world.flush();
     final controller = EcsController(world: world);
     var resourceSelects = 0;
-    world.getOrCreateSchedule('frame').add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('frame')).add((final world) {
       world.upsertComponent(entity, const TodoTitle('changed'));
     });
 
@@ -1163,7 +1163,7 @@ void main() {
       var componentSelects = 0;
       var frame = 0;
       controller.addListener(() => notifications += 1);
-      world.getOrCreateSchedule('fixed').add((final world) {
+      world.getOrCreateSchedule(const ScheduleId('fixed')).add((final world) {
         frame += 1;
         world.upsertComponent(entity, TodoTitle('step $frame'));
       });
@@ -1220,7 +1220,7 @@ void main() {
       ..upsertResource(OtherResource())
       ..upsertResource(DerivedResource())
       ..flush();
-    world.getOrCreateSchedule('afterAction').add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('afterAction')).add((final world) {
       world.getResource<DerivedResource>()
         ..runs += 1
         ..value = world.getResource<CounterResource>().count * 2;
@@ -1245,7 +1245,7 @@ void main() {
       ..upsertResource(CounterResource())
       ..upsertResource(DerivedResource())
       ..flush();
-    world.getOrCreateSchedule('afterAction').add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('afterAction')).add((final world) {
       world.getResource<DerivedResource>().runs += 1;
     });
     final controller = EcsController(
@@ -1267,7 +1267,7 @@ void main() {
         ..upsertResource(OtherResource())
         ..upsertResource(DerivedResource())
         ..flush();
-      world.getOrCreateSchedule('afterAction').add((final world) {
+      world.getOrCreateSchedule(const ScheduleId('afterAction')).add((final world) {
         world.getResource<DerivedResource>()
           ..runs += 1
           ..value = world.getResource<CounterResource>().count * 2;
@@ -1321,7 +1321,7 @@ void main() {
     final world = _todoWorld()
       ..upsertResource(CountTodosResource())
       ..flush();
-    world.getOrCreateSchedule('afterAction').add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('afterAction')).add((final world) {
       final rows = world.query<TodoRecord>().toList(growable: false);
       world.getResource<CountTodosResource>().count = rows.length;
     });

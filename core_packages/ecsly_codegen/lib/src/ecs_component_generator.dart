@@ -154,6 +154,30 @@ String generateEcsComponentFactories({
   );
   buf.writeln('  }');
   buf.writeln('}');
+  buf.writeln();
+
+  // One-call registration handle: binds marker, facade, and factories so
+  // consumers never repeat the four-way wiring by hand.
+  buf.writeln('final class ${baseName}Registration {');
+  buf.writeln('  const ${baseName}Registration._();');
+  buf.writeln();
+  buf.writeln('  /// Register this component with [world].');
+  buf.writeln('  ///');
+  buf.writeln('  /// Equivalent to:');
+  buf.writeln('  /// ```dart');
+  buf.writeln('  /// world.components.registerExtension<$className, $facade>(');
+  buf.writeln('  ///   columnFactory: ${baseName}ColumnFactory(),');
+  buf.writeln('  ///   facadeFactory: ${facade}FacadeFactory(),');
+  buf.writeln('  /// );');
+  buf.writeln('  /// ```');
+  buf.writeln(
+    '  static ComponentId register(final World world) => '
+    'world.components.registerExtension<$className, $facade>(',
+  );
+  buf.writeln('    columnFactory: ${baseName}ColumnFactory(),');
+  buf.writeln('    facadeFactory: ${facade}FacadeFactory(),');
+  buf.writeln('  );');
+  buf.writeln('}');
 
   return buf.toString();
 }

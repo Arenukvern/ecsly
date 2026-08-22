@@ -16,7 +16,7 @@ import '../world/world.dart';
 ///   @override
 ///   void install(World world) {
 ///     world.resources.push(PhysicsConfig());
-///     world.schedule('Update')
+///     world.schedule(ScheduleId.update)
 ///       .add(applyGravitySystem)
 ///       .then(resolveCollisionsSystem);
 ///   }

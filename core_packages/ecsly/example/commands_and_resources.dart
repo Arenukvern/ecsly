@@ -35,7 +35,7 @@ void queueCounterChangesSystem(final World world) {
 }
 
 void addUpdateSystems(final World world) {
-  world.createSchedule('Update')
+  world.createSchedule(ScheduleId.update)
     ..add(tickFrameClockSystem)
     ..add(queueCounterChangesSystem);
 }
@@ -55,7 +55,7 @@ void main() {
   addUpdateSystems(world);
 
   for (var i = 0; i < 3; i++) {
-    world.runSchedule('Update');
+    world.runSchedule(ScheduleId.update);
     world.flush();
 
     final frame = world.getResource<FrameClockResource>().frame;

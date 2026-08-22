@@ -270,7 +270,7 @@ void _runSchedule(
 }) {
   final stopwatch = Stopwatch()..start();
   try {
-    world.runSchedule(scheduleName);
+    world.runSchedule(ScheduleId(scheduleName));
     stopwatch.stop();
     onScheduleRun?.call(
       EcsScheduleRunEvent(

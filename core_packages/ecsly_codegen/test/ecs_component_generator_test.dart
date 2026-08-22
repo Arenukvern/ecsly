@@ -77,6 +77,26 @@ void main() {
       expect(output, contains('late Uint8Column _column;'));
     });
 
+    test('generates one-call registration handle', () {
+      final output = generateEcsComponentFactories(
+        className: 'PositionComponent',
+        facade: 'Position',
+        columnType: EcsColumnType.float32,
+        stride: 2,
+      );
+
+      expect(output, contains('final class PositionRegistration {'));
+      expect(
+        output,
+        contains(
+          'static ComponentId register(final World world) => '
+          'world.components.registerExtension<PositionComponent, Position>(',
+        ),
+      );
+      expect(output, contains('columnFactory: PositionColumnFactory(),'));
+      expect(output, contains('facadeFactory: PositionFacadeFactory(),'));
+    });
+
     test('trims Component suffix only when present', () {
       final trimmed = generateEcsComponentFactories(
         className: 'VelocityComponent',
@@ -177,5 +197,23 @@ class ExamplePositionFacadeFactory extends ComponentFacadeFactory<ExamplePositio
     }
     throw ArgumentError('ExamplePosition requires FloatColumn, got ${column.runtimeType}.');
   }
+}
+
+final class ExamplePositionRegistration {
+  const ExamplePositionRegistration._();
+
+  /// Register this component with [world].
+  ///
+  /// Equivalent to:
+  /// ```dart
+  /// world.components.registerExtension<ExamplePositionComponent, ExamplePosition>(
+  ///   columnFactory: ExamplePositionColumnFactory(),
+  ///   facadeFactory: ExamplePositionFacadeFactory(),
+  /// );
+  /// ```
+  static ComponentId register(final World world) => world.components.registerExtension<ExamplePositionComponent, ExamplePosition>(
+    columnFactory: ExamplePositionColumnFactory(),
+    facadeFactory: ExamplePositionFacadeFactory(),
+  );
 }
 ''';

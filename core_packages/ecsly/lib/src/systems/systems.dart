@@ -4,6 +4,7 @@ export 'ecs_observers.dart';
 export 'phase_systems.dart';
 export 'query_extensions.dart';
 export 'schedule.dart';
+export 'schedule_id.dart';
 export 'schedule_trigger.dart';
 export 'system.dart';
 export 'system_descriptor.dart';

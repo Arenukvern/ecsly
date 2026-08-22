@@ -1,6 +1,7 @@
 // ignore_for_file: cascade_invocations
 
 import '../../../plugins/plugin.dart';
+import '../../../systems/schedule_id.dart';
 import '../../../systems/schedule_trigger.dart';
 import '../../../world/world.dart';
 import 'performance_resource.dart';
@@ -22,7 +23,7 @@ class DebugPlugin extends Plugin {
   static const String _performanceSystemName = 'debug_performance';
   static const String _flushAllWithTimingSystemName =
       'debug_flushAllWithTiming';
-  static const String _scheduleName = 'HighFrequency';
+  static const ScheduleId _scheduleId = ScheduleId.highFrequency;
 
   @override
   String get name => 'debug';
@@ -47,7 +48,7 @@ class DebugPlugin extends Plugin {
     // Add performance system to HighFrequency schedule (preferred for games),
     // create it if it doesn't exist
     world
-        .getOrCreateSchedule(_scheduleName, trigger: const EveryFrame())
+        .getOrCreateSchedule(_scheduleId, trigger: const EveryFrame())
         .add(performanceSystem, name: _performanceSystemName)
         .add(flushAllWithTimingSystem, name: _flushAllWithTimingSystemName);
   }
@@ -55,8 +56,8 @@ class DebugPlugin extends Plugin {
   @override
   void uninstall(final World world) {
     // Remove performance system from schedule (try HighFrequency first, then Update)
-    if (world.hasSchedule(_scheduleName)) {
-      final schedule = world.schedule(_scheduleName);
+    if (world.hasSchedule(_scheduleId)) {
+      final schedule = world.schedule(_scheduleId);
       schedule.removeSystem(_performanceSystemName);
       schedule.removeSystem(_flushAllWithTimingSystemName);
     }

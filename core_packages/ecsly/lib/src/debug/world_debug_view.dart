@@ -136,7 +136,7 @@ class WorldDebugView {
 
     final schedules = <ScheduleDebugInfo>[];
     for (final name in scheduleNames) {
-      final schedule = world.systems.tryGetSchedule(name);
+      final schedule = world.systems.tryGetSchedule(ScheduleId(name));
       if (schedule == null) continue;
       schedules.add(_scheduleInfo(schedule));
     }
