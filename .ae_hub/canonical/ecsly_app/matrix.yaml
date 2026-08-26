@@ -1,0 +1,82 @@
+schema: ae.canonical_matrix.v1
+concept: ecsly_app
+version: 1
+column_schema:
+  - { id: spec, type: text }
+  - { id: invariant, type: text }
+features:
+  - id: ecsly_app.ecs_action_phase
+    spec: "EcsActionPhase (enum) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_action_status
+    spec: "EcsActionStatus (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_action_status_resource
+    spec: "EcsActionStatusResource (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_action_services
+    spec: "EcsActionServices (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_action_cancellation_token
+    spec: "EcsActionCancellationToken (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_action_cancelled_exception
+    spec: "EcsActionCancelledException (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_action_context
+    spec: "EcsActionContext (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_action
+    spec: "EcsAction (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_action_changed
+    spec: "EcsActionChanged (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_action_after_run
+    spec: "EcsActionAfterRun (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_action_runner
+    spec: "EcsActionRunner (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_component_where
+    spec: "EcsComponentWhere (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_component_lookup_x
+    spec: "EcsComponentLookupX (extension) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_value_equals
+    spec: "EcsValueEquals (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_field_state
+    spec: "EcsFieldState (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_draft
+    spec: "EcsDraft (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_drafts_resource
+    spec: "EcsDraftsResource (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_host_schedule_predicate
+    spec: "EcsHostSchedulePredicate (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_host_schedule
+    spec: "EcsHostSchedule (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_invalidation_batch
+    spec: "EcsInvalidationBatch (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_loop
+    spec: "EcsLoop (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_fixed_step_metrics
+    spec: "EcsFixedStepMetrics (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_fixed_loop_config
+    spec: "EcsFixedLoopConfig (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.ecs_fixed_loop
+    spec: "EcsFixedLoop (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_app.entity_index_resource
+    spec: "EntityIndexResource (class) — fill in the spec here."
+    invariant: ""

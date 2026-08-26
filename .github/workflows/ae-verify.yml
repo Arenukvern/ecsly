@@ -1,0 +1,29 @@
+name: ae-verify
+
+# Docs-vs-code honesty gate: canonical claims must hold against real code,
+# with executed test evidence. See .ae_hub/canonical/ for the claims.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install AE
+        run: |
+          git clone --depth 1 https://github.com/fluent-meaning-symbiotic/agentic_executables.git /tmp/ae
+          dart pub global activate --source path /tmp/ae/agentic_executables_cli
+
+      - name: Sync artifact hashes
+        run: ae sync
+
+      - name: Verify canonicals with executed evidence (blocking)
+        run: ae artifact verify --run-tests --strict

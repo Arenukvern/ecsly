@@ -1,0 +1,115 @@
+schema: ae.canonical_matrix.v1
+concept: ecsly_flutter
+version: 1
+column_schema:
+  - { id: spec, type: text }
+  - { id: invariant, type: text }
+features:
+  - id: ecsly_flutter.ecs_action_run_callback
+    spec: "EcsActionRunCallback (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_action_status_widget_builder
+    spec: "EcsActionStatusWidgetBuilder (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_action_widget_builder
+    spec: "EcsActionWidgetBuilder (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_action_builder
+    spec: "EcsActionBuilder (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_action_status_selector
+    spec: "EcsActionStatusSelector (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_action_error_callback
+    spec: "EcsActionErrorCallback (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_action_on_mount
+    spec: "EcsActionOnMount (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_component_widget_builder
+    spec: "EcsComponentWidgetBuilder (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_selected_component_widget_builder
+    spec: "EcsSelectedComponentWidgetBuilder (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_component_builder
+    spec: "EcsComponentBuilder (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_component_selector
+    spec: "EcsComponentSelector (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_context
+    spec: "EcsContext (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_build_context_x
+    spec: "EcsBuildContextX (extension) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_controller
+    spec: "EcsController (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.schedule_ordering_policy
+    spec: "ScheduleOrderingPolicy (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_schedule_invalidation
+    spec: "EcsScheduleInvalidation (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_flutter_loop
+    spec: "EcsFlutterLoop (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_fixed_step_loop
+    spec: "EcsFixedStepLoop (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_frame_schedule_mode
+    spec: "EcsFrameScheduleMode (enum) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_frame_schedule
+    spec: "EcsFrameSchedule (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_flutter_schedules
+    spec: "EcsFlutterSchedules (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_app_scope
+    spec: "EcsAppScope (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_resource_widget_builder
+    spec: "EcsResourceWidgetBuilder (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_selected_resource_widget_builder
+    spec: "EcsSelectedResourceWidgetBuilder (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_resource_builder
+    spec: "EcsResourceBuilder (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_consumer
+    spec: "EcsConsumer (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_resource_selector
+    spec: "EcsResourceSelector (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_flutter_schedule_reason
+    spec: "EcsFlutterScheduleReason (enum) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_schedule_run_observer
+    spec: "EcsScheduleRunObserver (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_schedule_run_event
+    spec: "EcsScheduleRunEvent (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_scope
+    spec: "EcsScope (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_world_selector_dependencies
+    spec: "EcsWorldSelectorDependencies (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_controller_change_view
+    spec: "EcsControllerChangeView (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_world_select
+    spec: "EcsWorldSelect (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_selected_world_widget_builder
+    spec: "EcsSelectedWorldWidgetBuilder (typedef) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_flutter.ecs_world_selector
+    spec: "EcsWorldSelector (class) — fill in the spec here."
+    invariant: ""

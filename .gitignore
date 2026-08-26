@@ -17,3 +17,7 @@ pubspec.lock
 # IDE-local project state
 .idea/
 *.iml
+
+# AE hub: keep canonicals + evidence (durable knowledge), ignore volatile state
+.ae_hub/artifacts/
+.ae_hub/canonical/**/.last_proposals.json

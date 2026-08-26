@@ -1,0 +1,552 @@
+schema: ae.canonical_matrix.v1
+concept: ecsly
+version: 1
+column_schema:
+  - { id: spec, type: text }
+  - { id: invariant, type: text }
+  - { id: provenance, type: text }
+features:
+  - id: ecsly.archetype
+    spec: "An archetype: the set of entities sharing an identical component signature, stored column-wise."
+    invariant: "Moving an entity between archetypes preserves component data and updates all query caches atomically."
+  - id: ecsly.type
+    spec: "type (extension) — ecsly type."
+    invariant: ""
+  - id: ecsly.archetype_bulk_ops
+    spec: "ArchetypeBulkOps (extension) — ecsly archetype bulk ops."
+    invariant: ""
+  - id: ecsly.archetype_signature
+    spec: "ArchetypeSignature (class) — ecsly archetype signature."
+    invariant: ""
+  - id: ecsly.archetype_registry
+    spec: "Registry of all archetypes, keyed by component signature; creates archetypes on demand."
+    invariant: "Two entities with identical component sets always resolve to the same archetype instance."
+  - id: ecsly.archetype_resolver
+    spec: "ArchetypeResolver (class) — ecsly archetype resolver."
+    invariant: ""
+  - id: ecsly.component_data_extractor
+    spec: "ComponentDataExtractor (class) — ecsly component data extractor."
+    invariant: ""
+  - id: ecsly.component_data_integrator
+    spec: "ComponentDataIntegrator (class) — ecsly component data integrator."
+    invariant: ""
+  - id: ecsly.component_data_writer
+    spec: "ComponentDataWriter (class) — ecsly component data writer."
+    invariant: ""
+  - id: ecsly.entity_migration_system
+    spec: "EntityMigrationSystem (class) — ecsly entity migration system."
+    invariant: ""
+  - id: ecsly.entity_migrator
+    spec: "EntityMigrator (class) — ecsly entity migrator."
+    invariant: ""
+  - id: ecsly.extractor_registry
+    spec: "ExtractorRegistry (class) — ecsly extractor registry."
+    invariant: ""
+  - id: ecsly.value_field_extractor
+    spec: "ValueFieldExtractor (class) — ecsly value field extractor."
+    invariant: ""
+  - id: ecsly.xy_field_extractor
+    spec: "XYFieldExtractor (class) — ecsly x y field extractor."
+    invariant: ""
+  - id: ecsly.list_extractor
+    spec: "ListExtractor (class) — ecsly list extractor."
+    invariant: ""
+  - id: ecsly.primitive_extractor
+    spec: "PrimitiveExtractor (class) — ecsly primitive extractor."
+    invariant: ""
+  - id: ecsly.signature_computer
+    spec: "SignatureComputer (class) — ecsly signature computer."
+    invariant: ""
+  - id: ecsly.sparse_column_list
+    spec: "SparseColumnList (class) — ecsly sparse column list."
+    invariant: ""
+  - id: ecsly.batch_add_class_components_command
+    spec: "BatchAddClassComponentsCommand (class) — ecsly batch add class components command."
+    invariant: ""
+  - id: ecsly.batch_add_extension_components_command
+    spec: "BatchAddExtensionComponentsCommand (class) — ecsly batch add extension components command."
+    invariant: ""
+  - id: ecsly.batch_remove_components_command
+    spec: "BatchRemoveComponentsCommand (class) — ecsly batch remove components command."
+    invariant: ""
+  - id: ecsly.batch_spawn_command
+    spec: "BatchSpawnCommand (class) — ecsly batch spawn command."
+    invariant: ""
+  - id: ecsly.batch_destroy_entities_command
+    spec: "BatchDestroyEntitiesCommand (class) — ecsly batch destroy entities command."
+    invariant: ""
+  - id: ecsly.delete_resource_command
+    spec: "DeleteResourceCommand (class) — ecsly delete resource command."
+    invariant: ""
+  - id: ecsly.destroy_entity_command
+    spec: "DestroyEntityCommand (class) — ecsly destroy entity command."
+    invariant: ""
+  - id: ecsly.ecs_command
+    spec: "EcsCommand (class) — ecsly ecs command."
+    invariant: ""
+  - id: ecsly.remove_component_command
+    spec: "RemoveComponentCommand (class) — ecsly remove component command."
+    invariant: ""
+  - id: ecsly.spawn_entity_components_command
+    spec: "SpawnEntityComponentsCommand (class) — ecsly spawn entity components command."
+    invariant: ""
+  - id: ecsly.upsert_component_command
+    spec: "UpsertComponentCommand (class) — ecsly upsert component command."
+    invariant: ""
+  - id: ecsly.upsert_resource_command
+    spec: "UpsertResourceCommand (class) — ecsly upsert resource command."
+    invariant: ""
+  - id: ecsly.command_execution_failure
+    spec: "CommandExecutionFailure (class) — ecsly command execution failure."
+    invariant: ""
+  - id: ecsly.command_queue
+    spec: "Deferred structural-change queue (spawn, despawn, add/remove component); applied at flush."
+    invariant: "Commands are order-preserving: replaying the same command sequence on equal worlds yields identical worlds (determinism)."
+  - id: ecsly.component_commands
+    spec: "ComponentCommands (class) — ecsly component commands."
+    invariant: ""
+  - id: ecsly.entity_commands
+    spec: "EntityCommands (class) — ecsly entity commands."
+    invariant: ""
+  - id: ecsly.entity_commands_x
+    spec: "EntityCommandsX (extension) — ecsly entity commands x."
+    invariant: ""
+  - id: ecsly.world_commands
+    spec: "WorldCommands (class) — ecsly world commands."
+    invariant: ""
+  - id: ecsly.world_commands_x
+    spec: "WorldCommandsX (extension) — ecsly world commands x."
+    invariant: ""
+  - id: ecsly.component_bundle
+    spec: "ComponentBundle (class) — ecsly component bundle."
+    invariant: ""
+  - id: ecsly.column_factory
+    spec: "ColumnFactory (class) — ecsly column factory."
+    invariant: ""
+  - id: ecsly.object_column_factory
+    spec: "ObjectColumnFactory (class) — ecsly object column factory."
+    invariant: ""
+  - id: ecsly.column_factory_registry
+    spec: "ColumnFactoryRegistry (class) — ecsly column factory registry."
+    invariant: ""
+  - id: ecsly.data_column
+    spec: "DataColumn (class) — ecsly data column."
+    invariant: ""
+  - id: ecsly.float_column
+    spec: "FloatColumn (class) — ecsly float column."
+    invariant: ""
+  - id: ecsly.float_column_simd
+    spec: "FloatColumnSimd (extension) — ecsly float column simd."
+    invariant: ""
+  - id: ecsly.int_column
+    spec: "IntColumn (class) — ecsly int column."
+    invariant: ""
+  - id: ecsly.object_column
+    spec: "ObjectColumn (class) — ecsly object column."
+    invariant: ""
+  - id: ecsly.uint8_column
+    spec: "Uint8Column (class) — ecsly uint8 column."
+    invariant: ""
+  - id: ecsly.component
+    spec: "Component (class) — ecsly component."
+    invariant: ""
+  - id: ecsly.component_facade_factory
+    spec: "ComponentFacadeFactory (class) — ecsly component facade factory."
+    invariant: ""
+  - id: ecsly.component_facade_registry
+    spec: "ComponentFacadeRegistry (class) — ecsly component facade registry."
+    invariant: ""
+  - id: ecsly.component_mask
+    spec: "ComponentMask (class) — ecsly component mask."
+    invariant: ""
+  - id: ecsly.component_mask_base
+    spec: "ComponentMaskBase (class) — ecsly component mask base."
+    invariant: ""
+  - id: ecsly.component_mask_impl
+    spec: "ComponentMaskImpl (class) — ecsly component mask impl."
+    invariant: ""
+  - id: ecsly.component_predicate
+    spec: "ComponentPredicate (typedef) — ecsly component predicate."
+    invariant: ""
+  - id: ecsly.extension_predicate
+    spec: "ExtensionPredicate (typedef) — ecsly extension predicate."
+    invariant: ""
+  - id: ecsly.component_query
+    spec: "ComponentQuery (class) — ecsly component query."
+    invariant: ""
+  - id: ecsly.raw_component_column
+    spec: "RawComponentColumn (class) — ecsly raw component column."
+    invariant: ""
+  - id: ecsly.raw_query_chunk2
+    spec: "RawQueryChunk2 (class) — ecsly raw query chunk2."
+    invariant: ""
+  - id: ecsly.raw_query_chunk3
+    spec: "RawQueryChunk3 (class) — ecsly raw query chunk3."
+    invariant: ""
+  - id: ecsly.raw_query_chunk4
+    spec: "RawQueryChunk4 (class) — ecsly raw query chunk4."
+    invariant: ""
+  - id: ecsly.component_query_builder
+    spec: "ComponentQueryBuilder (class) — ecsly component query builder."
+    invariant: ""
+  - id: ecsly.excluded_query
+    spec: "ExcludedQuery (class) — ecsly excluded query."
+    invariant: ""
+  - id: ecsly.required_query
+    spec: "RequiredQuery (class) — ecsly required query."
+    invariant: ""
+  - id: ecsly.component_storage_tier
+    spec: "ComponentStorageTier (enum) — ecsly component storage tier."
+    invariant: ""
+  - id: ecsly.component_registry
+    spec: "Maps component types to storage (object components vs typed SoA extension columns)."
+    invariant: "A component type registered as SoA extension is never silently backed by object storage in hot schedules when enforceSoAForHotSchedules is set."
+  - id: ecsly.archetype_match_result
+    spec: "ArchetypeMatchResult (class) — ecsly archetype match result."
+    invariant: ""
+  - id: ecsly.query_structural_touch_tracker
+    spec: "QueryStructuralTouchTracker (class) — ecsly query structural touch tracker."
+    invariant: ""
+  - id: ecsly.query_cache
+    spec: "Cached query results keyed by component masks, invalidated on structural revision."
+    invariant: "After any flush that changes structure, cached query results reflect the new revision before the next read."
+  - id: ecsly.query_cache_entry
+    spec: "QueryCacheEntry (class) — ecsly query cache entry."
+    invariant: ""
+  - id: ecsly.query_cache_key
+    spec: "QueryCacheKey (class) — ecsly query cache key."
+    invariant: ""
+  - id: ecsly.query_result_cache
+    spec: "QueryResultCache (class) — ecsly query result cache."
+    invariant: ""
+  - id: ecsly.simd_utils
+    spec: "SimdUtils (class) — ecsly simd utils."
+    invariant: ""
+  - id: ecsly.sparse_type_list
+    spec: "SparseTypeList (class) — ecsly sparse type list."
+    invariant: ""
+  - id: ecsly.archetype_debug_info
+    spec: "ArchetypeDebugInfo (class) — ecsly archetype debug info."
+    invariant: ""
+  - id: ecsly.column_debug_info
+    spec: "ColumnDebugInfo (class) — ecsly column debug info."
+    invariant: ""
+  - id: ecsly.column_kind
+    spec: "ColumnKind (enum) — ecsly column kind."
+    invariant: ""
+  - id: ecsly.query_cache_stats
+    spec: "QueryCacheStats (class) — ecsly query cache stats."
+    invariant: ""
+  - id: ecsly.resource_debug_info
+    spec: "ResourceDebugInfo (class) — ecsly resource debug info."
+    invariant: ""
+  - id: ecsly.schedule_debug_info
+    spec: "ScheduleDebugInfo (class) — ecsly schedule debug info."
+    invariant: ""
+  - id: ecsly.system_debug_info
+    spec: "SystemDebugInfo (class) — ecsly system debug info."
+    invariant: ""
+  - id: ecsly.world_debug_snapshot
+    spec: "WorldDebugSnapshot (class) — ecsly world debug snapshot."
+    invariant: ""
+  - id: ecsly.world_debug_view
+    spec: "WorldDebugView (class) — ecsly world debug view."
+    invariant: ""
+  - id: ecsly.entities
+    spec: "Entity id allocation and liveness tracking."
+    invariant: "A destroyed entity's id is never reused within the same world generation; queries never observe half-created or half-destroyed entities outside flush boundaries."
+  - id: ecsly.entity_location
+    spec: "EntityLocation (class) — ecsly entity location."
+    invariant: ""
+  - id: ecsly.world_entity
+    spec: "WorldEntity (class) — ecsly world entity."
+    invariant: ""
+  - id: ecsly.archetype_not_found_error
+    spec: "ArchetypeNotFoundError (class) — ecsly archetype not found error."
+    invariant: ""
+  - id: ecsly.circular_dependency_error
+    spec: "CircularDependencyError (class) — ecsly circular dependency error."
+    invariant: ""
+  - id: ecsly.component_not_found_error
+    spec: "ComponentNotFoundError (class) — ecsly component not found error."
+    invariant: ""
+  - id: ecsly.component_not_registered_error
+    spec: "ComponentNotRegisteredError (class) — ecsly component not registered error."
+    invariant: ""
+  - id: ecsly.component_registration_exception
+    spec: "ComponentRegistrationException (class) — ecsly component registration exception."
+    invariant: ""
+  - id: ecsly.ecs_exception
+    spec: "EcsException (class) — ecsly ecs exception."
+    invariant: ""
+  - id: ecsly.ecs_state_error
+    spec: "EcsStateError (class) — ecsly ecs state error."
+    invariant: ""
+  - id: ecsly.entity_not_found_error
+    spec: "EntityNotFoundError (class) — ecsly entity not found error."
+    invariant: ""
+  - id: ecsly.hot_schedule_object_component_error
+    spec: "HotScheduleObjectComponentError (class) — ecsly hot schedule object component error."
+    invariant: ""
+  - id: ecsly.event_capacity_overflow
+    spec: "EventCapacityOverflow (class) — ecsly event capacity overflow."
+    invariant: ""
+  - id: ecsly.event_column_unsupported_error
+    spec: "EventColumnUnsupportedError (class) — ecsly event column unsupported error."
+    invariant: ""
+  - id: ecsly.event_factory_validation_error
+    spec: "EventFactoryValidationError (class) — ecsly event factory validation error."
+    invariant: ""
+  - id: ecsly.event_not_registered_exception
+    spec: "EventNotRegisteredException (class) — ecsly event not registered exception."
+    invariant: ""
+  - id: ecsly.event_registration_exception
+    spec: "EventRegistrationException (class) — ecsly event registration exception."
+    invariant: ""
+  - id: ecsly.event_stride_calculation_error
+    spec: "EventStrideCalculationError (class) — ecsly event stride calculation error."
+    invariant: ""
+  - id: ecsly.event_stride_mismatch_error
+    spec: "EventStrideMismatchError (class) — ecsly event stride mismatch error."
+    invariant: ""
+  - id: ecsly.event_trigger_validation_error
+    spec: "EventTriggerValidationError (class) — ecsly event trigger validation error."
+    invariant: ""
+  - id: ecsly.event_type_mismatch_error
+    spec: "EventTypeMismatchError (class) — ecsly event type mismatch error."
+    invariant: ""
+  - id: ecsly.extension_type_mismatch_error
+    spec: "ExtensionTypeMismatchError (class) — ecsly extension type mismatch error."
+    invariant: ""
+  - id: ecsly.extension_type_not_registered_error
+    spec: "ExtensionTypeNotRegisteredError (class) — ecsly extension type not registered error."
+    invariant: ""
+  - id: ecsly.iterator_not_ready_error
+    spec: "IteratorNotReadyError (class) — ecsly iterator not ready error."
+    invariant: ""
+  - id: ecsly.plugin_installation_exception
+    spec: "PluginInstallationException (class) — ecsly plugin installation exception."
+    invariant: ""
+  - id: ecsly.schedule_time_source_missing_error
+    spec: "ScheduleTimeSourceMissingError (class) — ecsly schedule time source missing error."
+    invariant: ""
+  - id: ecsly.system_configuration_error
+    spec: "SystemConfigurationError (class) — ecsly system configuration error."
+    invariant: ""
+  - id: ecsly.event_capacity_policy
+    spec: "EventCapacityPolicy (enum) — ecsly event capacity policy."
+    invariant: ""
+  - id: ecsly.event_channel_stats
+    spec: "EventChannelStats (class) — ecsly event channel stats."
+    invariant: ""
+  - id: ecsly.event_channel
+    spec: "EventChannel (class) — ecsly event channel."
+    invariant: ""
+  - id: ecsly.event_reader
+    spec: "EventReader (class) — ecsly event reader."
+    invariant: ""
+  - id: ecsly.event_cursor
+    spec: "EventCursor (class) — ecsly event cursor."
+    invariant: ""
+  - id: ecsly.event_writer
+    spec: "EventWriter (class) — ecsly event writer."
+    invariant: ""
+  - id: ecsly.event_channel_factory
+    spec: "EventChannelFactory (class) — ecsly event channel factory."
+    invariant: ""
+  - id: ecsly.column_type
+    spec: "ColumnType (enum) — ecsly column type."
+    invariant: ""
+  - id: ecsly.event_column_config
+    spec: "EventColumnConfig (class) — ecsly event column config."
+    invariant: ""
+  - id: ecsly.event_column_mapper
+    spec: "EventColumnMapper (class) — ecsly event column mapper."
+    invariant: ""
+  - id: ecsly.typed_data_event_registry
+    spec: "TypedDataEventRegistry (class) — ecsly typed data event registry."
+    invariant: ""
+  - id: ecsly.event_column_storage
+    spec: "EventColumnStorage (extension) — ecsly event column storage."
+    invariant: ""
+  - id: ecsly.event_registry
+    spec: "Typed event publish/subscribe for cross-system communication."
+    invariant: "Events published during a system run are delivered in publish order; no reordering across subscribers."
+  - id: ecsly.ecs_event
+    spec: "EcsEvent (class) — ecsly ecs event."
+    invariant: ""
+  - id: ecsly.typed_data_event
+    spec: "TypedDataEvent (class) — ecsly typed data event."
+    invariant: ""
+  - id: ecsly.typed_data_event_mixin
+    spec: "TypedDataEventMixin (mixin) — ecsly typed data event mixin."
+    invariant: ""
+  - id: ecsly.deterministic_order_key
+    spec: "DeterministicOrderKey (typedef) — ecsly deterministic order key."
+    invariant: ""
+  - id: ecsly.deterministic_section_hashing
+    spec: "DeterministicSectionHashing (class) — ecsly deterministic section hashing."
+    invariant: ""
+  - id: ecsly.plugin
+    spec: "Plugin (class) — ecsly plugin."
+    invariant: ""
+  - id: ecsly.plugin_registry
+    spec: "PluginRegistry (class) — ecsly plugin registry."
+    invariant: ""
+  - id: ecsly.debug_plugin
+    spec: "DebugPlugin (class) — ecsly debug plugin."
+    invariant: ""
+  - id: ecsly.performance_resource
+    spec: "PerformanceResource (class) — ecsly performance resource."
+    invariant: ""
+  - id: ecsly.spawn_performance_resource
+    spec: "SpawnPerformanceResource (class) — ecsly spawn performance resource."
+    invariant: ""
+  - id: ecsly.persistent_entity_map
+    spec: "PersistentEntityMap (class) — ecsly persistent entity map."
+    invariant: ""
+  - id: ecsly.resource
+    spec: "Resource (class) — ecsly resource."
+    invariant: ""
+  - id: ecsly.type_resource_record
+    spec: "TypeResourceRecord (typedef) — ecsly type resource record."
+    invariant: ""
+  - id: ecsly.resource_registry
+    spec: "Global singleton resources with change batching via flush."
+    invariant: "Resource mutations between flushes are batched; observers see consolidated changes at flush boundaries only."
+  - id: ecsly.delta_time_resource
+    spec: "DeltaTimeResource (class) — ecsly delta time resource."
+    invariant: ""
+  - id: ecsly.level_state_resource
+    spec: "LevelStateResource (class) — ecsly level state resource."
+    invariant: ""
+  - id: ecsly.schedule_time_resource
+    spec: "ScheduleTimeResource (class) — ecsly schedule time resource."
+    invariant: ""
+  - id: ecsly.simulation_control_resource
+    spec: "SimulationControlResource (class) — ecsly simulation control resource."
+    invariant: ""
+  - id: ecsly.quality_preset
+    spec: "QualityPreset (enum) — ecsly quality preset."
+    invariant: ""
+  - id: ecsly.performance_budget_resource
+    spec: "PerformanceBudgetResource (class) — ecsly performance budget resource."
+    invariant: ""
+  - id: ecsly.render_submit_metrics_resource
+    spec: "RenderSubmitMetricsResource (class) — ecsly render submit metrics resource."
+    invariant: ""
+  - id: ecsly.render_profile_stats_resource
+    spec: "RenderProfileStatsResource (class) — ecsly render profile stats resource."
+    invariant: ""
+  - id: ecsly.wall_clock_schedule_time_resource
+    spec: "WallClockScheduleTimeResource (class) — ecsly wall clock schedule time resource."
+    invariant: ""
+  - id: ecsly.world_determinism_resource
+    spec: "WorldDeterminismResource (class) — ecsly world determinism resource."
+    invariant: ""
+  - id: ecsly.schedule_execution_policy
+    spec: "ScheduleExecutionPolicy (enum) — ecsly schedule execution policy."
+    invariant: ""
+  - id: ecsly.schedule_execution_policy_resource
+    spec: "ScheduleExecutionPolicyResource (class) — ecsly schedule execution policy resource."
+    invariant: ""
+  - id: ecsly.ecs_execution_observer
+    spec: "EcsExecutionObserver (class) — ecsly ecs execution observer."
+    invariant: ""
+  - id: ecsly.ecs_execution_observer_base
+    spec: "EcsExecutionObserverBase (class) — ecsly ecs execution observer base."
+    invariant: ""
+  - id: ecsly.world_query_x
+    spec: "WorldQueryX (extension) — ecsly world query x."
+    invariant: ""
+  - id: ecsly.schedule
+    spec: "Ordered execution plan of systems grouped into phases with triggers."
+    invariant: "System execution order within a schedule is deterministic and independent of insertion timing."
+  - id: ecsly.condition_trigger
+    spec: "ConditionTrigger (class) — ecsly condition trigger."
+    invariant: ""
+  - id: ecsly.event_trigger
+    spec: "EventTrigger (class) — ecsly event trigger."
+    invariant: ""
+  - id: ecsly.every_frame
+    spec: "EveryFrame (class) — ecsly every frame."
+    invariant: ""
+  - id: ecsly.every_n_frames
+    spec: "EveryNFrames (class) — ecsly every n frames."
+    invariant: ""
+  - id: ecsly.every_n_seconds
+    spec: "EveryNSeconds (class) — ecsly every n seconds."
+    invariant: ""
+  - id: ecsly.manual_trigger
+    spec: "ManualTrigger (class) — ecsly manual trigger."
+    invariant: ""
+  - id: ecsly.schedule_trigger
+    spec: "ScheduleTrigger (class) — ecsly schedule trigger."
+    invariant: ""
+  - id: ecsly.throttled_trigger
+    spec: "ThrottledTrigger (class) — ecsly throttled trigger."
+    invariant: ""
+  - id: ecsly.async_system
+    spec: "AsyncSystem (typedef) — ecsly async system."
+    invariant: ""
+  - id: ecsly.system
+    spec: "System (typedef) — ecsly system."
+    invariant: ""
+  - id: ecsly.execution_mode
+    spec: "ExecutionMode (enum) — ecsly execution mode."
+    invariant: ""
+  - id: ecsly.system_descriptor
+    spec: "SystemDescriptor (class) — ecsly system descriptor."
+    invariant: ""
+  - id: ecsly.system_executor
+    spec: "Runs systems against the world, honoring hot-schedule SoA enforcement and execution observation."
+    invariant: "Hot-schedule execution performs no per-entity allocation when all accessed components are SoA-backed."
+  - id: ecsly.systems_registry
+    spec: "SystemsRegistry (class) — ecsly systems registry."
+    invariant: ""
+  - id: ecsly.world
+    spec: "The World facade: owns registries (archetypes, entities, commands, components, resources, systems, query cache, events) and structural-change batching."
+    invariant: "All structural changes flow through the command queue and explicit flush boundaries; direct registry mutation outside World is not part of the public contract."
+  - id: ecsly.world_batch_spawn_x
+    spec: "WorldBatchSpawnX (extension) — ecsly world batch spawn x."
+    invariant: ""
+  - id: ecsly.world_component_x
+    spec: "WorldComponentX (extension) — ecsly world component x."
+    invariant: ""
+  - id: ecsly.world_entity_x
+    spec: "WorldEntityX (extension) — ecsly world entity x."
+    invariant: ""
+  - id: ecsly.world_flush_x
+    spec: "WorldFlushX (extension) — ecsly world flush x."
+    invariant: ""
+  - id: ecsly.world_plugin_x
+    spec: "WorldPluginX (extension) — ecsly world plugin x."
+    invariant: ""
+  - id: ecsly.world_resource_x
+    spec: "WorldResourceX (extension) — ecsly world resource x."
+    invariant: ""
+  - id: ecsly.world_schedule_x
+    spec: "WorldScheduleX (extension) — ecsly world schedule x."
+    invariant: ""
+  - id: ecsly.world_flush_observer
+    spec: "WorldFlushObserver (class) — ecsly world flush observer."
+    invariant: ""
+  - id: ecsly.world_flush_observer_base
+    spec: "WorldFlushObserverBase (class) — ecsly world flush observer base."
+    invariant: ""
+  - id: ecsly.deterministic_structural_changes
+    spec: "Structural changes (spawn/despawn/add/remove) are deferred through command queues and applied at explicit flushes."
+    invariant: "Replaying the same command sequence from an equal starting world produces bit-identical worlds — same entity generations, archetype membership, and iteration order."
+    provenance: accepted_concept
+  - id: ecsly.no_flutter_in_core
+    spec: "The ecsly core package has zero Flutter dependencies and runs on any Dart host."
+    invariant: "core_packages/ecsly/pubspec.yaml declares no flutter dependency; no lib/src file imports package:flutter."
+    provenance: accepted_concept
+  - id: ecsly.low_gc_hot_path
+    spec: "Hot simulation loops avoid per-entity allocation via typed SoA extension components and column storage."
+    invariant: "When enforceSoAForHotSchedules is enabled, hot-schedule access to non-SoA components is rejected rather than silently falling back to object storage."
+    provenance: accepted_concept
+  - id: ecsly.three_lane_api
+    spec: "API lanes: hot path (schedules/columns), warm path (commands/resources/prepared queries), cold app path (actions/drafts/UI helpers in ecsly_app)."
+    invariant: "No cold-app-lane API (drafts, domain-id projections, route lookups) appears in core_packages/ecsly public exports."
+    provenance: accepted_concept
