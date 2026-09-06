@@ -1,0 +1,30 @@
+name: ecsly_world_sync
+description: >-
+  World-sync plugin for ecsly worlds: converts world event-channel events and
+  component deltas into convergence-kernel ops, and folds remote ops back into
+  a world-state projection. Consumes the convergence kernel (ADR 0011); merge
+  strategy and compaction policy are chosen here, never hand-rolled.
+version: 0.1.0-dev.1
+homepage: https://github.com/arenukvern/ecsly/plugins/ecsly_world_sync
+
+environment:
+  sdk: ">=3.12.0 <4.0.0"
+
+resolution: workspace
+
+dependencies:
+  meta: ^1.19.0
+  universal_storage_convergence: ^0.1.0-dev.1
+
+# Bootstrap constraint: the convergence kernel is not published to pub.dev
+# yet, so this workspace resolves it from the sibling storage_problem repo
+# via a local path override. Remove this override once the kernel is
+# published; the declared dependency above is the long-term contract.
+dependency_overrides:
+  universal_storage_convergence:
+    path: ../../../storage_problem/dart_flutter_packages/pkgs/universal_storage_convergence
+
+dev_dependencies:
+  lints: ^6.1.0
+  test: ^1.25.8
+  xsoulspace_lints: ^0.1.2
