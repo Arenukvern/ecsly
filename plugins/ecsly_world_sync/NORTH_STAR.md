@@ -24,6 +24,7 @@ vocabulary.
 | Replica adapter           | `WorldSync`: local/remote folds, tombstones, snapshot adoption, parent-chosen compaction, JSON. |
 | Projection                | Read-only `WorldProjection` over the kernel's fold, read through kernel LWW readers.            |
 | Test transport            | In-memory `FakeTransport` proving convergence before any real link.                             |
+| Live-World bridge         | *Not owned here* — now exists as `plugins/ecsly_world_sync_bridge` (ADR 0002); this package stays ecsly-free. |
 
 ## What This Package Does Not Own
 
@@ -33,5 +34,5 @@ vocabulary.
 | Real networking              | No sockets, relays, discovery, or wire protocols; `FakeTransport` is test-only.                |
 | Presence / ephemeral state   | Kernel ADR 0029's ephemeral ops are a later phase; no presence contract here.                  |
 | Rollback / re-simulation     | Not shipped, not claimed.                                                                      |
-| Core / app integration       | No imports of core `ecsly`, `ecsly_app`, or `ecsly_flutter`; the live-World bridge is later.    |
+| Core / app integration       | No imports of core `ecsly`, `ecsly_app`, or `ecsly_flutter`; the live-World bridge lives in `plugins/ecsly_world_sync_bridge` (ADR 0002), which consumes this package. |
 | Kernel changes               | Never made from this repo; this suite only supplies parent-side conformance evidence.          |

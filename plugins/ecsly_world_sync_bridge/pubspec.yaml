@@ -1,0 +1,39 @@
+name: ecsly_world_sync_bridge
+description: >-
+  Live World-to-delta bridge for ecsly worlds: diffs ecsly_serialization
+  world captures into ecsly_world_sync ComponentDeltas at flush boundaries,
+  plus an anti-entropy driver (VV exchange, ops, snapshots) with a snapshot
+  compaction policy over pluggable transports. Merge semantics stay in the
+  convergence kernel.
+version: 0.1.0-dev.1
+homepage: https://github.com/arenukvern/ecsly/plugins/ecsly_world_sync_bridge
+publish_to: none
+
+environment:
+  sdk: ">=3.12.0 <4.0.0"
+
+resolution: workspace
+
+dependencies:
+  ecsly:
+    path: ../../core_packages/ecsly
+  ecsly_serialization:
+    path: ../ecsly_serialization
+  ecsly_world_sync:
+    path: ../ecsly_world_sync
+  meta: ^1.19.0
+  universal_storage_convergence: ^0.1.0-dev.1
+
+# Bootstrap constraint: the convergence kernel is not published to pub.dev
+# yet. The workspace resolves it through the `dependency_overrides` path
+# entry in `plugins/ecsly_world_sync/pubspec.yaml` (workspace members share
+# one resolution, and pub rejects the same override declared twice — this
+# package therefore does not repeat it). Both packages live one level under
+# `plugins/`, so the relative depth is identical. Remove that override once
+# the kernel is published; the declared dependency above is the long-term
+# contract.
+
+dev_dependencies:
+  lints: ^6.1.0
+  test: ^1.25.8
+  xsoulspace_lints: ^0.1.2
