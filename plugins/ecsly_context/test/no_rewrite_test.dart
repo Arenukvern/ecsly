@@ -66,13 +66,21 @@ ContextGraph _graphOnDisk(final JsonlEventLog log) => ContextGraph(log);void mai
     expect(_trickyTexts, contains(beat.beat.text));
   });
 
-  test('derive and decompose never touch source texts', () {
+  test('derive and decomposition events never touch source texts', () {
     final graph = _graphOnDisk(log);
     for (final text in _trickyTexts) {
       graph.append('2026-10-06', text);
     }
     graph.derive([1, 2], 'a summary text');
-    graph.decompose(1, <String>['part one', 'part two']);
+    graph.appendAll([
+      DecompositionAdded(
+        originalId: 1,
+        children: [
+          DecompositionPart(id: _trickyTexts.length + 2, text: 'part one'),
+          DecompositionPart(id: _trickyTexts.length + 3, text: 'part two'),
+        ],
+      ),
+    ]);
     final reloaded = _graphOnDisk(log);
     for (var i = 0; i < _trickyTexts.length; i++) {
       expect(reloaded.read(i + 1)!.text, _trickyTexts[i]);

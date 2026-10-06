@@ -95,14 +95,20 @@ void main() {
     });
   });
 
-  group('decompose', () {
-    test('creates linked children and archives the original', () {
+  group('decomposition events (write path retired, fold stays)', () {
+    test('linked children join and the original archives', () {
       final graph = ContextGraph(MemoryStore());
       final original = graph.append('2026-10-04', 'a long decision record');
-      final children = graph.decompose(original.id, <String>[
-        'part one',
-        'part two',
+      graph.appendAll([
+        DecompositionAdded(
+          originalId: original.id,
+          children: [
+            const DecompositionPart(id: 2, text: 'part one'),
+            const DecompositionPart(id: 3, text: 'part two'),
+          ],
+        ),
       ]);
+      final children = <ContextBeat>[graph.read(2)!, graph.read(3)!];
       expect(children, hasLength(2));
       expect(children[0].id, 2);
       expect(children[1].id, 3);
@@ -118,15 +124,15 @@ void main() {
       expect(reloaded.kind, BeatKind.raw);
     });
 
-    test('refuses unknown originals and empty parts', () {
+    test('the fold refuses unknown originals', () {
       final graph = ContextGraph(MemoryStore());
       expect(
-        () => graph.decompose(42, <String>['x']),
-        throwsA(isA<UnknownBeatException>()),
-      );
-      graph.append('2026-10-01', 'x');
-      expect(
-        () => graph.decompose(1, <String>[]),
+        () => graph.appendAll([
+          DecompositionAdded(
+            originalId: 42,
+            children: [const DecompositionPart(id: 1, text: 'x')],
+          ),
+        ]),
         throwsA(isA<ContextEventException>()),
       );
     });
@@ -161,7 +167,15 @@ void main() {
       final graph = ContextGraph(MemoryStore());
       graph.append('2026-10-01', 'raw text');
       graph.derive([1], 'summary');
-      graph.decompose(1, <String>['p1', 'p2']);
+      graph.appendAll([
+        DecompositionAdded(
+          originalId: 1,
+          children: [
+            const DecompositionPart(id: 3, text: 'p1'),
+            const DecompositionPart(id: 4, text: 'p2'),
+          ],
+        ),
+      ]);
       graph.forget(2);
       expect(graph.read(2), isNull);
       expect(graph.read(1)!.text, 'raw text');
@@ -187,7 +201,12 @@ void main() {
     test('archived summaries stop covering', () {
       final graph = _graphWithSixBeats();
       graph.derive([1, 2], 'early');
-      graph.decompose(7, <String>['part']);
+      graph.appendAll([
+        DecompositionAdded(
+          originalId: 7,
+          children: [const DecompositionPart(id: 8, text: 'part')],
+        ),
+      ]);
       expect(graph.coverage, isEmpty);
     });
   });
@@ -199,7 +218,15 @@ void main() {
       graph.append('2026-10-01', 'one');
       graph.append('2026-10-02', 'two');
       graph.derive([1, 2], 'both');
-      graph.decompose(1, <String>['part a', 'part b']);
+      graph.appendAll([
+        DecompositionAdded(
+          originalId: 1,
+          children: [
+            const DecompositionPart(id: 4, text: 'part a'),
+            const DecompositionPart(id: 5, text: 'part b'),
+          ],
+        ),
+      ]);
       graph.forget(5);
       final events = store.load();
       expect(ContextState.foldAll(events), ContextState.foldAll(events));

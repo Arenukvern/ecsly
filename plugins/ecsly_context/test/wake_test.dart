@@ -133,12 +133,16 @@ void main() {
     test('decomposed originals stay out of the frame but persist', () {
       final graph = ContextGraph(MemoryStore());
       graph.append('2026-10-01', 'the original long record');
-      final children = graph.decompose(1, <String>['part one', 'part two']);
+      graph.appendAll([
+        DecompositionAdded(
+          originalId: 1,
+          children: [
+            const DecompositionPart(id: 2, text: 'part one'),
+            const DecompositionPart(id: 3, text: 'part two'),
+          ],
+        ),
+      ]);
       final view = graph.wake(budgetLines: 10);
-      expect(
-        view.lines.map((final line) => line.beat.id).toSet(),
-        children.map((final child) => child.id).toSet(),
-      );
       expect(view.lines.map((final line) => line.beat.id), <int>[3, 2]);
       final original = graph.read(1)!;
       expect(original.archived, isTrue);
@@ -150,7 +154,12 @@ void main() {
       graph.append('2026-10-01', 'one');
       graph.append('2026-10-02', 'two');
       graph.derive([1, 2], 'early summary');
-      graph.decompose(3, <String>['part']);
+      graph.appendAll([
+        DecompositionAdded(
+          originalId: 3,
+          children: [const DecompositionPart(id: 4, text: 'part')],
+        ),
+      ]);
       final view = graph.wake(budgetLines: 10);
       final ids = view.lines.map((final line) => line.beat.id).toSet();
       expect(ids.containsAll(<int>[1, 2, 4]), isTrue);

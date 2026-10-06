@@ -19,6 +19,7 @@ library;
 
 export 'src/beat_kind.dart';
 export 'src/clause_search.dart';
+export 'src/clause_view.dart';
 export 'src/condense.dart';
 export 'src/context_beat.dart';
 export 'src/context_event.dart';

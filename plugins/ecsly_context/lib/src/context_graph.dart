@@ -1,5 +1,6 @@
 import 'beat_kind.dart';
 import 'bit_set.dart';
+import 'clause_view.dart';
 import 'context_beat.dart';
 import 'context_event.dart';
 import 'context_exception.dart';
@@ -9,6 +10,7 @@ import 'families.dart';
 import 'id_range.dart';
 import 'iso_date.dart';
 import 'recall.dart';
+import 'segment.dart';
 import 'wake_view.dart';
 import 'zoom.dart';
 
@@ -47,7 +49,9 @@ final class ContextGraph {
   /// Appends a raw beat with ISO [date] and verbatim [text].
   ///
   /// The id is monotonic. Raw beats are permanent: they can never be
-  /// forgotten, and decompose only archives them.
+  /// forgotten. A `decompositionAdded` event (readable forever, no longer
+  /// minted here — parts are clause addresses now, ADR 0073) archives its
+  /// original out of the frame while the record persists verbatim.
   ContextBeat append(
     final String date,
     final String text, {
@@ -108,42 +112,6 @@ final class ContextGraph {
       summarizes: List<int>.unmodifiable(sourceIds),
     );
     return _commit(event, () => _state.beats[event.id]!);
-  }
-
-  /// Decomposes the beat at [beatId] into [parts]; archives the original.
-  ///
-  /// Child beats join as kind [BeatKind.decomposition] with
-  /// [ContextBeat.decomposedFrom] provenance, inheriting date and thread
-  /// from the original. The original persists verbatim but is archived out
-  /// of the wake frame. Part texts are stored verbatim.
-  List<ContextBeat> decompose(final int beatId, final List<String> parts) {
-    final original = _state.beats[beatId];
-    if (original == null) {
-      throw UnknownBeatException([beatId]);
-    }
-    if (parts.isEmpty) {
-      throw const ContextEventException(
-        'decompose requires at least one part',
-      );
-    }
-    for (final part in parts) {
-      if (part.isEmpty) {
-        throw const ContextEventException('decompose parts must be non-empty');
-      }
-    }
-    var childId = _state.nextId;
-    final children = <DecompositionPart>[];
-    for (final part in parts) {
-      children.add(DecompositionPart(id: childId, text: part));
-      childId += 1;
-    }
-    final event = DecompositionAdded(originalId: beatId, children: children);
-    return _commit(
-      event,
-      () => <ContextBeat>[
-        for (final child in event.children) _state.beats[child.id]!,
-      ],
-    );
   }
 
   /// Forgets a derived beat. Raw beats are refused with
@@ -330,10 +298,59 @@ final class ContextGraph {
   FamiliesView families({final int cap = defaultFamiliesCap}) =>
       buildFamilies(_state, cap: cap);
 
+  /// Projects the beat at [id] into whole mechanical clauses within
+  /// [budgetChars] — the part-grain view that replaced splitting a record
+  /// into child beats (ADR 0073): the text stays one immutable record,
+  /// parts are its clause addresses (`<id>.<c>`), and nothing is ever
+  /// copied.
+  ///
+  /// Selection is whole-clause: a clause joins the frame only when it
+  /// fits whole; everything else becomes a named elision carrying its
+  /// address. The first clause always makes the frame — when it alone
+  /// exceeds the budget the view says so instead of cutting it.
+  ClauseView clauseView(final int id, {final int budgetChars = 1200}) {
+    final beat = read(id);
+    if (beat == null) {
+      throw UnknownBeatException([id]);
+    }
+    if (budgetChars < 1) {
+      throw ArgumentError.value(budgetChars, 'budgetChars', 'must be >= 1');
+    }
+    final segmentation = segmentText(beat.text);
+    final shown = <TextClause>[];
+    final elided = <TextClause>[];
+    var spent = 0;
+    var oversize = false;
+    for (final clause in segmentation.clauses) {
+      final cost = clause.end - clause.start;
+      if (shown.isEmpty || spent + cost <= budgetChars) {
+        shown.add(clause);
+        spent += cost;
+      } else {
+        elided.add(clause);
+      }
+    }
+    if (shown.length == 1 && spent > budgetChars) {
+      oversize = true;
+    }
+    return ClauseView(
+      beat: beat,
+      shown: List.unmodifiable(shown),
+      elided: List.unmodifiable(elided),
+      budgetChars: budgetChars,
+      firstClauseOversize: oversize,
+    );
+  }
+
   /// Recalls beats whose text matches [pattern], ranked by keyword score
   /// (query tokens present in the rebuilt keyword index) with newest id as
   /// the tie-break, capped at [cap] with a named
   /// `'Newest N of M matches'` tail.
+  ///
+  /// Archived beats are out of the search frame — the same lifecycle
+  /// selection `wake` applies and the clause docs of `find` build with.
+  /// [read] and [zoom] still reach them: archived records persist
+  /// verbatim.
   RecallResult recall(
     final String pattern, {
     final int cap = defaultRecallCap,
@@ -345,7 +362,7 @@ final class ContextGraph {
     final queryTokens = ContextState.tokenize(pattern);
     final matches = <RecallMatch>[];
     for (final beat in _state.beats.values) {
-      if (!regex.hasMatch(beat.text)) {
+      if (beat.archived || !regex.hasMatch(beat.text)) {
         continue;
       }
       var score = 0;

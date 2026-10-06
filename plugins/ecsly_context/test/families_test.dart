@@ -155,7 +155,15 @@ void main() {
       final store = MemoryStore();
       final graph = ContextGraph(store);
       graph.append('2026-10-06', 'long original thought');
-      graph.decompose(1, <String>['part one', 'part two']);
+      graph.appendAll([
+        DecompositionAdded(
+          originalId: 1,
+          children: [
+            const DecompositionPart(id: 2, text: 'part one'),
+            const DecompositionPart(id: 3, text: 'part two'),
+          ],
+        ),
+      ]);
 
       final view = graph.families();
       final originals = view.families.where(
