@@ -38,4 +38,33 @@ final class DeterministicSectionHashing {
     }
     return hash;
   }
+
+  /// FNV-1a 32-bit over the UTF-16 code units of [text], each unit mixed
+  /// low byte first.
+  ///
+  /// Every arithmetic step stays under 2^32, so the value is identical on
+  /// native, VM and web — unlike the 64-bit section hashes above, which
+  /// differ on web because JS rounds integers past 2^53. Use this for
+  /// identity that must survive a process, a store or a platform boundary
+  /// (cross-consumer payload contracts); keep the 64-bit variants for
+  /// in-process extraction equality.
+  static int stableStringHash(final String text) {
+    var hash = stableOffsetBasis;
+    for (var i = 0; i < text.length; i++) {
+      final unit = text.codeUnitAt(i);
+      hash = _stableMix(hash, unit & 0xFF);
+      hash = _stableMix(hash, (unit >> 8) & 0xFF);
+    }
+    return hash;
+  }
+
+  /// The offset basis of [stableStringHash]: the FNV-1a 32-bit prime
+  /// multiplies it, exposed so implementations can pin the exact recipe.
+  static const int stableOffsetBasis = 0x811C9DC5;
+
+  /// The FNV-1a 32-bit prime used by [stableStringHash].
+  static const int stablePrime = 0x01000193;
+
+  static int _stableMix(final int hash, final int byte) =>
+      ((hash ^ byte) * stablePrime) & 0xFFFFFFFF;
 }
