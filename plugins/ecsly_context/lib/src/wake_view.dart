@@ -7,11 +7,7 @@ import 'context_beat.dart';
 /// `#40-79 <text>`); verbatim lines leave them null.
 final class WakeLine {
   /// Creates a line over [beat], optionally naming its coverage range.
-  const WakeLine({
-    required this.beat,
-    this.rangeStart,
-    this.rangeEnd,
-  });
+  const WakeLine({required this.beat, this.rangeStart, this.rangeEnd});
 
   /// The beat this line renders.
   final ContextBeat beat;
@@ -57,7 +53,8 @@ final class Absence {
   /// Why the range is absent: [notSummarized] or [summarizedOutOfFrame].
   final String reason;
 
-  /// Ids of live summaries covering (part of) this range, if any.
+  /// Ids of the live summaries covering (part of) this range — the union
+  /// over the range, sorted.
   final List<int> summaryIds;
 }
 

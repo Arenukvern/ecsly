@@ -54,8 +54,7 @@ void main() {
   });
 
   group('named absences', () {
-    test('absence entries carry id ranges, reasons and covering summaries',
-        () {
+    test('absence entries carry id ranges, reasons and covering summaries', () {
       final view = _graphWithSummaries().wake(budgetLines: 1);
       expect(view.lines, hasLength(1));
       expect(view.lines.single.beat.id, 12);
@@ -68,16 +67,16 @@ void main() {
         );
       }
       final covered = view.absences
-          .where((final absence) => absence.reason == Absence.summarizedOutOfFrame)
+          .where(
+            (final absence) => absence.reason == Absence.summarizedOutOfFrame,
+          )
           .toList();
-      expect(covered, hasLength(2));
-      // Each absence names exactly the ids sharing its covering summaries.
-      expect(covered[0].rangeStart, 1);
-      expect(covered[0].rangeEnd, 3);
-      expect(covered[0].summaryIds, <int>[13]);
-      expect(covered[1].rangeStart, 4);
-      expect(covered[1].rangeEnd, 6);
-      expect(covered[1].summaryIds, <int>[14]);
+      expect(covered, hasLength(1));
+      // Adjacent covered ranges merge by reason class even when different
+      // summaries cover them; summaryIds is the union over the range.
+      expect(covered.single.rangeStart, 1);
+      expect(covered.single.rangeEnd, 6);
+      expect(covered.single.summaryIds, <int>[13, 14]);
       final uncovered = view.absences.singleWhere(
         (final absence) => absence.reason == Absence.notSummarized,
       );
@@ -169,9 +168,6 @@ void main() {
 
   test('zero or negative budgets are a named argument error', () {
     final graph = _graphWithSummaries();
-    expect(
-      () => graph.wake(budgetLines: 0),
-      throwsA(isA<ArgumentError>()),
-    );
+    expect(() => graph.wake(budgetLines: 0), throwsA(isA<ArgumentError>()));
   });
 }

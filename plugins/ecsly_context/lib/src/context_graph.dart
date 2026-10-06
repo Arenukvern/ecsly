@@ -199,7 +199,8 @@ final class ContextGraph {
         return a.summarizes.length.compareTo(b.summarizes.length);
       });
     final pendingBits = <IdBitSet>[
-      for (final summary in pending) IdBitSet(maxId)..addAll(summary.summarizes),
+      for (final summary in pending)
+        IdBitSet(maxId)..addAll(summary.summarizes),
     ];
     while (lines.length < budgetLines && pending.isNotEmpty) {
       var chosenIndex = -1;
@@ -238,28 +239,32 @@ final class ContextGraph {
     var index = 0;
     while (index < absentIds.length) {
       final start = absentIds[index];
-      final startCovering = _coveringSummaryIds(summaries, start);
+      // A run continues while ids stay contiguous AND share the reason
+      // class — some live summary covers the id, or none does. The range
+      // then carries one honest reason plus the union of its covering
+      // summaries; merging per covering-set instead renders one absence
+      // per pair in a pair-fold tree.
+      final startCovered = covered.contains(start);
       var end = start;
-      // A run continues while ids stay contiguous AND share the same
-      // covering summaries, so a range always has one honest reason.
       while (index + 1 < absentIds.length &&
-          absentIds[index + 1] == end + 1) {
-        final nextCovering = _coveringSummaryIds(summaries, absentIds[index + 1]);
-        if (_coveringEquals(nextCovering, startCovering)) {
-          index += 1;
-          end += 1;
-        } else {
-          break;
-        }
+          absentIds[index + 1] == end + 1 &&
+          covered.contains(absentIds[index + 1]) == startCovered) {
+        index += 1;
+        end += 1;
       }
+      final summaryIds = <int>[
+        for (final summary in summaries)
+          if (summary.summarizes.any((final id) => id >= start && id <= end))
+            summary.id,
+      ]..sort();
       absences.add(
         Absence(
           rangeStart: start,
           rangeEnd: end,
-          reason: startCovering.isEmpty
-              ? Absence.notSummarized
-              : Absence.summarizedOutOfFrame,
-          summaryIds: startCovering,
+          reason: startCovered
+              ? Absence.summarizedOutOfFrame
+              : Absence.notSummarized,
+          summaryIds: summaryIds,
         ),
       );
       index += 1;
@@ -407,26 +412,6 @@ final class ContextGraph {
   bool _coversAll(final ContextBeat summary, final IdRange range) {
     for (var id = range.start; id <= range.end; id++) {
       if (!summary.summarizes.contains(id)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  List<int> _coveringSummaryIds(final List<ContextBeat> summaries, final int id) {
-    final covering = <int>[
-      for (final summary in summaries)
-        if (summary.summarizes.contains(id)) summary.id,
-    ]..sort();
-    return covering;
-  }
-
-  bool _coveringEquals(final List<int> a, final List<int> b) {
-    if (a.length != b.length) {
-      return false;
-    }
-    for (var i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) {
         return false;
       }
     }
