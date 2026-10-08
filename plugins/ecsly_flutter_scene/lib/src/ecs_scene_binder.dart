@@ -1,3 +1,7 @@
+// Parameters carry no `final`: this package compiles under language 3.13
+// (where that modifier is an error) as well as 3.12.
+// ignore_for_file: prefer_final_parameters
+
 /// The incremental binder: world → [SceneSink], diffed. Pure — the sink
 /// is an interface, so tests run against a recording fake and the
 /// flutter_scene implementation is a thin shell over the real renderer.
@@ -13,11 +17,11 @@ import 'visual_state.dart';
 /// that touches the real renderer (besides the widget/camera shells).
 abstract class SceneSink {
   /// Adds [visual] under [key].
-  void add(final String key, final VisualState visual);
+  void add(String key, VisualState visual);
   /// Replaces the visual under [key].
-  void update(final String key, final VisualState visual);
+  void update(String key, VisualState visual);
   /// Drops the visual under [key].
-  void remove(final String key);
+  void remove(String key);
 
   /// How many visuals the sink currently materializes (tests/telemetry).
   int get count;
@@ -55,7 +59,7 @@ class EcsSceneBinder {
       }
     }
     final removed = _current.keys
-        .where((final key) => !desired.containsKey(key))
+        .where((key) => !desired.containsKey(key))
         .toList(growable: false);
     for (final key in removed) {
       sink.remove(key);

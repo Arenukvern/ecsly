@@ -192,6 +192,17 @@ an internal implementation detail for entity-list queries.
 **Q: Why ComponentMask-based queries instead of Type-based?**  
 A: Bitwise operations are O(1) vs Type comparison. Enables efficient archetype matching and query caching.
 
+**Q: How do nested queries preserve the outer column?**
+A: Iterators cache the factory per archetype but rebind it to their local column
+immediately before every facade creation. Raw chunk and column callbacks do the
+same after returning from user code. Factories are shared mutable binding seams;
+another query or world may change their binding. Registry reads also rebind,
+rather than assuming their last column is still active. This adds a binding
+setter per facade without a per-row registry lookup or new allocation. Object
+components remain ordinary retained objects. Index-only typed extension facades
+must be read before a nested query changes their static column, or reacquired
+afterward; this repair does not give retained facades independent column identity.
+
 **Q: Why queryExt methods that return explicit extension types?**  
 A: Eliminates runtime casting, provides compile-time type safety. Zero-allocation extension type facades. Trade-off: More verbose type parameters.
 

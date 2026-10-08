@@ -12,5 +12,6 @@ export 'package:flutter_scene/scene.dart'
 export 'src/ecs_scene_binder.dart';
 export 'src/ecs_scene_view.dart';
 export 'src/flutter_scene_sink.dart';
+export 'src/scene_camera_math.dart';
 export 'src/scene_mapping.dart';
 export 'src/visual_state.dart';

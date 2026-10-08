@@ -1,3 +1,7 @@
+// Parameters carry no `final`: this package compiles under language 3.13
+// (where that modifier is an error) as well as 3.12.
+// ignore_for_file: prefer_final_parameters
+
 /// The flutter_scene-backed [SceneSink] — the ONLY file that materializes
 /// visuals on the real renderer. flutter_scene is pre-1.0 and its API
 /// moves; every call it makes is concentrated here so drift costs one
@@ -27,7 +31,7 @@ class FlutterSceneSink implements SceneSink {
   int get count => _nodes.length;
 
   @override
-  void add(final String key, final VisualState visual) {
+  void add(String key, VisualState visual) {
     if (_nodes.containsKey(key)) return;
     final node = _build(visual);
     if (node == null) return;
@@ -36,7 +40,7 @@ class FlutterSceneSink implements SceneSink {
   }
 
   @override
-  void update(final String key, final VisualState visual) {
+  void update(String key, VisualState visual) {
     final existing = _nodes.remove(key);
     if (existing != null) {
       scene.remove(existing);
@@ -45,7 +49,7 @@ class FlutterSceneSink implements SceneSink {
   }
 
   @override
-  void remove(final String key) {
+  void remove(String key) {
     final existing = _nodes.remove(key);
     if (existing != null) scene.remove(existing);
   }
@@ -54,7 +58,7 @@ class FlutterSceneSink implements SceneSink {
   /// via the PBR base-color factor (an RGBA Vector4). `billboard` maps
   /// to a small UNLIT quad — always visible regardless of lighting;
   /// text labels are the inspector's 2D overlay concern, not geometry.
-  Node? _build(final VisualState visual) {
+  Node? _build(VisualState visual) {
     final position = vm.Vector3(
       visual.position[0],
       visual.position.length > 1 ? visual.position[1] : 0,
@@ -138,13 +142,13 @@ class SceneCameraRig {
   static const double _maxDistance = 400;
 
   /// The orbit target as a camera Vector3.
-  void orbit(final double dx, final double dy) {
+  void orbit(double dx, double dy) {
     yaw += dx * 0.01;
     pitch = math.max(_minPitch, math.min(_maxPitch, pitch + dy * 0.01));
   }
 
   /// The camera eye as a camera Vector3.
-  void zoom(final double factor) {
+  void zoom(double factor) {
     distance = math.max(
       _minDistance,
       math.min(_maxDistance, distance * factor),
@@ -152,7 +156,7 @@ class SceneCameraRig {
   }
 
   /// Point the rig at one world position (the inspector's focus action).
-  void focus(final List<double> position) => target = [
+  void focus(List<double> position) => target = [
     position[0],
     if (position.length > 1) position[1] else 0,
     if (position.length > 2) position[2] else 0,

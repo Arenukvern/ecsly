@@ -66,3 +66,17 @@ when the work completes, then remove the stale plan file.
 A: Add the page under `docs/`, wire it into `docs.json`, and link it from the
 nearest router surface. Do not duplicate package API details that already live
 in code examples or package READMEs.
+
+## Agent skills
+
+**Q: Can this repo host agent skills?**
+A: Yes. Repo-authored developer skills live in `.agents/skills/<name>/SKILL.md`
+and are discovered by coding agents working in this repository (the Steward
+contract's `skill_lifecycle.installable_skills` is `true`). Two kinds coexist
+there: Steward-installed governance skills from `Arenukvern/skill_steward`
+(hash-locked in `skills-lock.json`; manage them with `steward install` /
+`steward update`, never by hand) and repo-authored skills maintained as normal
+versioned files. Add a repo skill only for knowledge agents need repeatedly
+here — otherwise prefer `AGENTS.md` and this FAQ. North Star impact of hosting
+local skills: `clarifies` (stewardship mechanics; charter ownership unchanged).
+

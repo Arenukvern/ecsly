@@ -20,6 +20,17 @@ typedef ComponentPredicate<T> = bool Function(T component);
 /// Returns true if the extension type matches the condition.
 typedef ExtensionPredicate<T> = bool Function(T extensionType);
 
+// Factories are shared and nested reads may rebind them. Restore the local
+// column immediately before creation, without a registry lookup or allocation.
+Object _createBoundFacade(
+  final ComponentFacadeFactory factory,
+  final DataColumn column,
+  final int row,
+) {
+  factory.initialize(column);
+  return factory.create(row) as Object;
+}
+
 /// Query builder for iterating entities with specific components and conditions.
 /// Provides cache-friendly iteration over matching archetypes with predicate filtering.
 class ComponentQuery {
@@ -876,20 +887,16 @@ final class RawComponentColumn<T> {
     if (row < 0 || row >= length) {
       throw RangeError.index(row, this, 'row', null, length);
     }
-    _factory.initialize(_column);
-    return _factory.create(row) as T;
+    return _createBoundFacade(_factory, _column, row) as T;
   }
 
   void forEachIndexed(final void Function(int row, T component) visitor) {
-    _factory.initialize(_column);
     for (var row = 0; row < length; row++) {
-      visitor(row, _factory.create(row) as T);
+      visitor(row, _createBoundFacade(_factory, _column, row) as T);
     }
   }
 
-  void _initialize() => _factory.initialize(_column);
-
-  T _createAt(final int row) => _factory.create(row) as T;
+  T _createAt(final int row) => _createBoundFacade(_factory, _column, row) as T;
 }
 
 final class RawQueryChunk2<T1, T2> {
@@ -912,8 +919,6 @@ final class RawQueryChunk2<T1, T2> {
   void forEachRow(
     final void Function(int row, Entity entity, T1 c1, T2 c2) visitor,
   ) {
-    column1._initialize();
-    column2._initialize();
     for (var row = 0; row < rowCount; row++) {
       final entity = entities[row];
       if (!_isEntityRowCurrentAtLocation(_world, _archetypeId, entity, row)) {
@@ -946,9 +951,6 @@ final class RawQueryChunk3<T1, T2, T3> {
   void forEachRow(
     final void Function(int row, Entity entity, T1 c1, T2 c2, T3 c3) visitor,
   ) {
-    column1._initialize();
-    column2._initialize();
-    column3._initialize();
     for (var row = 0; row < rowCount; row++) {
       final entity = entities[row];
       if (!_isEntityRowCurrentAtLocation(_world, _archetypeId, entity, row)) {
@@ -990,10 +992,6 @@ final class RawQueryChunk4<T1, T2, T3, T4> {
     final void Function(int row, Entity entity, T1 c1, T2 c2, T3 c3, T4 c4)
     visitor,
   ) {
-    column1._initialize();
-    column2._initialize();
-    column3._initialize();
-    column4._initialize();
     for (var row = 0; row < rowCount; row++) {
       final entity = entities[row];
       if (!_isEntityRowCurrentAtLocation(_world, _archetypeId, entity, row)) {
@@ -1726,7 +1724,8 @@ class _QueryIterator1<T1 extends Component>
         }
 
         // Get component: Use cached factory (no HashMap lookup)
-        final component1 = _cachedFactory!.create(_entityIndex) as T1;
+        final component1 =
+            _createBoundFacade(_cachedFactory!, column1, _entityIndex) as T1;
 
         _current = (
           WorldEntity(
@@ -1793,6 +1792,10 @@ class _QueryIterator1Where<T1 extends Component>
         final component = world.components.componentFacadeRegistry
             .createFacade<T1>(componentId, entityIndex, column);
 
+        // No post-predicate rebind (unlike _QueryIteratorExt1Where): T1 is
+        // an object component — struct components cast-fail in createFacade
+        // — so the exposed instance is retained row data, not a
+        // factory-bound facade a nested query could stale-bind.
         if (predicate(component)) {
           _current = (
             WorldEntity(
@@ -1875,8 +1878,10 @@ class _QueryIterator2<T1 extends Component, T2 extends Component>
         }
 
         // Get components: Use cached factories (no HashMap lookup)
-        final component1 = _cachedFactory1!.create(_entityIndex) as T1;
-        final component2 = _cachedFactory2!.create(_entityIndex) as T2;
+        final component1 =
+            _createBoundFacade(_cachedFactory1!, column1, _entityIndex) as T1;
+        final component2 =
+            _createBoundFacade(_cachedFactory2!, column2, _entityIndex) as T2;
 
         _current = (
           WorldEntity(
@@ -1976,9 +1981,12 @@ class _QueryIterator3<
         }
 
         // Get components: Use cached factories (no HashMap lookup)
-        final component1 = _cachedFactory1!.create(_entityIndex) as T1;
-        final component2 = _cachedFactory2!.create(_entityIndex) as T2;
-        final component3 = _cachedFactory3!.create(_entityIndex) as T3;
+        final component1 =
+            _createBoundFacade(_cachedFactory1!, column1, _entityIndex) as T1;
+        final component2 =
+            _createBoundFacade(_cachedFactory2!, column2, _entityIndex) as T2;
+        final component3 =
+            _createBoundFacade(_cachedFactory3!, column3, _entityIndex) as T3;
 
         _current = (
           WorldEntity(
@@ -2093,10 +2101,14 @@ class _QueryIterator4<
         }
 
         // Get components: Use cached factories (no HashMap lookup)
-        final component1 = _cachedFactory1!.create(_entityIndex) as T1;
-        final component2 = _cachedFactory2!.create(_entityIndex) as T2;
-        final component3 = _cachedFactory3!.create(_entityIndex) as T3;
-        final component4 = _cachedFactory4!.create(_entityIndex) as T4;
+        final component1 =
+            _createBoundFacade(_cachedFactory1!, column1, _entityIndex) as T1;
+        final component2 =
+            _createBoundFacade(_cachedFactory2!, column2, _entityIndex) as T2;
+        final component3 =
+            _createBoundFacade(_cachedFactory3!, column3, _entityIndex) as T3;
+        final component4 =
+            _createBoundFacade(_cachedFactory4!, column4, _entityIndex) as T4;
 
         _current = (
           WorldEntity(
@@ -2223,11 +2235,16 @@ class _QueryIterator5<
         }
 
         // Get components: Use cached factories (no HashMap lookup)
-        final component1 = _cachedFactory1!.create(_entityIndex) as T1;
-        final component2 = _cachedFactory2!.create(_entityIndex) as T2;
-        final component3 = _cachedFactory3!.create(_entityIndex) as T3;
-        final component4 = _cachedFactory4!.create(_entityIndex) as T4;
-        final component5 = _cachedFactory5!.create(_entityIndex) as T5;
+        final component1 =
+            _createBoundFacade(_cachedFactory1!, column1, _entityIndex) as T1;
+        final component2 =
+            _createBoundFacade(_cachedFactory2!, column2, _entityIndex) as T2;
+        final component3 =
+            _createBoundFacade(_cachedFactory3!, column3, _entityIndex) as T3;
+        final component4 =
+            _createBoundFacade(_cachedFactory4!, column4, _entityIndex) as T4;
+        final component5 =
+            _createBoundFacade(_cachedFactory5!, column5, _entityIndex) as T5;
 
         _current = (
           WorldEntity(
@@ -2366,12 +2383,18 @@ class _QueryIterator6<
         }
 
         // Get components: Use cached factories (no HashMap lookup)
-        final component1 = _cachedFactory1!.create(_entityIndex) as T1;
-        final component2 = _cachedFactory2!.create(_entityIndex) as T2;
-        final component3 = _cachedFactory3!.create(_entityIndex) as T3;
-        final component4 = _cachedFactory4!.create(_entityIndex) as T4;
-        final component5 = _cachedFactory5!.create(_entityIndex) as T5;
-        final component6 = _cachedFactory6!.create(_entityIndex) as T6;
+        final component1 =
+            _createBoundFacade(_cachedFactory1!, column1, _entityIndex) as T1;
+        final component2 =
+            _createBoundFacade(_cachedFactory2!, column2, _entityIndex) as T2;
+        final component3 =
+            _createBoundFacade(_cachedFactory3!, column3, _entityIndex) as T3;
+        final component4 =
+            _createBoundFacade(_cachedFactory4!, column4, _entityIndex) as T4;
+        final component5 =
+            _createBoundFacade(_cachedFactory5!, column5, _entityIndex) as T5;
+        final component6 =
+            _createBoundFacade(_cachedFactory6!, column6, _entityIndex) as T6;
 
         _current = (
           WorldEntity(
@@ -2451,7 +2474,8 @@ class _QueryIteratorExt1<TComp extends Component, TExt>
         }
 
         // Get component: Use cached factory (no HashMap lookup)
-        final component1 = _cachedFactory!.create(_entityIndex) as TExt;
+        final component1 =
+            _createBoundFacade(_cachedFactory!, column1, _entityIndex) as TExt;
 
         _current = (
           WorldEntityExtension(
@@ -2522,6 +2546,11 @@ class _QueryIteratorExt1Where<TComp extends Component, TExt>
             .createFacade<TExt>(componentId, entityIndex, column);
 
         if (predicate(extensionType)) {
+          // The predicate may run a nested query before exposing this row.
+          world.components.componentFacadeRegistry.initializeColumn(
+            componentId,
+            column,
+          );
           _current = (
             WorldEntityExtension(
               WorldEntity(
@@ -2613,8 +2642,11 @@ class _QueryIteratorExt2<
         }
 
         // Get components: Use cached factories (no HashMap lookup)
-        final component1 = _cachedFactory1!.create(_entityIndex) as TExt;
-        final component2 = _cachedFactory2!.create(_entityIndex) as T2Ext;
+        final component1 =
+            _createBoundFacade(_cachedFactory1!, column1, _entityIndex) as TExt;
+        final component2 =
+            _createBoundFacade(_cachedFactory2!, column2, _entityIndex)
+                as T2Ext;
 
         _current = (
           WorldEntityExtension(
@@ -2694,6 +2726,10 @@ class _QueryIteratorExt2WhereIterator<
             .createFacade<TExt>(componentId1, entityIndex, column1);
 
         if (predicate(extensionType1)) {
+          world.components.componentFacadeRegistry.initializeColumn(
+            componentId1,
+            column1,
+          );
           final extensionType2 = world.components.componentFacadeRegistry
               .createFacade<T2Ext>(componentId2, entityIndex, column2);
           _current = (
@@ -2804,9 +2840,14 @@ class _QueryIteratorExt3<
         }
 
         // Get components: Factory pattern handles both extension types and ObjectColumns
-        final component1 = _cachedFactory1!.create(_entityIndex) as TExt;
-        final component2 = _cachedFactory2!.create(_entityIndex) as T2Ext;
-        final component3 = _cachedFactory3!.create(_entityIndex) as T3Ext;
+        final component1 =
+            _createBoundFacade(_cachedFactory1!, column1, _entityIndex) as TExt;
+        final component2 =
+            _createBoundFacade(_cachedFactory2!, column2, _entityIndex)
+                as T2Ext;
+        final component3 =
+            _createBoundFacade(_cachedFactory3!, column3, _entityIndex)
+                as T3Ext;
 
         _current = (
           WorldEntityExtension(
@@ -2928,10 +2969,17 @@ class _QueryIteratorExt4<
         }
 
         // Get components: Factory pattern handles both extension types and ObjectColumns
-        final component1 = _cachedFactory1!.create(_entityIndex) as TExt;
-        final component2 = _cachedFactory2!.create(_entityIndex) as T2Ext;
-        final component3 = _cachedFactory3!.create(_entityIndex) as T3Ext;
-        final component4 = _cachedFactory4!.create(_entityIndex) as T4Ext;
+        final component1 =
+            _createBoundFacade(_cachedFactory1!, column1, _entityIndex) as TExt;
+        final component2 =
+            _createBoundFacade(_cachedFactory2!, column2, _entityIndex)
+                as T2Ext;
+        final component3 =
+            _createBoundFacade(_cachedFactory3!, column3, _entityIndex)
+                as T3Ext;
+        final component4 =
+            _createBoundFacade(_cachedFactory4!, column4, _entityIndex)
+                as T4Ext;
 
         _current = (
           WorldEntityExtension(
@@ -3010,7 +3058,8 @@ class _QueryIteratorMut1<T extends Component>
         location: EntityLocation(archetype.archetypeId, _entityIndex),
       );
       final entityMut = WorldEntityMut(worldEntity);
-      final component = _cachedFactory!.create(_entityIndex) as T;
+      final component =
+          _createBoundFacade(_cachedFactory!, column, _entityIndex) as T;
 
       _current = (entityMut, component);
       _entityIndex++;
@@ -3085,8 +3134,10 @@ class _QueryIteratorMut2<T1 extends Component, T2 extends Component>
       final entityMut = WorldEntityMut(
         WorldEntity(world: _world, entity: entity, location: location),
       );
-      final component1 = _cachedFactory1!.create(_entityIndex) as T1;
-      final component2 = _cachedFactory2!.create(_entityIndex) as T2;
+      final component1 =
+          _createBoundFacade(_cachedFactory1!, column1, _entityIndex) as T1;
+      final component2 =
+          _createBoundFacade(_cachedFactory2!, column2, _entityIndex) as T2;
       _current = (entityMut, component1, component2);
       _entityIndex++;
       return true;
@@ -3172,9 +3223,12 @@ class _QueryIteratorMut3<
           location: EntityLocation(archetype.archetypeId, _entityIndex),
         ),
       );
-      final component1 = _cachedFactory1!.create(_entityIndex) as T1;
-      final component2 = _cachedFactory2!.create(_entityIndex) as T2;
-      final component3 = _cachedFactory3!.create(_entityIndex) as T3;
+      final component1 =
+          _createBoundFacade(_cachedFactory1!, column1, _entityIndex) as T1;
+      final component2 =
+          _createBoundFacade(_cachedFactory2!, column2, _entityIndex) as T2;
+      final component3 =
+          _createBoundFacade(_cachedFactory3!, column3, _entityIndex) as T3;
       _current = (entityMut, component1, component2, component3);
       _entityIndex++;
       return true;
@@ -3268,10 +3322,14 @@ class _QueryIteratorMut4<
           location: EntityLocation(archetype.archetypeId, _entityIndex),
         ),
       );
-      final component1 = _cachedFactory1!.create(_entityIndex) as T1;
-      final component2 = _cachedFactory2!.create(_entityIndex) as T2;
-      final component3 = _cachedFactory3!.create(_entityIndex) as T3;
-      final component4 = _cachedFactory4!.create(_entityIndex) as T4;
+      final component1 =
+          _createBoundFacade(_cachedFactory1!, column1, _entityIndex) as T1;
+      final component2 =
+          _createBoundFacade(_cachedFactory2!, column2, _entityIndex) as T2;
+      final component3 =
+          _createBoundFacade(_cachedFactory3!, column3, _entityIndex) as T3;
+      final component4 =
+          _createBoundFacade(_cachedFactory4!, column4, _entityIndex) as T4;
       _current = (entityMut, component1, component2, component3, component4);
       _entityIndex++;
       return true;
@@ -3337,8 +3395,11 @@ class _QueryIteratorRawExt2<
         }
 
         final entity = archetype.entities[_entityIndex];
-        final component1 = _cachedFactory1!.create(_entityIndex) as TExt;
-        final component2 = _cachedFactory2!.create(_entityIndex) as T2Ext;
+        final component1 =
+            _createBoundFacade(_cachedFactory1!, column1, _entityIndex) as TExt;
+        final component2 =
+            _createBoundFacade(_cachedFactory2!, column2, _entityIndex)
+                as T2Ext;
 
         _current = (entity, component1, component2);
         _entityIndex++;

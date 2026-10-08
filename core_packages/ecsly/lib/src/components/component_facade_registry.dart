@@ -24,12 +24,6 @@ class ComponentFacadeRegistry {
     null,
   );
 
-  // Track last initialized column per ComponentId to avoid redundant initialization
-  final List<DataColumn?> _lastInitializedColumns = List.filled(
-    ComponentId.maxValue + 1,
-    null,
-  );
-
   /// Create facade for component.
   ///
   /// [componentId] - The ID of the component to create a facade for.
@@ -55,22 +49,18 @@ class ComponentFacadeRegistry {
       }
     }
 
-    // Check if column already initialized to avoid redundant initialization
-    final lastInitialized = _lastInitializedColumns[componentId.value];
-    if (lastInitialized != column) {
-      try {
-        factory.initialize(column);
-      } on Object catch (error, stackTrace) {
-        throw EcsStateError(
-          'Failed to initialize facade factory for component $componentId. '
-          'Factory: ${factory.runtimeType}, column: ${column.runtimeType} '
-          '(${_describeColumnKind(column)}). '
-          'This usually means ComponentId mapping drift between worlds or an '
-          'incorrectly registered component/facade pair.\n'
-          'Original error: $error\n$stackTrace',
-        );
-      }
-      _lastInitializedColumns[componentId.value] = column;
+    // Another iterator or world may have rebound the shared factory.
+    try {
+      factory.initialize(column);
+    } on Object catch (error, stackTrace) {
+      throw EcsStateError(
+        'Failed to initialize facade factory for component $componentId. '
+        'Factory: ${factory.runtimeType}, column: ${column.runtimeType} '
+        '(${_describeColumnKind(column)}). '
+        'This usually means ComponentId mapping drift between worlds or an '
+        'incorrectly registered component/facade pair.\n'
+        'Original error: $error\n$stackTrace',
+      );
     }
 
     // Create facade (extension type constructor or object for ObjectColumn)
@@ -122,7 +112,8 @@ class ComponentFacadeRegistry {
 
   /// Create facade without initializing the column.
   ///
-  /// Assumes the column has already been initialized via [initializeColumn].
+  /// Assumes the column has just been initialized via [initializeColumn],
+  /// with no intervening facade access or query that changes its binding.
   /// Use this in hot paths after initialization to avoid redundant static field writes.
   ///
   /// [componentId] - The ID of the component to create a facade for.
@@ -164,8 +155,8 @@ class ComponentFacadeRegistry {
   /// Initialize column reference for a component factory.
   ///
   /// Call this once per archetype when the column changes.
-  /// After initialization, use [createFacadeWithoutInit] to create facades
-  /// without redundant initialization.
+  /// Before a row is exposed, cached query factories rebind to their local
+  /// column: nested queries may change the shared factory binding.
   ///
   /// [componentId] - The ID of the component.
   /// [column] - The column to initialize.
@@ -190,22 +181,18 @@ class ComponentFacadeRegistry {
       }
     }
 
-    // Check if already initialized to avoid redundant initialization
-    final lastInitialized = _lastInitializedColumns[componentId.value];
-    if (lastInitialized != column) {
-      try {
-        factory.initialize(column);
-      } on Object catch (error, stackTrace) {
-        throw EcsStateError(
-          'Failed to initialize facade factory for component $componentId. '
-          'Factory: ${factory.runtimeType}, column: ${column.runtimeType} '
-          '(${_describeColumnKind(column)}). '
-          'This usually means ComponentId mapping drift between worlds or an '
-          'incorrectly registered component/facade pair.\n'
-          'Original error: $error\n$stackTrace',
-        );
-      }
-      _lastInitializedColumns[componentId.value] = column;
+    // Another iterator or world may have rebound the shared factory.
+    try {
+      factory.initialize(column);
+    } on Object catch (error, stackTrace) {
+      throw EcsStateError(
+        'Failed to initialize facade factory for component $componentId. '
+        'Factory: ${factory.runtimeType}, column: ${column.runtimeType} '
+        '(${_describeColumnKind(column)}). '
+        'This usually means ComponentId mapping drift between worlds or an '
+        'incorrectly registered component/facade pair.\n'
+        'Original error: $error\n$stackTrace',
+      );
     }
     return factory;
   }
@@ -227,7 +214,6 @@ class ComponentFacadeRegistry {
     if (!componentId.isValid) return;
     _factories[componentId.value] = null;
     _componentIdToExtensionType[componentId.value] = null;
-    _lastInitializedColumns[componentId.value] = null;
   }
 
   /// Create auto-generated facade factory for ObjectColumn components.

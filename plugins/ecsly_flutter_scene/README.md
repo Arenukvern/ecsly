@@ -26,6 +26,11 @@ markers, meaning-tree neighborhoods as a graph).
   round-trip, legible at any camera distance.
 - **The view only READS the world.** Your app's own loop ticks it; the
   view runs a 30 Hz sync pass and never contends with the world schedule.
+- **Distance changes are a public hook.** Scroll dolly (wheel up/down)
+  and double-tap zoom report the new camera distance through
+  `EcsSceneView(onDistanceChange: …)`, so a host can derive semantic LOD
+  from the camera and re-filter its mapping in place — the mapping's
+  closures are read on every collect, no rebuild, no camera reset.
 
 ## Usage
 

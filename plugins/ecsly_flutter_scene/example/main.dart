@@ -24,7 +24,7 @@ class _ExampleApp extends StatelessWidget {
   const _ExampleApp();
 
   @override
-  Widget build(final BuildContext context) => const MaterialApp(
+  Widget build(BuildContext context) => const MaterialApp(
         debugShowCheckedModeBanner: false,
         home: Scaffold(backgroundColor: Colors.black, body: _ScenePage()),
       );
@@ -58,7 +58,7 @@ class _ScenePageState extends State<_ScenePage> {
     world.flush();
     mapping = SceneMapping()
       ..add<Marker>(
-        (final entity, final marker, final world) {
+        (entity, marker, world) {
           final pos = world.getEntity(entity).$1.get<_Position>();
           final t = pos?.angle ?? 0;
           return VisualState(
@@ -73,6 +73,6 @@ class _ScenePageState extends State<_ScenePage> {
   }
 
   @override
-  Widget build(final BuildContext context) =>
+  Widget build(BuildContext context) =>
       EcsSceneView(world: world, mapping: mapping);
 }

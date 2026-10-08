@@ -80,6 +80,35 @@ void main() {
     expect(sink.count, 0);
   });
 
+  test('a pickId-only change re-syncs (signature covers pick targets)', () {
+    final world = buildWorld();
+    final mapping = SceneMapping()
+      ..add<Marker>(
+        (entity, marker, world) => VisualState(
+          shape: SceneShape.sphere,
+          argb: 0xFF00AAFF,
+          size: 1,
+          position: [0, 0, 0],
+          pickId: marker.kind == 'pickable' ? 'target' : null,
+        ),
+      );
+    final sink = RecordingSink();
+    final binder = EcsSceneBinder(world: world, sink: sink, mapping: mapping);
+
+    final entity = world.spawnComponents([const Marker('plain')]);
+    world.flush();
+    binder.sync();
+    expect(sink.adds, hasLength(1));
+
+    // Geometry identical, pick target changed — the binder's current map
+    // must refresh, or tap/hold gestures report a stale id.
+    world.getEntity(entity).$1.insert(const Marker('pickable'));
+    world.flush();
+    binder.sync();
+    expect(sink.updates, hasLength(1));
+    expect(sink.stored.values.single.pickId, 'target');
+  });
+
   test(
     'a spec returning null skips the entity; one spec per type',
     () {

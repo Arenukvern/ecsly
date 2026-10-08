@@ -342,7 +342,7 @@ graph TB
 
         QueryIterator1 -->|uses| ComponentFacadeRegistry
         QueryIterator1 -->|initializeColumn() calls| ComponentFacadeRegistry
-        QueryIterator1 -->|createFacadeWithoutInit() calls| ComponentFacadeRegistry
+        QueryIterator1 -->|_createBoundFacade() calls| ComponentFacadeRegistry
         QueryIterator1 -->|createFacadeForQuery() calls| ComponentFacadeRegistry
         QueryIterator1 -->|accesses| GetColumn
         QueryIterator1Where -->|uses| ComponentFacadeRegistry
@@ -750,9 +750,18 @@ graph TB
 
 ### Query Execution
 
-**Flow**: `ComponentQuery.iter1<T>()` → `world.ensureFlushed()` → `ComponentRegistry.getComponentId<T>()` → `ComponentMask.fromIds([componentId])` → `QueryCache.getOrCompute(queryMask, archetypes)` → `QueryCache._computeMatching(queryMask, registry)` → iterates `registry.all` → checks `archetype.matches(queryMask)` → `_QueryIterator1Column` → for each archetype: `archetype.getColumn(componentId)` → `world.components.componentFacadeRegistry.initializeColumn(componentId, column)` (when switching) → `ComponentFacade` creation
+**Flow**: `ComponentQuery.iter1<T>()` → `world.ensureFlushed()` → `ComponentRegistry.getComponentId<T>()` → `ComponentMask.fromIds([componentId])` → `QueryCache.getOrCompute(queryMask, archetypes)` → `QueryCache._computeMatching(queryMask, registry)` → iterates `registry.all` → checks `archetype.matches(queryMask)` → `_QueryIterator1` → for each archetype: `archetype.getColumn(componentId)` → `world.components.componentFacadeRegistry.initializeColumn(componentId, column)` (when switching) → cached factory rebind to the local column before each `ComponentFacade` creation
 
 **Query Extension Methods**: `WorldQueryX` provides convenient query methods:
+
+Iterators retain the current archetype's column and cached facade factory. Each
+facade creation rebinds that factory to the local column, including raw chunk
+and column callback paths. A nested query can rebind shared factories, so an
+archetype-entry initialization alone is insufficient. Registry reads likewise
+rebind instead of trusting a registry-local last-column cache. The row path adds
+no registry lookup or allocation beyond the existing facade representation.
+Index-only extension facades still use static column bindings: consume them
+before a nested query changes that binding, or reacquire them afterward.
 
 - `world.query<T>()` → `ComponentQuery.fromWorld(world).withType<T>().iter1<T>()` → returns `(WorldEntity, T)` tuples
 - `world.query2-6<T1...T6>()` → `ComponentQuery.fromWorld(world).withType<T1>()...withType<T6>().iter2-6<T1...T6>()` → returns `(WorldEntity, T1...T6)` tuples
@@ -1026,12 +1035,12 @@ graph TB
 
 ## Performance Critical Paths
 
-- **Hot Loop**: `System` → `ComponentQuery.iter1/2/3/4/5/6()` → `world.ensureFlushed()` (<5% overhead) → `QueryCache.getOrCompute()` → `_QueryIterator1Column` → `ComponentFacadeRegistry.createFacadeWithoutInit()` (zero allocation) → direct TypedData access
+- **Hot Loop**: `System` → `ComponentQuery.iter1/2/3/4/5/6()` → `world.ensureFlushed()` (<5% overhead) → `QueryCache.getOrCompute()` → `_QueryIterator1` → `_createBoundFacade()` (cached factory rebind + facade create, no allocation) → direct TypedData access
 - **Cache Locality**: Archetype groups entities → SoA layout → `Float32List`/`Int32List` → SIMD-friendly stride alignment
-- **Zero Allocation**: Facades are extension types → `createFacadeWithoutInit()` avoids redundant static writes → no heap allocation
+- **Zero Allocation**: Facades are extension types → per-facade rebinding is a static field write (`_createBoundFacade`) → no heap allocation
 - **Query Caching**: `QueryCache` maintains dual cache system:
   - **Archetype Matching Cache**: `_archetypeCache` stores `ComponentMask → ArchetypeMatchResult` → `ArchetypeMatchResult` contains only `matchingArchetypes` (no eager entity list) → `getOrCompute()` checks cache → if miss: computes via `ArchetypeMatchResult._compute()` (iterates `registry.all`, checks `archetype.matches()`) → caches result → evicted by `ArchetypeRegistry.onArchetypeChange()` on new archetype creation
   - **Query Result Cache**: `QueryResultCache` stores `QueryCacheKey → QueryCacheEntry` → `QueryCacheEntry` contains `entities`, `flushVersion`, and `archetypeVersion` → `getCachedResult()` validates versions and structural touch state → if miss or stale: computes result → caches entry → evicted by `World.evictQueriesForStructuralComponent()`, `onArchetypeChange()`, or `onWorldFlush()` → LRU eviction when cache exceeds `maxCacheSize` → `QueryStructuralTouchTracker` enables structural query eviction per component
 - **Deferred Commands**: Structural changes deferred to `CommandQueue.execute()` → batch processing → single migration pass → prevents changes during iteration
 - **Entity Migration**: Swap-and-pop maintains dense arrays → `Archetype.removeEntity()` moves last entity → updates location tracking → preserves cache locality
-- **Query Iterator**: Column initialized only when switching archetypes → `initializeColumn()` called once per archetype → `createFacadeWithoutInit()` minimizes static writes
+- **Query Iterator**: Factories are shared binding seams → the cached factory rebinds to the local column before every facade creation (a nested query may rebind it in between) → static field writes only, no registry lookups or allocations
