@@ -31,13 +31,21 @@ typedef MallocNative = Pointer<Void> Function(IntPtr size);
 /// careful synchronization to avoid race conditions. Use only for read-only
 /// or carefully synchronized data.
 ///
-/// Note: This is platform-dependent and may not work on all Dart targets.
+/// Note: This is platform-dependent (dart:ffi) and therefore native-only —
+/// import this library on the VM, never in web or desktop-web builds.
 class SharedMemory {
   SharedMemory._(this._pointer, this.byteLength);
+
   final Pointer<Uint8> _pointer;
 
   /// Backing allocation length in bytes.
   final int byteLength;
+
+  bool _freed = false;
+
+  /// Whether [free] has been called. Views taken before [free] alias freed
+  /// memory — stop using them.
+  bool get isFreed => _freed;
 
   /// Gets the memory address for sharing with other isolates.
   int get address => _pointer.address;
@@ -57,9 +65,12 @@ class SharedMemory {
 
   /// Frees the shared memory.
   ///
-  /// Call this when the memory is no longer needed. After calling free,
-  /// the SharedMemory instance becomes invalid.
+  /// Call this when the memory is no longer needed. Double-free is a no-op
+  /// (freeing twice is almost always a lifecycle bug; the guard makes the
+  /// second call observable via [isFreed] instead of a native crash).
   void free() {
+    if (_freed) return;
+    _freed = true;
     _free(_pointer.cast<Void>());
   }
 
