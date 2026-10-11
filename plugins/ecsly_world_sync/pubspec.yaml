@@ -18,23 +18,11 @@ dependencies:
   universal_storage_convergence: ^0.1.0-dev.1
   universal_storage_convergence_session: ^0.1.0-dev.1
 
-# Bootstrap constraint: the convergence kernel and the anti-entropy session
-# core (ADR 0004) are not published to pub.dev yet, so this workspace resolves
-# them — plus the session core's own `universal_storage_world` dependency (for
-# InterestSelection) and `universal_storage_mesh_transport` (the bridge
-# plugin's radio) — from the sibling storage_problem repo via local path
-# overrides. Pub workspaces share one resolution and reject the same override
-# declared twice: `universal_storage_world` is therefore overridden once, in
-# `plugins/ecsly_world_zones/pubspec.yaml`, and the other three here — all
-# four removed together at publish time. The declared dependencies above are
-# the long-term contract.
-dependency_overrides:
-  universal_storage_convergence:
-    path: ../../../storage_problem/dart_flutter_packages/pkgs/universal_storage_convergence
-  universal_storage_convergence_session:
-    path: ../../../storage_problem/dart_flutter_packages/pkgs/universal_storage_convergence_session
-  universal_storage_mesh_transport:
-    path: ../../../storage_problem/dart_flutter_packages/pkgs/universal_storage_mesh_transport
+# The kernel, session core, world layer, and mesh radio are all published
+# (0.1.0-dev.1, 2026-10-12); the bootstrap path overrides this workspace
+# carried until then (convergence + session + mesh_transport here, world in
+# ecsly_world_zones) are removed. The declared dependencies above are the
+# long-term contract.
 
 dev_dependencies:
   lints: ^6.1.0

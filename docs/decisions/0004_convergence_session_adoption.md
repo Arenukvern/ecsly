@@ -80,6 +80,9 @@ needs it. Nothing in this ADR wires ecsly into dfp's mesh sessions yet.
   existing `dependency_overrides` path entry to it, and the bridge
   relies on the shared workspace resolution. Both overrides are removed
   at publish time, together.
+  *Resolution (2026-10-12): kernel, session core, world layer, and mesh
+  transport all published at 0.1.0-dev.1; the overrides are removed and
+  all three sync plugins resolve hosted.*
 
 ## Consequences
 

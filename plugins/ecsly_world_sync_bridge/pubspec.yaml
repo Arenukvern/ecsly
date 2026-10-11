@@ -26,16 +26,12 @@ dependencies:
   universal_storage_convergence_session: ^0.1.0-dev.1
   universal_storage_mesh_transport: ^0.1.0-dev.1
 
-# Bootstrap constraint: the session core and its transitive foundation
-# packages (convergence kernel, universal_storage_world, mesh transport) are
-# not published to pub.dev yet. The workspace resolves them through the
-# `dependency_overrides` path entries in
-# `plugins/ecsly_world_sync/pubspec.yaml` (`universal_storage_world`'s entry
-# lives in `plugins/ecsly_world_zones/pubspec.yaml`): workspace members share
-# one resolution and pub rejects the same override declared twice, so this
-# package declares none of its own — exactly as it already did for the
-# kernel. Remove those overrides at publish time, together; the declared
-# dependencies above are the long-term contract.
+# The session core and its transitive foundation packages (convergence
+# kernel, universal_storage_world, mesh transport) all published to pub.dev
+# (0.1.0-dev.1, 2026-10-12); the bootstrap path overrides the workspace
+# carried until then (in ecsly_world_sync / ecsly_world_zones) are removed
+# and this package resolves everything hosted, exactly as the declared
+# dependencies above state.
 
 dev_dependencies:
   lints: ^6.1.0

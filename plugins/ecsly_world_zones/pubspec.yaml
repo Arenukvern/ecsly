@@ -16,14 +16,9 @@ dependencies:
   ecsly: ^0.0.1-dev.13
   universal_storage_world: ^0.1.0-dev.1
 
-# Bootstrap constraint: the world layer is not published to pub.dev yet,
-# so this workspace resolves it from the sibling storage_problem repo via
-# a local path override — the same shape as ecsly_world_sync's kernel
-# override. Remove once published; the declared dependency above is the
-# long-term contract.
-dependency_overrides:
-  universal_storage_world:
-    path: ../../../storage_problem/dart_flutter_packages/pkgs/universal_storage_world
+# The world layer published to pub.dev (0.1.0-dev.1, 2026-10-12); the
+# bootstrap path override this workspace carried until then is removed. The
+# declared dependency above is the long-term contract.
 
 dev_dependencies:
   lints: ^6.1.0

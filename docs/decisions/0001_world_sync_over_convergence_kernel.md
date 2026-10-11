@@ -74,6 +74,8 @@ The declared `universal_storage_convergence: ^0.1.0-dev.1` dependency is the
 long-term contract; the override is a temporary resolution hack that must be
 removed at publish time. This is a cross-repo bootstrap dependency, not a
 public claim that the kernel is an ecsly-owned surface.
+*Resolution (2026-10-12): the kernel published to pub.dev at 0.1.0-dev.1;
+the override is removed and the workspace resolves hosted.*
 
 ## Non-claims
 
