@@ -10,3 +10,4 @@ ownership decisions are tracked in internal governance.
 | [0001](0001_world_sync_over_convergence_kernel.md) | ecsly world sync consumes the convergence kernel; parents choose strategies, the kernel never learns about worlds | Accepted |
 | [0002](0002_live_world_delta_bridge.md) | the live World→delta bridge exists as `ecsly_world_sync_bridge`; structure syncs as keyed state, and the driver owns anti-entropy | Accepted |
 | [0003](0003_world_zones_seamless_travel.md) | zone travel for ecsly worlds — the mesh pulse is an ordinary system (the game's own scheduler drives it), interest policies stay game-side | Accepted |
+| [0004](0004_convergence_session_adoption.md) | world sync adopts the convergence session core; the bridge sheds its own anti-entropy stack (driver/message/transport deleted; watermark correctness lands once, in the foundation) | Accepted |
