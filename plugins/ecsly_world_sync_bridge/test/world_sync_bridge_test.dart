@@ -1,9 +1,8 @@
-import 'dart:math';
-
 import 'package:ecsly/ecsly.dart';
 import 'package:ecsly_serialization/ecsly_serialization.dart';
 import 'package:ecsly_world_sync_bridge/ecsly_world_sync_bridge.dart';
 import 'package:test/test.dart';
+import 'package:universal_storage_mesh_transport/universal_storage_mesh_transport.dart';
 
 import 'test_components.dart';
 
@@ -243,23 +242,26 @@ void main() {
     expect(sync.projection.values, isEmpty);
   });
 
-  test('two live worlds converge through drivers (in-order and shuffled)',
-      () {
-    for (final (label, seed) in [
-      ('in-order', -1),
-      ('shuffled seed 3', 3),
-      ('shuffled seed 7', 7),
-      ('shuffled seed 11', 11),
-    ]) {
-      _twoWorldScenario(label, seed);
-    }
+  test('two live worlds converge through session drivers', () async {
+    // The dial discipline varies: A first, B first, or both at once. Which
+    // side initiates must not matter — the script is symmetric and the
+    // kernel's fold is order-insensitive.
+    await _twoWorldScenario('a dials first', _DialDiscipline.aFirst);
+    await _twoWorldScenario('b dials first', _DialDiscipline.bFirst);
+    await _twoWorldScenario('both dial at once', _DialDiscipline.concurrent);
   });
 }
 
-/// Full scenario: two live worlds, two bridges, two replicas, one shared
-/// deterministic clock; conflicting concurrent writes; despawn; convergence
-/// under the given delivery discipline; redelivery idempotence.
-void _twoWorldScenario(final String label, final int seed) {
+/// How a round is kicked off between the two drivers.
+enum _DialDiscipline { aFirst, bFirst, concurrent }
+
+/// Full scenario: two live worlds, two bridges, two replicas; conflicting
+/// concurrent writes; despawn; convergence under the given dial discipline;
+/// redelivery idempotence.
+Future<void> _twoWorldScenario(
+  final String label,
+  final _DialDiscipline discipline,
+) async {
   final clock = TestClock();
   final worldA = buildTestWorld();
   final worldB = buildTestWorld();
@@ -276,19 +278,27 @@ void _twoWorldScenario(final String label, final int seed) {
     clock: clock.tick,
   );
 
-  final hub = LocalSyncHub();
-  final transportA = hub.register('world_a');
-  final transportB = hub.register('world_b');
-  final driverA = WorldSyncDriver(
+  final pair = FakeMeshPair.paired(a: 'world_a', b: 'world_b');
+  MeshPeerRecord recordOf(final String id) =>
+      MeshPeerRecord(peerId: id, displayName: id);
+  // Compaction triggers are off: this scenario proves convergence and
+  // idempotence, not the (session-core-owned) compaction policy.
+  final driverA = WorldSyncSession(
     sync: syncA,
-    transport: transportA,
-    peers: {'world_b'},
-  );
-  final driverB = WorldSyncDriver(
+    transport: pair.a,
+    peerId: 'world_a',
+    peers: {recordOf('world_b')},
+    maxLogOps: null,
+    minInterval: null,
+  )..listen();
+  final driverB = WorldSyncSession(
     sync: syncB,
-    transport: transportB,
-    peers: {'world_a'},
-  );
+    transport: pair.b,
+    peerId: 'world_b',
+    peers: {recordOf('world_a')},
+    maxLogOps: null,
+    minInterval: null,
+  )..listen();
 
   // Independent spawns sharing a persistent id on both sides (this is what
   // makes the Position writes a true concurrent conflict).
@@ -311,7 +321,7 @@ void _twoWorldScenario(final String label, final int seed) {
   expect(bridgeA.emitDeltas(), 4, reason: label);
   expect(bridgeB.emitDeltas(), 5, reason: label);
 
-  _drive(driverA, driverB, transportA, transportB, seed);
+  await _drive(driverA, driverB, discipline);
 
   final expected = <String, Object?>{
     '1/PositionComponent/0': 9.5, // B's later write wins LWW
@@ -330,7 +340,7 @@ void _twoWorldScenario(final String label, final int seed) {
   worldB.despawnEntity(shipB);
   worldB.flush();
   expect(bridgeB.emitDeltas(), 3, reason: '$label (tombstones)');
-  _drive(driverA, driverB, transportA, transportB, seed);
+  await _drive(driverA, driverB, discipline);
 
   final afterDespawn = <String, Object?>{
     '1/PositionComponent/0': 9.5,
@@ -344,8 +354,8 @@ void _twoWorldScenario(final String label, final int seed) {
 
   // Redelivery is idempotent: more rounds change nothing.
   final vvBefore = syncA.vv.toJson();
-  _drive(driverA, driverB, transportA, transportB, seed);
-  _drive(driverA, driverB, transportA, transportB, seed);
+  await _drive(driverA, driverB, discipline);
+  await _drive(driverA, driverB, discipline);
   expect(syncA.projection.values, afterDespawn, reason: label);
   expect(syncB.projection.values, afterDespawn, reason: label);
   expect(syncA.vv.toJson(), vvBefore, reason: label);
@@ -353,42 +363,31 @@ void _twoWorldScenario(final String label, final int seed) {
   expect(syncB.opsFor(syncA.vv), isEmpty);
   expect(bridgeA.emitDeltas(), 0, reason: label);
   expect(bridgeB.emitDeltas(), 0, reason: label);
+
+  driverA.stop();
+  driverB.stop();
 }
 
-/// Anti-entropy until quiet: tick both drivers, then deliver all queued
-/// messages — in FIFO order when [seed] is negative, otherwise in a
-/// deterministically shuffled order.
-void _drive(
-  final WorldSyncDriver driverA,
-  final WorldSyncDriver driverB,
-  final LocalSyncTransport transportA,
-  final LocalSyncTransport transportB,
-  final int seed,
-) {
-  driverA.tick();
-  driverB.tick();
-  var guard = 0;
-  for (var quiet = false; !quiet && guard < 32; guard++) {
-    _deliver(transportA, driverA, seed, guard);
-    _deliver(transportB, driverB, seed, guard);
-    quiet = !transportA.hasQueued && !transportB.hasQueued;
+/// One anti-entropy round under [discipline], then the event loop settles
+/// (responder halves finish in microtasks after sending their deltas).
+Future<void> _drive(
+  final WorldSyncSession driverA,
+  final WorldSyncSession driverB,
+  final _DialDiscipline discipline,
+) async {
+  switch (discipline) {
+    case _DialDiscipline.aFirst:
+      await driverA.tick();
+      await driverB.tick();
+    case _DialDiscipline.bFirst:
+      await driverB.tick();
+      await driverA.tick();
+    case _DialDiscipline.concurrent:
+      await Future.wait([driverA.tick(), driverB.tick()]);
   }
-  expect(guard, lessThan(32), reason: 'exchange did not settle');
-}
-
-/// Delivers [transport]'s queued envelopes to [driver]: FIFO when [seed] is
-/// negative, otherwise deterministically shuffled.
-void _deliver(
-  final LocalSyncTransport transport,
-  final WorldSyncDriver driver,
-  final int seed,
-  final int round,
-) {
-  final batch = transport.takeQueued();
-  if (seed >= 0) {
-    batch.shuffle(Random(seed + round));
+  for (var i = 0; i < 3; i++) {
+    await Future<void>.delayed(Duration.zero);
   }
-  batch.forEach(driver.handleIncoming);
 }
 
 class _RecordingObserver implements WorldFlushObserver {

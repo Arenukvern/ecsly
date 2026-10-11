@@ -9,8 +9,11 @@ replica and keeps replicas converging. See
 Merge semantics are **not implemented here** — ordering, version vectors,
 dedupe, and folds stay in
 [`universal_storage_convergence`](https://github.com/xsoulspace/universal_storage_sync)
-(ADR 0011). This package owns only the world→delta capture diff, the wire
-envelope, and the anti-entropy schedule.
+(ADR 0011), and since [ADR
+0004](../../docs/decisions/0004_convergence_session_adoption.md) the
+anti-entropy protocol itself is the session core's
+(`universal_storage_convergence_session`), not this package's. This package
+owns only the world→delta capture diff and the exchange schedule.
 
 ## What it does
 
@@ -23,28 +26,36 @@ envelope, and the anti-entropy schedule.
     handles never travel;
   - `flushObserver` / `attach()` emit deltas on every `World.flush()`
     boundary (chains any observer already registered).
-- `WorldSyncMessage` (`VvMessage` / `OpsMessage` / `SnapshotMessage`) —
-  wire envelope with a versioned, discriminated JSON codec.
-- `WorldSyncTransport` + `LocalSyncHub` — the transport seam and an
-  in-memory, explicitly-pumped hub for tests. **No real networking**;
-  sockets, relays, and discovery are later phases.
-- `WorldSyncDriver` — anti-entropy over a replica + transport + peer set:
-  VV exchange, op batches, snapshots for peers the compacted log can no
-  longer serve; optional periodic mode; policy compaction via
-  `SnapshotPolicy`.
+- `WorldSyncSession` — the anti-entropy schedule over one replica + the
+  foundation's `MeshTransport`/`MeshSession` radio
+  (`universal_storage_mesh_transport`): each round runs the session
+  protocol's symmetric script (hello → vv → delta, wire =
+  `MeshSyncProtocol`), plans what to send with the session core's
+  `DeltaPlanner` against the replica's `DeltaReplica` seam, applies the
+  peer's delta, and compacts on the session core's `shouldCompact` policy.
+  Periodic mode (`start`/`stop`/`tick`) survives; inbound (peer-dialed)
+  sessions run the same script, so mutual dials are safe. Ordering, dedupe,
+  folding, staleness, and the wire codec are never re-implemented here.
+- The compaction policy surface (`shouldCompact`, `defaultMaxLogOps`,
+  `defaultMinInterval`) is re-exported from the session core — it is that
+  package's type now (ADR 0004).
 
 ## Not claimed
 
-No kernel→World reverse materialization (peers read the projection; nothing
-rebuilds a live World), no presence/ephemeral ops, no rollback/re-sim, no
-resource sync. Core `ecsly` and `ecsly_world_sync` are unchanged
-dependencies, not surfaces of this package.
+No networking *of its own*: pairing, discovery, framing, LAN sockets, and
+relays are `universal_storage_mesh_transport`'s domain (its `FakeMeshPair`
+stands in for tests); no kernel→World reverse materialization (peers read
+the projection; nothing rebuilds a live World), no presence/ephemeral ops,
+no rollback/re-sim, no resource sync. Core `ecsly` and `ecsly_world_sync`
+are unchanged dependencies, not surfaces of this package.
 
 ## Bootstrap dependency
 
-Same as `plugins/ecsly_world_sync`: the kernel is not on pub.dev yet, so
-the pubspec resolves it through a local path override into the sibling
-`storage_problem` repo. Remove the override once the kernel publishes.
+Same as `plugins/ecsly_world_sync`: the kernel and the session core are not
+on pub.dev yet, so the workspace resolves them (and the session core's
+transitive foundation packages) through the path overrides declared in
+`plugins/ecsly_world_sync/pubspec.yaml`. Remove those overrides once the
+kernel and session core publish.
 
 ## Validate
 

@@ -227,4 +227,120 @@ void main() {
     json['strategy'] = 'rga_text';
     expect(() => WorldSync.fromJson(json), throwsArgumentError);
   });
+
+  test('a local write after folding an ahead-clock remote op wins LWW '
+      'on both replicas', () {
+    // The receive-watermark bug class (ecsly ADR 0004; last_answer's
+    // mesh_task_board doc comment): replica A folds an op issued far ahead
+    // of A's own wall clock, then writes locally with its slow clock. The
+    // kernel never ticks on receive, so without the watermark the local
+    // write carries a LOWER HLC and loses LWW to the causally older remote
+    // write — forever.
+    final a = WorldSync(actorId: 'replica_a');
+    final p = WorldSync(actorId: 'peer_p');
+
+    // peer_p's clock sits a millennium out; far past any real machine
+    // clock, so the scenario is hermetic wherever it runs.
+    final aheadClock = DateTime.utc(9000, 1, 1, 12);
+    final slowClock = DateTime.utc(2026, 9, 6, 12);
+
+    // Two ops in the SAME ahead millisecond: the second one raises the
+    // watermark's counter seam too, which the wall-clock floor alone
+    // cannot outrank — only floor + lastIssued together do.
+    p.applyDelta(_delta('ship:1', 'Position', 'x', 1.0), aheadClock);
+    p.applyDelta(_delta('ship:1', 'Position', 'y', 2.0), aheadClock);
+    a.applyRemote(p.pendingOps);
+
+    // A writes locally on its slow clock; the LOCAL write must win.
+    a.applyDelta(_delta('ship:1', 'Position', 'x', 9.0), slowClock);
+
+    p.applyRemote(a.opsFor(p.vv));
+    for (final replica in [a, p]) {
+      expect(
+        replica.projection.componentValue(
+          entityKey: 'ship:1',
+          component: 'Position',
+          field: 'x',
+        ),
+        9.0,
+        reason: 'the causally later local write wins on every replica',
+      );
+    }
+  });
+
+  test('adopting a snapshot raises the watermark above its createdAt', () {
+    final p = WorldSync(actorId: 'peer_p');
+    final aheadClock = DateTime.utc(9000, 1, 1, 12);
+    p.applyDelta(
+      _delta('ship:1', 'Position', 'x', 1.0),
+      aheadClock,
+    );
+    final snapshot = p.snapshotFor();
+
+    final a = WorldSync(actorId: 'replica_a');
+    expect(a.adoptSnapshot(snapshot), isTrue);
+
+    // The next local op issues strictly above the adopted snapshot's
+    // creation timestamp, on a slow clock, tombstones included.
+    final slowClock = DateTime.utc(2026, 9, 6, 12);
+    expect(
+      a.applyDelta(_delta('ship:1', 'Position', 'x', 9.0), slowClock).hlc >
+          snapshot.createdAt,
+      isTrue,
+    );
+    expect(
+      a.removeDelta(_delta('ship:1', 'Position', 'y', null), slowClock).hlc >
+          snapshot.createdAt,
+      isTrue,
+    );
+  });
+
+  test('receive watermark round-trips through toJson/fromJson', () {
+    final a = WorldSync(actorId: 'replica_a');
+    final p = WorldSync(actorId: 'peer_p');
+    final aheadClock = DateTime.utc(9000, 1, 1, 12);
+    p.applyDelta(_delta('ship:1', 'Position', 'x', 1.0), aheadClock);
+    a.applyRemote(p.pendingOps);
+    expect(
+      a.toJson()['receive_watermark'],
+      isNotNull,
+      reason: 'the watermark persists under its own key',
+    );
+
+    // The restored replica keeps the causality floor: its local write on a
+    // slow clock still outranks the received op, on both replicas.
+    final restored = WorldSync.fromJson(a.toJson());
+    restored.applyDelta(
+      _delta('ship:1', 'Position', 'x', 9.0),
+      DateTime.utc(2026, 9, 6, 12),
+    );
+    p.applyRemote(restored.opsFor(p.vv));
+    for (final replica in [restored, p]) {
+      expect(
+        replica.projection.componentValue(
+          entityKey: 'ship:1',
+          component: 'Position',
+          field: 'x',
+        ),
+        9.0,
+      );
+    }
+  });
+
+  test('a pre-watermark backup (no receive_watermark key) still restores', () {
+    final a = WorldSync(actorId: 'replica_a');
+    a.applyDelta(
+      _delta('ship:1', 'Position', 'x', 1.5),
+      DateTime.utc(2026, 9, 6, 12),
+    );
+    final legacy = Map<String, dynamic>.of(a.toJson())
+      ..remove('receive_watermark');
+    final restored = WorldSync.fromJson(legacy);
+    expect(restored.projection.values, a.projection.values);
+    expect(
+      restored.pendingOps.length,
+      a.pendingOps.length,
+      reason: 'absent watermark key means a fresh watermark, not a failure',
+    );
+  });
 }

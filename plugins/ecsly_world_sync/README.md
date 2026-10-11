@@ -11,6 +11,14 @@ Merge semantics are **not implemented here**. This package consumes
 dedupe, and fold rules; this plugin only chooses the strategy (LWW map by
 default), the key mapping, and the compaction policy. The kernel never learns
 about worlds. See [ADR 0001](../../docs/decisions/0001_world_sync_over_convergence_kernel.md).
+Since [ADR 0004](../../docs/decisions/0004_convergence_session_adoption.md)
+it also consumes the session core
+(`universal_storage_convergence_session`): `WorldSync` conforms to the
+core's `DeltaReplica` seam (so the shared `DeltaPlanner` can plan against
+it) and carries an HLC **receive watermark** — every remote op HLC and
+adopted snapshot `createdAt` raises it, and local writes are floored above
+it, so a local write issued after folding a remote op with an ahead wall
+clock wins LWW instead of losing forever.
 
 ## What it does
 
@@ -34,9 +42,10 @@ never travel.
 
 ## Bootstrap dependency
 
-The kernel is not on pub.dev yet; the pubspec resolves it through a local
-path override into the sibling `storage_problem` repo. Remove the override
-once the kernel publishes (ADR 0001 §3).
+The kernel and the session core are not on pub.dev yet; the pubspec resolves
+them (plus the session core's transitive foundation packages) through local
+path overrides into the sibling `storage_problem` repo. Remove the overrides
+once those packages publish (ADR 0001 §3, ADR 0004).
 
 ## Validate
 
