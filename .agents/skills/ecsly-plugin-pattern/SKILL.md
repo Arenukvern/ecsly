@@ -15,8 +15,8 @@ Seen in the wild (study these before inventing variants):
 | Plugin | Pure core | Seam | Shell |
 | --- | --- | --- | --- |
 | `ecsly_flutter_scene` | `SceneMapping`, `VisualState`, `EcsSceneBinder` | `SceneSink` (add/update/remove/count) | `FlutterSceneSink`, `EcsSceneView` |
-| `ecsly_world_sync` | projection + component deltas | transport | `fake_transport.dart` + real transport |
-| `ecsly_world_sync_bridge` | message/policy | transport + driver | bridge/driver wiring |
+| `ecsly_world_sync` | projection + component deltas | session-core `DeltaReplica` seam | `FakeMeshPair` + real `MeshTransport` radio (ADR 0004) |
+| `ecsly_world_sync_bridge` | capture diff + session schedule | session-core wire/planner/policy + `MeshTransport` | `WorldSyncSession` wiring (no bespoke wire/driver — that lives in `universal_storage_convergence_session`, dfp ADR 0063) |
 | `ecsly_serialization` | snapshot model + codecs | (de)serialization boundaries | JSON object codecs |
 
 ## Rules (with the reasons)
