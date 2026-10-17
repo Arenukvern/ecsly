@@ -1,0 +1,8 @@
+id: h1
+skill: flutter-design-loop
+routing: should_not_trigger
+input: "Scaffold a brand-new ECS dependency-graph explainer from the visualization studio example, with a paused first render."
+rules:
+  - kind: body_includes_any
+    path: SKILL.md
+    terms: ["ecsly-visualization"]

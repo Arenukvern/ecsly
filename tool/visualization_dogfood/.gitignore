@@ -1,0 +1,7 @@
+.dart_tool/
+pubspec_overrides.yaml
+output/
+
+# Editable dependency roots are machine inputs, not a published lockfile.
+pubspec.lock
+.flutter_mcp/

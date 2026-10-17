@@ -21,8 +21,8 @@ import 'flutter_scene_sink.dart';
 import 'scene_camera_math.dart';
 import 'scene_mapping.dart';
 
-  /// The world whose mapped components this view renders (READ-ONLY —
-  /// the app loop ticks it; the view never does).
+/// The world whose mapped components this view renders (READ-ONLY —
+/// the app loop ticks it; the view never does).
 class EcsSceneView extends StatefulWidget {
   /// The component→visual mapping driving the binder.
   const EcsSceneView({
@@ -34,13 +34,18 @@ class EcsSceneView extends StatefulWidget {
     this.onEntityTap,
     this.onEntityHold,
     this.onCameraChanged,
+    this.onManipulationStart,
+    this.onManipulationUpdate,
+    this.onManipulationEnd,
     this.loadingColor,
   });
 
   /// Initial camera distance from the orbit target.
   final World world;
+
   /// Creates the view state.
   final SceneMapping mapping;
+
   /// The widget state.
   final double initialDistance;
 
@@ -61,8 +66,14 @@ class EcsSceneView extends StatefulWidget {
   /// Camera eye/target after every camera move AND on init — consumers
   /// project 2D overlays (nameplates) with the same basis the scene
   /// renders with (scene_camera_math.dart).
-  final void Function(List<double> eye, List<double> target)?
-  onCameraChanged;
+  final void Function(List<double> eye, List<double> target)? onCameraChanged;
+
+  /// Consumer claims a picked drag. Returning true prevents camera orbit for
+  /// this gesture; project semantics and permission stay with the consumer.
+  final bool Function(String pickId)? onManipulationStart;
+  final void Function(String pickId, double dx, double dy)?
+  onManipulationUpdate;
+  final void Function(String pickId, bool cancelled)? onManipulationEnd;
 
   /// The while-loading/error backdrop (GPU static resources init
   /// asynchronously). Null = the standalone's black; a light-paper host
@@ -83,6 +94,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
   );
   Timer? _syncTimer;
   Offset? _lastPan;
+  String? _manipulationId;
 
   @override
   void initState() {
@@ -142,9 +154,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
     if (!_ready || _scene == null) {
       return ColoredBox(
         color: backdrop,
-        child: const Center(
-          child: CircularProgressIndicator(strokeWidth: 2),
-        ),
+        child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
       );
     }
     final camera = PerspectiveCamera(
@@ -152,9 +162,27 @@ class _EcsSceneViewState extends State<EcsSceneView> {
       target: _rig.cameraTarget(),
     );
     return GestureDetector(
-      onPanStart: (details) => _lastPan = details.localPosition,
+      onPanStart: (details) {
+        _lastPan = details.localPosition;
+        _manipulationId = null;
+        _pickAt(details.localPosition, (id) {
+          if (widget.onManipulationStart?.call(id) ?? false) {
+            _manipulationId = id;
+          }
+        });
+      },
       onPanUpdate: (details) {
         final last = _lastPan ?? details.localPosition;
+        final id = _manipulationId;
+        if (id != null) {
+          widget.onManipulationUpdate?.call(
+            id,
+            details.localPosition.dx - last.dx,
+            details.localPosition.dy - last.dy,
+          );
+          _lastPan = details.localPosition;
+          return;
+        }
         setState(() {
           _rig.orbit(
             details.localPosition.dx - last.dx,
@@ -164,11 +192,12 @@ class _EcsSceneViewState extends State<EcsSceneView> {
         _lastPan = details.localPosition;
         _reportCamera();
       },
-      onPanEnd: (_) => _lastPan = null,
+      onPanEnd: (_) => _endManipulation(false),
+      onPanCancel: () => _endManipulation(true),
       onDoubleTap: () => _zoomBy(0.8),
       onTapUp: (details) => _pickAt(details.localPosition, widget.onEntityTap),
-      onLongPressStart:
-          (details) => _pickAt(details.localPosition, widget.onEntityHold),
+      onLongPressStart: (details) =>
+          _pickAt(details.localPosition, widget.onEntityHold),
       child: Listener(
         // Scroll dolly (desktop/trackpad): wheel down zooms out, up zooms
         // in. The altitude hook rides every distance change.
@@ -180,6 +209,13 @@ class _EcsSceneViewState extends State<EcsSceneView> {
         child: SceneView(_scene!, camera: camera),
       ),
     );
+  }
+
+  void _endManipulation(bool cancelled) {
+    final id = _manipulationId;
+    _manipulationId = null;
+    _lastPan = null;
+    if (id != null) widget.onManipulationEnd?.call(id, cancelled);
   }
 
   /// Reports the current camera to the consumer (overlay projection).

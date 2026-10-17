@@ -1,0 +1,10 @@
+id: t1
+skill: ecsly-visualization
+routing: should_trigger
+input: "I need a reusable Flutter dependency-graph explainer with a selection detail, camera controls and a paused first render. Give the concrete scaffold and verification route for an owned output directory."
+rules:
+  - kind: file_exists
+    path: references/evals.md
+  - kind: body_includes_any
+    path: SKILL.md
+    terms: ["canonical example", "one ECS world"]

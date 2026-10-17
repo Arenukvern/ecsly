@@ -1,0 +1,28 @@
+{
+  "task": "damped oscillator",
+  "arms": {
+    "baseline": {
+      "analysis": "passed",
+      "modelTests": 5,
+      "build": "passed",
+      "runtime": "failed before input: Flutter semantics not enabled",
+      "effectsObserved": 0
+    },
+    "skill-assisted": {
+      "analysis": "passed",
+      "modelTests": 5,
+      "build": "passed",
+      "runtime": "passed",
+      "checks": 15,
+      "effectsObserved": 11
+    }
+  },
+  "limits": [
+    "One paired implementation task, not general skill superiority or canonical promotion.",
+    "Desktop visuals inspected for both; narrow top captured for skill-assisted; lower narrow panels need follow-up.",
+    "The absolute-index Next sample criterion assumes stepping preserves selection; this interpretation was not explicit in the prompt. It was not reached by the baseline, so it does not explain its failure; do not use it to score a clock-following selection implementation.",
+    "Both runs used the same model/settings and SDK. SDK/dependency closure and OS/cache/load were not frozen.",
+    "Source/skill/oracle hashes were unchanged through both original runs and archived before subsequent responsive-capture extension.",
+    "Native controls, physical focus, compositor presentation and broad scientific plotting are unqualified."
+  ]
+}

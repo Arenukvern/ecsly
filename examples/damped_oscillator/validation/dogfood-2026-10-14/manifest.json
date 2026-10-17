@@ -1,0 +1,72 @@
+[
+  {
+    "source": "tool/visualization_dogfood/output/damped-extracted-2026-10-14-b/result.json",
+    "archive": "result.json",
+    "sha256": "9b11d3fbdcbf962d0f3b35126a322e3bc2a17c87241f0253ecae1e72bc12c4de"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/damped-extracted-2026-10-14-b/status.json",
+    "archive": "status.json",
+    "sha256": "04b51222f2784e5724e7bd084546d1698788aa7006887701f175bf33adef6474"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/damped-extracted-2026-10-14-b/facts.jsonl",
+    "archive": "facts.jsonl",
+    "sha256": "d82096e9550b22c76c5639d6cddaffa4f91023df2d6a2959789b797855d1186e"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/damped-extracted-2026-10-14-b/browser-log.json",
+    "archive": "browser-log.json",
+    "sha256": "d0c31709d9e2a63626c37cdf8191b2e49a0a83020c3005904ff20f7918529a0b"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/damped-extracted-2026-10-14-b/served-bundle.json",
+    "archive": "served-bundle.json",
+    "sha256": "ee8fc97f88d0ed20b2306a9fd88ded40ef2ff53be708de499d82820ee104c5d7"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/damped-extracted-2026-10-14-b/initial.png",
+    "archive": "initial.png",
+    "sha256": "fb4962ff9a3654183f428c05651c568db5d03fffa2e020f8581c4e9754f6f9ba"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/damped-extracted-2026-10-14-b/linked.png",
+    "archive": "linked.png",
+    "sha256": "20f41a9db82aafc9fd505b1907864498a1464c37bcee5d809799b75c35dc821a"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/damped-extracted-2026-10-14-b/narrow.png",
+    "archive": "narrow.png",
+    "sha256": "b76dd96eb889e11bde97f7fe1e17037683b95eae8dbd9bc33307d88ec724bb20"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/damped-extracted-2026-10-14-b/narrow-scroll-1.png",
+    "archive": "narrow-scroll-1.png",
+    "sha256": "8605d2689cde3ef24de3969bcefb7fd027edbf268cc69b8ece148990064aad50"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/damped-extracted-2026-10-14-b/narrow-scroll-3.png",
+    "archive": "narrow-scroll-3.png",
+    "sha256": "bde752146c3f5cd318099a35f4357bb426b7c881a3ce20be40f838565537bc75"
+  },
+  {
+    "source": "examples/damped_oscillator/output/validation/build.json",
+    "archive": "build.json",
+    "sha256": "fdd0ab456e491b2bb0013f986948960233b182b4b364b086405c37998f75a8f3"
+  },
+  {
+    "source": "tool/visualization_dogfood/bin/damped_oscillator_checks.dart",
+    "archive": "damped_oscillator_checks.dart.txt",
+    "sha256": "3daf55a00a75e69a88ddc7057b03952789fd1c88683c0f3f57761ec612a5462d"
+  },
+  {
+    "source": "tool/visualization_dogfood/bin/worker.dart",
+    "archive": "worker.dart.txt",
+    "sha256": "365ea8a8ad8e0518eaced89fa161e2e9d95ab8116c912bb51d4e799228fe1618"
+  },
+  {
+    "source": "tool/visualization_dogfood/bin/supervise.dart",
+    "archive": "supervise.dart.txt",
+    "sha256": "de527d183530d947cf2ad85724c41e75aa6e31ae4e40ed2abbf8b56d29a9ec2d"
+  }
+]

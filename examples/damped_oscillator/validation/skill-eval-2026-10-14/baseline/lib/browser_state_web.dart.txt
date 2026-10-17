@@ -1,0 +1,7 @@
+import 'dart:js_interop';
+
+@JS('__dampedState')
+external set dampedState(JSFunction function);
+void exposeState(Map<String, Object> Function() read) {
+  dampedState = (() => read().jsify() as JSObject).toJS;
+}

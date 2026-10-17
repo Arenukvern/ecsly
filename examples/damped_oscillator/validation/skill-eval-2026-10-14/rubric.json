@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "task": "new damped-oscillator implementation",
+  "checks": [
+    "initial state x=1,v=0,t=0,zeta=.3 and energy=omega^2/2",
+    "initial state unchanged after 200ms paused wait",
+    "each of three damping presets resets exact initial conditions and selectedIndex=0",
+    "Step advances t=1/60; independent analytic x/v reference within .003; energy domain units agree",
+    "Next sample sets both plotSelection indexes equal selectedIndex=1; visible Sample 1 text",
+    "Reset restores initial conditions without changing damping",
+    "no Runtime exceptions during observed actions",
+    "real desktop and narrow captures inspected for readable plots/labels/control access",
+    "build/analyze and owned browser/profile teardown"
+  ],
+  "nonClaims": [
+    "one paired task is not a general skill quality or promotion result",
+    "same model/settings, different cold workspace/file paths; filesystem/SDK caches uncontrolled",
+    "browser runtime evidence does not qualify native controls or compositor performance"
+  ]
+}

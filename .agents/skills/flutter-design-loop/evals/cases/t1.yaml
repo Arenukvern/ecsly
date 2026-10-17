@@ -1,0 +1,8 @@
+id: t1
+skill: flutter-design-loop
+routing: should_trigger
+input: "Iterate this Flutter screen until the motion feels right. Use ecsly_flutter, in-memory fixtures, and hot reload on desktop. Do not add a catalog app."
+rules:
+  - kind: body_includes_any
+    path: SKILL.md
+    terms: ["ecsly_flutter", "Hot reload"]

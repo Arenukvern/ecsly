@@ -1,0 +1,17 @@
+import 'dart:convert';
+import 'dart:developer';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+
+void installWindowProbe() {
+  if (!kDebugMode) return;
+  const channel = MethodChannel('ecsly.preview.window');
+  registerExtension('ext.ecsly.nativeWindowState', (_, params) async {
+    try {
+      final state = await channel.invokeMethod<Object?>('describe');
+      return ServiceExtensionResponse.result(jsonEncode(state));
+    } catch (error) {
+      return ServiceExtensionResponse.error(ServiceExtensionResponse.extensionError, '$error');
+    }
+  });
+}

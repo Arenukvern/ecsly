@@ -1,0 +1,10 @@
+id: t3
+skill: ecsly-visualization
+routing: should_not_trigger
+input: "Make an inline HTML visualization in this conversation explaining exponential decay. I have no Flutter host. Which rendering path should be used?"
+rules:
+  - kind: file_exists
+    path: references/evals.md
+  - kind: body_includes_any
+    path: SKILL.md
+    terms: ["inline HTML", "conversation host"]

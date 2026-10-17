@@ -144,6 +144,12 @@ frame-rate simulation should stay on ecsly query/raw chunk APIs.
 
 ## How do selectors know what changed?
 
+Resource selector builders also follow Flutter inherited dependencies such as
+`Theme`, `MediaQuery`, and localization when the selected ECS value is unchanged.
+The cached child has its own `BuildContext`; unrelated ECS invalidations still
+skip selector and builder work. Keep selected values immutable rather than
+selecting an in-place mutated resource object.
+
 `EcsScope` uses Flutter `InheritedModel` aspects and app-layer
 `EcsInvalidationBatch` hints. Core ECS stays summary-free; Flutter selectors
 refresh broadly for unknown transactions and selectively when callers provide

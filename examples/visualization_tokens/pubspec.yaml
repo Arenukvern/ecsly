@@ -1,0 +1,6 @@
+name: ecsly_visualization_tokens
+description: Renderer independent visual vocabulary for the visualization example.
+version: 0.1.0
+publish_to: none
+environment:
+  sdk: ^3.13.4

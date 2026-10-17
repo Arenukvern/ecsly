@@ -1,0 +1,141 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:oka_core/oka_core.dart';
+import 'package:oka_supervisor/oka_supervisor.dart';
+import 'package:resource_composition/resource_composition.dart';
+
+/// A declared bounded job, not a resident supervisor daemon.
+Future<void> main(List<String> args) async {
+  if (args.length != 2 && args.length != 3) {
+    throw ArgumentError('supervise.dart PROJECT EVIDENCE [SCENARIO]');
+  }
+  final multiView = args.length == 3 && args[2] == 'multi-view';
+  final shaderProbe = args.length == 3 && args[2] == 'shader-probe';
+  final missingPhysical = args.length == 3 && args[2] == 'missing-physical';
+  final retainedBrowser = args.length == 3 && args[2] == 'retained-browser';
+  final cacheProbe = args.length == 3 && args[2] == 'browser-cache';
+  final immutableProbe = args.length == 3 && args[2] == 'immutable-bundle';
+  final wasmProbe = args.length == 3 && args[2] == 'wasm';
+  final jsIsolated = args.length == 3 && args[2] == 'js-isolated';
+  final novelProbe = args.length == 3 && args[2] == 'novel-damped';
+  final nativeProbe =
+      args.length == 3 &&
+      [
+        'native-background',
+        'native-hidden',
+        'native-runtime',
+        'native-attach',
+        'native-dev',
+        'native-dev-cohort',
+        'native-capture-sck',
+        'native-input',
+        'native-window-state',
+        'native-toolkit',
+      ].contains(args[2]);
+  if (args.length == 3 &&
+      !multiView &&
+      !shaderProbe &&
+      !missingPhysical &&
+      !retainedBrowser &&
+      !nativeProbe &&
+      !immutableProbe &&
+      !wasmProbe &&
+      !jsIsolated &&
+      !novelProbe &&
+      !cacheProbe) {
+    throw ArgumentError('unsupported qualification scenario');
+  }
+  final project = Directory(args[0]).resolveSymbolicLinksSync();
+  final output = Directory(args[1]).absolute;
+  if (FileSystemEntity.typeSync(output.path, followLinks: false) !=
+      FileSystemEntityType.notFound) {
+    throw StateError('Refusing existing evidence path: ${output.path}');
+  }
+  output.createSync(recursive: true);
+  final worker = File.fromUri(
+    Platform.script.resolve(nativeProbe ? 'native_worker.dart' : 'worker.dart'),
+  ).absolute.path;
+  final packages = File.fromUri(
+    Platform.script.resolve('../.dart_tool/package_config.json'),
+  ).absolute.path;
+  final argv = [
+    '--packages=$packages',
+    worker,
+    project,
+    '$project/build/web',
+    output.path,
+    if (args.length == 3) args[2],
+  ];
+  final spec = ComponentSpec(
+    id: cacheProbe
+        ? 'visualization-browser-cache'
+        : nativeProbe
+        ? 'visualization-${args[2]}'
+        : retainedBrowser
+        ? 'visualization-retained-browser'
+        : multiView
+        ? 'visualization-multi-view'
+        : shaderProbe
+        ? 'visualization-shader-probe'
+        : missingPhysical
+        ? 'visualization-missing-physical'
+        : 'visualization-dogfood',
+    providerName: 'process',
+    readiness: const HandshakeLine(
+      pattern: 'visualization-dogfood-complete',
+      budget: Duration(minutes: 3),
+    ),
+    policy: SupervisionPolicy(
+      shape: SupervisionShape.job,
+      maxRestarts: 1,
+      revision: 1,
+    ),
+    env: {
+      'command': Platform.resolvedExecutable,
+      'args-json': jsonEncode(argv),
+    },
+  );
+  final desired = DesiredState(specs: [spec]);
+  await File('${output.path}/plan.json')
+      .writeAsString(const SpecCodec().encode(desired));
+  final supervisor = Supervisor(
+    projectRoot: project,
+    registry: MachineRegistry(root: '${output.path}/supervisor'),
+  );
+  final provider = LeasedProcessProvider(
+    leaseId: spec.id,
+    command: ProcessCommand(Platform.resolvedExecutable, argv),
+    registry: ProcessLeaseRegistry.forProject(project),
+    runToExit: true,
+  );
+  final facts = JsonlEvidenceSink('${output.path}/facts.jsonl');
+  try {
+    final report = await supervisor.converge(
+      desired: desired,
+      factory: (_) => provider,
+      evidence: facts,
+    );
+    final snapshot = supervisor.registry.snapshot(supervisor.scope);
+    final statuses = projectStatus(snapshot: snapshot, desired: desired);
+    await File('${output.path}/status.json').writeAsString(
+      statusJson(statuses: statuses, corruptPaths: snapshot.corruptPaths),
+    );
+    await File('${output.path}/supervisor-result.json').writeAsString(
+      jsonEncode({
+        'ok': report.ok,
+        'started': report.started,
+        'failedStarts': report.failedStarts,
+        'report': report.describe(),
+      }),
+    );
+    if (!report.ok) throw StateError(report.describe());
+    final result = jsonDecode(
+      await File('${output.path}/result.json').readAsString(),
+    ) as Map;
+    if (result['passed'] != true)
+      throw StateError('Worker did not prove dogfood');
+  } finally {
+    await facts.close();
+  }
+}

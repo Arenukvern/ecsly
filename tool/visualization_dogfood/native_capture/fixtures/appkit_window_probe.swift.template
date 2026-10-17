@@ -1,0 +1,31 @@
+
+#if DEBUG
+extension MainFlutterWindow {
+  func installWindowProbe(controller: FlutterViewController) {
+    let channel = FlutterMethodChannel(name: "ecsly.preview.window",
+                                     binaryMessenger: controller.engine.binaryMessenger)
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard let window = self else { result(FlutterError(code: "window_closed", message: nil, details: nil)); return }
+      guard call.method == "describe" else { result(FlutterMethodNotImplemented); return }
+      result([
+        "schema": 1,
+        "windowNumber": window.windowNumber,
+        "isVisible": window.isVisible,
+        "isMiniaturized": window.isMiniaturized,
+        "isKeyWindow": window.isKeyWindow,
+        "isMainWindow": window.isMainWindow,
+        "isOnActiveSpace": window.isOnActiveSpace,
+        "appActive": NSApplication.shared.isActive,
+        "appHidden": NSApplication.shared.isHidden,
+        "appWindowCount": NSApplication.shared.windows.count,
+        "collectionBehavior": window.collectionBehavior.rawValue,
+        "windowLevel": window.level.rawValue,
+        "windowAccessibilityChildren": window.accessibilityChildren()?.count ?? 0,
+        "appAccessibilityWindows": NSApplication.shared.accessibilityWindows()?.count ?? 0,
+        "contentWidth": window.contentView?.bounds.width ?? 0,
+        "contentHeight": window.contentView?.bounds.height ?? 0
+      ])
+    }
+  }
+}
+#endif

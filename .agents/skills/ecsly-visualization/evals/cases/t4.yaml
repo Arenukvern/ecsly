@@ -1,0 +1,10 @@
+id: t4
+skill: ecsly-visualization
+routing: should_trigger
+input: "Build an interactive Flutter explainer without flutter_scene, shader hooks or a 3D engine. Reuse the resident ECS viewer and give the Oka verification route."
+rules:
+  - kind: body_includes_any
+    path: SKILL.md
+    terms: ["--renderer canvas", "PreviewViewportBuilder"]
+  - kind: file_exists
+    path: scripts/scaffold.dart

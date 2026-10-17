@@ -1,0 +1,67 @@
+{
+  "schema": 1,
+  "suite": "bounded routing and workflow guidance",
+  "frozenBeforePairedRun": true,
+  "cases": [
+    {
+      "id": "T1",
+      "split": "train",
+      "routing": "should_trigger",
+      "prompt": "I need a reusable Flutter dependency-graph explainer with a selection detail, camera controls and a paused first render. Give the concrete scaffold and verification route for an owned output directory.",
+      "criteria": [
+        "Use repository-owned scaffold/example instead of an orphan scratch template.",
+        "Use one ECS world with typed selectors/actions.",
+        "Verify actual pixels and effects in addition to contracts.",
+        "Give supported scaffold options and distinguish Flutter executable from SDK root."
+      ]
+    },
+    {
+      "id": "T2",
+      "split": "train",
+      "routing": "should_trigger",
+      "prompt": "A remote data revision must update my Flutter preview while I keep typing in another macOS app. Outline the update and verification contract without shifting focus.",
+      "criteria": [
+        "Use resident apply with requestId and expectedRevision.",
+        "Preserve camera/selection/runtime identity and avoid recompilation for data.",
+        "Use background/nonactivating policy and one injected frame request.",
+        "Keep native pixel/idle failures unqualified and separate effect from delivery."
+      ]
+    },
+    {
+      "id": "T3",
+      "split": "train",
+      "routing": "should_not_trigger",
+      "prompt": "Make an inline HTML visualization in this conversation explaining exponential decay. I have no Flutter host. Which rendering path should be used?",
+      "criteria": [
+        "Route to visualize rather than Flutter scaffolding.",
+        "Do not claim an ordinary Flutter build is an inline HTML fragment.",
+        "Choose a useful quantitative plot and a parameter control.",
+        "Avoid spinning up an unnecessary browser/Flutter engine."
+      ]
+    },
+    {
+      "id": "H1",
+      "split": "held_out",
+      "routing": "should_trigger",
+      "prompt": "Embed two independent Flutter visualizations in my existing web page. I already own an action catalog. Update one scene, remove it, then remount it without changing the other. Give the lifecycle and addressing contract.",
+      "criteria": [
+        "Use public multi-view lifecycle with one engine and per-view worlds.",
+        "Address state/actions and preserve the host catalog; refuse ambiguity/collisions.",
+        "Unregister/dispose removed viewer and leave surviving runtime unchanged.",
+        "Use stable per-view checkpoint identity and distinguish new world from retained checkpoint."
+      ]
+    },
+    {
+      "id": "H2",
+      "split": "held_out",
+      "routing": "should_trigger",
+      "prompt": "I want every new Flutter visualization and code edit visible in milliseconds. What mechanism should we use, and what would prove that it is fast?",
+      "criteria": [
+        "Separate resident data updates from code edits and cold preparation.",
+        "Reuse retained Flutter/Oka development compiler sessions before proposing replacement engines.",
+        "Separate compiler, app state, scene readiness, completed frame and independent presentation clocks.",
+        "Do not promise millisecond cold startup or JS superiority without equivalent measured cohorts."
+      ]
+    }
+  ]
+}

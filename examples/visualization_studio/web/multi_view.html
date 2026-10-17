@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="en" data-ecsly-multi-view><head><base href="./">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resident visualization — shared engine</title>
+<style>
+body {margin:0;background:#ddd;font:14px system-ui;color:#202729;}
+header {padding:12px 20px;}
+main {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;padding:12px;}
+.viewer {width:100%;height:780px;overflow:hidden;position:relative;}
+</style></head><body>
+<header>One engine · independently addressed previews</header>
+<main><div class="viewer" data-ecsly-viewer="alpha"></div>
+<div class="viewer" data-ecsly-viewer="beta"></div></main>
+<script>window.__mcpActions = {host_probe: {description:"Embedding host action", schema:{type:"object"}, invoke:async () => "host"}};</script>
+<script src="flutter_bootstrap.js" async></script></body></html>

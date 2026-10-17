@@ -1,0 +1,12 @@
+{
+  "cases": [
+    {
+      "id": "H3",
+      "prompt": "My embedding host removed a Flutter preview and remounted a new preview using the same logical address. The old teardown callback arrives late. How should address ownership and checkpoints behave so the replacement stays usable?"
+    },
+    {
+      "id": "H4",
+      "prompt": "A Flutter scene update was acknowledged in 2 ms and its post-frame callback completed in 24 ms, but the captured image is still a spinner. Can I claim it is faster than an equivalent JS visualization? Give the next measurement and verification steps."
+    }
+  ]
+}

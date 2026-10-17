@@ -86,7 +86,11 @@ class _EcsResourceSelectorState<T extends Resource, R>
     if (!_hasValue) {
       return widget.whenAbsent ?? const SizedBox.shrink();
     }
-    return _lastChild ??= widget.builder(context, _lastValue as R);
+    // Cache the selected value's widget, but let its own BuildContext track
+    // Flutter dependencies (Theme, MediaQuery, localization) independently.
+    return _lastChild ??= Builder(
+      builder: (final context) => widget.builder(context, _lastValue as R),
+    );
   }
 
   @override

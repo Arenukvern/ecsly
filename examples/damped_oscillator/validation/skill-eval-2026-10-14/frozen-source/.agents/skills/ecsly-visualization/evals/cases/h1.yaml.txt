@@ -1,0 +1,10 @@
+id: h1
+skill: ecsly-visualization
+routing: should_trigger
+input: "Embed two independent Flutter visualizations in my existing web page. I already own an action catalog. Update one scene, remove it, then remount it without changing the other. Give the lifecycle and addressing contract."
+rules:
+  - kind: file_exists
+    path: references/evals.md
+  - kind: body_includes_any
+    path: SKILL.md
+    terms: ["viewerId", "MultiViewHost"]

@@ -1,0 +1,28 @@
+name: damped_lab
+description: A fixed-step damped oscillator laboratory.
+publish_to: none
+version: 1.0.0+1
+environment:
+  sdk: ^3.11.0
+dependencies:
+  flutter:
+    sdk: flutter
+  ecsly:
+    path: /Users/antonio/xs/ecsly/core_packages/ecsly
+  ecsly_app:
+    path: /Users/antonio/xs/ecsly/core_packages/ecsly_app
+  ecsly_flutter:
+    path: /Users/antonio/xs/ecsly/core_packages/ecsly_flutter
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+flutter:
+  uses-material-design: true
+dependency_overrides:
+  ecsly:
+    path: /Users/antonio/xs/ecsly/core_packages/ecsly
+  ecsly_app:
+    path: /Users/antonio/xs/ecsly/core_packages/ecsly_app
+  ecsly_flutter:
+    path: /Users/antonio/xs/ecsly/core_packages/ecsly_flutter

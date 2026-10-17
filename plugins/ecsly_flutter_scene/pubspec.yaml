@@ -18,7 +18,7 @@ dependencies:
   ecsly_flutter: ^0.1.0-dev.4
   flutter:
     sdk: flutter
-  flutter_scene: ^0.23.0
+  flutter_scene: ^0.24.3
   vector_math: ^2.1.4
 
 dev_dependencies:
