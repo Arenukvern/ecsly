@@ -4,7 +4,7 @@
 *.tmp
 *.log
 pubspec.lock
-
+.codemap/
 # Dart and Flutter build state
 **/.dart_tool/
 **/.flutter-plugins-dependencies
