@@ -2,9 +2,9 @@
 
 ## Goal
 
-Generate typed-column `ColumnFactory` and `FacadeFactory` boilerplate for
-`ecsly` extension components. Keep runtime hot paths free of analyzer/build
-dependencies.
+Generate typed-column `ColumnFactory`, `FacadeFactory`, and one-call
+`Registration` boilerplate for `ecsly` extension components. Keep runtime hot
+paths free of analyzer/build dependencies.
 
 ## Package boundary
 
@@ -15,19 +15,19 @@ dependencies.
 ## Consumer workflow (full path)
 
 1. Add `ecsly` + `ecsly_codegen` to `dependencies`; `build_runner` to `dev_dependencies`.
-2. Annotate `abstract final class XComponent extends Component`.
+2. Annotate `abstract final class XComponent extends Component` under `lib/`.
 3. Hand-write `extension type` facade.
 4. Add `part 'x.ecs.g.dart';` and run `dart run build_runner build`.
-5. Register: `world.components.registerExtension<XComponent, X>(...)`.
+5. Register: `XRegistration.register(world)` (or manual `registerExtension`).
 
 See [DX_FAQ.md](DX_FAQ.md) for setup, troubleshooting, and codegen vs manual.
 
 ## When to use / not use
 
-| Use codegen | Hand-write |
-|-------------|------------|
-| `FloatColumn` / `IntColumn` / `Uint8Column` | `ObjectColumn` |
-| Standard factory wiring | Custom column logic |
+| Use codegen                                 | Hand-write          |
+| ------------------------------------------- | ------------------- |
+| `FloatColumn` / `IntColumn` / `Uint8Column` | `ObjectColumn`      |
+| Standard factory wiring                     | Custom column logic |
 
 ## Compatibility
 

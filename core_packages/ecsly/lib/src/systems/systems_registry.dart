@@ -1,6 +1,7 @@
 import '../errors/ecs_errors.dart';
 import '../plugins/plugin_registry.dart';
 import 'schedule.dart';
+import 'schedule_id.dart';
 import 'schedule_trigger.dart';
 import 'system_executor.dart';
 
@@ -41,8 +42,12 @@ class SystemsRegistry {
 
   /// Create a new schedule.
   ///
-  /// Throws [EcsStateError] if a schedule with the same name already exists.
-  Schedule createSchedule(final String name, {final ScheduleTrigger? trigger}) {
+  /// Throws [EcsStateError] if a schedule with the same id already exists.
+  Schedule createSchedule(
+    final ScheduleId id, {
+    final ScheduleTrigger? trigger,
+  }) {
+    final name = id.value;
     if (_schedules.containsKey(name)) {
       throw EcsStateError('Schedule "$name" already exists');
     }
@@ -61,38 +66,39 @@ class SystemsRegistry {
   ///
   /// If the schedule exists, returns it. Otherwise, creates a new one.
   Schedule getOrCreateSchedule(
-    final String name, {
+    final ScheduleId id, {
     final ScheduleTrigger? trigger,
   }) {
-    if (_schedules.containsKey(name)) {
-      return _schedules[name]!;
+    final existing = _schedules[id.value];
+    if (existing != null) {
+      return existing;
     }
-    return createSchedule(name, trigger: trigger);
+    return createSchedule(id, trigger: trigger);
   }
 
-  /// Get a schedule by name.
+  /// Get a schedule by id.
   ///
   /// Throws [EcsStateError] if the schedule doesn't exist.
-  Schedule getSchedule(final String name) {
-    final schedule = _schedules[name];
+  Schedule getSchedule(final ScheduleId id) {
+    final schedule = _schedules[id.value];
     if (schedule == null) {
-      throw EcsStateError('Schedule "$name" not found');
+      throw EcsStateError('Schedule "${id.value}" not found');
     }
     return schedule;
   }
 
   /// Check if a schedule exists.
-  bool hasSchedule(final String name) => _schedules.containsKey(name);
+  bool hasSchedule(final ScheduleId id) => _schedules.containsKey(id.value);
 
-  /// Remove a schedule by name.
+  /// Remove a schedule by id.
   ///
   /// Returns true if a schedule was removed, false otherwise.
-  bool removeSchedule(final String name) {
-    final removed = _schedules.remove(name);
+  bool removeSchedule(final ScheduleId id) {
+    final removed = _schedules.remove(id.value);
     _schedulesNames = null;
     return removed != null;
   }
 
-  /// Get a schedule by name, or null if it doesn't exist.
-  Schedule? tryGetSchedule(final String name) => _schedules[name];
+  /// Get a schedule by id, or null if it doesn't exist.
+  Schedule? tryGetSchedule(final ScheduleId id) => _schedules[id.value];
 }

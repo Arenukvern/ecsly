@@ -70,6 +70,16 @@ class EventRegistry {
   bool hasRegistered<T extends EcsEvent>() =>
       world.resources.has<EventChannel<T>>();
 
+  /// Watermark stats for channel T (must be registered).
+  ///
+  /// See [EventChannel.stats] for the invariant. Example test assertion:
+  ///
+  /// ```dart
+  /// final s = world.events.stats<ToolResultEvent>();
+  /// expect(s.isConsistent, isTrue);
+  /// ```
+  EventChannelStats stats<T extends EcsEvent>() => channel<T>().stats;
+
   /// Create an event reader for type T.
   ///
   /// The event channel must be explicitly registered first using [register<T>()].

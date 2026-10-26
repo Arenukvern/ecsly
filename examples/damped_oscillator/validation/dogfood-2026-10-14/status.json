@@ -1,0 +1,19 @@
+{
+  "statuses": [
+    {
+      "componentId": "visualization-dogfood",
+      "present": true,
+      "provider": "process",
+      "shape": "job",
+      "killPolicy": "spawned",
+      "epoch": 1,
+      "restartCount": 0,
+      "revisionHash": "2b253accd51b",
+      "desiredRevisionHash": "2b253accd51b",
+      "lastRun": "succeeded",
+      "trigger": "none",
+      "drifted": false
+    }
+  ],
+  "corruptRecords": []
+}

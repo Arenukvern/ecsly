@@ -1,0 +1,401 @@
+import 'package:ecsly_flutter/ecsly_flutter.dart';
+import 'package:flutter/material.dart';
+import 'browser_state.dart';
+import 'model.dart';
+
+const ink = Color(0xFFE6EEF1);
+const teal = Color(0xFF67E2C4);
+const amber = Color(0xFFFFC77C);
+
+void main() => runApp(const OscillatorApp());
+
+class OscillatorApp extends StatefulWidget {
+  const OscillatorApp({super.key});
+  @override
+  State<OscillatorApp> createState() => _OscillatorAppState();
+}
+
+class _OscillatorAppState extends State<OscillatorApp> {
+  final world = World();
+  late final EcsController controller;
+  Oscillator get model => world.getResource<Oscillator>();
+  @override
+  void initState() {
+    super.initState();
+    world.upsertResource(Oscillator());
+    world.flush();
+    controller = EcsController(world: world);
+    exposeState(() => model.snapshot());
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  void act(void Function(Oscillator) change) => controller.runTransaction(
+    (world) => change(world.getResource<Oscillator>()),
+  );
+
+  @override
+  Widget build(BuildContext context) => MaterialApp(
+    debugShowCheckedModeBanner: false,
+    title: 'Damped / Motion laboratory',
+    theme: ThemeData(
+      brightness: Brightness.dark,
+      scaffoldBackgroundColor: const Color(0xFF101C25),
+      colorScheme: const ColorScheme.dark(primary: teal, secondary: amber),
+      fontFamily: 'sans-serif',
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+    ),
+    home: EcsScope(
+      world: world,
+      controller: controller,
+      child: AnimatedBuilder(
+        animation: controller,
+        builder: (context, _) {
+          final m = model;
+          final selected = m.samples[m.selectedIndex];
+          return Scaffold(
+            body: SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1240),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'MOTION LAB  /  01',
+                          style: TextStyle(
+                            color: teal,
+                            letterSpacing: 3,
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        const Text(
+                          'Where motion goes',
+                          style: TextStyle(
+                            fontSize: 38,
+                            fontWeight: FontWeight.w700,
+                            color: ink,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'A damped oscillator · Watch friction draw energy out of a spring.',
+                          style: TextStyle(
+                            fontSize: 17,
+                            color: Color(0xFFABBCC6),
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: [
+                            FilledButton(
+                              onPressed: () => act((m) => m.step()),
+                              child: const Text('Step 1/60 s'),
+                            ),
+                            OutlinedButton(
+                              onPressed: () => act((m) => m.reset(0)),
+                              child: const Text('Undamped'),
+                            ),
+                            OutlinedButton(
+                              onPressed: () => act((m) => m.reset(.3)),
+                              child: const Text('Light damping'),
+                            ),
+                            OutlinedButton(
+                              onPressed: () => act((m) => m.reset(1.2)),
+                              child: const Text('Overdamped'),
+                            ),
+                            OutlinedButton(
+                              onPressed: () => act((m) => m.reset()),
+                              child: const Text('Reset'),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Wrap(
+                          spacing: 24,
+                          runSpacing: 12,
+                          children: [
+                            readout(
+                              'PAUSED · TIME',
+                              '${m.current.time.toStringAsFixed(3)} s',
+                            ),
+                            readout(
+                              'DAMPING RATIO ζ',
+                              m.damping.toStringAsFixed(1),
+                            ),
+                            readout(
+                              'DISPLACEMENT',
+                              '${m.current.x.toStringAsFixed(3)} m',
+                            ),
+                            readout(
+                              'VELOCITY',
+                              '${m.current.v.toStringAsFixed(3)} m/s',
+                            ),
+                            readout(
+                              'ENERGY · UNIT MASS',
+                              '${m.current.energy.toStringAsFixed(3)} J',
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final charts = [
+                              plotCard(m, false),
+                              plotCard(m, true),
+                            ];
+                            return constraints.maxWidth < 780
+                                ? Column(
+                                    children: [
+                                      charts[0],
+                                      const SizedBox(height: 16),
+                                      charts[1],
+                                    ],
+                                  )
+                                : Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(child: charts[0]),
+                                      const SizedBox(width: 16),
+                                      Expanded(child: charts[1]),
+                                    ],
+                                  );
+                          },
+                        ),
+                        const SizedBox(height: 20),
+                        Wrap(
+                          spacing: 18,
+                          runSpacing: 12,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            FilledButton.tonal(
+                              onPressed: () => act((m) => m.nextSample()),
+                              child: const Text('Next sample'),
+                            ),
+                            Text(
+                              'Sample ${m.selectedIndex}',
+                              style: const TextStyle(
+                                color: amber,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                            Text(
+                              't ${selected.time.toStringAsFixed(3)} s  ·  x ${selected.x.toStringAsFixed(3)} m  ·  v ${selected.v.toStringAsFixed(3)} m/s',
+                              style: const TextStyle(color: ink),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        const Text(
+                          'THE RULE',
+                          style: TextStyle(
+                            color: teal,
+                            letterSpacing: 2,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        const Text(
+                          'x″ + 2ζωx′ + ω²x = 0    ·    ω = 2π rad/s',
+                          style: TextStyle(fontSize: 19, color: ink),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          m.damping == 0
+                              ? 'No damping: energy cycles between motion and spring stretch.'
+                              : m.damping < 1
+                              ? 'Light damping: each oscillation shrinks as energy dissipates.'
+                              : 'Overdamped: the spring approaches rest without oscillating.',
+                          style: const TextStyle(
+                            color: Color(0xFFABBCC6),
+                            fontSize: 15,
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Curves preview four seconds from x = 1 m, v = 0 m/s. Amber rings link the same observation in both plots; white dots show the current model. Next sample explores the curve without advancing time.',
+                          style: TextStyle(
+                            color: Color(0xFFABBCC6),
+                            height: 1.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    ),
+  );
+
+  Widget readout(String label, String value) => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Text(
+        label,
+        style: const TextStyle(
+          color: Color(0xFF8FA6B5),
+          fontSize: 11,
+          letterSpacing: 1,
+        ),
+      ),
+      const SizedBox(height: 6),
+      Text(value, style: const TextStyle(fontSize: 23, color: ink)),
+    ],
+  );
+  Widget plotCard(Oscillator m, bool phase) => Container(
+    padding: const EdgeInsets.all(16),
+    decoration: BoxDecoration(
+      color: const Color(0xFF172A36),
+      borderRadius: BorderRadius.circular(18),
+      border: Border.all(color: const Color(0xFF304653)),
+    ),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          phase ? '02  /  Phase portrait' : '01  /  Displacement over time',
+          style: const TextStyle(
+            fontSize: 18,
+            color: ink,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          phase
+              ? 'Velocity (m/s) versus displacement (m)'
+              : 'Displacement (m) versus time (s)',
+          style: const TextStyle(color: Color(0xFFABBCC6), fontSize: 13),
+        ),
+        const SizedBox(height: 12),
+        Semantics(
+          label: phase
+              ? 'Velocity versus displacement plot. Selected sample ${m.selectedIndex}.'
+              : 'Displacement versus time plot. Selected sample ${m.selectedIndex}.',
+          child: SizedBox(
+            height: 280,
+            width: double.infinity,
+            child: CustomPaint(
+              painter: OscillatorPainter(
+                List.of(m.samples),
+                m.current,
+                m.selectedIndex,
+                phase,
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+class OscillatorPainter extends CustomPainter {
+  OscillatorPainter(this.samples, this.current, this.selected, this.phase);
+  final List<Observation> samples;
+  final Observation current;
+  final int selected;
+  final bool phase;
+  void label(Canvas c, String text, Offset at, {Color color = ink}) {
+    final p = TextPainter(
+      text: TextSpan(
+        text: text,
+        style: TextStyle(color: color, fontSize: 12),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    p.paint(c, at);
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final area = Rect.fromLTRB(44, 14, size.width - 16, size.height - 44);
+    final xmin = phase ? -1.1 : 0.0;
+    final xmax = phase ? 1.1 : 4.0;
+    final ymin = phase ? -7.0 : -1.1;
+    final ymax = phase ? 7.0 : 1.1;
+    Offset map(double x, double y) => Offset(
+      area.left + (x - xmin) / (xmax - xmin) * area.width,
+      area.bottom - (y - ymin) / (ymax - ymin) * area.height,
+    );
+    Offset point(Observation o) => map(phase ? o.x : o.time, phase ? o.v : o.x);
+    final grid = Paint()
+      ..color = const Color(0xFF304653)
+      ..strokeWidth = 1;
+    for (var i = 0; i <= 4; i++) {
+      final x = xmin + i * (xmax - xmin) / 4;
+      final y = ymin + i * (ymax - ymin) / 4;
+      canvas.drawLine(map(x, ymin), map(x, ymax), grid);
+      canvas.drawLine(map(xmin, y), map(xmax, y), grid);
+      label(
+        canvas,
+        x.toStringAsFixed(phase ? 1 : 0),
+        Offset(map(x, ymin).dx - 7, area.bottom + 8),
+      );
+      label(canvas, y.toStringAsFixed(1), Offset(0, map(xmin, y).dy - 6));
+    }
+    final axes = Paint()
+      ..color = const Color(0xFF7994A5)
+      ..strokeWidth = 1.3;
+    canvas.drawLine(map(xmin, 0), map(xmax, 0), axes);
+    if (phase) {
+      canvas.drawLine(map(0, ymin), map(0, ymax), axes);
+    }
+    canvas.save();
+    canvas.clipRect(area);
+    final path = Path()
+      ..moveTo(point(samples.first).dx, point(samples.first).dy);
+    for (final s in samples.skip(1)) {
+      path.lineTo(point(s).dx, point(s).dy);
+    }
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = teal
+        ..strokeWidth = 2.5
+        ..style = PaintingStyle.stroke,
+    );
+    canvas.drawCircle(
+      point(samples[selected]),
+      7,
+      Paint()
+        ..color = amber
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 3,
+    );
+    canvas.drawCircle(point(current), 3.5, Paint()..color = Colors.white);
+    canvas.restore();
+    label(
+      canvas,
+      phase ? 'Displacement (m)' : 'Time (s)',
+      Offset(area.left + area.width / 2 - 45, size.height - 16),
+    );
+    label(canvas, phase ? 'v (m/s)' : 'x (m)', const Offset(2, 0), color: teal);
+  }
+
+  @override
+  bool shouldRepaint(covariant OscillatorPainter oldDelegate) => true;
+}

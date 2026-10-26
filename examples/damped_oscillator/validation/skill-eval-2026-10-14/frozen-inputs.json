@@ -1,0 +1,21 @@
+{
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/SKILL.md": "ecda6b12503f24ba6d9ad094310681ff3f4b412dc2549ebf4ca42cbabbbc3d9f",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/evals/agent_input.json": "7ca7cccc955958f584e477e013e5508733a788136e8c485dc9c54bbf90ed42f4",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/evals/cases/h1.yaml": "c12f3a00ba9ab0ec20510539673a77b1721e6747f4d6e697e94a4c9bb05a12ea",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/evals/cases/h2.yaml": "88b22dfa0a51f0ef2794e9530cd81e406b7a94fcd22d3426cc8d3dba1b590d12",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/evals/cases/t1.yaml": "11666a1fb7dcb2c096b3b80941b410cc87e0ac63c76e5690a150ab3e479b55cf",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/evals/cases/t2.yaml": "443c1acca011469eb865ae1633c3d2d6f0d026b4a5fdfa2067b50eaee9e7e183",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/evals/cases/t3.yaml": "897441ce827c117cb31b238b225c64513cad49d58033d7d3253622a2aa89f21c",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/evals/cases/t4.yaml": "591881fc60a90087a5ccb92d5ee29a47453233fbe0c4be8f3f995fcf93dfef8e",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/evals/held_out.json": "b01a5a8dd5f26ff001382abf0fd5c6dd39fdebd9148d8786974589252609d47e",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/evals/held_out_agent_input.json": "6578ba8cab0171774ef5115caaf12eb39d946d11888b99b7382c3b2b7af3930f",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/evals/prompts.json": "dfc344fb4d7ad9556d5aed12fbc96138c539b339f7b0d11b76ff97c02883f6e6",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/references/evals.md": "6bbf24357813dd454894eea4a1565afc4cfb61f140c7240f16803568375f6f46",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/references/rendering.md": "89b0b2aa7a9da27927773ad01ca48fa3e5b262034b0b0419373ac116423980cc",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/references/sources.md": "975ede1495f58c0d5e8c7661bc3aeeb2c05efa04da620be01ae9136b8476b4fd",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/references/verification.md": "36da962ef5753511711d5a659e73578dd6b6818c66c82044f33c792018394c20",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/references/workflow.md": "d2984fb283d6a6a335a34bf7be13ba5f71e7647bee2ded9f4f3f00b97be16419",
+  "/Users/antonio/xs/ecsly/.agents/skills/ecsly-visualization/scripts/scaffold.dart": "d5de1f5cdb9220423382a0066ca54facc1fb01b7c553b7337d549502539a7bf2",
+  "/Users/antonio/xs/ecsly/tool/visualization_dogfood/output/novel-skill-2026-10-14/prompt.txt": "25d785fec4de9bc9165664e1356f264a15af75d14bc4cee93104bb24d00d40af",
+  "/Users/antonio/xs/ecsly/tool/visualization_dogfood/output/novel-skill-2026-10-14/rubric.json": "4e2a7887b7e6eb0cac802ea9016788a6be2a25e82a0a267d8c5113b7764f2b77"
+}

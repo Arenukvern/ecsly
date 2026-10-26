@@ -124,23 +124,28 @@ void main() {
         expect(world.getResourceById<_R1>(rid), isNull);
 
         final ran = <String>[];
-        world.createSchedule('A').add((final w) => ran.add('A'));
-        expect(world.hasSchedule('A'), isTrue);
-        expect(world.schedule('A').name, 'A');
-        world.runSchedule('A');
+        world
+            .createSchedule(const ScheduleId('A'))
+            .add((final w) => ran.add('A'));
+        expect(world.hasSchedule(const ScheduleId('A')), isTrue);
+        expect(world.schedule(const ScheduleId('A')).name, 'A');
+        world.runSchedule(const ScheduleId('A'));
         expect(ran, ['A']);
 
-        await world.runScheduleAsync('A');
+        await world.runScheduleAsync(const ScheduleId('A'));
         expect(ran, ['A', 'A']);
 
         world.runSystem((final w) => ran.add('sys'));
         await world.runSystemAsync((final w) async => ran.add('asyncSys'));
         expect(ran, containsAllInOrder(['sys', 'asyncSys']));
 
-        final b = world.getOrCreateSchedule('B', trigger: const EveryFrame());
+        final b = world.getOrCreateSchedule(
+          const ScheduleId('B'),
+          trigger: const EveryFrame(),
+        );
         expect(b.name, 'B');
-        expect(world.removeSchedule('B'), isTrue);
-        expect(world.removeSchedule('B'), isFalse);
+        expect(world.removeSchedule(const ScheduleId('B')), isTrue);
+        expect(world.removeSchedule(const ScheduleId('B')), isFalse);
 
         var installs = 0;
         var uninstalls = 0;

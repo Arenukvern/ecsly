@@ -88,16 +88,17 @@ for (final (_, counter) in world.queryMut<CounterComponent>()) {
 }
 ```
 
-Put logic into a schedule when you want named update stages:
+Put logic into a schedule when you want named update stages. Schedules are
+addressed by `ScheduleId` constants, not raw strings:
 
 ```dart
-world.createSchedule('Update').add((world) {
+world.createSchedule(ScheduleId.update).add((world) {
   for (final (_, counter) in world.queryMut<CounterComponent>()) {
     counter.value += 1;
   }
 });
 
-world.runSchedule('Update');
+world.runSchedule(ScheduleId.update);
 world.flush();
 ```
 
@@ -289,14 +290,14 @@ Recorded environment: MacBook Air (M2, 2022), 8 GB RAM, macOS, Dart `3.12.1`,
 8 processors. Treat these as machine-specific evidence, not universal
 guarantees.
 
-| Metric | Recorded result | Signal |
-|---|---:|---|
-| Mutable typed-column query | 66.0M ops/sec | low-GC in-place mutation |
-| Raw chunk query | 53.8M ops/sec | strongest hot query path |
-| Render-packet-like extract | 72.9M ops/sec | prototype-style packet extraction |
-| 20k game-frame p95 | 893 us | frame-shaped ECS update + extract |
-| Command flush | 4.1M ops/sec | structural/object-component bottleneck signal |
-| Spawn/despawn churn | 2.5M ops/sec | frame-style entity lifecycle pressure |
+| Metric                     | Recorded result | Signal                                        |
+| -------------------------- | --------------: | --------------------------------------------- |
+| Mutable typed-column query |   66.0M ops/sec | low-GC in-place mutation                      |
+| Raw chunk query            |   53.8M ops/sec | strongest hot query path                      |
+| Render-packet-like extract |   72.9M ops/sec | prototype-style packet extraction             |
+| 20k game-frame p95         |          893 us | frame-shaped ECS update + extract             |
+| Command flush              |    4.1M ops/sec | structural/object-component bottleneck signal |
+| Spawn/despawn churn        |    2.5M ops/sec | frame-style entity lifecycle pressure         |
 
 Generate a local report:
 

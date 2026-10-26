@@ -1,0 +1,27 @@
+name: ecsly_damped_oscillator
+description: A scene-free ECS visualization with linked time and phase plots.
+publish_to: none
+version: 0.1.0
+environment:
+  sdk: ^3.13.4
+  flutter: ">=3.47.0"
+dependencies:
+  flutter:
+    sdk: flutter
+  ecsly_flutter:
+    path: ../../core_packages/ecsly_flutter
+dependency_overrides:
+  ecsly:
+    path: ../../core_packages/ecsly
+  ecsly_app:
+    path: ../../core_packages/ecsly_app
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: PreviewRoboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf

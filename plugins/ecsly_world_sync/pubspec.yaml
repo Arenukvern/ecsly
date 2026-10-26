@@ -1,0 +1,30 @@
+name: ecsly_world_sync
+description: >-
+  World-sync plugin for ecsly worlds: converts world event-channel events and
+  component deltas into convergence-kernel ops, and folds remote ops back into
+  a world-state projection. Consumes the convergence kernel (ADR 0011) and the
+  shared anti-entropy session core (ADR 0004); merge strategy and compaction
+  policy are chosen here, never hand-rolled.
+version: 0.1.0-dev.1
+homepage: https://github.com/arenukvern/ecsly/plugins/ecsly_world_sync
+
+environment:
+  sdk: ">=3.12.0 <4.0.0"
+
+resolution: workspace
+
+dependencies:
+  meta: ^1.19.0
+  universal_storage_convergence: ^0.1.0-dev.1
+  universal_storage_convergence_session: ^0.1.0-dev.1
+
+# The kernel, session core, world layer, and mesh radio are all published
+# (0.1.0-dev.1, 2026-10-12); the bootstrap path overrides this workspace
+# carried until then (convergence + session + mesh_transport here, world in
+# ecsly_world_zones) are removed. The declared dependencies above are the
+# long-term contract.
+
+dev_dependencies:
+  lints: ^6.1.0
+  test: ^1.25.8
+  xsoulspace_lints: ^0.1.2

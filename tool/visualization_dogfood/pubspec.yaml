@@ -1,0 +1,15 @@
+name: ecsly_visualization_dogfood
+publish_to: none
+environment:
+  sdk: ^3.13.4
+dependencies:
+  flutter_mcp_harness: ^7.0.0
+  yaml: ^3.1.2
+  crypto: ^3.0.7
+  oka_dart_kernel: ^0.0.1
+  oka_core: ^0.6.0
+  oka_web: ^0.6.0
+  oka_supervisor: ^0.6.0
+  resource_composition: ^0.6.0
+  universal_browser_cdp: ^0.3.0
+  universal_automation_interface: ^0.2.0

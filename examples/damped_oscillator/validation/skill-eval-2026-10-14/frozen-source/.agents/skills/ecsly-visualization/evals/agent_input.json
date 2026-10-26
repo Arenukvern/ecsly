@@ -1,0 +1,24 @@
+{
+  "cases": [
+    {
+      "id": "T1",
+      "prompt": "I need a reusable Flutter dependency-graph explainer with a selection detail, camera controls and a paused first render. Give the concrete scaffold and verification route for an owned output directory."
+    },
+    {
+      "id": "T2",
+      "prompt": "A remote data revision must update my Flutter preview while I keep typing in another macOS app. Outline the update and verification contract without shifting focus."
+    },
+    {
+      "id": "T3",
+      "prompt": "Make an inline HTML visualization in this conversation explaining exponential decay. I have no Flutter host. Which rendering path should be used?"
+    },
+    {
+      "id": "H1",
+      "prompt": "Embed two independent Flutter visualizations in my existing web page. I already own an action catalog. Update one scene, remove it, then remount it without changing the other. Give the lifecycle and addressing contract."
+    },
+    {
+      "id": "H2",
+      "prompt": "I want every new Flutter visualization and code edit visible in milliseconds. What mechanism should we use, and what would prove that it is fast?"
+    }
+  ]
+}

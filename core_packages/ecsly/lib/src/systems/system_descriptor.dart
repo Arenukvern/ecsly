@@ -1,5 +1,3 @@
-import 'isolate_config.dart';
-import 'parallel_systems.dart';
 import 'system.dart';
 
 /// {@template system_descriptor}
@@ -12,22 +10,15 @@ class SystemDescriptor {
   /// {@macro system_descriptor}
   const SystemDescriptor({
     required this.system,
-    this.jobSystem,
     this.name,
     this.runAfter = const [],
     this.runBefore = const [],
     this.canRunInParallel = false,
     this.mode = ExecutionMode.sync,
-    this.isolateConfig,
   });
 
   /// The system function to execute
   final System system;
-
-  /// Optional certified job system used by async schedules.
-  ///
-  /// Sync schedule execution falls back to [runSerial] semantics.
-  final ParallelJobSystem? jobSystem;
 
   /// Optional name for the system (used for dependencies)
   final String? name;
@@ -44,29 +35,20 @@ class SystemDescriptor {
   /// How this system should be executed
   final ExecutionMode mode;
 
-  /// Configuration for isolate execution.
-  ///
-  /// This is only used by the current non-production isolate placeholder path.
-  final IsolateConfig? isolateConfig;
-
   /// Create a copy with updated values
   SystemDescriptor copyWith({
     final System? system,
-    final ParallelJobSystem? jobSystem,
     final String? name,
     final List<String>? runAfter,
     final List<String>? runBefore,
     final bool? canRunInParallel,
     final ExecutionMode? mode,
-    final IsolateConfig? isolateConfig,
   }) => SystemDescriptor(
     system: system ?? this.system,
-    jobSystem: jobSystem ?? this.jobSystem,
     name: name ?? this.name,
     runAfter: runAfter ?? this.runAfter,
     runBefore: runBefore ?? this.runBefore,
     canRunInParallel: canRunInParallel ?? this.canRunInParallel,
     mode: mode ?? this.mode,
-    isolateConfig: isolateConfig ?? this.isolateConfig,
   );
 }

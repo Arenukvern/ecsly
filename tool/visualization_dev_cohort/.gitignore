@@ -1,0 +1,5 @@
+.dart_tool/
+pubspec_overrides.yaml
+pubspec.lock
+lib/oka_dev_binding.dart
+output/

@@ -1,0 +1,8 @@
+id: t2
+skill: flutter-design-loop
+routing: should_trigger
+input: "Check the release web build of this animated Flutter view with CDP. Use a scene only if depth matters. Oka is optional."
+rules:
+  - kind: body_includes_any
+    path: SKILL.md
+    terms: ["universal_browser_cdp", "ecsly_flutter_scene"]

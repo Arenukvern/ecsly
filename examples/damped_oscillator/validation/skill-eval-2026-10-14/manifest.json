@@ -1,0 +1,402 @@
+[
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/prompt.txt",
+    "archive": "prompt.txt",
+    "sha256": "25d785fec4de9bc9165664e1356f264a15af75d14bc4cee93104bb24d00d40af"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/rubric.json",
+    "archive": "rubric.json",
+    "sha256": "4e2a7887b7e6eb0cac802ea9016788a6be2a25e82a0a267d8c5113b7764f2b77"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-inputs.json",
+    "archive": "frozen-inputs.json",
+    "sha256": "9dfcfc3e19ba68fe24886ddc3811f29430832642012008e357792e740415c7bc"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/oracle-inputs.json",
+    "archive": "oracle-inputs.json",
+    "sha256": "41a60bc3511c7d97f0f08638ec7af9b8111dddffc5551086e98e038a0a83c292"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/archived-inputs.json",
+    "archive": "archived-inputs.json",
+    "sha256": "d4960530ff08afe70ab8b106b0ec9e51ea0f9f3ba6bd1bd35188c07c6aa4d2ac"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/lib/browser_state_web.dart",
+    "archive": "baseline/lib/browser_state_web.dart.txt",
+    "sha256": "a2990a76e8d81350d0237423852d0de45853f44cc2ef57acc9cc23bdd227a79d"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/lib/browser_state_stub.dart",
+    "archive": "baseline/lib/browser_state_stub.dart.txt",
+    "sha256": "d14efc3c0732f2a875894e2d10cf6a6c3362d93b9c2b0e8bef25dd7008535f26"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/lib/main.dart",
+    "archive": "baseline/lib/main.dart.txt",
+    "sha256": "b4f77a4ffd604dfb2ccce537434b2d107f47515403031b1650212e9bd16f52a1"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/lib/model.dart",
+    "archive": "baseline/lib/model.dart.txt",
+    "sha256": "7da54ffa822de0a959b43fae529445b347e88b46a546382a34183982b9c29209"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/lib/browser_state.dart",
+    "archive": "baseline/lib/browser_state.dart.txt",
+    "sha256": "39f5ba9908f070f3b39ca39806d519bdb21fb4d0645d4c61da4c389071ec5ae5"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/test/model_test.dart",
+    "archive": "baseline/test/model_test.dart.txt",
+    "sha256": "a740ff662d88895112e4d1cc734f8bd2567e10c3395dffd6825630ae66c07a17"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/web/index.html",
+    "archive": "baseline/web/index.html",
+    "sha256": "7189b6f247137194e2e0219b71582461b462d916bb7a13e4693a46c8c44cb7cd"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/web/favicon.png",
+    "archive": "baseline/web/favicon.png",
+    "sha256": "7ab2525f4b86b65d3e4c70358a17e5a1aaf6f437f99cbcc046dad73d59bb9015"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/web/manifest.json",
+    "archive": "baseline/web/manifest.json",
+    "sha256": "dd1856f4ba5ff80bef5ac4a6087dda894ecd9f74cae1442487dcbac723bbaf51"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/web/icons/Icon-192.png",
+    "archive": "baseline/web/icons/Icon-192.png",
+    "sha256": "3dce99077602f70421c1c6b2a240bc9b83d64d86681d45f2154143310c980be3"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/web/icons/Icon-maskable-192.png",
+    "archive": "baseline/web/icons/Icon-maskable-192.png",
+    "sha256": "d2c842e22a9f4ec9d996b23373a905c88d9a203b220c5c151885ad621f974b5c"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/web/icons/Icon-maskable-512.png",
+    "archive": "baseline/web/icons/Icon-maskable-512.png",
+    "sha256": "6aee06cdcab6b2aef74b1734c4778f4421d2da100b0ff9e52b21b55240202929"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/web/icons/Icon-512.png",
+    "archive": "baseline/web/icons/Icon-512.png",
+    "sha256": "baccb205ae45f0b421be1657259b4943ac40c95094ab877f3bcbe12cd544dcbe"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/pubspec.yaml",
+    "archive": "baseline/pubspec.yaml.txt",
+    "sha256": "3b3b93e5fa2e3a89fab5a6305feeb87e525278eb59438bde3cb8970397cc335d"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/pubspec.lock",
+    "archive": "baseline/pubspec.lock",
+    "sha256": "f333f6348d66de5455c2094f4fa3d1247e6d43387d2ab165429c25420132f07c"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/README.md",
+    "archive": "baseline/README.md",
+    "sha256": "875881d6d84dc5379d80542b8bedd121152accec33e883a5dec52a04941b4547"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/analysis_options.yaml",
+    "archive": "baseline/analysis_options.yaml.txt",
+    "sha256": "30164f4e8260d668158388799fc387286d4bf62ea854e7466005e89d2ca2b404"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline/output/validation/build.json",
+    "archive": "baseline/output/validation/build.json",
+    "sha256": "7118d98aba250d88902c023bbf33f843a62b3582210c421e89d97bd9da3b90a2"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/lib/bridge_stub.dart",
+    "archive": "skill-assisted/lib/bridge_stub.dart.txt",
+    "sha256": "49a96d510a58f5db5a02fa6ff13f7a13bf9dba70d3c7675a1fd8f736764ff5da"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/lib/main.dart",
+    "archive": "skill-assisted/lib/main.dart.txt",
+    "sha256": "5b1b8c672ee5f22e24536285cf82736c48f32995eaebbc35480d68f12c0d58fa"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/lib/model.dart",
+    "archive": "skill-assisted/lib/model.dart.txt",
+    "sha256": "71b206761257c4a20456a3d58033308f8538b76f846df553a3ebb6d905094678"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/lib/bridge_web.dart",
+    "archive": "skill-assisted/lib/bridge_web.dart.txt",
+    "sha256": "48d4c3f35c4bc2d5dd5b7e681a64f23960dee1499a8883834ad76f5b1838f2a6"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/test/model_test.dart",
+    "archive": "skill-assisted/test/model_test.dart.txt",
+    "sha256": "b9e4dcb161c5c4c1d89d383bd6ff5e597d738498e7b0743f9881cf0e65ecd62f"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/web/flutter_bootstrap.js",
+    "archive": "skill-assisted/web/flutter_bootstrap.js",
+    "sha256": "553a2b52d5c3700df332590d33b4b1c8c793befe55891c75573737af6c432730"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/web/index.html",
+    "archive": "skill-assisted/web/index.html",
+    "sha256": "2511adcb69ac007d8d7e09b432cff74d020e4c092a10b5b8108c0cc3cd04b538"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/web/multi_view.html",
+    "archive": "skill-assisted/web/multi_view.html",
+    "sha256": "00fc87e75a4dfc9e0eced5be55a2696a27cfacb634aecb0f31fb8ea2907b93ee"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/web/favicon.png",
+    "archive": "skill-assisted/web/favicon.png",
+    "sha256": "7ab2525f4b86b65d3e4c70358a17e5a1aaf6f437f99cbcc046dad73d59bb9015"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/web/manifest.json",
+    "archive": "skill-assisted/web/manifest.json",
+    "sha256": "354b7f1042ee271e3805ae3e24171bc372e133745cce81e7a4b08d3f223bd140"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/web/icons/Icon-192.png",
+    "archive": "skill-assisted/web/icons/Icon-192.png",
+    "sha256": "3dce99077602f70421c1c6b2a240bc9b83d64d86681d45f2154143310c980be3"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/web/icons/Icon-maskable-192.png",
+    "archive": "skill-assisted/web/icons/Icon-maskable-192.png",
+    "sha256": "d2c842e22a9f4ec9d996b23373a905c88d9a203b220c5c151885ad621f974b5c"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/web/icons/Icon-maskable-512.png",
+    "archive": "skill-assisted/web/icons/Icon-maskable-512.png",
+    "sha256": "6aee06cdcab6b2aef74b1734c4778f4421d2da100b0ff9e52b21b55240202929"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/web/icons/Icon-512.png",
+    "archive": "skill-assisted/web/icons/Icon-512.png",
+    "sha256": "baccb205ae45f0b421be1657259b4943ac40c95094ab877f3bcbe12cd544dcbe"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/pubspec.yaml",
+    "archive": "skill-assisted/pubspec.yaml.txt",
+    "sha256": "716a2e98e58a741a3db2f044df48e502163b8f21bb4459ca1d7aadf07681260f"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/pubspec.lock",
+    "archive": "skill-assisted/pubspec.lock",
+    "sha256": "16ad64e8a1ae55f2bf53f4cc2525b4b8306d0baaac52fb0d4de01388298e68bb"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/README.md",
+    "archive": "skill-assisted/README.md",
+    "sha256": "5f9273045c6a2c547d083f5795e76c5ce07b927f8015487b2760ddd6c494b1b4"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/analysis_options.yaml",
+    "archive": "skill-assisted/analysis_options.yaml.txt",
+    "sha256": "30bcda3232f93431362bd407233c6716a1f06b7713ec800ff1a3ba3acd702c0e"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-assisted/output/validation/build.json",
+    "archive": "skill-assisted/output/validation/build.json",
+    "sha256": "04592df012d1c3bd9981cbb16edee1cd238f75010887b1cde8fcffe1ba036c94"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline-runtime/result.json",
+    "archive": "baseline-runtime/result.json",
+    "sha256": "8060d0faf4ef48f4d2d981060d1b61cbbba44b4a6aed387cd503f78f252044b2"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline-runtime/status.json",
+    "archive": "baseline-runtime/status.json",
+    "sha256": "edfa3280193f6812633d21b27e1da8018ceb418855539d86554fa1b7303e22e5"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline-runtime/facts.jsonl",
+    "archive": "baseline-runtime/facts.jsonl",
+    "sha256": "db71286b7194b48aee8dcadf3491bb4cfad4d4ebaba9d0535cd3bb640510249c"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline-runtime/supervisor-result.json",
+    "archive": "baseline-runtime/supervisor-result.json",
+    "sha256": "2dc3ecf4879011bc1c0697cdabf5e19ca0ffe57f6e53d0af56796accaf049e83"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline-runtime/viewport.json",
+    "archive": "baseline-runtime/viewport.json",
+    "sha256": "e60abf6705ac3aeccde348800be8c2f04bcdcb9711678776c4f3a67c72fbb250"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline-runtime/browser-log.json",
+    "archive": "baseline-runtime/browser-log.json",
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/baseline-runtime/failure.png",
+    "archive": "baseline-runtime/failure.png",
+    "sha256": "0da70ccf224ecf503a24e95a6b8ad9c07cdc40c10cb1c7eabd8f2b305949a4cc"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-runtime/result.json",
+    "archive": "skill-runtime/result.json",
+    "sha256": "c6fe4a5fb24097358d729f3937210702583be28cee51e710042d3c05a2c4d031"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-runtime/status.json",
+    "archive": "skill-runtime/status.json",
+    "sha256": "59f6ec4f4424299dc673f7ba20cab2e11a2367b654c3d510f68f760dd6917ad0"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-runtime/facts.jsonl",
+    "archive": "skill-runtime/facts.jsonl",
+    "sha256": "4628eaef014d0e2d4548d88092ab619736a8ad20afa8de6b2024d11df15ce82b"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-runtime/supervisor-result.json",
+    "archive": "skill-runtime/supervisor-result.json",
+    "sha256": "8a5aa9fc69091baf6cfaf8eab3828a9c7aa213e8050163e40f3f8f7213cb29d2"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-runtime/viewport.json",
+    "archive": "skill-runtime/viewport.json",
+    "sha256": "e60abf6705ac3aeccde348800be8c2f04bcdcb9711678776c4f3a67c72fbb250"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-runtime/browser-log.json",
+    "archive": "skill-runtime/browser-log.json",
+    "sha256": "4ef3cec23ac615c3df00166d1c6e65a15d72151629fd87f2b28a26e55177906d"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-runtime/initial.png",
+    "archive": "skill-runtime/initial.png",
+    "sha256": "fb4962ff9a3654183f428c05651c568db5d03fffa2e020f8581c4e9754f6f9ba"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-runtime/linked.png",
+    "archive": "skill-runtime/linked.png",
+    "sha256": "6890eab8da5ffc64f67f265a5c4fd63c862180d3d75711affa5ca3425c48873d"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/skill-runtime/narrow.png",
+    "archive": "skill-runtime/narrow.png",
+    "sha256": "837cc4e029616aa2f3fc5479911ef49af2bf1a779dc1168b058adf71211c7f6b"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/SKILL.md",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/SKILL.md",
+    "sha256": "ecda6b12503f24ba6d9ad094310681ff3f4b412dc2549ebf4ca42cbabbbc3d9f"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/evals/agent_input.json",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/evals/agent_input.json",
+    "sha256": "7ca7cccc955958f584e477e013e5508733a788136e8c485dc9c54bbf90ed42f4"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/evals/held_out_agent_input.json",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/evals/held_out_agent_input.json",
+    "sha256": "6578ba8cab0171774ef5115caaf12eb39d946d11888b99b7382c3b2b7af3930f"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/evals/held_out.json",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/evals/held_out.json",
+    "sha256": "b01a5a8dd5f26ff001382abf0fd5c6dd39fdebd9148d8786974589252609d47e"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/evals/prompts.json",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/evals/prompts.json",
+    "sha256": "dfc344fb4d7ad9556d5aed12fbc96138c539b339f7b0d11b76ff97c02883f6e6"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/evals/cases/t1.yaml",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/evals/cases/t1.yaml.txt",
+    "sha256": "11666a1fb7dcb2c096b3b80941b410cc87e0ac63c76e5690a150ab3e479b55cf"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/evals/cases/h1.yaml",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/evals/cases/h1.yaml.txt",
+    "sha256": "c12f3a00ba9ab0ec20510539673a77b1721e6747f4d6e697e94a4c9bb05a12ea"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/evals/cases/h2.yaml",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/evals/cases/h2.yaml.txt",
+    "sha256": "88b22dfa0a51f0ef2794e9530cd81e406b7a94fcd22d3426cc8d3dba1b590d12"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/evals/cases/t4.yaml",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/evals/cases/t4.yaml.txt",
+    "sha256": "591881fc60a90087a5ccb92d5ee29a47453233fbe0c4be8f3f995fcf93dfef8e"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/evals/cases/t3.yaml",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/evals/cases/t3.yaml.txt",
+    "sha256": "897441ce827c117cb31b238b225c64513cad49d58033d7d3253622a2aa89f21c"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/evals/cases/t2.yaml",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/evals/cases/t2.yaml.txt",
+    "sha256": "443c1acca011469eb865ae1633c3d2d6f0d026b4a5fdfa2067b50eaee9e7e183"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/references/sources.md",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/references/sources.md",
+    "sha256": "975ede1495f58c0d5e8c7661bc3aeeb2c05efa04da620be01ae9136b8476b4fd"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/references/workflow.md",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/references/workflow.md",
+    "sha256": "d2984fb283d6a6a335a34bf7be13ba5f71e7647bee2ded9f4f3f00b97be16419"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/references/verification.md",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/references/verification.md",
+    "sha256": "36da962ef5753511711d5a659e73578dd6b6818c66c82044f33c792018394c20"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/references/rendering.md",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/references/rendering.md",
+    "sha256": "89b0b2aa7a9da27927773ad01ca48fa3e5b262034b0b0419373ac116423980cc"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/references/evals.md",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/references/evals.md",
+    "sha256": "6bbf24357813dd454894eea4a1565afc4cfb61f140c7240f16803568375f6f46"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/.agents/skills/ecsly-visualization/scripts/scaffold.dart",
+    "archive": "frozen-source/.agents/skills/ecsly-visualization/scripts/scaffold.dart.txt",
+    "sha256": "d5de1f5cdb9220423382a0066ca54facc1fb01b7c553b7337d549502539a7bf2"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/tool/visualization_dogfood/bin/damped_oscillator_checks.dart",
+    "archive": "frozen-source/tool/visualization_dogfood/bin/damped_oscillator_checks.dart.txt",
+    "sha256": "822b9477509dc18bfc7a0cdfaac20bc5a9312b82b18ae8c71ce4e2afd20fc8c0"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/tool/visualization_dogfood/bin/worker.dart",
+    "archive": "frozen-source/tool/visualization_dogfood/bin/worker.dart.txt",
+    "sha256": "5e6624fe7b77dede9b04ca7b1672bf592988fc79c163b3a92e5827de8c648e6f"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/tool/visualization_dogfood/bin/supervise.dart",
+    "archive": "frozen-source/tool/visualization_dogfood/bin/supervise.dart.txt",
+    "sha256": "3bc7d5380c69a158f6540062852b54e15c0c3df46c2cc81bff77b283f4fd5c30"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/tool/visualization_dogfood/output/novel-skill-2026-10-14/prompt.txt",
+    "archive": "frozen-source/tool/visualization_dogfood/output/novel-skill-2026-10-14/prompt.txt",
+    "sha256": "25d785fec4de9bc9165664e1356f264a15af75d14bc4cee93104bb24d00d40af"
+  },
+  {
+    "source": "tool/visualization_dogfood/output/novel-skill-2026-10-14/frozen-source/tool/visualization_dogfood/output/novel-skill-2026-10-14/rubric.json",
+    "archive": "frozen-source/tool/visualization_dogfood/output/novel-skill-2026-10-14/rubric.json",
+    "sha256": "4e2a7887b7e6eb0cac802ea9016788a6be2a25e82a0a267d8c5113b7764f2b77"
+  }
+]

@@ -34,7 +34,7 @@ stewardship:
     contract_spec: steward.yaml
     maturity_model: general_stewardship
   skill_lifecycle:
-    installable_skills: false
+    installable_skills: true
     registry: skills.json
     project_lock: skills-lock.json
   quality:

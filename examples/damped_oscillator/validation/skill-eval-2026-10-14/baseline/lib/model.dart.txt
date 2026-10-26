@@ -1,0 +1,70 @@
+import 'dart:math' as math;
+import 'package:ecsly/ecsly.dart';
+
+const omega = 2 * math.pi;
+const fixedStep = 1 / 60;
+
+class Observation {
+  const Observation(this.time, this.x, this.v);
+  final double time, x, v;
+  double get energy => (v * v + omega * omega * x * x) / 2;
+}
+
+/// Pure RK4 transition. Both the preview and live model use this transition.
+Observation advance(Observation s, double damping, int nextTick) {
+  double acceleration(double x, double v) =>
+      -2 * damping * omega * v - omega * omega * x;
+  final a1 = acceleration(s.x, s.v);
+  final v2 = s.v + fixedStep * a1 / 2;
+  final a2 = acceleration(s.x + fixedStep * s.v / 2, v2);
+  final v3 = s.v + fixedStep * a2 / 2;
+  final a3 = acceleration(s.x + fixedStep * v2 / 2, v3);
+  final v4 = s.v + fixedStep * a3;
+  final a4 = acceleration(s.x + fixedStep * v3, v4);
+  return Observation(
+    nextTick * fixedStep,
+    s.x + fixedStep * (s.v + 2 * v2 + 2 * v3 + v4) / 6,
+    s.v + fixedStep * (a1 + 2 * a2 + 2 * a3 + a4) / 6,
+  );
+}
+
+class Oscillator extends Resource {
+  Oscillator() {
+    reset();
+  }
+  double damping = 0.3;
+  int tick = 0;
+  int selectedIndex = 0;
+  Observation current = const Observation(0, 1, 0);
+  List<Observation> samples = const [];
+  void reset([double? chosenDamping]) {
+    damping = chosenDamping ?? damping;
+    tick = 0;
+    selectedIndex = 0;
+    current = const Observation(0, 1, 0);
+    final trajectory = <Observation>[current];
+    for (var i = 1; i <= 240; i++) {
+      trajectory.add(advance(trajectory.last, damping, i));
+    }
+    samples = List.unmodifiable(trajectory);
+  }
+
+  void step() {
+    current = advance(current, damping, ++tick);
+    selectedIndex = math.min(tick, samples.length - 1);
+  }
+
+  void nextSample() {
+    selectedIndex = (selectedIndex + 1) % samples.length;
+  }
+
+  Map<String, Object> snapshot() => {
+    'time': current.time,
+    'damping': damping,
+    'displacement': current.x,
+    'velocity': current.v,
+    'energy': current.energy,
+    'selectedIndex': selectedIndex,
+    'plotSelection': {'time': selectedIndex, 'phase': selectedIndex},
+  };
+}

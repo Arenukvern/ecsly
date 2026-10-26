@@ -1,0 +1,46 @@
+name: ecsly_visualization_studio
+description: Three interactive recipes and a resident ECS visualization consumer.
+publish_to: none
+version: 0.1.0
+
+environment:
+  sdk: ^3.13.4
+  flutter: ">=3.47.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  ecsly:
+    path: ../../core_packages/ecsly
+  ecsly_app:
+    path: ../../core_packages/ecsly_app
+  ecsly_flutter:
+    path: ../../core_packages/ecsly_flutter
+  ecsly_flutter_scene:
+    path: ../../plugins/ecsly_flutter_scene
+  ecsly_visualization_tokens:
+    path: ../visualization_tokens
+  flutter_scene: 0.24.3
+  vector_math: ^2.4.2
+  shared_preferences: ^2.5.3
+  hooks: ^2.0.2
+
+dependency_overrides:
+  ecsly:
+    path: ../../core_packages/ecsly
+  ecsly_app:
+    path: ../../core_packages/ecsly_app
+  ecsly_flutter:
+    path: ../../core_packages/ecsly_flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  fonts:
+    - family: PreviewRoboto
+      fonts:
+        - asset: assets/fonts/Roboto-Regular.ttf

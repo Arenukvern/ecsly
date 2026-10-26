@@ -508,33 +508,33 @@ extension WorldResourceX on World {
 extension WorldScheduleX on World {
   /// Create a new schedule with optional trigger.
   ///
-  /// Throws [EcsStateError] if a schedule with the same name already exists.
+  /// Throws [EcsStateError] if a schedule with the same id already exists.
   Schedule createSchedule(
-    final String name, {
+    final ScheduleId id, {
     final ScheduleTrigger? trigger,
-  }) => systems.createSchedule(name, trigger: trigger);
+  }) => systems.createSchedule(id, trigger: trigger);
 
   /// Get or create a schedule.
   Schedule getOrCreateSchedule(
-    final String name, {
+    final ScheduleId id, {
     final ScheduleTrigger? trigger,
-  }) => systems.getOrCreateSchedule(name, trigger: trigger);
+  }) => systems.getOrCreateSchedule(id, trigger: trigger);
 
   /// Check if a schedule exists.
-  bool hasSchedule(final String name) => systems.hasSchedule(name);
+  bool hasSchedule(final ScheduleId id) => systems.hasSchedule(id);
 
-  /// Remove a schedule by name.
-  bool removeSchedule(final String name) => systems.removeSchedule(name);
+  /// Remove a schedule by id.
+  bool removeSchedule(final ScheduleId id) => systems.removeSchedule(id);
 
-  /// Run a schedule by name (synchronously).
+  /// Run a schedule by id (synchronously).
   ///
   /// If the schedule has a trigger, it will only execute if the trigger
   /// condition is met.
-  void runSchedule(final String name) => schedule(name).run(this);
+  void runSchedule(final ScheduleId id) => schedule(id).run(this);
 
-  /// Run a schedule by name (asynchronously).
-  Future<void> runScheduleAsync(final String name) =>
-      schedule(name).runAsync(this);
+  /// Run a schedule by id (asynchronously).
+  Future<void> runScheduleAsync(final ScheduleId id) =>
+      schedule(id).runAsync(this);
 
   /// Run a system directly (for input layer or one-off execution).
   void runSystem(final System system) => system(this);
@@ -542,8 +542,8 @@ extension WorldScheduleX on World {
   /// Run an async system directly.
   Future<void> runSystemAsync(final AsyncSystem system) => system(this);
 
-  /// Get a schedule by name.
+  /// Get a schedule by id.
   ///
   /// Throws [EcsStateError] if the schedule doesn't exist.
-  Schedule schedule(final String name) => systems.getSchedule(name);
+  Schedule schedule(final ScheduleId id) => systems.getSchedule(id);
 }

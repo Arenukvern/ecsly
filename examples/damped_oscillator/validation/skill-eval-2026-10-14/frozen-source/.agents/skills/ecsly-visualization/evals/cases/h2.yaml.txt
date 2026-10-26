@@ -1,0 +1,10 @@
+id: h2
+skill: ecsly-visualization
+routing: should_trigger
+input: "I want every new Flutter visualization and code edit visible in milliseconds. What mechanism should we use, and what would prove that it is fast?"
+rules:
+  - kind: file_exists
+    path: references/evals.md
+  - kind: body_includes_any
+    path: SKILL.md
+    terms: ["performance parity", "compiler"]

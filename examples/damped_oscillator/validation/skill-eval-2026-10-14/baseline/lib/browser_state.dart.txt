@@ -1,0 +1,2 @@
+export 'browser_state_stub.dart'
+    if (dart.library.js_interop) 'browser_state_web.dart';

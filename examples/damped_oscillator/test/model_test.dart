@@ -1,0 +1,85 @@
+import 'dart:math' as math;
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:ecsly_flutter/ecsly_flutter.dart';
+import 'package:ecsly_damped_oscillator/model.dart';
+
+void main() {
+  test('initial conditions and four-second sample grid', () {
+    final world = createOscillatorWorld();
+    final r = world.getResource<OscillatorResource>();
+    expect(r.value.damping, .3);
+    expect(r.value.time, 0);
+    expect(r.value.current.displacement, 1);
+    expect(r.value.current.velocity, closeTo(0, 1e-12));
+    expect(r.samples.length, 241);
+    expect(r.samples.last.time, 4);
+  });
+  test('undamped solution and energy conservation', () {
+    for (var i = 0; i <= lastStep; i++) {
+      final t = i * fixedDt;
+      final o = observe(t, 0);
+      expect(o.displacement, closeTo(math.cos(omega * t), 1e-12));
+      expect(o.velocity, closeTo(-omega * math.sin(omega * t), 1e-12));
+      expect(o.energy, closeTo(omega * omega / 2, 1e-10));
+    }
+  });
+  test('damping loses energy and overdamped motion does not cross rest', () {
+    for (final z in [.3, 1.2]) {
+      var previousEnergy = double.infinity;
+      for (var i = 0; i <= lastStep; i++) {
+        final o = observe(i * fixedDt, z);
+        expect(o.energy, lessThanOrEqualTo(previousEnergy + 1e-10));
+        if (z > 1) {
+          expect(o.displacement, greaterThan(0));
+        }
+        previousEnergy = o.energy;
+      }
+    }
+  });
+  test('solution satisfies differential equation for every preset', () {
+    const h = 1e-5;
+    for (final z in [0.0, .3, 1.2]) {
+      for (final t in [.1, .5, 1.0, 2.0]) {
+        final o = observe(t, z);
+        final acceleration =
+            (observe(t + h, z).velocity - observe(t - h, z).velocity) / (2 * h);
+        expect(
+          acceleration +
+              2 * z * omega * o.velocity +
+              omega * omega * o.displacement,
+          closeTo(0, 1e-6),
+        );
+      }
+    }
+  });
+  test(
+    'fixed steps, preset reset, retained damping, and linked selection',
+    () async {
+      final world = createOscillatorWorld();
+      final controller = EcsController(world: world);
+      final r = world.getResource<OscillatorResource>();
+      await controller.runAction(const OscillatorAction(Operation.step));
+      expect(r.value.time, fixedDt);
+      await controller.runAction(const OscillatorAction(Operation.next));
+      expect(r.value.selectedIndex, 1);
+      expect(r.value.toJson()['plotSelection'], {'time': 1, 'phase': 1});
+      await controller.runAction(
+        const OscillatorAction(Operation.preset, damping: 1.2),
+      );
+      expect(r.value.time, 0);
+      expect(r.value.current.displacement, 1);
+      expect(r.value.current.velocity, closeTo(0, 1e-12));
+      expect(r.value.selectedIndex, 0);
+      await controller.runAction(const OscillatorAction(Operation.step));
+      await controller.runAction(const OscillatorAction(Operation.reset));
+      expect(r.value.damping, 1.2);
+      expect(r.value.time, 0);
+      for (var i = 0; i < 245; i++) {
+        await controller.runAction(const OscillatorAction(Operation.step));
+      }
+      expect(r.value.time, 4);
+      controller.dispose();
+    },
+  );
+}

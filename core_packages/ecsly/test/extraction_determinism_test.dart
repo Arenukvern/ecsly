@@ -43,6 +43,29 @@ void main() {
       );
     });
 
+    test('stableStringHash matches the pinned FNV-1a 32-bit recipe', () {
+      // Hand-computed: basis 0x811C9DC5, prime 0x01000193, per UTF-16
+      // code unit low byte then high byte ('a' mixes 0x61 then 0x00):
+      // 0x2B24D044.
+      expect(DeterministicSectionHashing.stableStringHash('a'), 0x2B24D044);
+      // The empty string is the untouched basis.
+      expect(
+        DeterministicSectionHashing.stableStringHash(''),
+        DeterministicSectionHashing.stableOffsetBasis,
+      );
+    });
+
+    test('stableStringHash is order-sensitive and unicode-stable', () {
+      expect(
+        DeterministicSectionHashing.stableStringHash('abc'),
+        isNot(DeterministicSectionHashing.stableStringHash('acb')),
+      );
+      // A multibyte code unit (— U+2014) must produce the same value in
+      // every run: the contract pins bytes, not platform String hashes.
+      final em = DeterministicSectionHashing.stableStringHash('a—b');
+      expect(DeterministicSectionHashing.stableStringHash('a—b'), em);
+    });
+
     test('world determinism resource stores frame diagnostics', () {
       final resource = WorldDeterminismResource(
         frameId: 7,

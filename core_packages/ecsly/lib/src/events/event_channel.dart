@@ -28,6 +28,39 @@ enum EventCapacityPolicy {
   throwOnOverflow,
 }
 
+/// Immutable snapshot of an [EventChannel]'s lifecycle counters.
+///
+/// See [EventChannel.stats] for the invariant and usage.
+class EventChannelStats {
+  const EventChannelStats({
+    required this.sent,
+    required this.consumed,
+    required this.dropped,
+    required this.cleared,
+    required this.length,
+  });
+
+  /// Total events successfully sent to the channel.
+  final int sent;
+
+  /// Total events consumed via `drain()`.
+  final int consumed;
+
+  /// Total events discarded by capacity policy (dropNew / dropOld).
+  final int dropped;
+
+  /// Total events discarded via `clear()` without draining.
+  final int cleared;
+
+  /// Events currently buffered.
+  final int length;
+
+  /// True when `sent == consumed + dropped + cleared + length`.
+  ///
+  /// False means an event was lost or double-counted — a data-loss bug.
+  bool get isConsistent => sent == consumed + dropped + cleared + length;
+}
+
 /// {@template event_channel}
 /// A type-safe event channel that stores events in ECS DataColumns.
 ///
@@ -101,6 +134,13 @@ class EventChannel<T extends EcsEvent> implements Resource {
   // Readers/cursors use this to detect invalidated snapshots.
   int _headEpoch = 0;
 
+  // Watermark counters — monotonic, never reset (except explicit resetStats).
+  int _totalSent = 0;
+  int _totalConsumed = 0; // removed via drain()
+  int _totalDropped = 0; // dropped by capacity policy
+  int _totalCleared = 0; // discarded via clear()
+  bool _suppressClearCount = false; // drain() clears without re-counting
+
   /// Whether the channel is empty.
   bool get isEmpty => _length == 0;
 
@@ -109,6 +149,36 @@ class EventChannel<T extends EcsEvent> implements Resource {
 
   /// Current number of events in the channel.
   int get length => _length;
+
+  /// Lifecycle counters for this channel — the "channel watermark".
+  ///
+  /// Monotonic totals since channel creation (or [resetStats]). Invariant:
+  /// `sent == consumed + dropped + cleared + length` at any quiescent point.
+  /// A violation of that invariant means an event was lost or double-counted —
+  /// assert it in tests to catch data-loss bugs in one line instead of an
+  /// afternoon of bisection.
+  ///
+  /// - [EventChannelStats.sent]: every successful [send]
+  /// - [EventChannelStats.consumed]: events removed via `drain()`
+  /// - [EventChannelStats.dropped]: discarded by capacity policy (dropNew /
+  ///   dropOld) — previously invisible unless you read metrics-hook logs
+  /// - [EventChannelStats.cleared]: discarded via `clear()` without draining
+  /// - [EventChannelStats.length]: currently buffered
+  EventChannelStats get stats => EventChannelStats(
+    sent: _totalSent,
+    consumed: _totalConsumed,
+    dropped: _totalDropped,
+    cleared: _totalCleared,
+    length: _length,
+  );
+
+  /// Zero all watermark counters (does not touch buffered events).
+  void resetStats() {
+    _totalSent = 0;
+    _totalConsumed = 0;
+    _totalDropped = 0;
+    _totalCleared = 0;
+  }
 
   /// Clear all events from this channel.
   ///
@@ -124,6 +194,9 @@ class EventChannel<T extends EcsEvent> implements Resource {
   void clear() {
     if (_length > 0) {
       _headEpoch++;
+      if (!_suppressClearCount) {
+        _totalCleared += _length;
+      }
     }
 
     // For TypedData columns, we can just reset indices (O(1))
@@ -202,10 +275,12 @@ class EventChannel<T extends EcsEvent> implements Resource {
       // Handle capacity overflow
       switch (capacityPolicy) {
         case EventCapacityPolicy.dropNew:
+          _totalDropped++;
           _reportOverflow(event, dropped: true);
           return false;
         case EventCapacityPolicy.dropOld:
           // Clear old event reference before advancing
+          _totalDropped++;
           _clearEventAt(_head);
           _advanceHead();
           _length--;
@@ -222,6 +297,7 @@ class EventChannel<T extends EcsEvent> implements Resource {
     _storeEvent(_tail, event);
     _advanceTail();
     _length++;
+    _totalSent++;
 
     return true;
   }
@@ -377,7 +453,14 @@ class EventReader<T extends EcsEvent> {
   List<T> drain() {
     final snapshot = cursor();
     final result = List<T>.generate(snapshot.length, snapshot.readAt);
-    _channel.clear();
+    // Count as consumed, then clear WITHOUT re-counting as cleared.
+    _channel._totalConsumed += result.length;
+    _channel._suppressClearCount = true;
+    try {
+      _channel.clear();
+    } finally {
+      _channel._suppressClearCount = false;
+    }
     return result;
   }
 

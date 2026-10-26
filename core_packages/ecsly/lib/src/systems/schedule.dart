@@ -55,13 +55,13 @@ import 'package:directed_graph/directed_graph.dart';
 
 import '../errors/ecs_errors.dart';
 import '../world/world.dart';
-import 'parallel_systems.dart';
 import 'schedule_trigger.dart';
 import 'system.dart';
 import 'system_descriptor.dart';
 import 'system_executor.dart';
 
-void _noopSystem(final World _) {}
+/// System that does nothing
+void noopSystem(final World _) {}
 
 /// {@template schedule}
 /// A collection of systems that run together with defined ordering.
@@ -117,7 +117,7 @@ class Schedule {
   final List<SystemDescriptor> _systems = [];
 
   /// Name of the last system added (for then() chaining)
-  String? _lastSystemName;
+  String? lastSystemName;
 
   /// Counter for generating temporary names for systems.
   ///
@@ -161,29 +161,8 @@ class Schedule {
         mode: mode,
       ),
     );
-    _lastSystemName = assignedName;
-    _invalidateCache();
-    return this;
-  }
-
-  /// Add a certified job system to the schedule.
-  Schedule addJobSystem(
-    final ParallelJobSystem jobSystem, {
-    required final String name,
-    final List<String> runAfter = const [],
-    final List<String> runBefore = const [],
-  }) {
-    _systems.add(
-      SystemDescriptor(
-        system: _noopSystem,
-        jobSystem: jobSystem,
-        name: name,
-        runAfter: runAfter,
-        runBefore: runBefore,
-      ),
-    );
-    _lastSystemName = name;
-    _invalidateCache();
+    lastSystemName = assignedName;
+    invalidateCache();
     return this;
   }
 
@@ -192,15 +171,15 @@ class Schedule {
   /// Systems are added with incrementing priorities.
   Schedule addSystems(final List<System> systems) {
     systems.forEach(add);
-    _invalidateCache();
+    invalidateCache();
     return this;
   }
 
   /// Clear all systems from this schedule.
   void clear() {
     _systems.clear();
-    _lastSystemName = null;
-    _invalidateCache();
+    lastSystemName = null;
+    invalidateCache();
   }
 
   /// Get current execution rate (executions per second).
@@ -229,9 +208,8 @@ class Schedule {
         SystemDescriptor(system: sys, canRunInParallel: true, mode: mode),
       );
     }
-    _lastSystemName =
-        null; // Parallel systems don't have a single "last" system
-    _invalidateCache();
+    lastSystemName = null; // Parallel systems don't have a single "last" system
+    invalidateCache();
     return this;
   }
 
@@ -240,10 +218,10 @@ class Schedule {
     final initialLength = _systems.length;
     _systems.removeWhere((final desc) => desc.name == name);
     if (_systems.length < initialLength) {
-      if (_lastSystemName == name) {
-        _lastSystemName = null;
+      if (lastSystemName == name) {
+        lastSystemName = null;
       }
-      _invalidateCache();
+      invalidateCache();
     }
     return _systems.length < initialLength;
   }
@@ -319,19 +297,9 @@ class Schedule {
     return add(
       system,
       name: assignedName,
-      runAfter: _lastSystemName != null ? [_lastSystemName!] : const [],
+      runAfter: lastSystemName != null ? [lastSystemName!] : const [],
     );
   }
-
-  /// Add a certified job system sequentially after the last added system.
-  Schedule thenJobSystem(
-    final ParallelJobSystem jobSystem, {
-    required final String name,
-  }) => addJobSystem(
-    jobSystem,
-    name: name,
-    runAfter: _lastSystemName != null ? [_lastSystemName!] : const [],
-  );
 
   /// Get cached execution groups, computing them if necessary.
   List<List<int>> _getExecutionGroups() {
@@ -385,7 +353,7 @@ class Schedule {
   }
 
   /// Invalidate the cached execution groups.
-  void _invalidateCache() => _executionGroups = null;
+  void invalidateCache() => _executionGroups = null;
 
   /// Resolve execution order based on dependencies using directed graph.
   ///

@@ -1,0 +1,5 @@
+.dart_tool/
+build/
+output/
+pubspec.lock
+.oka_cache/

@@ -1,0 +1,7 @@
+name: ecsly_native_window_capture
+publish_to: none
+environment:
+  sdk: ^3.13.4
+dependencies:
+  universal_driver_macos: ^0.2.0
+  universal_automation_interface: ^0.2.0

@@ -1,0 +1,7 @@
+.dart_tool/
+build/
+flutter_scene_generated/
+output/
+.flutter-plugins-dependencies
+validation/raw_history/
+.oka_cache/

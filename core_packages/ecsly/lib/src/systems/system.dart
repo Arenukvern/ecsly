@@ -45,16 +45,4 @@ enum ExecutionMode {
 
   /// Execute asynchronously in parallel with other parallel systems
   asyncParallel,
-
-  @Deprecated(
-    'Non-production placeholder. Isolate systems currently execute on the main '
-    'owner synchronously until deterministic isolate boundaries are implemented.',
-  )
-  /// Placeholder for future deterministic isolate execution.
-  ///
-  /// Today this still executes on the main owner thread via SystemExecutor.
-  isolate,
-
-  /// Execute using Rust parallel backend for high-performance computations
-  rustParallel,
 }

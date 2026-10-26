@@ -1,0 +1,12 @@
+schema: ae.canonical.meta.v1
+concept: ecsly_flutter
+version: 1
+title: ecsly_flutter
+license:
+  spdx: CC-BY-4.0
+  url: "https://creativecommons.org/licenses/by/4.0/"
+authors: []
+sources: []
+provenance:
+  authored: scaffolded
+  authored_at: "2026-08-24T07:48:35.259195Z"

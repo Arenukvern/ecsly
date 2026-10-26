@@ -48,7 +48,7 @@ void main() {
 
   // Schedules group systems into explicit execution stages. This keeps update
   // order visible and lets the runtime manage flush boundaries deliberately.
-  world.createSchedule('Update').add(regenerateEnergy);
-  world.runSchedule('Update');
+  world.createSchedule(ScheduleId.update).add(regenerateEnergy);
+  world.runSchedule(ScheduleId.update);
   world.flush();
 }

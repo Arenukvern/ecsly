@@ -1,0 +1,255 @@
+{
+  "schema": 2,
+  "startedAt": "2026-10-13T22:52:11.662415Z",
+  "completedAt": "2026-10-13T22:52:31.277962Z",
+  "ok": true,
+  "elapsedMs": 19573,
+  "error": null,
+  "outputs": {
+    "web-build-output": "/Users/antonio/xs/ecsly/examples/damped_oscillator/build/web"
+  },
+  "compiler": "Oka WebBuildTarget delegated Flutter release build",
+  "mode": "release",
+  "extraArgs": [
+    "--no-pub",
+    "--no-web-resources-cdn",
+    "--no-wasm-dry-run"
+  ],
+  "dartVersion": "3.13.4 (stable) (Tue Sep 15 01:01:15 2026 -0700) on \"macos_arm64\"",
+  "flutterSdkRoot": "/Users/antonio/fvm/versions/stable",
+  "consumerSourceDigest": "aadea04a3f19b33db39de5b1b6b3140c7170280eb47b16b5c9c8a782c87ddda7",
+  "consumerSources": [
+    {
+      "path": "analysis_options.yaml",
+      "bytes": 93,
+      "sha256": "5c4709b070c4372b35666ef06352cb096d2712b0e332e9be1ad581469deb325d"
+    },
+    {
+      "path": "assets/fonts/Roboto-Regular.ttf",
+      "bytes": 171676,
+      "sha256": "79e851404657dac2106b3d22ad256d47824a9a5765458edb72c9102a45816d95"
+    },
+    {
+      "path": "assets/fonts/Roboto_LICENSE.txt",
+      "bytes": 11358,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+    },
+    {
+      "path": "lib/bridge_stub.dart",
+      "bytes": 77,
+      "sha256": "49a96d510a58f5db5a02fa6ff13f7a13bf9dba70d3c7675a1fd8f736764ff5da"
+    },
+    {
+      "path": "lib/bridge_web.dart",
+      "bytes": 224,
+      "sha256": "48d4c3f35c4bc2d5dd5b7e681a64f23960dee1499a8883834ad76f5b1838f2a6"
+    },
+    {
+      "path": "lib/main.dart",
+      "bytes": 20033,
+      "sha256": "5b1b8c672ee5f22e24536285cf82736c48f32995eaebbc35480d68f12c0d58fa"
+    },
+    {
+      "path": "lib/model.dart",
+      "bytes": 3806,
+      "sha256": "71b206761257c4a20456a3d58033308f8538b76f846df553a3ebb6d905094678"
+    },
+    {
+      "path": "pubspec.lock",
+      "bytes": 7796,
+      "sha256": "d9b2a15a1d51eeb397e111ca6fb0b04a4236674bfd7ae65a0de76f9f79afa34c"
+    },
+    {
+      "path": "pubspec.yaml",
+      "bytes": 625,
+      "sha256": "3f909ddeff97dc0c543192f58999868c6effe6221e9f949311e85eda479c21b3"
+    },
+    {
+      "path": "web/flutter_bootstrap.js",
+      "bytes": 211,
+      "sha256": "f6b8abae734255598535710977fcdf924e01e9c8c8e3dfcc1080c5d7836ad84b"
+    },
+    {
+      "path": "web/index.html",
+      "bytes": 274,
+      "sha256": "2511adcb69ac007d8d7e09b432cff74d020e4c092a10b5b8108c0cc3cd04b538"
+    }
+  ],
+  "outputBundle": {
+    "schema": 1,
+    "digest": "6a06c836acb7e18aa61e11f4c2ef431b5e02e5703988ef7a7cf764ce31622f92",
+    "files": [
+      {
+        "path": ".last_build_id",
+        "bytes": 32,
+        "sha256": "28bf34984566a981ddd1ae7bc083d215f6b2e70f9dc1a5ffa9b9604ec5cc8ff2"
+      },
+      {
+        "path": "assets/AssetManifest.bin",
+        "bytes": 79,
+        "sha256": "cce27407d1b9c6169c06883bd99bce7b085cb57afa0cc08660ce0444dad06e06"
+      },
+      {
+        "path": "assets/AssetManifest.bin.json",
+        "bytes": 110,
+        "sha256": "da23671e7feef8106d2250489fcb9a2f18544c27257052fb5c685ff363cd688d"
+      },
+      {
+        "path": "assets/FontManifest.json",
+        "bytes": 239,
+        "sha256": "ed357969053df3bac01d15131382f94c22dddeb401c58d26726e54d13e2d6631"
+      },
+      {
+        "path": "assets/NOTICES",
+        "bytes": 1305557,
+        "sha256": "0c8f4901260a20e8555860b99931e4c30872349982ffb8626fb74e12fa36d79b"
+      },
+      {
+        "path": "assets/assets/fonts/Roboto-Regular.ttf",
+        "bytes": 171676,
+        "sha256": "79e851404657dac2106b3d22ad256d47824a9a5765458edb72c9102a45816d95"
+      },
+      {
+        "path": "assets/fonts/MaterialIcons-Regular.otf",
+        "bytes": 7736,
+        "sha256": "d9bad7f2677571a9c5586bb96a9fd3769a1c7742771f0165f3f9d088df89c1e1"
+      },
+      {
+        "path": "assets/fonts/fallback/Roboto-Regular.ttf",
+        "bytes": 171676,
+        "sha256": "79e851404657dac2106b3d22ad256d47824a9a5765458edb72c9102a45816d95"
+      },
+      {
+        "path": "assets/shaders/ink_sparkle.frag",
+        "bytes": 8890,
+        "sha256": "2dca5ab93d4ec29e963f996f3916320ba60825e9537dfb149a68008c7a16b026"
+      },
+      {
+        "path": "assets/shaders/stretch_effect.frag",
+        "bytes": 6737,
+        "sha256": "ab412f07a5b9b50b67a885b24dbe16929738ae28630407d6490c924caf0a3220"
+      },
+      {
+        "path": "canvaskit/canvaskit.js",
+        "bytes": 86987,
+        "sha256": "bb559f6080c7d312ac2a912b4abec9f68ff3d3022d4a603c7796b9b31460642b"
+      },
+      {
+        "path": "canvaskit/canvaskit.js.symbols",
+        "bytes": 1356926,
+        "sha256": "384f80b392972c83fd4f262527e3d06215a297d33ed59732c726721e9d9311bd"
+      },
+      {
+        "path": "canvaskit/canvaskit.wasm",
+        "bytes": 7284602,
+        "sha256": "fbed517a43e82452404446683f00f2e876d835aed84410695759e67b6bb01cd3"
+      },
+      {
+        "path": "canvaskit/chromium/canvaskit.js",
+        "bytes": 86226,
+        "sha256": "6018b12bd8ed37e6952eee72d59c1cf7ad707ccdb74a0a45190010f77edd9068"
+      },
+      {
+        "path": "canvaskit/chromium/canvaskit.js.symbols",
+        "bytes": 1235870,
+        "sha256": "31c86fac6042dd8b756150832c1d15495d0d07742e2718f75dbdde5a5a91455e"
+      },
+      {
+        "path": "canvaskit/chromium/canvaskit.wasm",
+        "bytes": 5428806,
+        "sha256": "ae8ff1d858140f7b1300ced3fa89fb8c9dce0a400a0f4f1e11f6dcfb3315fdcf"
+      },
+      {
+        "path": "canvaskit/skwasm.js",
+        "bytes": 63537,
+        "sha256": "71d7d3e34bf71b52bdba3b588b103bba8148ba28de5754083e01b3398e7a6e1c"
+      },
+      {
+        "path": "canvaskit/skwasm.js.symbols",
+        "bytes": 1540006,
+        "sha256": "9137f1a3ae744dea575043abfc6e063a047e910e6dab1ee53e496c975d1c033e"
+      },
+      {
+        "path": "canvaskit/skwasm.wasm",
+        "bytes": 3593715,
+        "sha256": "e540fd5e8303b7b68ec2718cb49e9c421f8ade3075b15e02a7059a62654df9a1"
+      },
+      {
+        "path": "canvaskit/skwasm_heavy.js",
+        "bytes": 63650,
+        "sha256": "cec554b46ddcf4c0e63d799e0556d546f42d2c3f69316fb4f67ed776f6104558"
+      },
+      {
+        "path": "canvaskit/skwasm_heavy.js.symbols",
+        "bytes": 1672152,
+        "sha256": "b6b79ed497e11d4cd13cc46724f9e289eacc744d2d185e31c72d595cdf62772b"
+      },
+      {
+        "path": "canvaskit/skwasm_heavy.wasm",
+        "bytes": 5216217,
+        "sha256": "565f5cc1cca6ab120f11934b105f01fec4b58b480c82e0889dca93af8e6f8635"
+      },
+      {
+        "path": "canvaskit/webparagraph/canvaskit.js",
+        "bytes": 76114,
+        "sha256": "3110e3e4d9b7b5657d336f253aaca8acca5777cde9319fb69ac302d6ff5a8b23"
+      },
+      {
+        "path": "canvaskit/webparagraph/canvaskit.js.symbols",
+        "bytes": 963641,
+        "sha256": "44d6c47919106235cf32252252490cdf798d907ee874ba343ab53dc94bc2a9dc"
+      },
+      {
+        "path": "canvaskit/webparagraph/canvaskit.wasm",
+        "bytes": 3729129,
+        "sha256": "0ce1b05082efdc8529550e8a01f6ff0593972d55525035010e26f5600aa9f254"
+      },
+      {
+        "path": "canvaskit/wimp.js",
+        "bytes": 59127,
+        "sha256": "8fd8a47480c6eb0a374d159912d0b3fb15661b41f5c113ecdd39c2f01f2bee46"
+      },
+      {
+        "path": "canvaskit/wimp.js.symbols",
+        "bytes": 1813030,
+        "sha256": "b4907ebd33131302a8cd99f7c55f52357bdfde04f421b605a616ba8764ae1de4"
+      },
+      {
+        "path": "canvaskit/wimp.wasm",
+        "bytes": 3581677,
+        "sha256": "e924eaafd801d41e017d178f3fd5cf8a417f641fe35c9ed34a4e1d7582283e0c"
+      },
+      {
+        "path": "flutter.js",
+        "bytes": 12136,
+        "sha256": "2beb1ce6b159c71540aa66030af1d7964b6a92377cc78473745e02f97b74effe"
+      },
+      {
+        "path": "flutter_bootstrap.js",
+        "bytes": 13096,
+        "sha256": "8651603aa89047236982a99a50d314bc95fce58c63a6a4e75ed85a727370165a"
+      },
+      {
+        "path": "flutter_service_worker.js",
+        "bytes": 784,
+        "sha256": "a131df5ca46154cc4eb79044f7f5a14029c2f8bfccf8cef34e3ec3b5a9f5a88c"
+      },
+      {
+        "path": "index.html",
+        "bytes": 274,
+        "sha256": "2511adcb69ac007d8d7e09b432cff74d020e4c092a10b5b8108c0cc3cd04b538"
+      },
+      {
+        "path": "main.dart.js",
+        "bytes": 1991352,
+        "sha256": "165e38d13ad08ce790ba86c4f68c15a0b3896ad1f6388a9a0bb4fde1c29240cb"
+      },
+      {
+        "path": "version.json",
+        "bytes": 97,
+        "sha256": "7170ee50110a898627e19e5e3d76564d425bce3dec660f9d29153f1f0b6e8d54"
+      }
+    ]
+  },
+  "provenanceLimit": "Consumer source and full output file identities; dependency/SDK input closure and reproducible compilation remain unqualified."
+}

@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "cases": [
+    {
+      "id": "H3",
+      "prompt": "My embedding host removed a Flutter preview and remounted a new preview using the same logical address. The old teardown callback arrives late. How should address ownership and checkpoints behave so the replacement stays usable?",
+      "criteria": [
+        "Late teardown must compare registered instance or ownership token before detaching.",
+        "Remount has a new runtime/world; logical identity can retain validated checkpoint data.",
+        "Keep world/controller and checkpoint ownership separate from browser process ownership.",
+        "Verify stale teardown cannot detach a replacement and the other preview remains unchanged."
+      ]
+    },
+    {
+      "id": "H4",
+      "prompt": "A Flutter scene update was acknowledged in 2 ms and its post-frame callback completed in 24 ms, but the captured image is still a spinner. Can I claim it is faster than an equivalent JS visualization? Give the next measurement and verification steps.",
+      "criteria": [
+        "Refuse the performance-superiority claim from the current evidence.",
+        "Distinguish acknowledgement/completed frame from independent useful pixels.",
+        "Wait for or instrument meaningful scene/GPU preparation and retain failed spinner evidence.",
+        "Compare equivalent workloads and cold/warm cohorts with repeated distributions."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,660 @@
+import 'browser_cache_checks.dart';
+import 'retained_browser_checks.dart';
+import 'immutable_bundle_checks.dart';
+import 'damped_oscillator_checks.dart';
+
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'multi_view_checks.dart';
+import 'missing_entry_checks.dart';
+
+import 'package:crypto/crypto.dart';
+import 'package:flutter_mcp_harness/flutter_mcp_harness.dart'
+    show FlutterWebCdp;
+import 'package:oka_core/oka_core.dart';
+import 'package:oka_web/oka_web.dart';
+import 'package:universal_browser_cdp/universal_browser_cdp.dart';
+import 'package:universal_automation_interface/universal_automation_interface.dart';
+
+/// One bounded qualification job. Browser/server teardown precedes job success.
+Future<void> main(List<String> args) async {
+  if (args.length != 3 && args.length != 4) {
+    throw ArgumentError('worker PROJECT BUNDLE EVIDENCE [SCENARIO]');
+  }
+  final multiView = args.length == 4 && args[3] == 'multi-view';
+  final shaderProbe = args.length == 4 && args[3] == 'shader-probe';
+  final missingPhysical = args.length == 4 && args[3] == 'missing-physical';
+  final retainedBrowser = args.length == 4 && args[3] == 'retained-browser';
+  final cacheProbe = args.length == 4 && args[3] == 'browser-cache';
+  final immutableProbe = args.length == 4 && args[3] == 'immutable-bundle';
+  final wasmProbe = args.length == 4 && args[3] == 'wasm';
+  final jsIsolated = args.length == 4 && args[3] == 'js-isolated';
+  final novelProbe = args.length == 4 && args[3] == 'novel-damped';
+  final isolatedProbe = wasmProbe || jsIsolated;
+  final serverRequests = <Map<String, Object?>>[];
+  if (args.length == 4 &&
+      !multiView &&
+      !shaderProbe &&
+      !missingPhysical &&
+      !retainedBrowser &&
+      !immutableProbe &&
+      !wasmProbe &&
+      !jsIsolated &&
+      !novelProbe &&
+      !cacheProbe) {
+    throw ArgumentError('unsupported qualification scenario');
+  }
+  final expectedWidth = multiView ? 1440 : 1120;
+  final project = Directory(args[0]).resolveSymbolicLinksSync();
+  final bundle = Directory(args[1]).resolveSymbolicLinksSync();
+  final output = Directory(args[2])..createSync(recursive: true);
+  final stages = <String, int>{};
+  final checks = <Map<String, Object?>>[];
+  final errors = <String>[];
+  final browserLog = <Map<String, Object?>>[];
+  StreamSubscription? logSubscription;
+  final clock = Stopwatch()..start();
+  HttpServer? server;
+  BrowserPageSession? browser;
+  CdpPage? page;
+  Future<Map<String, dynamic>> state() async =>
+      jsonDecode(await page!.evaluate('window.__ecslyViewerState()') as String)
+          as Map<String, dynamic>;
+  Future<void> waitFor(Future<bool> Function() ready, Duration budget) async {
+    final clock = Stopwatch()..start();
+    while (clock.elapsed < budget) {
+      if (await ready().timeout(budget - clock.elapsed)) return;
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
+    throw TimeoutException('Declared readiness was not observed', budget);
+  }
+
+  try {
+    final bundleManifest = await WebBundleManifest.capture(Directory(bundle));
+    final immutable = immutableProbe
+        ? await WebBundleSnapshot.load(
+            directory: Directory(bundle),
+            manifest: bundleManifest,
+            maxBytes: 64 * 1024 * 1024,
+          )
+        : null;
+    final buildReceipt = File('$project/output/validation/build.json');
+    Map? expectedBundle;
+    if (buildReceipt.existsSync()) {
+      final prior = jsonDecode(await buildReceipt.readAsString()) as Map;
+      expectedBundle = prior['outputBundle'] as Map?;
+      if (expectedBundle != null &&
+          WebBundleManifest.fromJson(Map<String, dynamic>.from(expectedBundle))
+                  .digest !=
+              bundleManifest.digest) {
+        throw StateError(
+          'Built bundle differs from its recorded output identity',
+        );
+      }
+    }
+    await File('${output.path}/served-bundle.json').writeAsString(
+      jsonEncode({
+        ...bundleManifest.toJson(),
+        'buildReceiptIdentityMatched': expectedBundle != null,
+        'controlledResponseTransformation': missingPhysical
+            ? 'negative shader fixture; transformed response identity recorded separately'
+            : null,
+        'identityBasis': expectedBundle == null
+            ? 'runtime capture; legacy build receipt lacks output identity'
+            : 'build output receipt',
+      }),
+    );
+    server = await HttpServer.bind(InternetAddress.loopbackIPv4, 0);
+    server.listen((request) async {
+      if (isolatedProbe)
+        WebIsolationPolicy.requireCorp.headers.forEach(
+          request.response.headers.set,
+        );
+      final parts = request.uri.pathSegments;
+      if (parts.any((p) => p == '..' || p.contains('/') || p.contains('\\'))) {
+        request.response.statusCode = 400;
+        await request.response.close();
+        return;
+      }
+      final addressed = parts.isNotEmpty && parts.first == 'bundles';
+      if (immutableProbe && !addressed) {
+        request.response.statusCode = 404;
+        await request.response.close();
+        return;
+      }
+      if (addressed &&
+          (immutable == null ||
+              parts.length < 3 ||
+              parts[1] != immutable.digest)) {
+        request.response.statusCode = 404;
+        await request.response.close();
+        return;
+      }
+      final rel = addressed
+          ? parts.skip(2).join('/')
+          : parts.isEmpty || parts.last.isEmpty
+          ? 'index.html'
+          : parts.join('/');
+      if (!bundleManifest.files.containsKey(rel)) {
+        request.response.statusCode = 404;
+        await request.response.close();
+        return;
+      }
+      final List<int> verifiedBytes;
+      try {
+        verifiedBytes = immutable != null
+            ? addressed
+                  ? immutable.readAssetUri(request.uri)
+                  : immutable.read(rel)
+            : await bundleManifest.readVerified(Directory(bundle), rel);
+      } catch (error) {
+        await File('${output.path}/bundle-violation.json')
+            .writeAsString(jsonEncode({'path': rel, 'error': '$error'}));
+        request.response.statusCode = 409;
+        await request.response.close();
+        return;
+      }
+      final type = rel.endsWith('.wasm')
+          ? 'application/wasm'
+          : (rel.endsWith('.js') || rel.endsWith('.mjs'))
+          ? 'application/javascript'
+          : rel.endsWith('.html')
+          ? 'text/html'
+          : rel.endsWith('.json')
+          ? 'application/json'
+          : 'application/octet-stream';
+      request.response.headers.contentType = ContentType.parse(type);
+      final cachePolicy = addressed
+          ? WebBundleCachePolicy.immutable
+          : cacheProbe
+          ? WebBundleCachePolicy.revalidate
+          : WebBundleCachePolicy.noStore;
+      final hash = bundleManifest.files[rel]!.sha256;
+      cachePolicy.headersFor(hash).forEach(request.response.headers.set);
+      final conditional = request.headers.value(HttpHeaders.ifNoneMatchHeader);
+      if (cachePolicy.isNotModified(hash, conditional)) {
+        serverRequests.add({
+          'path': rel,
+          'uri': request.uri.path,
+          'status': 304,
+          'conditional': true,
+          'verified': true,
+        });
+        request.response.statusCode = HttpStatus.notModified;
+        await request.response.close();
+        return;
+      }
+      serverRequests.add({
+        'path': rel,
+        'uri': request.uri.path,
+        'status': 200,
+        'contentType': type,
+        'payloadBytes': verifiedBytes.length,
+        'conditional': conditional != null,
+        'verified': true,
+      });
+      if (missingPhysical &&
+          rel.contains('material.physical') &&
+          rel.endsWith('.shaderbundle')) {
+        final corrupt = corruptPhysicalEntry(Uint8List.fromList(verifiedBytes));
+        await File('${output.path}/corrupt-bundle.json').writeAsString(
+          jsonEncode({
+            'path': rel,
+            'replacements': corrupt.replacements,
+            'sourceSha256': sha256.convert(verifiedBytes).toString(),
+            'servedSha256': sha256.convert(corrupt.bytes).toString(),
+            'fixture': 'required PhysicalOpaque entry renamed; source bundle unchanged',
+          }),
+        );
+        request.response.add(corrupt.bytes);
+        await request.response.close();
+        return;
+      }
+      request.response.add(verifiedBytes);
+      await request.response.close();
+    });
+    stages['hostReadyUs'] = clock.elapsedMicroseconds;
+    browser = await startBrowserPageSession(
+      context: BuildContext(
+        projectPath: project,
+        buildDir: '$project/.oka_cache/dogfood',
+        mode: BuildMode.debug,
+        config: OkaConfig.empty,
+      ),
+      appUrl: Uri.parse(
+        'http://127.0.0.1:${server.port}/${immutable == null
+            ? multiView
+                  ? 'multi_view.html'
+                  : ''
+            : 'bundles/${immutable.digest}/index.html'}',
+      ),
+      sessionName: 'visualization-dogfood-$pid',
+      spec: BrowserSessionSpec(
+        windowSize: (width: expectedWidth, height: 1000),
+      ),
+      onStage: (name, time) => stages['$name-us'] = time.inMicroseconds,
+    );
+    final ws = Uri.parse(browser.pageWsUrl);
+    page = await CdpPage.attach(
+      await CdpConnection.connect(ws),
+      CdpTargetInfo(
+        id: ws.pathSegments.last,
+        type: 'page',
+        url: 'http://127.0.0.1:${server.port}',
+        title: 'Visualization dogfood',
+        webSocketDebuggerUrl: ws.toString(),
+      ),
+    );
+    logSubscription = page.connection.on('Log.entryAdded').listen((event) {
+      browserLog.add(Map<String, Object?>.from(event.params));
+    });
+    await page.connection.send('Log.enable');
+    final viewport = jsonDecode(
+      await page.evaluate(
+        'JSON.stringify({width:window.innerWidth,height:window.innerHeight})',
+      ) as String,
+    ) as Map<String, dynamic>;
+    await File('${output.path}/viewport.json')
+        .writeAsString(jsonEncode(viewport));
+    if (viewport['width'] != expectedWidth || viewport['height'] < 900) {
+      throw StateError(
+        'Declared browser window did not provide the required viewport: $viewport',
+      );
+    }
+    final subscription = page.connection
+        .on('Runtime.exceptionThrown')
+        .listen((event) => errors.add(jsonEncode(event.params)));
+    await waitFor(
+      () async =>
+          await page!.evaluate(
+            novelProbe
+                ? 'typeof window.__dampedState === "function"'
+                : 'typeof window.__ecslyViewerState === "function"',
+          ) ==
+          true,
+      const Duration(seconds: 45),
+    );
+    stages['appReadyUs'] = clock.elapsedMicroseconds;
+    qualification:
+    {
+      if (novelProbe) {
+        final observed = await qualifyDampedOscillator(page, output, checks);
+        await subscription.cancel();
+        if (errors.isNotEmpty) throw StateError('Runtime exceptions: $errors');
+        await File('${output.path}/result.json').writeAsString(
+          jsonEncode({
+            'passed': true,
+            'checks': checks,
+            'state': observed,
+            'runtimeErrors': errors,
+            'scope': 'Frozen new-task mathematical and web action checks; inspect pixels separately. No native or compositor claim.',
+          }),
+        );
+        break qualification;
+      }
+      if (missingPhysical) {
+        await writeMissingEntryResult(page, output, stages, checks, errors);
+        await subscription.cancel();
+        break qualification;
+      }
+      await waitFor(() async {
+        bool hasViewport(AxNode node) =>
+            (node.name?.startsWith('Interactive spatial view.') ?? false) ||
+            node.children.any(hasViewport);
+        return (await CdpDriver(page!).snapshot()).roots.any(hasViewport);
+      }, const Duration(seconds: 45));
+      stages['sceneSemanticsReadyUs'] = clock.elapsedMicroseconds;
+      if (!multiView) {
+        await waitFor(() async {
+          final current = await state();
+          final startup = current['startup'] as Map?;
+          final marks = startup?['marksUs'] as Map?;
+          return marks?['firstSceneRenderReturned'] is num ||
+              marks?['firstCanvasPaintReturned'] is num;
+        }, const Duration(seconds: 45));
+        stages['rendererReturnObservedUs'] = clock.elapsedMicroseconds;
+        final initialState = await state();
+        if (initialState['enginePreparation'] is List) {
+          await File('${output.path}/engine-preparation.json').writeAsString(
+            const JsonEncoder.withIndent('  ')
+                .convert(initialState['enginePreparation']),
+          );
+        }
+        await File('${output.path}/startup.json').writeAsString(
+          const JsonEncoder.withIndent('  ')
+              .convert((await state())['startup']),
+        );
+        await File('${output.path}/first-scene.png')
+            .writeAsBytes(await CdpDriver(page).screenshot());
+        stages['firstSceneCaptureReceivedUs'] = clock.elapsedMicroseconds;
+      }
+      if (isolatedProbe) {
+        final profile = await page.evaluate(
+          'JSON.stringify({isolated:crossOriginIsolated, sharedArrayBuffer:typeof SharedArrayBuffer !== "undefined", userAgent:navigator.userAgent})',
+        );
+        final runtime = await state();
+        await File(
+          '${output.path}/${wasmProbe ? 'wasm' : 'js'}-runtime.json',
+        ).writeAsString(
+          jsonEncode({
+            'browser': jsonDecode(profile as String),
+            'browserVersion': await page.connection.send('Browser.getVersion'),
+            'heap': await page.connection.send('Runtime.getHeapUsage'),
+            'compiledWithWasm': runtime['compiledWithWasm'],
+            'requestedProgram': serverRequests
+                .where(
+                  (r) => (r['path'] as String).endsWith(
+                    wasmProbe ? 'main.dart.wasm' : 'main.dart.js',
+                  ),
+                )
+                .toList(),
+            'rendererAssets': serverRequests
+                .where(
+                  (r) => (r['path'] as String).contains(
+                    wasmProbe ? 'skwasm' : 'canvaskit',
+                  ),
+                )
+                .toList(),
+            'isolationHeaders': WebIsolationPolicy.requireCorp.headers,
+          }),
+        );
+        if (runtime['compiledWithWasm'] != wasmProbe ||
+            (jsonDecode(profile) as Map)['isolated'] != true ||
+            !serverRequests.any(
+              (r) => (r['path'] as String).endsWith(
+                wasmProbe ? 'main.dart.wasm' : 'main.dart.js',
+              ),
+            )) {
+          throw StateError(
+            'Wasm runtime/isolation/program receipt not qualified',
+          );
+        }
+        final beforeInvalid = await state();
+        final invalidArgs = {
+          'requestId': 'cohort-fractional-revision',
+          'expectedRevision': 1.5,
+          'document': jsonEncode(beforeInvalid['document']),
+        };
+        final rejected = await page.evaluateAsync(
+          "(async () => { try { await window.__mcpActions.viewer_apply.invoke(${jsonEncode(invalidArgs)}); return false; } catch (_) { return true; } })()",
+        );
+        final afterInvalid = await state();
+        if (rejected != true ||
+            jsonEncode(beforeInvalid) != jsonEncode(afterInvalid)) {
+          throw StateError(
+            'Wasm bridge accepted fractional revision or mutated state',
+          );
+        }
+        checks.add({
+          'action': 'fractional revision refusal',
+          'effect': 'state unchanged',
+        });
+        checks.add({
+          'action': '${wasmProbe ? 'Wasm' : 'JS'} runtime and isolation',
+          'effect': 'observed',
+        });
+      }
+      final driver = CdpDriver(page);
+      final beforeReadiness = await state();
+      final flutter = FlutterWebCdp(page, driver);
+      await flutter.waitForSemantics();
+      final afterReadiness = await state();
+      if (jsonEncode(beforeReadiness) != jsonEncode(afterReadiness)) {
+        throw StateError('Semantics readiness changed application state');
+      }
+      checks.add({
+        'action': 'semantics readiness without input',
+        'effect': 'state unchanged',
+      });
+      final targeting = CdpSemanticTargeting(
+        page,
+        timeout: const Duration(seconds: 10),
+      );
+      Future<void> click(
+        String name,
+        bool Function(Map<String, dynamic>, Map<String, dynamic>) changed,
+      ) async {
+        final receipt = await verifyEffect(
+          dispatch: () => name == 'Oscillators'
+              ? flutter.clickText(
+                  name,
+                  effect: () async =>
+                      (await state())['example'] == 'simulation',
+                )
+              : targeting.clickTarget(
+                  SemanticTarget(role: 'button', name: name),
+                ),
+          observe: state,
+          changed: changed,
+          timeout: const Duration(seconds: 20),
+          dispatchTimeout: const Duration(seconds: 5),
+        );
+        if (!receipt.verified) {
+          await File('${output.path}/effect-failure.json').writeAsString(
+            jsonEncode({
+              'target': name,
+              'delivery': receipt.delivery.name,
+              'effect': receipt.effect.name,
+              'dispatchError': receipt.dispatchError,
+              'observationError': receipt.observationError,
+              'before': receipt.before,
+              'after': receipt.after,
+            }),
+          );
+          await File('${output.path}/failure.png')
+              .writeAsBytes(await driver.screenshot());
+          await File('${output.path}/failure-ax.json')
+              .writeAsString(jsonEncode((await driver.snapshot()).toJson()));
+          throw StateError('No observed effect: $name');
+        }
+        checks.add({
+          'action': name,
+          'delivery': receipt.delivery.name,
+          'effect': receipt.effect.name,
+        });
+      }
+
+      Map<String, Object?>? multiResult;
+      if (multiView) {
+        multiResult = await qualifyMultiView(page, output, checks);
+      } else {
+        await click('Parse', (a, b) => b['selected'] == 1);
+        final before = await state();
+        final document = Map<String, dynamic>.from(before['document'] as Map);
+        final labels = [
+          'Intent',
+          'Build',
+          'Scene',
+          'Render',
+          'Observe',
+          'Verify',
+        ];
+        final nodes = (document['nodes'] as List).indexed
+            .map(
+              (row) => {
+                'label': labels[row.$1],
+                'position': (row.$2 as Map)['position'],
+              },
+            )
+            .toList();
+        final receipt = await verifyEffect(
+          dispatch: () => driver.perform(
+            InvokeAction(
+              'viewer_apply',
+              args: {
+                'requestId': 'dogfood-2',
+                'expectedRevision': document['revision'],
+                'document': jsonEncode({
+                  ...document,
+                  'revision': 2,
+                  'title': 'From intent to verified frame',
+                  'description': 'Build a scene, observe its result, preserve the evidence.',
+                  'nodes': nodes,
+                }),
+              },
+            ),
+          ),
+          observe: state,
+          changed: (a, b) =>
+              b['presentedRevision'] == 2 &&
+              (b['lastReceipt'] as Map?)?['requestId'] == 'dogfood-2',
+          timeout: const Duration(seconds: 20),
+          dispatchTimeout: const Duration(seconds: 5),
+        );
+        await File('${output.path}/resident-effect.json').writeAsString(
+          jsonEncode({
+            'delivery': receipt.delivery.name,
+            'effect': receipt.effect.name,
+            'dispatchError': receipt.dispatchError,
+            'observationError': receipt.observationError,
+            'before': receipt.before,
+            'after': receipt.after,
+          }),
+        );
+        if (!receipt.verified ||
+            receipt.after['runtimeId'] != before['runtimeId'] ||
+            receipt.after['selected'] != before['selected'] ||
+            receipt.after['yaw'] != before['yaw'])
+          throw StateError('Resident continuity failed');
+        checks.add({
+          'action': 'resident document',
+          'delivery': receipt.delivery.name,
+          'effect': receipt.effect.name,
+          'frameUs': receipt.after['dataToFlutterFrameUs'],
+        });
+        await Future<void>.delayed(const Duration(milliseconds: 250));
+        await File('${output.path}/graph.png')
+            .writeAsBytes(await driver.screenshot());
+        await click('Oscillators', (a, b) => b['example'] == 'simulation');
+        await click(
+          'Step 1/60 s',
+          (a, b) => (b['time'] as num) > (a['time'] as num),
+        );
+        await click('Linked observations', (a, b) => b['example'] == 'linked');
+        await click('Use dark theme', (a, b) => b['dark'] == true);
+        await Future<void>.delayed(const Duration(milliseconds: 250));
+        await File('${output.path}/linked-dark.png')
+            .writeAsBytes(await driver.screenshot());
+      }
+      if (shaderProbe) {
+        final probe = jsonDecode(
+          await page.evaluateAsync('window.__ecslyShaderProbe()') as String,
+        ) as Map;
+        const requiredKeys = [
+          'lookupCached',
+          'missingEntryNull',
+          'byteReloadIdentity',
+          'assetReloadIdentity',
+          'pendingLookupAfterReload',
+          'firstUseCompileError',
+          'recoveredAfterCompileError',
+        ];
+        if (requiredKeys.any((key) => probe[key] != true) ||
+            probe.values.any((value) => value != true)) {
+          throw StateError('shader probe failed: $probe');
+        }
+        await File('${output.path}/shader-probe.json')
+            .writeAsString(jsonEncode(probe));
+        checks.add({
+          'action': 'shader lookup/reload/error recovery',
+          'effect': 'observed',
+          'probe': probe,
+        });
+        await File('${output.path}/after-shader-probe.png')
+            .writeAsBytes(await driver.screenshot());
+      }
+      await subscription.cancel();
+      if (retainedBrowser) {
+        await qualifyRetainedBrowser(
+          owner: browser,
+          ownerPage: page,
+          project: project,
+          appUrl: Uri.parse('http://127.0.0.1:${server.port}/'),
+          output: output,
+          checks: checks,
+        );
+      }
+      if (cacheProbe)
+        await qualifyBrowserCache(page, output, serverRequests, checks);
+      if (immutable != null) {
+        await qualifyBrowserCache(
+          page,
+          output,
+          serverRequests,
+          checks,
+          immutable: true,
+          bundlePrefix: '/bundles/${immutable.digest}/',
+        );
+        await qualifyImmutableBundle(
+          Uri.parse('http://127.0.0.1:${server.port}/'),
+          immutable,
+          output,
+          checks,
+        );
+      }
+      if (errors.isNotEmpty) throw StateError('Runtime exceptions: $errors');
+      await File('${output.path}/result.json').writeAsString(
+        const JsonEncoder.withIndent('  ').convert({
+          'passed': true,
+          'stages': stages,
+          'checks': checks,
+          'state': multiResult ?? await state(),
+          'runtimeErrors': errors,
+          'compilerInvocationsDuringApply': 0,
+          'note': 'Completed Flutter frame is separate from GPU/compositor presentation; inspect captures.',
+        }),
+      );
+    }
+  } catch (error, stack) {
+    if (page != null) {
+      try {
+        final driver = CdpDriver(page);
+        await File('${output.path}/failure.png').writeAsBytes(
+          await driver.screenshot().timeout(const Duration(seconds: 3)),
+        );
+        await File('${output.path}/failure-ax.json').writeAsString(
+          jsonEncode(
+            (await driver.snapshot().timeout(const Duration(seconds: 3)))
+                .toJson(),
+          ),
+        );
+      } catch (diagnosticError) {
+        await File('${output.path}/diagnostic-error.txt')
+            .writeAsString('$diagnosticError');
+      }
+    }
+    await File('${output.path}/result.json').writeAsString(
+      jsonEncode({
+        'passed': false,
+        'error': '$error',
+        'stack': '$stack',
+        'stages': stages,
+        'checks': checks,
+        'runtimeErrors': errors,
+      }),
+    );
+    rethrow;
+  } finally {
+    try {
+      await File('${output.path}/server-requests.json')
+          .writeAsString(jsonEncode(serverRequests));
+      await File('${output.path}/browser-log.json')
+          .writeAsString(jsonEncode(browserLog));
+    } finally {
+      try {
+        await logSubscription?.cancel();
+        await page?.close(closeTarget: false);
+      } finally {
+        try {
+          await browser?.stop();
+        } finally {
+          await server?.close(force: true);
+        }
+      }
+    }
+  }
+  print('visualization-dogfood-complete');
+}

@@ -1,0 +1,105 @@
+// This lab probes the experimental backend, not the consumer API.
+// ignore_for_file: implementation_imports
+import 'dart:convert';
+import 'dart:js_interop';
+import 'package:flutter/services.dart';
+import 'package:flutter_scene/preparation_diagnostics.dart';
+import 'package:flutter_scene/src/gpu/web/_gpu.dart' as gpu;
+import 'package:flutter_scene/src/gpu/web/shader_bundle_generated.dart' as fb;
+
+@JS('__ecslyShaderProbe')
+external set _probe(JSFunction value);
+
+void installShaderProbe() {
+  _probe = (() => _run().toJS).toJS;
+}
+
+Future<JSString> _run() async {
+  final records = preparationDiagnostics.snapshot();
+  final asset =
+      records.firstWhere(
+            (r) =>
+                r['phase'] == 'bundlePolicy' &&
+                (r['asset'] as String).contains('shaderbundle.base'),
+          )['asset']
+          as String;
+  final data = await rootBundle.load(asset);
+  final library = (await gpu.loadShaderLibraryAsync(asset))!;
+  final shader = library['UnlitFragment'];
+  if (shader == null ||
+      library['missing-probe-entry'] != null ||
+      !identical(shader, library['UnlitFragment'])) {
+    throw StateError('shader lookup/cache contract failed');
+  }
+  final byteReload = await gpu.reinitializeShaderLibraryFromBytesAsync(
+    library,
+    data,
+  );
+  if (byteReload != null || !identical(shader, library['UnlitFragment'])) {
+    throw StateError('byte reload lost shader identity: $byteReload');
+  }
+  await gpu.reinitializeShaderLibraryAsync(asset);
+  if (!identical(shader, library['UnlitFragment']) ||
+      library['FullscreenVertex'] == null) {
+    throw StateError('asset reload or pending lookup failed');
+  }
+  // Corrupt a fresh library's unused vertex source inside an otherwise valid
+  // flatbuffer. Lazy mode delays the compile error until this entry is used.
+  final bad = Uint8List.fromList(
+    data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
+  );
+  final bundle = fb.ShaderBundle(bad);
+  final entry = bundle.shaders!.firstWhere((e) => e.name == 'UnskinnedVertex');
+  final source = entry.openglEs!.shader!;
+  final glsl = utf8.decode(source);
+  final main = RegExp(r'void\s+main\s*\(').firstMatch(glsl);
+  if (main == null) throw StateError('vertex probe source anchor missing');
+  var sourceOffset = -1;
+  for (var i = 0; i <= bad.length - source.length; i++) {
+    if (bad[i] != source.first) continue;
+    var matches = true;
+    for (var j = 1; j < source.length; j++) {
+      if (bad[i + j] != source[j]) {
+        matches = false;
+        break;
+      }
+    }
+    if (matches) {
+      sourceOffset = i;
+      break;
+    }
+  }
+  if (sourceOffset < 0) throw StateError('vertex source byte range missing');
+  bad[sourceOffset + main.start + 2] = 33; // vo!d
+  final errorLibrary = (await gpu.loadShaderLibraryAsync(asset))!;
+  errorLibrary['UnlitFragment'];
+  final deferredReload = await gpu.reinitializeShaderLibraryFromBytesAsync(
+    errorLibrary,
+    ByteData.sublistView(bad),
+  );
+  var firstUseError = false;
+  try {
+    errorLibrary['UnskinnedVertex'];
+  } catch (_) {
+    firstUseError = true;
+  }
+  if (deferredReload != null || !firstUseError) {
+    throw StateError('expected deferred first-use compile failure');
+  }
+  final recovery = await gpu.reinitializeShaderLibraryFromBytesAsync(
+    errorLibrary,
+    data,
+  );
+  if (recovery != null || errorLibrary['UnskinnedVertex'] == null) {
+    throw StateError('failed shader did not recover from new source');
+  }
+  return jsonEncode({
+    'lookupCached': true,
+    'missingEntryNull': true,
+    'byteReloadIdentity': true,
+    'assetReloadIdentity': true,
+    'pendingLookupAfterReload': true,
+    'firstUseCompileError': true,
+    'recoveredAfterCompileError': true,
+  }).toJS;
+}

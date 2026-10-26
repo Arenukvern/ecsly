@@ -1,0 +1,16 @@
+schema: ae.canonical_matrix.v1
+concept: ecsly_codegen
+version: 1
+column_schema:
+  - { id: spec, type: text }
+  - { id: invariant, type: text }
+features:
+  - id: ecsly_codegen.ecs_column_type
+    spec: "EcsColumnType (enum) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_codegen.ecs_component
+    spec: "EcsComponent (class) — fill in the spec here."
+    invariant: ""
+  - id: ecsly_codegen.ecs_component_generator
+    spec: "EcsComponentGenerator (class) — fill in the spec here."
+    invariant: ""

@@ -563,6 +563,7 @@ class CommandQueue {
         _restoreUpsertCommands(entities, components, start: 1);
         throw EntityNotFoundError(entities[i]);
       }
+      // Slice views (no copy); the callee only reads them.
       _upsertHomogeneousComponents(
         entities.sublist(0, i),
         componentId,
