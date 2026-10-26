@@ -87,6 +87,23 @@
         { "type": "refactor", "section": "Miscellaneous", "hidden": true },
         { "type": "test", "section": "Miscellaneous", "hidden": true }
       ]
+    },
+    "plugins/ecsly_replay": {
+      "release-type": "dart",
+      "versioning": "prerelease",
+      "prerelease": true,
+      "prerelease-type": "dev",
+      "package-name": "ecsly_replay",
+      "component": "ecsly_replay",
+      "changelog-sections": [
+        { "type": "feat", "section": "Features" },
+        { "type": "fix", "section": "Bug Fixes" },
+        { "type": "perf", "section": "Performance" },
+        { "type": "docs", "section": "Documentation" },
+        { "type": "chore", "section": "Miscellaneous", "hidden": true },
+        { "type": "refactor", "section": "Miscellaneous", "hidden": true },
+        { "type": "test", "section": "Miscellaneous", "hidden": true }
+      ]
     }
   }
 }

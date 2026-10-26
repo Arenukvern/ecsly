@@ -19,7 +19,8 @@ It is intentionally smaller than the private development repo.
 ## Current Scope
 
 - Canonical here: `core_packages/ecsly`, `core_packages/ecsly_app`,
-  `core_packages/ecsly_codegen`, and `core_packages/ecsly_flutter`.
+ `core_packages/ecsly_codegen`, `core_packages/ecsly_flutter`, and
+ `plugins/ecsly_serialization`, `plugins/ecsly_replay`.
 - Not canonical here: packages, tools, experiments, or validation tracks that are
   not present in this repository.
 - Do not add compatibility sync scripts or bidirectional mirror machinery.

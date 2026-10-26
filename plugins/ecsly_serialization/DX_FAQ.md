@@ -89,6 +89,17 @@ the raw JSON map directly.
 Registration reorder/add/remove needs no migration — component identity
 travels as type names and data is remapped automatically.
 
+## How do I restore into a world that already has entities?
+
+Use reconcile mode for replay/inspector flows:
+
+```dart
+reconcileWorldSnapshot(world, snapshot);
+// Partial outcomes: reconcileWorldSnapshot(world, partial, despawnAbsent: false);
+```
+
+Full snapshots should match spawn restore captures (see reconcile tests).
+
 ## How do I make restore fail loudly on unknown components?
 
 ```dart

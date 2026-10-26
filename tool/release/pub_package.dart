@@ -44,6 +44,11 @@ const _packageOrder = <_PackageSpec>[
     path: 'plugins/ecsly_serialization',
     tool: _PubTool.dart,
   ),
+  _PackageSpec(
+    name: 'ecsly_replay',
+    path: 'plugins/ecsly_replay',
+    tool: _PubTool.dart,
+  ),
 ];
 
 final _packages = {for (final package in _packageOrder) package.name: package};

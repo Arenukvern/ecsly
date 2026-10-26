@@ -95,6 +95,17 @@ time, no per-call ceremony. Per-call `componentFactories` remain as an escape
 hatch for one-off constructions. SoA/tag components need nothing — their
 columns are zero-initialized and filled from snapshot data.
 
+## When should I use reconcile restore instead of spawn restore?
+
+Use `reconcileWorldSnapshot` (or `restoreWorldSnapshot` with
+`WorldSnapshotRestoreMode.reconcile`) when the target world already has live
+entities — for example replay seek into an inspector world. Reconcile overwrites
+values by `PersistentId`, adds/removes components to match the snapshot,
+despawns persisted entities missing from a **full** snapshot, and leaves entities
+without `PersistentId` alone. Partial command outcomes should pass
+`despawnAbsent: false`. Spawn restore remains the save/load default and the test
+oracle: both paths must yield identical captures for full snapshots.
+
 ## Why does restore spawn fresh entities instead of writing into pre-existing ones?
 
 Writing into pre-spawned entities required the target world to reproduce the
