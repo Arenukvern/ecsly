@@ -255,7 +255,7 @@ void main() {
       initialBaseline: _capture(w0),
     );
     final ok = player.verifyDeterminism(
-      emptyTemplate: buildSerializationTestWorld(),
+      createColdWorld: buildSerializationTestWorld,
       target: const ReplayPosition(tick: 2, seq: 0),
       initialSnapshot: _capture(w0),
     );
@@ -486,7 +486,7 @@ void main() {
     );
     expect(
       () => player.verifyDeterminism(
-        emptyTemplate: buildSerializationTestWorld(),
+        createColdWorld: buildSerializationTestWorld,
         target: const ReplayPosition(tick: 2, seq: 0),
         initialSnapshot: _capture(w0),
         transientPolicy: TransientPolicy.keep,
@@ -495,7 +495,7 @@ void main() {
     );
     expect(
       player.verifyDeterminism(
-        emptyTemplate: buildSerializationTestWorld(),
+        createColdWorld: buildSerializationTestWorld,
         target: const ReplayPosition(tick: 2, seq: 0),
         initialSnapshot: _capture(w0),
       ),
@@ -599,4 +599,103 @@ void main() {
       }
     },
   );
+
+  test('createColdWorld is isolated from hot world and template', () {
+    final (log, checkpoints) = _sessionWithTicks();
+    final w0 = buildSerializationTestWorld();
+    _heroAt(w0, 0);
+    final template = buildSerializationTestWorld();
+    _heroAt(template, 42);
+
+    final hotWorld = buildSerializationTestWorld();
+    _heroAt(hotWorld, 88);
+    final player = ReplayPlayer(
+      world: hotWorld,
+      log: log,
+      checkpoints: checkpoints,
+      initialBaseline: _capture(w0),
+    );
+
+    World? coldRef;
+    player.replayColdCapture(
+      createColdWorld: () {
+        coldRef = buildSerializationTestWorld();
+        return coldRef!;
+      },
+      target: const ReplayPosition(tick: 2, seq: 0),
+      initialSnapshot: _capture(w0),
+    );
+    expect(coldRef, isNotNull);
+    _heroAt(coldRef!, 0);
+    expect(_positionX(template), 42);
+    expect(_positionX(hotWorld), 88);
+  });
+
+  test('persistedCapturesMatch detects divergence (verifyDeterminism gate)', () {
+    final (log, checkpoints) = _sessionWithTicks();
+    final w0 = buildSerializationTestWorld();
+    _heroAt(w0, 0);
+    final player = ReplayPlayer(
+      world: buildSerializationTestWorld(),
+      log: log,
+      checkpoints: checkpoints,
+      initialBaseline: _capture(w0),
+    );
+    final cold = player.replayColdCapture(
+      createColdWorld: buildSerializationTestWorld,
+      target: const ReplayPosition(tick: 2, seq: 0),
+      initialSnapshot: _capture(w0),
+    );
+    player.seekToTick(1, transientPolicy: TransientPolicy.despawn);
+    expect(player.persistedCapturesMatch(cold), isFalse);
+    expect(
+      player.verifyDeterminism(
+        createColdWorld: buildSerializationTestWorld,
+        target: const ReplayPosition(tick: 2, seq: 0),
+        initialSnapshot: _capture(w0),
+      ),
+      isTrue,
+    );
+  });
+
+  test('verifyDeterminism with inputReplayer that reads transients', () {
+    final log = _emptyLog();
+    final checkpoints = CheckpointStore(cadence: 1);
+    final recorder = ReplayRecorder(log: log, checkpoints: checkpoints);
+
+    final w0 = buildSerializationTestWorld();
+    _heroAt(w0, 0);
+    checkpoints.save(w0, 0);
+
+    final w1 = buildSerializationTestWorld();
+    _heroAt(w1, 4);
+    recorder.recordInput(tick: 1, inputType: 'step', data: const {});
+    recorder.recordCommand(tick: 1, outcome: _capture(w1));
+
+    var transientsSeenDuringInput = -1;
+    final hotWorld = buildSerializationTestWorld();
+    _heroAt(hotWorld, 99);
+    _spawnTransient(hotWorld);
+
+    final player = ReplayPlayer(
+      world: hotWorld,
+      log: log,
+      checkpoints: checkpoints,
+      initialBaseline: _capture(w0),
+      inputReplayer: (final world, final type, final data) {
+        transientsSeenDuringInput = _transientCount(world);
+      },
+    );
+
+    expect(
+      player.verifyDeterminism(
+        createColdWorld: buildSerializationTestWorld,
+        target: const ReplayPosition(tick: 1, seq: 1),
+        initialSnapshot: _capture(w0),
+      ),
+      isTrue,
+    );
+    expect(transientsSeenDuringInput, 0);
+    expect(_transientCount(hotWorld), 0);
+  });
 }

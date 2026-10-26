@@ -17,6 +17,9 @@ typedef InputReplayer = void Function(
   Map<String, Object?> data,
 );
 
+/// Builds an isolated world for cold replay inside [ReplayPlayer.verifyDeterminism].
+typedef ColdWorldFactory = World Function();
+
 /// Restores and seeks within a replay log.
 class ReplayPlayer {
   /// Creates a player bound to [world].
@@ -144,6 +147,10 @@ class ReplayPlayer {
       _position = const ReplayPosition(tick: -1, seq: -1);
     }
 
+    if (policy == TransientPolicy.despawn) {
+      _despawnTransientEntities();
+    }
+
     for (final entry in log.entries) {
       if (!entry.isAfterPosition(_position)) continue;
       if (!entry.isBeforeOrAt(target.tick, target.seq)) break;
@@ -151,15 +158,54 @@ class ReplayPlayer {
       _position = ReplayPosition.after(entry);
     }
 
-    _applyTransientPolicy(policy);
+    // [InputReplayer] (and similar hooks) may spawn transient entities during
+    // forward replay; strip them again so the final world matches cold replay.
+    if (policy == TransientPolicy.despawn) {
+      _despawnTransientEntities();
+    }
   }
 
-  /// Cold replay from empty vs hot [seekTo] at [target]; returns equality.
+  /// Captures persisted state after a cold replay in a fresh [createColdWorld].
+  Map<int, Map<String, Object?>> replayColdCapture({
+    required final ColdWorldFactory createColdWorld,
+    required final ReplayPosition target,
+    final WorldSnapshot? initialSnapshot,
+    final TransientPolicy transientPolicy = TransientPolicy.despawn,
+  }) {
+    if (transientPolicy != TransientPolicy.despawn) {
+      throw ArgumentError.value(
+        transientPolicy,
+        'transientPolicy',
+        'replayColdCapture requires TransientPolicy.despawn.',
+      );
+    }
+    final baseline = initialSnapshot ?? initialBaseline;
+    return _coldReplayCapture(
+      createColdWorld: createColdWorld,
+      target: target,
+      baseline: baseline,
+      transientPolicy: transientPolicy,
+    );
+  }
+
+  /// Persisted capture of the live [world] (no seek).
+  Map<int, Map<String, Object?>> replayHotCapture() =>
+      capturePersistentKeyedColumns(world, options: snapshotOptions);
+
+  /// Whether [reference] matches the live world's persisted capture.
+  bool persistedCapturesMatch(
+    final Map<int, Map<String, Object?>> reference,
+  ) => persistentCapturesEqual(reference, replayHotCapture());
+
+  /// Cold replay vs hot [seekTo] at [target]; returns equality.
   ///
   /// Always uses [TransientPolicy.despawn] because [TransientPolicy.keep] does
   /// not guarantee determinism when systems observe transient entities.
+  ///
+  /// The hot [seekTo] also uses despawn, which clears transient entities on
+  /// this player [world] (inspector selection, gizmos, debug draws, etc.).
   bool verifyDeterminism({
-    required final World emptyTemplate,
+    required final ColdWorldFactory createColdWorld,
     required final ReplayPosition target,
     final WorldSnapshot? initialSnapshot,
     final TransientPolicy transientPolicy = TransientPolicy.despawn,
@@ -171,25 +217,23 @@ class ReplayPlayer {
         'verifyDeterminism requires TransientPolicy.despawn.',
       );
     }
-    final baseline = initialSnapshot ?? initialBaseline;
-    final cold = _coldReplay(
-      emptyTemplate,
-      target,
-      baseline,
+    final cold = replayColdCapture(
+      createColdWorld: createColdWorld,
+      target: target,
+      initialSnapshot: initialSnapshot,
       transientPolicy: transientPolicy,
     );
     seekTo(target, transientPolicy: transientPolicy);
-    final hot = capturePersistentKeyedColumns(world, options: snapshotOptions);
-    return persistentCapturesEqual(cold, hot);
+    return persistedCapturesMatch(cold);
   }
 
-  Map<int, Map<String, Object?>> _coldReplay(
-    final World template,
-    final ReplayPosition target,
-    final WorldSnapshot? baseline, {
+  Map<int, Map<String, Object?>> _coldReplayCapture({
+    required final ColdWorldFactory createColdWorld,
+    required final ReplayPosition target,
+    required final WorldSnapshot? baseline,
     required final TransientPolicy transientPolicy,
   }) {
-    final cold = _cloneWorldTemplate(template);
+    final cold = createColdWorld();
     final player = ReplayPlayer(
       world: cold,
       log: log,
@@ -204,8 +248,6 @@ class ReplayPlayer {
     player.seekTo(target, transientPolicy: transientPolicy);
     return capturePersistentKeyedColumns(cold, options: snapshotOptions);
   }
-
-  World _cloneWorldTemplate(final World template) => template;
 
   WorldSnapshot _baselineSnapshot() =>
       initialBaseline ??
@@ -256,11 +298,6 @@ class ReplayPlayer {
         );
     }
     world.flush();
-  }
-
-  void _applyTransientPolicy(final TransientPolicy policy) {
-    if (policy == TransientPolicy.keep) return;
-    _despawnTransientEntities();
   }
 
   void _despawnTransientEntities() {

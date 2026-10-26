@@ -9,6 +9,9 @@
   entities; `verifyDeterminism` requires `despawn`.
 - Seeking before the first checkpoint reconciles from `initialBaseline` (or an
   empty persisted set); missing checkpoint payload throws instead of no-op.
+- `TransientPolicy.despawn` runs before and after forward replay; `verifyDeterminism`
+  uses `createColdWorld` (fresh worlds) plus `replayColdCapture` /
+  `persistedCapturesMatch`.
 
 ## 0.1.0-dev.1
 
