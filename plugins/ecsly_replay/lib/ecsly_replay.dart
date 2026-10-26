@@ -5,6 +5,7 @@
 /// values, not in this package.
 library;
 
+export 'src/checkpoint_restore_mode.dart';
 export 'src/checkpoint_store.dart';
 export 'src/determinism.dart';
 export 'src/fingerprint.dart';

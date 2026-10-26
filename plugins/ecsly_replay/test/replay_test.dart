@@ -45,6 +45,51 @@ double _positionX(final World world) {
 
 WorldSnapshot _capture(final World world) => captureWorldSnapshot(world);
 
+Entity? _entityWithPid(final World world, final int pid) {
+  for (final archetype in world.archetypes.all) {
+    for (final entity in archetype.entities) {
+      if (persistentIdOf(world, entity)?.value == pid) return entity;
+    }
+  }
+  return null;
+}
+
+Entity _spawnTransient(final World world) {
+  final e = world.spawnComponents([const PositionComponent()]);
+  world.flush();
+  return e;
+}
+
+/// Log with checkpoints at ticks 0–2 and one event key at tick 1.
+(ReplayLog log, CheckpointStore checkpoints) _sessionWithTicks() {
+  final log = _emptyLog();
+  final checkpoints = CheckpointStore(cadence: 1);
+  final recorder = ReplayRecorder(log: log, checkpoints: checkpoints);
+
+  final w0 = buildSerializationTestWorld();
+  _heroAt(w0, 0);
+  checkpoints.save(w0, 0);
+
+  final w1 = buildSerializationTestWorld();
+  _heroAt(w1, 1);
+  recorder.recordCommand(tick: 1, outcome: _capture(w1), eventKey: 'evt-1');
+  checkpoints.save(w1, 1);
+
+  final w2 = buildSerializationTestWorld();
+  _heroAt(w2, 2);
+  recorder.recordCommand(tick: 2, outcome: _capture(w2));
+  checkpoints.save(w2, 2);
+
+  return (log, checkpoints);
+}
+
+World _inspectorWorld({final double heroX = 99}) {
+  final world = buildSerializationTestWorld();
+  _heroAt(world, heroX);
+  _spawnTransient(world);
+  return world;
+}
+
 void main() {
   test('seek forward and backward by tick', () {
     final log = _emptyLog();
@@ -255,5 +300,100 @@ void main() {
       11.0,
     );
     expect(persistentIdOf(player.world, hero!)?.value, 1);
+  });
+
+  test(
+    'checkpoint reconcile and spawn agree on persistent captures (tick seeks)',
+    () {
+      final (log, checkpoints) = _sessionWithTicks();
+      final reconcileWorld = _inspectorWorld();
+      final spawnWorld = _inspectorWorld();
+
+      final reconcilePlayer = ReplayPlayer(
+        world: reconcileWorld,
+        log: log,
+        checkpoints: checkpoints,
+      );
+      final spawnPlayer = ReplayPlayer(
+        world: spawnWorld,
+        log: log,
+        checkpoints: checkpoints,
+        checkpointRestoreMode: CheckpointRestoreMode.spawn,
+      );
+
+      for (final tick in <int>[0, 2, 1, 2, 0]) {
+        reconcilePlayer.seekToTick(tick);
+        spawnPlayer.seekToTick(tick);
+        expect(
+          persistentCapturesEqual(
+            capturePersistentKeyedColumns(reconcilePlayer.world),
+            capturePersistentKeyedColumns(spawnPlayer.world),
+          ),
+          isTrue,
+          reason: 'tick $tick',
+        );
+      }
+    },
+  );
+
+  test(
+    'checkpoint reconcile and spawn agree on persistent captures (eventKey)',
+    () {
+      final (log, checkpoints) = _sessionWithTicks();
+      final reconcileWorld = _inspectorWorld();
+      final spawnWorld = _inspectorWorld();
+
+      final reconcilePlayer = ReplayPlayer(
+        world: reconcileWorld,
+        log: log,
+        checkpoints: checkpoints,
+      );
+      final spawnPlayer = ReplayPlayer(
+        world: spawnWorld,
+        log: log,
+        checkpoints: checkpoints,
+        checkpointRestoreMode: CheckpointRestoreMode.spawn,
+      );
+
+      reconcilePlayer.seek(eventKey: 'evt-1');
+      spawnPlayer.seek(eventKey: 'evt-1');
+      expect(
+        persistentCapturesEqual(
+          capturePersistentKeyedColumns(reconcilePlayer.world),
+          capturePersistentKeyedColumns(spawnPlayer.world),
+        ),
+        isTrue,
+      );
+
+      reconcilePlayer.seekToTick(0);
+      spawnPlayer.seekToTick(0);
+      expect(
+        persistentCapturesEqual(
+          capturePersistentKeyedColumns(reconcilePlayer.world),
+          capturePersistentKeyedColumns(spawnPlayer.world),
+        ),
+        isTrue,
+      );
+    },
+  );
+
+  test('reconcile checkpoint keeps persisted Entity handle and transient row',
+      () {
+    final (log, checkpoints) = _sessionWithTicks();
+    final world = _inspectorWorld(heroX: 50);
+    final heroBefore = _entityWithPid(world, 1)!;
+    final transientBefore = world.archetypes.all
+        .expand((final a) => a.entities)
+        .firstWhere((final e) => persistentIdOf(world, e) == null);
+
+    final player = ReplayPlayer(world: world, log: log, checkpoints: checkpoints);
+    player.seekToTick(2);
+    player.seekToTick(1);
+
+    final heroAfter = _entityWithPid(world, 1);
+    expect(heroAfter, heroBefore);
+    expect(world.entities.isAlive(heroBefore), isTrue);
+    expect(world.entities.isAlive(transientBefore), isTrue);
+    expect(_positionX(world), 1.0);
   });
 }

@@ -3,6 +3,7 @@
 import 'package:ecsly/ecsly.dart';
 import 'package:ecsly_serialization/ecsly_serialization.dart';
 
+import 'checkpoint_restore_mode.dart';
 import 'checkpoint_store.dart';
 import 'determinism.dart';
 import 'replay_entry.dart';
@@ -25,6 +26,7 @@ class ReplayPlayer {
     this.resourceFactories = const {},
     this.componentFactories = const {},
     this.inputReplayer,
+    this.checkpointRestoreMode = CheckpointRestoreMode.reconcile,
   });
 
   /// World mutated by seek/replay.
@@ -48,11 +50,30 @@ class ReplayPlayer {
   /// Optional input applier for [ReplayEntryKind.input].
   final InputReplayer? inputReplayer;
 
+  /// Checkpoint restore strategy (default [CheckpointRestoreMode.reconcile]).
+  final CheckpointRestoreMode checkpointRestoreMode;
+
   /// Current inclusive position after the last [seek].
   ReplayPosition _position = const ReplayPosition(tick: -1, seq: -1);
 
   /// Position after the last successful [seek].
   ReplayPosition get position => _position;
+
+  /// Seeks to [tick] or [eventKey] (exactly one must be set).
+  void seek({final int? tick, final String? eventKey}) {
+    if (tick != null && eventKey != null) {
+      throw ArgumentError('Pass only one of tick or eventKey.');
+    }
+    if (eventKey != null) {
+      seekToEventKey(eventKey);
+      return;
+    }
+    if (tick != null) {
+      seekToTick(tick);
+      return;
+    }
+    throw ArgumentError('Pass tick or eventKey.');
+  }
 
   /// Seeks to the inclusive end of [targetTick] (all rows with that tick).
   void seekToTick(final int targetTick) {
@@ -79,7 +100,7 @@ class ReplayPlayer {
     if (checkpointTick != null) {
       final snap = checkpoints.snapshotAt(checkpointTick);
       if (snap != null) {
-        _restoreFull(snap);
+        _restoreCheckpoint(snap);
         _position = ReplayPosition(
           tick: checkpointTick,
           seq: _maxSeqAtTick(checkpointTick),
@@ -132,6 +153,7 @@ class ReplayPlayer {
       resourceFactories: resourceFactories,
       componentFactories: componentFactories,
       inputReplayer: inputReplayer,
+      checkpointRestoreMode: checkpointRestoreMode,
     );
     player.seekTo(target);
     return capturePersistentKeyedColumns(cold, options: snapshotOptions);
@@ -142,20 +164,32 @@ class ReplayPlayer {
     return template;
   }
 
-  void _restoreFull(final WorldSnapshot snapshot) {
-    restoreWorldSnapshot(
-      world,
-      snapshot,
-      resourceFactories: resourceFactories,
-      componentFactories: componentFactories,
-      options: WorldSnapshotOptions(
-        includeOnly: snapshotOptions.includeOnly,
-        codecs: snapshotOptions.codecs,
-        schemaVersion: snapshotOptions.schemaVersion,
-        strictComponents: snapshotOptions.strictComponents,
-        restoreMode: WorldSnapshotRestoreMode.spawn,
-      ),
-    );
+  void _restoreCheckpoint(final WorldSnapshot snapshot) {
+    switch (checkpointRestoreMode) {
+      case CheckpointRestoreMode.reconcile:
+        reconcileWorldSnapshot(
+          world,
+          snapshot,
+          resourceFactories: resourceFactories,
+          componentFactories: componentFactories,
+          options: snapshotOptions,
+          despawnAbsent: true,
+        );
+      case CheckpointRestoreMode.spawn:
+        restoreWorldSnapshot(
+          world,
+          snapshot,
+          resourceFactories: resourceFactories,
+          componentFactories: componentFactories,
+          options: WorldSnapshotOptions(
+            includeOnly: snapshotOptions.includeOnly,
+            codecs: snapshotOptions.codecs,
+            schemaVersion: snapshotOptions.schemaVersion,
+            strictComponents: snapshotOptions.strictComponents,
+            restoreMode: WorldSnapshotRestoreMode.spawn,
+          ),
+        );
+    }
     world.flush();
   }
 

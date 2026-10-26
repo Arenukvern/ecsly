@@ -16,9 +16,22 @@ recorder.recordCommand(
 ## How do I seek?
 
 ```dart
+player.seek(tick: 120);
+player.seek(eventKey: myOpaqueKey);
 player.seekToTick(120);
 player.seekToEventKey(myOpaqueKey);
 player.seekTo(const ReplayPosition(tick: 10, seq: 2));
+```
+
+Checkpoints reconcile into the live world by default. For spawn-oracle restore:
+
+```dart
+ReplayPlayer(
+  world: world,
+  log: log,
+  checkpoints: checkpoints,
+  checkpointRestoreMode: CheckpointRestoreMode.spawn,
+);
 ```
 
 ## How do checkpoints work?

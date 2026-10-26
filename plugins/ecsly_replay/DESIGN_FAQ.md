@@ -10,7 +10,15 @@ deterministic systems or inverse deltas.
 
 Partial outcome snapshots must not despawn unrelated persisted entities.
 `reconcileWorldSnapshot(..., despawnAbsent: false)` applies entity-scoped
-patches. Full checkpoints use spawn restore into the player world.
+patches.
+
+## Why reconcile restore for checkpoints?
+
+Inspector worlds keep transient entities (selection, gizmos) without
+`PersistentId`. Checkpoint restore defaults to reconcile with
+`despawnAbsent: true` so persisted rows match the snapshot while transient
+entities survive and runtime `Entity` handles for persisted rows stay stable.
+Use `CheckpointRestoreMode.spawn` when you need the save/load spawn oracle.
 
 ## Why `(tick, seq)` ordering?
 
