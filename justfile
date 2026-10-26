@@ -47,12 +47,16 @@ test-flutter:
 test-serialization:
     cd plugins/ecsly_serialization && flutter test
 
+# Run replay plugin tests.
+test-replay:
+    cd plugins/ecsly_replay && dart test
+
 # Run serialization benchmarks.
 bench-serialization:
     cd plugins/ecsly_serialization && flutter test test/benchmark_test.dart
 
 # Run all package tests that do not publish.
-test: test-core test-app test-codegen test-flutter test-serialization
+test: test-core test-app test-codegen test-flutter test-serialization test-replay
 
 # Check docs.page configuration and pages.
 docs-check:

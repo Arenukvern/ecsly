@@ -12,6 +12,7 @@ after they are explicitly migrated for public use.
 | `core_packages/ecsly_codegen/` | `ecsly_codegen`       | Canonical public source for typed-column annotations and build_runner factories      |
 | `core_packages/ecsly_flutter/` | `ecsly_flutter`       | Canonical public source for Flutter scope, controller, selectors, actions, and loops |
 | `plugins/ecsly_serialization/` | `ecsly_serialization` | Canonical public source for world snapshot serialization and deserialization         |
+| `plugins/ecsly_replay/`        | `ecsly_replay`        | Canonical public source for world replay logs, checkpoints, and seek                   |
 
 Packages, experiments, tools, docs, and validation tracks outside this repository
 are not public contracts unless they are explicitly present here.
