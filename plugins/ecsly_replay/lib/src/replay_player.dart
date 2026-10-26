@@ -227,6 +227,15 @@ class ReplayPlayer {
     return persistedCapturesMatch(cold);
   }
 
+  void _assertColdWorldIsolated(final World cold) {
+    if (identical(cold, world)) {
+      throw ArgumentError(
+        'createColdWorld must return a new World instance, not the live '
+        'player world.',
+      );
+    }
+  }
+
   Map<int, Map<String, Object?>> _coldReplayCapture({
     required final ColdWorldFactory createColdWorld,
     required final ReplayPosition target,
@@ -234,6 +243,7 @@ class ReplayPlayer {
     required final TransientPolicy transientPolicy,
   }) {
     final cold = createColdWorld();
+    _assertColdWorldIsolated(cold);
     final player = ReplayPlayer(
       world: cold,
       log: log,

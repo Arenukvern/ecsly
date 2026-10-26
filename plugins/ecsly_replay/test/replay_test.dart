@@ -698,4 +698,76 @@ void main() {
     expect(transientsSeenDuringInput, 0);
     expect(_transientCount(hotWorld), 0);
   });
+
+  test('createColdWorld must not return the live player world', () {
+    final (log, checkpoints) = _sessionWithTicks();
+    final w0 = buildSerializationTestWorld();
+    _heroAt(w0, 0);
+    final hotWorld = buildSerializationTestWorld();
+    _heroAt(hotWorld, 1);
+    final player = ReplayPlayer(
+      world: hotWorld,
+      log: log,
+      checkpoints: checkpoints,
+      initialBaseline: _capture(w0),
+    );
+    expect(
+      () => player.replayColdCapture(
+        createColdWorld: () => hotWorld,
+        target: const ReplayPosition(tick: 1, seq: 0),
+        initialSnapshot: _capture(w0),
+      ),
+      throwsArgumentError,
+    );
+    expect(
+      () => player.verifyDeterminism(
+        createColdWorld: () => hotWorld,
+        target: const ReplayPosition(tick: 1, seq: 0),
+        initialSnapshot: _capture(w0),
+      ),
+      throwsArgumentError,
+    );
+  });
+
+  test('inputReplayer spawning transient is stripped after despawn seek', () {
+    final log = _emptyLog();
+    final checkpoints = CheckpointStore(cadence: 1);
+    final recorder = ReplayRecorder(log: log, checkpoints: checkpoints);
+
+    final w0 = buildSerializationTestWorld();
+    _heroAt(w0, 0);
+    checkpoints.save(w0, 0);
+
+    final w1 = buildSerializationTestWorld();
+    _heroAt(w1, 6);
+    recorder.recordInput(tick: 1, inputType: 'spawnFx', data: const {});
+    recorder.recordCommand(tick: 1, outcome: _capture(w1));
+
+    final hotWorld = buildSerializationTestWorld();
+    _heroAt(hotWorld, 99);
+
+    final player = ReplayPlayer(
+      world: hotWorld,
+      log: log,
+      checkpoints: checkpoints,
+      initialBaseline: _capture(w0),
+      inputReplayer: (final world, final type, final data) {
+        _spawnTransient(world);
+      },
+    );
+
+    player.seekToTick(1, transientPolicy: TransientPolicy.despawn);
+    expect(_transientCount(hotWorld), 0);
+    expect(_positionX(hotWorld), 6.0);
+
+    expect(
+      player.verifyDeterminism(
+        createColdWorld: buildSerializationTestWorld,
+        target: const ReplayPosition(tick: 1, seq: 1),
+        initialSnapshot: _capture(w0),
+      ),
+      isTrue,
+    );
+    expect(_transientCount(hotWorld), 0);
+  });
 }
