@@ -20,8 +20,9 @@ deterministic but recorded outcomes are.
   history is truncated.
 - **Seek**: nearest checkpoint at or before the target, then replay forward.
   Checkpoints **reconcile** into the live world by default (transient entities
-  survive). `CheckpointRestoreMode.spawn` is the explicit oracle. Use
-  `seek`, `seekToTick`, `seekToEventKey`, or `seekTo`.
+  survive with `TransientPolicy.keep`). Use `TransientPolicy.despawn` to drop
+  non-persistent entities after each seek. `CheckpointRestoreMode.spawn` is the
+  explicit oracle. Use `seek`, `seekToTick`, `seekToEventKey`, or `seekTo`.
 - **No Flutter UI** in this package.
 
 ## Quick start

@@ -20,6 +20,19 @@ Inspector worlds keep transient entities (selection, gizmos) without
 entities survive and runtime `Entity` handles for persisted rows stay stable.
 Use `CheckpointRestoreMode.spawn` when you need the save/load spawn oracle.
 
+## Why is transient policy separate from checkpoint mode?
+
+Inspector hosts keep selection and gizmo entities without `PersistentId`.
+`TransientPolicy.keep` preserves them across seeks; `despawn` trims the world to
+recorded persisted state only. Cold-vs-hot checks require `despawn` because
+transients are not part of the log.
+
+## Why reconcile baseline when no checkpoint exists?
+
+Without a checkpoint at or before the target, replay must not stack on an
+arbitrary later world. The player reconciles `initialBaseline` (or an empty
+persisted set) with `despawnAbsent: true`, then replays forward.
+
 ## Why `(tick, seq)` ordering?
 
 Multiple commands may land in one tick (agent bursts). `seq` gives a total order

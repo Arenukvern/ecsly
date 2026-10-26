@@ -23,6 +23,21 @@ player.seekToEventKey(myOpaqueKey);
 player.seekTo(const ReplayPosition(tick: 10, seq: 2));
 ```
 
+### Transient entities
+
+```dart
+player.seekToTick(5, transientPolicy: TransientPolicy.keep); // default
+player.seekToTick(5, transientPolicy: TransientPolicy.despawn);
+```
+
+`TransientPolicy.keep` leaves entities without `PersistentId` alone. There is
+**no determinism guarantee** if systems read transient entities during replay.
+
+`verifyDeterminism` always uses `TransientPolicy.despawn` (and rejects other
+policies).
+
+Set `initialBaseline` on the player when the first checkpoint is after tick 0.
+
 Checkpoints reconcile into the live world by default. For spawn-oracle restore:
 
 ```dart
