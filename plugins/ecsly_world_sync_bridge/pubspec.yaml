@@ -22,7 +22,7 @@ dependencies:
     path: ../ecsly_serialization
   ecsly_world_sync:
     path: ../ecsly_world_sync
-  meta: ^1.19.0
+  meta: ^1.16.0
   universal_storage_convergence_session: ^0.1.0-dev.1
   universal_storage_mesh_transport: ^0.1.0-dev.1
 

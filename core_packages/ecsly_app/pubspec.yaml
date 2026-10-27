@@ -20,7 +20,7 @@ resolution: workspace
 
 dependencies:
   ecsly: ^0.0.1-dev.12
-  meta: ^1.18.0
+  meta: ^1.16.0
 
 dev_dependencies:
   lints: ^6.1.0

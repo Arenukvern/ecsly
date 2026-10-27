@@ -35,7 +35,7 @@ resolution: workspace
 dependencies:
   directed_graph: ^0.5.0
   from_json_to_json: ^0.5.0
-  meta: ^1.18.0
+  meta: ^1.16.0
   # Keep ECS core pure Dart: no Flutter-engine transitive deps.
 
 dev_dependencies:
