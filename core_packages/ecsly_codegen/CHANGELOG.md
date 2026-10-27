@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.0-dev.5](https://github.com/Arenukvern/ecsly/compare/ecsly_codegen-v0.1.0-dev.4...ecsly_codegen-v0.1.0-dev.5) (2026-10-27)
+
+
+### Bug Fixes
+
+* ecs gen example ([08ab68f](https://github.com/Arenukvern/ecsly/commit/08ab68fa0071aa39ec62dd61be16356add810617))
+* **ecsly:** EventReader.drain ([5afd0ac](https://github.com/Arenukvern/ecsly/commit/5afd0ac9445cf05655d830ad82f53fc520ff1cd2))
+
 ## [0.1.0-dev.4](https://github.com/Arenukvern/ecsly/compare/ecsly_codegen-v0.1.0-dev.3...ecsly_codegen-v0.1.0-dev.4) (2026-07-25)
 
 

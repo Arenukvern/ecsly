@@ -1,8 +1,8 @@
 {
-  "core_packages/ecsly": "0.0.1-dev.13",
-  "core_packages/ecsly_app": "0.1.0-dev.4",
-  "core_packages/ecsly_codegen": "0.1.0-dev.4",
-  "core_packages/ecsly_flutter": "0.1.0-dev.4",
-  "plugins/ecsly_serialization": "0.1.0-dev.1",
-  "plugins/ecsly_replay": "0.1.0-dev.1"
+  "core_packages/ecsly": "0.1.0-dev.13",
+  "core_packages/ecsly_app": "0.1.0-dev.5",
+  "core_packages/ecsly_codegen": "0.1.0-dev.5",
+  "core_packages/ecsly_flutter": "0.1.0-dev.5",
+  "plugins/ecsly_serialization": "0.1.0-dev.2",
+  "plugins/ecsly_replay": "0.1.0-dev.2"
 }

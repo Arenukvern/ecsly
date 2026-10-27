@@ -6,6 +6,21 @@
 
 * **ecsly:** fix `EventReader.drain()` to actually consume events from the channel, matching its documented contract and the conventional drain semantic in ECS/event-queue systems. Previously `drain()` returned a snapshot without clearing the channel, leaving events for re-processing.
 
+## [0.1.0-dev.13](https://github.com/Arenukvern/ecsly/compare/ecsly-v0.0.1-dev.13...ecsly-v0.1.0-dev.13) (2026-10-27)
+
+
+### Features
+
+* ae init ([0907ef5](https://github.com/Arenukvern/ecsly/commit/0907ef53e2127295e8fc8b589b11501e5fc03a94))
+* ecs_async_parallel moved ([b2bb827](https://github.com/Arenukvern/ecsly/commit/b2bb8279bf3e89d2b1310bc754f7e0aee9ffac1b))
+* **ecsly:** platform-stable FNV-1a 32-bit string hash ([1fe5f50](https://github.com/Arenukvern/ecsly/commit/1fe5f5050d5b9231924fab0c7794a6ccf41890a5))
+
+
+### Bug Fixes
+
+* **ci:** unblock wip-loop validation for Dart 3.13 and publish preflight ([77b3f8d](https://github.com/Arenukvern/ecsly/commit/77b3f8d12f1c32e512ad5e66a849c2dd57deece7))
+* **ecsly:** EventReader.drain ([5afd0ac](https://github.com/Arenukvern/ecsly/commit/5afd0ac9445cf05655d830ad82f53fc520ff1cd2))
+
 ## [0.0.1-dev.13](https://github.com/Arenukvern/ecsly/compare/ecsly-v0.0.1-dev.12...ecsly-v0.0.1-dev.13) (2026-07-25)
 
 
