@@ -1,6 +1,6 @@
 name: ecsly_replay
 description: "Record and seek replay logs for ecsly worlds using PersistentId-keyed snapshots and checkpoints."
-version: 0.1.0-dev.1
+version: 0.1.0-dev.2+-dev.1
 homepage: https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_replay
 repository: https://github.com/Arenukvern/ecsly
 issue_tracker: https://github.com/Arenukvern/ecsly/issues

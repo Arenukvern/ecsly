@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.0-dev.5](https://github.com/Arenukvern/ecsly/compare/ecsly_flutter-v0.1.0-dev.4...ecsly_flutter-v0.1.0-dev.5) (2026-10-27)
+
+
+### Features
+
+* ecs_async_parallel moved ([b2bb827](https://github.com/Arenukvern/ecsly/commit/b2bb8279bf3e89d2b1310bc754f7e0aee9ffac1b))
+
+
+### Bug Fixes
+
+* **ecsly:** EventReader.drain ([5afd0ac](https://github.com/Arenukvern/ecsly/commit/5afd0ac9445cf05655d830ad82f53fc520ff1cd2))
+
 ## [0.1.0-dev.4](https://github.com/Arenukvern/ecsly/compare/ecsly_flutter-v0.1.0-dev.3...ecsly_flutter-v0.1.0-dev.4) (2026-07-25)
 
 
