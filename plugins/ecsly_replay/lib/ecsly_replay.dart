@@ -5,6 +5,7 @@
 /// values, not in this package.
 library;
 
+export 'src/checkpoint_restore_mode.dart';
 export 'src/checkpoint_store.dart';
 export 'src/determinism.dart';
 export 'src/fingerprint.dart';
@@ -13,3 +14,4 @@ export 'src/replay_entry.dart';
 export 'src/replay_log.dart';
 export 'src/replay_player.dart';
 export 'src/replay_recorder.dart';
+export 'src/transient_policy.dart';

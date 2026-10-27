@@ -19,7 +19,10 @@ deterministic but recorded outcomes are.
 - **Checkpoints**: serialized world snapshots on a cadence; invalidated when
   history is truncated.
 - **Seek**: nearest checkpoint at or before the target, then replay forward.
-  Tick and event-key seeks share `ReplayPlayer.seekTo`.
+  Checkpoints **reconcile** into the live world by default (transient entities
+  survive with `TransientPolicy.keep`). Use `TransientPolicy.despawn` to drop
+  non-persistent entities after each seek. `CheckpointRestoreMode.spawn` is the
+  explicit oracle. Use `seek`, `seekToTick`, `seekToEventKey`, or `seekTo`.
 - **No Flutter UI** in this package.
 
 ## Quick start
