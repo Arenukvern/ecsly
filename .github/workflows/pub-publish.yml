@@ -7,10 +7,12 @@ on:
       - 'ecsly_app-v*'
       - 'ecsly_codegen-v*'
       - 'ecsly_flutter-v*'
+      - 'ecsly_serialization-v*'
+      - 'ecsly_replay-v*'
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag to preflight, for example ecsly-v0.0.1-dev.11'
+        description: 'Release tag to preflight, for example ecsly-v0.1.0-dev.13'
         required: true
         type: string
 
