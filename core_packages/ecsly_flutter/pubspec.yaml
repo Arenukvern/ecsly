@@ -1,5 +1,5 @@
 name: ecsly_flutter
-description: Thin Flutter bindings for ecsly worlds, components, actions, and schedules.
+description: "Flutter bridge for ecsly worlds: scopes, selectors, actions, and frame loops for apps and games."
 homepage: https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_flutter
 documentation: https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_flutter#readme
 repository: https://github.com/Arenukvern/ecsly

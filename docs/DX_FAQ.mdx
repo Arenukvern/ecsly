@@ -67,6 +67,19 @@ A: Add the page under `docs/`, wire it into `docs.json`, and link it from the
 nearest router surface. Do not duplicate package API details that already live
 in code examples or package READMEs.
 
+**Q: How do benchmark numbers stay in sync with the READMEs?**
+A: They are generated. `dart tool/docs/sync_readme_benchmarks.dart`
+regenerates the marked benchmark blocks in the repo README and the core
+package README from `core_packages/ecsly/benchmark/results/latest.md`, and
+aligns `docs.json`'s version variable with the core pubspec. `just check`
+(and CI) run it in `--check` mode, so a stale table or version fails the
+build. After refreshing the scorecard, run `just sync-benchmarks` and commit
+the artifact and READMEs together.
+
+**Q: What voice do user-facing docs follow?**
+A: [docs/VOICE.mdx](/VOICE): capability first, evidence linked, scope
+affirmative, one factual status sentence per surface (ADR 0005).
+
 ## Agent skills
 
 **Q: Can this repo host agent skills?**

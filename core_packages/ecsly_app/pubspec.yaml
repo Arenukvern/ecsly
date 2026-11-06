@@ -1,5 +1,5 @@
 name: ecsly_app
-description: Pure Dart app-layer actions, drafts, and identity projections for ecsly.
+description: "Pure Dart app layer for ecsly: actions, drafts, invalidation, and identity projections."
 homepage: https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_app
 documentation: https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_app#readme
 repository: https://github.com/Arenukvern/ecsly

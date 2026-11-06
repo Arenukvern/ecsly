@@ -1,5 +1,5 @@
 name: ecsly
-description: "Experimental ECS core for Dart apps, including Flutter and Jaspr (early prerelease)."
+description: "High-performance Entity Component System for Dart: archetype storage, typed columns with SIMD views, schedules, and near-zero-allocation simulation frames."
 homepage: https://pub.dev/packages/ecsly
 documentation: https://pub.dev/documentation/ecsly/latest/
 repository: https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly
@@ -19,7 +19,7 @@ platforms:
   web:
   windows:
 
-# Super-experimental early prerelease channel.
+# Prerelease channel: pin versions; API evolves within 0.1.x (ADR 0005).
 version: 0.1.0-dev.13
 
 environment:

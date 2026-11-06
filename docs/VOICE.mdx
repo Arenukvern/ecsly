@@ -1,0 +1,64 @@
+# Documentation Voice
+
+How ecsly docs speak. These rules apply to every user-facing surface: repo
+README, package READMEs (pub.dev front pages), the docs site, pubspec
+descriptions, FAQs, and examples. Governance docs (North Star, AGENTS.md,
+stewardship) follow the same spirit but keep their maintainer detail.
+
+The short version: **confidence is specificity.** ecsly docs do not apologize
+and do not exaggerate — they state what the engine does, prove it with
+artifacts, and state scope affirmatively. Rationale:
+[ADR 0005](https://github.com/Arenukvern/ecsly/blob/main/docs/decisions/0005_high_performance_ecs_engine_positioning.md).
+
+## Rules
+
+1. **Lead with capability and numbers.** The first sentence of every surface
+   says what ecsly does and how well. Status comes after the pitch.
+
+2. **One factual status sentence per surface.** Prerelease channel, pin
+   versions, changelog link — stated once, plainly:
+   > Prerelease `0.1.x`: the API is still evolving; pin your version and
+   > follow the CHANGELOG.
+
+   No warning banners, no emoji alarms, no repetition on every page.
+
+3. **Affirmative scope, never negative self-definition.** No "Non-claims",
+   no "what this is not" lists, no maturity meta-commentary ("intentionally
+   modest", "honest status", "without pretending"). Boundaries are ownership
+   statements: "Rendering and input belong to the host; ecsly owns simulation
+   state and hot loops."
+
+4. **Every performance claim carries its evidence.** Number, machine, date,
+   commit, and the one-command reproduction path, linked to the committed
+   scorecard (`core_packages/ecsly/benchmark/results/latest.md`). README
+   benchmark tables are generated from that artifact by
+   `tool/docs/sync_readme_benchmarks.dart` — never hand-edited.
+
+5. **Future work is Roadmap, not disclaimer.** State direction ("in progress:
+   world sync, 3D scene adapter") instead of what is missing. No comparative
+   superlatives ("fastest Dart ECS") without comparative evidence.
+
+6. **Versions are single-sourced.** Install snippets use
+   `dart pub add <package>`. Where a version range must appear, it matches
+   the release manifest, and `just check` fails on drift.
+
+## Before / after
+
+| Instead of | Write |
+| --- | --- |
+| "_Experimental ECS packages for Dart and Flutter._" | "**A high-performance Entity Component System for Dart.**" |
+| "⚠️ This package is super-experimental. APIs may break." | "Prerelease `0.1.x`: the API is still evolving; pin your version." |
+| "The honest status: ecsly is early R&D, not a finished game engine." | "ecsly owns simulation state and hot loops; rendering and input belong to your host." |
+| "Non-claims: this is not yet a complete game engine." | A **Scope** section listing what ecsly owns, and a **Roadmap** line. |
+| "Treat these as machine-specific evidence, not universal guarantees." | "Median of 5 on Apple M1, Dart 3.13.4, commit `b6bfef6`. Reproduce: `dart run benchmark/run.dart --limits --samples=5`." |
+| Hand-written `ecsly: ^0.0.1-dev.9` in a snippet | `dart pub add ecsly` |
+
+## Review checklist
+
+When reviewing a docs change, ask:
+
+- Does the first sentence state a capability, not a caveat?
+- Is there at most one status sentence, and is it factual?
+- Is every number traceable to a committed artifact with reproduction steps?
+- Are boundaries phrased as ownership, not absence?
+- Would this sentence make sense to a reader who has never heard of ecsly?

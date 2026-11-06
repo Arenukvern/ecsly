@@ -1,32 +1,60 @@
 # ecsly
 
-`ecsly` is an experimental Entity Component System package family for Dart and
-Flutter.
+**A high-performance Entity Component System for Dart.** Archetype storage,
+packed typed columns with SIMD views, deferred command queues, and schedules —
+data-oriented simulation speed for apps and games on every runtime Dart
+reaches: Flutter, web, Jaspr, and CLI.
 
-The public repo currently contains four publishable package lanes:
+On the committed benchmark scorecard (Apple M1, Dart 3.13.4, median of 5), the
+core runtime iterates raw component chunks at **81.2M ops/sec**, completes a
+20,000-entity game frame — update, extract, flush — in **769 µs (p95)**, and
+holds **flat query throughput from 1k to 100k entities**, with near-zero
+allocation in steady-state frames. Every number is reproducible with one
+command; see the [scorecard](https://github.com/Arenukvern/ecsly/blob/main/core_packages/ecsly/benchmark/results/latest.md).
 
-- `ecsly`: the pure Dart ECS runtime.
-- `ecsly_app`: app-layer actions, drafts, invalidation, and identity helpers.
-- `ecsly_codegen`: annotations and builder support for typed-column factories.
-- `ecsly_flutter`: Flutter bindings for worlds, selectors, actions, and loops.
+Prerelease `0.1.x`: the API is still evolving; pin your version and follow the
+[CHANGELOG](https://github.com/Arenukvern/ecsly/blob/main/core_packages/ecsly/CHANGELOG.md).
 
-The present claim is intentionally modest: this is an early prerelease R&D
-package family with a stabilizing core. The North Star is a practical Dart game
-engine stack over time, but only the packages present in this public repo are
-canonical here.
+## The package family
 
-Start with the repo
-[architecture](https://github.com/Arenukvern/ecsly/blob/main/ARCHITECTURE.md)
-for ownership, the [package map](/packages) for package lanes, and the package
-READMEs for API details.
+| Package | Role |
+| --- | --- |
+| [`ecsly`](https://pub.dev/packages/ecsly) | Pure Dart ECS runtime: entities, archetypes, queries, schedules, commands, events, resources |
+| [`ecsly_app`](https://pub.dev/packages/ecsly_app) | App layer: actions, drafts, invalidation, identity projections |
+| [`ecsly_codegen`](https://pub.dev/packages/ecsly_codegen) | `@EcsComponent` annotation and `build_runner` typed-column factories |
+| [`ecsly_flutter`](https://pub.dev/packages/ecsly_flutter) | Flutter bridge: scope, controller, selectors, actions, frame loops |
+| [`ecsly_serialization`](https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_serialization) | JSON world snapshots: `PersistentId` identity, migrations, object codecs |
+| [`ecsly_replay`](https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_replay) | Record-and-seek replay logs with checkpoints |
 
-## Quick Router
+`ecsly_serialization` and `ecsly_replay` release from this repo's pipeline;
+their first pub.dev versions land with the next release train.
+
+Full map, including in-repo, in-development plugins: [Packages](/packages).
+
+## Learning path
+
+1. **First simulation** — [quick start](https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly#quick-start):
+   a world, a component, a schedule in ~20 lines.
+2. **Game and simulation logic** — systems, schedules, events, and deferred
+   commands in the [core README](https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly)
+   and [DX FAQ](https://github.com/Arenukvern/ecsly/blob/main/core_packages/ecsly/DX_FAQ.md).
+3. **Hot paths** — typed extension columns and SIMD views when iteration speed
+   or GC pressure matters.
+4. **Flutter hosts** — scopes, selectors, actions, and frame loops in
+   [`ecsly_flutter`](https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_flutter).
+5. **Persistence** — world snapshots, migrations, and replay/seek with
+   [`ecsly_serialization`](https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_serialization)
+   and [`ecsly_replay`](https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_replay).
+
+## Quick router
 
 | I need... | Go to |
 | --- | --- |
-| Repo purpose and boundaries | [Architecture](https://github.com/Arenukvern/ecsly/blob/main/ARCHITECTURE.md) |
-| Package lanes | [Packages](/packages) |
+| Package lanes and status | [Packages](/packages) |
 | Core design rationale | [Core Design FAQ](https://github.com/Arenukvern/ecsly/blob/main/core_packages/ecsly/DESIGN_FAQ.md) |
-| Repo-wide workflows | [Working agreement](https://github.com/Arenukvern/ecsly/blob/main/AGENTS.md) |
+| Repo purpose, ownership, and boundaries | [North Star](/NORTH_STAR) |
+| Repo ownership and layout | [Architecture](https://github.com/Arenukvern/ecsly/blob/main/ARCHITECTURE.md) |
+| Repo-wide workflows | [DX FAQ](/DX_FAQ) |
+| Documentation voice and claim rules | [Voice](/VOICE) |
+| Architectural decisions | [Decisions](/decisions) |
 | Release automation | [Release Automation](/release) |
-| Steward checks | [Stewardship](/stewardship) |

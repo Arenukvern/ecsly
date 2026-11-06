@@ -1,11 +1,22 @@
 # Packages
 
-| Package | Source | Purpose | Hosted status |
-| --- | --- | --- | --- |
-| `ecsly` | [`core_packages/ecsly`](https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly) | Pure ECS runtime, systems, queries, commands, resources, events, and benchmarks. | Published prerelease |
-| `ecsly_app` | [`core_packages/ecsly_app`](https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_app) | Pure Dart app workflow layer: actions, drafts, invalidation, and cold lookup. | Published prerelease |
-| `ecsly_codegen` | [`core_packages/ecsly_codegen`](https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_codegen) | Annotation and `build_runner` support for typed-column component factories. | Published prerelease |
-| `ecsly_flutter` | [`core_packages/ecsly_flutter`](https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_flutter) | Flutter bridge: scope, controller, selectors, actions, and loop widgets. | Published prerelease |
+## Published
+
+The publishable `ecsly` family, released from this repo through Release
+Please. All packages are on the `0.1.x` prerelease channel: pin your version
+and follow each package's changelog. `ecsly_serialization` and `ecsly_replay`
+release from the same pipeline; their first pub.dev versions land with the
+next release train — until then, depend on them via git (install snippets in
+their READMEs).
+
+| Package | Source | Purpose |
+| --- | --- | --- |
+| `ecsly` | [`core_packages/ecsly`](https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly) | Pure Dart ECS runtime: entities, archetypes, queries, schedules, commands, resources, events, and the benchmark suite. |
+| `ecsly_app` | [`core_packages/ecsly_app`](https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_app) | App workflow layer: actions, drafts, invalidation, and cold lookup. |
+| `ecsly_codegen` | [`core_packages/ecsly_codegen`](https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_codegen) | Annotation and `build_runner` support for typed-column component factories. |
+| `ecsly_flutter` | [`core_packages/ecsly_flutter`](https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_flutter) | Flutter bridge: scope, controller, selectors, actions, and loop widgets. |
+| `ecsly_serialization` | [`plugins/ecsly_serialization`](https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_serialization) | JSON world snapshots: `PersistentId` identity, migrations, object codecs. |
+| `ecsly_replay` | [`plugins/ecsly_replay`](https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_replay) | Record-and-seek replay logs with checkpoints, built on serialization snapshots. |
 
 Use the package-local README, DX FAQ, and DESIGN FAQ as the source of truth for
 package behavior:
@@ -14,7 +25,26 @@ package behavior:
 - [`ecsly_app` README](https://github.com/Arenukvern/ecsly/blob/main/core_packages/ecsly_app/README.md)
 - [`ecsly_codegen` README](https://github.com/Arenukvern/ecsly/blob/main/core_packages/ecsly_codegen/README.md)
 - [`ecsly_flutter` README](https://github.com/Arenukvern/ecsly/blob/main/core_packages/ecsly_flutter/README.md)
+- [`ecsly_serialization` README](https://github.com/Arenukvern/ecsly/blob/main/plugins/ecsly_serialization/README.md)
+- [`ecsly_replay` README](https://github.com/Arenukvern/ecsly/blob/main/plugins/ecsly_replay/README.md)
 
-Use the repo [architecture](https://github.com/Arenukvern/ecsly/blob/main/ARCHITECTURE.md),
-[working agreement](https://github.com/Arenukvern/ecsly/blob/main/AGENTS.md),
-and package-local FAQs for ownership and workflow rules.
+## In the repo, in development
+
+These packages live in `plugins/` under active development with
+`publish_to: none`. They are real code with tests and ADRs behind them, but
+they are not on pub.dev and not a public contract yet.
+
+| Package | Purpose | Design record |
+| --- | --- | --- |
+| `ecsly_flutter_scene` | 3D scene adapter on `flutter_scene`: per-component visual mappings, incremental binder, orbit camera rig. | package README |
+| `ecsly_world_sync` | Multiplayer world sync over the convergence kernel and session core. | [ADR 0001](/decisions), [ADR 0004](/decisions) |
+| `ecsly_world_sync_bridge` | Live World→delta bridge: diffs world captures into sync deltas at flush boundaries. | [ADR 0002](/decisions) |
+| `ecsly_world_zones` | Zone travel: the mesh sync pulse as an ordinary system on the game's own scheduler. | [ADR 0003](/decisions) |
+| `async_parallel` | Zero-cost isolate management primitives: pools, shared memory, transferable buffers. | package README |
+| `ecsly_async_parallel` | ECS-aware parallel task systems built on `async_parallel`. | package README |
+
+## Ownership and workflows
+
+Repo ownership and layout:
+[architecture](https://github.com/Arenukvern/ecsly/blob/main/ARCHITECTURE.md).
+Working agreement: [AGENTS.md](https://github.com/Arenukvern/ecsly/blob/main/AGENTS.md).

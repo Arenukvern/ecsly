@@ -2,9 +2,10 @@
 
 Thanks for helping improve `ecsly`.
 
-This public repository is the canonical home for the migrated, publishable
-package family under `core_packages/`. Keep contributions scoped to packages,
-docs, and release tooling that are present here.
+This repository is the canonical home of the `ecsly` package family: the
+high-performance Dart ECS runtime and its published companions. Keep
+contributions scoped to packages, docs, and release tooling that are present
+here.
 
 ## Before You Start
 
@@ -13,6 +14,14 @@ docs, and release tooling that are present here.
 - Keep core `ecsly` pure Dart; Flutter belongs in `ecsly_flutter`.
 - Do not add references to private packages, absent tools, or internal-only
   validation tracks.
+
+## Documentation Voice
+
+User-facing docs follow [docs/VOICE.mdx](docs/VOICE.mdx): lead with capability
+and numbers, state scope affirmatively, keep exactly one factual status
+sentence per surface, and link every performance claim to the committed
+benchmark artifact. Rationale:
+[ADR 0005](docs/decisions/0005_high_performance_ecs_engine_positioning.md).
 
 ## Local Validation
 

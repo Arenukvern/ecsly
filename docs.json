@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.page/schema.json",
   "name": "ecsly",
-  "description": "Experimental ECS packages for Dart and Flutter: a headless runtime, app workflow layer, code generator, and Flutter bridge.",
+  "description": "High-performance Entity Component System for Dart and Flutter: archetype runtime, typed columns and SIMD views, app workflows, codegen, serialization, and replay.",
   "github": "https://github.com/Arenukvern/ecsly",
   "theme": {
     "defaultTheme": "light",
@@ -43,7 +43,7 @@
     "noindex": false
   },
   "variables": {
-    "version": "0.0.1-dev.10",
+    "version": "0.1.0-dev.13",
     "repo": "https://github.com/Arenukvern/ecsly",
     "docs": "https://docs.page/arenukvern/ecsly"
   },
@@ -63,10 +63,6 @@
           "href": "/"
         },
         {
-          "title": "North Star",
-          "href": "/NORTH_STAR"
-        },
-        {
           "title": "Packages",
           "href": "/packages"
         },
@@ -79,12 +75,8 @@
           "href": "/DX_FAQ"
         },
         {
-          "title": "Stewardship",
-          "href": "/stewardship"
-        },
-        {
-          "title": "Release Automation",
-          "href": "/release"
+          "title": "North Star",
+          "href": "/NORTH_STAR"
         }
       ]
     },
@@ -96,8 +88,20 @@
           "href": "https://github.com/Arenukvern/ecsly/blob/main/CONTRIBUTING.md"
         },
         {
+          "title": "Documentation Voice",
+          "href": "/VOICE"
+        },
+        {
           "title": "Contributors",
           "href": "/contributing/contributors"
+        },
+        {
+          "title": "Stewardship",
+          "href": "/stewardship"
+        },
+        {
+          "title": "Release Automation",
+          "href": "/release"
         },
         {
           "title": "Security",

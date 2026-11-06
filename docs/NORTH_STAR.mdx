@@ -1,44 +1,52 @@
 # North Star
 
-`ecsly` exists to become the public canonical home for publishable Dart and
-Flutter ECS packages, with an honest path toward a practical Dart game-engine
-stack.
+`ecsly` exists to be the high-performance Entity Component System for Dart:
+data-oriented simulation speed for apps and games on every runtime Dart
+reaches, and the canonical public home of the publishable `ecsly` package
+family.
 
-The repo should make entity/component architecture usable from plain Dart,
-Flutter apps, tools, tests, and eventually game loops without pretending that
-future engine work already exists.
+The center is the runtime and its evidence: entities and archetypes, packed
+typed columns, schedules and commands measured by a committed benchmark
+scorecard ([ADR 0005](https://github.com/Arenukvern/ecsly/blob/main/docs/decisions/0005_high_performance_ecs_engine_positioning.md)).
+ecsly owns simulation state and hot loops. Engine subsystems — rendering,
+input, physics, audio — belong to host layers (`ecsly_flutter`, Jaspr, a
+game's own engine code) or to plugins built on top.
 
 ## What This Repo Owns
 
 | Surface              | Owned here                                                                                                                                                                                                       |
 | -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Core runtime         | `core_packages/ecsly`: pure Dart entities, components, archetypes, resources, commands, events, systems, schedules, queries, and benchmarks.                                                                     |
-| App workflow layer   | `core_packages/ecsly_app`: app actions, drafts, invalidation, identity projections, and cold lookup patterns.                                                                                                    |
-| Code generation      | `core_packages/ecsly_codegen`: typed-column factory annotations and builders.                                                                                                                                    |
-| Flutter bridge       | `core_packages/ecsly_flutter`: scope, controller, selectors, actions, and loop widgets for Flutter hosts.                                                                                                        |
-| Serialization plugin | `plugins/ecsly_serialization`: JSON world snapshots — PersistentId identity, entity columns, object codecs. Sub-star: [plugins/ecsly_serialization/NORTH_STAR.md](../plugins/ecsly_serialization/NORTH_STAR.md). |
-| Public stewardship   | Repository-level docs, release automation, Steward actions, contributor paths, and package validation loops.                                                                                                     |
+| App workflow layer   | `core_packages/ecsly_app`: app actions, drafts, invalidation, identity projections, and cold lookup patterns.                                                                                                     |
+| Code generation      | `core_packages/ecsly_codegen`: typed-column factory annotations and builders.                                                                                                                                     |
+| Flutter bridge       | `core_packages/ecsly_flutter`: scope, controller, selectors, actions, and loop widgets for Flutter hosts.                                                                                                         |
+| Serialization plugin | `plugins/ecsly_serialization`: JSON world snapshots — PersistentId identity, entity columns, object codecs. Sub-star: [plugins/ecsly_serialization/NORTH_STAR.md](https://github.com/Arenukvern/ecsly/blob/main/plugins/ecsly_serialization/NORTH_STAR.md). |
+| Replay plugin        | `plugins/ecsly_replay`: record-and-seek replay logs over serialization snapshots.                                                                                                                                  |
+| Public stewardship   | Repository-level docs, release automation, Steward actions, contributor paths, and package validation loops.                                                                                                      |
 
 ## What This Repo Does Not Own
 
 | Boundary                       | Rule                                                                                                       |
 | ------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| Private or internal workspaces | Work outside this repository is not a public contract until it is migrated here.                           |
-| Complete game engine claims    | The North Star points toward a game-engine stack; the current repo is an experimental package family.      |
-| Host app identity              | Product-specific navigation, branding, storage policy, and domain models belong in consuming apps.         |
-| Compatibility mirrors          | Do not add bidirectional sync scripts or hidden mirror machinery.                                          |
-| Absent packages and tools      | Do not document packages, plugins, or validation tracks that are not present here as shipped capabilities. |
+| Engine subsystems              | Rendering, input, physics, and audio belong to host layers or plugins; ecsly owns simulation state and hot loops. |
+| Private or internal workspaces | Work outside this repository is not a public contract until it is migrated here.                            |
+| Host app identity              | Product-specific navigation, branding, storage policy, and domain models belong in consuming apps.          |
+| Compatibility mirrors          | Do not add bidirectional sync scripts or hidden mirror machinery.                                           |
+| Absent packages and tools      | Do not document packages, plugins, or validation tracks that are not present here as shipped capabilities.  |
 
 ## Values
 
-- Keep public claims tied to code, tests, examples, releases, or explicit blocked
-  state.
+- Keep public claims tied to code, tests, examples, releases, or benchmark
+  artifacts — in both directions: an unmeasured claim is rejected, and a
+  measured strength missing from the docs is a docs bug.
 - Keep core `ecsly` pure Dart and runtime-focused.
 - Let companion packages own app, Flutter, and generation concerns rather than
   pushing host responsibilities into the core runtime.
 - Prefer small, verifiable layers over broad architecture promises.
 - Treat plans as temporary; extract durable decisions into ADRs or FAQs and then
   remove stale planning artifacts.
+- Write user-facing docs in the [documentation voice](/VOICE): capability
+  first, evidence linked, scope affirmative.
 
 ## Extension Model
 
@@ -60,15 +68,17 @@ Before durable structural changes, classify North Star impact:
 
 | Impact      | Route                                                                                 |
 | ----------- | ------------------------------------------------------------------------------------- |
-| `none`      | Use the native package workflow.                                                      |
-| `applies`   | Proceed and link the relevant package docs.                                           |
-| `clarifies` | Update this North Star, `docs/DESIGN_FAQ.mdx`, `docs/DX_FAQ.mdx`, or the package FAQ. |
-| `sub_star`  | Add or update a package sub-star with an explicit parent boundary.                    |
-| `amends`    | Write an ADR and update this North Star after the decision is accepted.               |
-| `conflicts` | Stop until the maintainer accepts an ADR and North Star diff.                         |
+| `none`      | Use the native package workflow.                                                       |
+| `applies`   | Proceed and link the relevant package docs.                                            |
+| `clarifies` | Update this North Star, `docs/DESIGN_FAQ.mdx`, `docs/DX_FAQ.mdx`, or the package FAQ.   |
+| `sub_star`  | Add or update a package sub-star with an explicit parent boundary.                     |
+| `amends`    | Write an ADR and update this North Star after the decision is accepted.                |
+| `conflicts` | Stop until the maintainer accepts an ADR and North Star diff.                          |
 
 ## Proof Rule
 
 Steward checks prove routing and contract shape. Package behavior is proven by
 native Dart/Flutter validation, publish dry-runs, examples, runtime evidence, or
-published package state. Keep those proof types separate in public docs.
+published package state. Performance claims are proven by the committed
+benchmark scorecard and its reproduction command. Keep those proof types
+separate in public docs.

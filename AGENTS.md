@@ -1,13 +1,15 @@
 # ecsly Public Repo Working Agreement
 
-This is the public canonical repo for migrated, publishable `ecsly` packages.
-It is intentionally smaller than the private development repo.
+This is the public canonical repo for the `ecsly` package family: a
+high-performance Dart ECS runtime and its published companions. Only what is
+present here is a public contract.
 
 ## Documentation Router
 
 | Need | Go to |
 | --- | --- |
 | Global repo purpose, owned surfaces, non-goals, proof rules | `docs/NORTH_STAR.mdx` |
+| Positioning, claim rules, and voice | `docs/VOICE.mdx` and ADR 0005 |
 | Repo-wide design rationale | `docs/DESIGN_FAQ.mdx` |
 | Repo-wide maintainer and contributor workflows | `docs/DX_FAQ.mdx` |
 | Package ownership and layout | `ARCHITECTURE.md` |
@@ -21,6 +23,11 @@ It is intentionally smaller than the private development repo.
 - Canonical here: `core_packages/ecsly`, `core_packages/ecsly_app`,
  `core_packages/ecsly_codegen`, `core_packages/ecsly_flutter`, and
  `plugins/ecsly_serialization`, `plugins/ecsly_replay`.
+- In-repo but unpublished (`publish_to: none`, active development):
+  `plugins/ecsly_flutter_scene`, `plugins/ecsly_world_sync`,
+  `plugins/ecsly_world_sync_bridge`, `plugins/ecsly_world_zones`,
+  `plugins/async_parallel`, `plugins/ecsly_async_parallel`. They are not
+  public contracts and must not be documented as shipped capabilities.
 - Not canonical here: packages, tools, experiments, or validation tracks that are
   not present in this repository.
 - Do not add compatibility sync scripts or bidirectional mirror machinery.
@@ -92,7 +99,7 @@ This repo uses Release Please for independent Dart package releases:
 - Manifest: `.release-please-manifest.json`.
 - Release PRs update the touched package `pubspec.yaml` and `CHANGELOG.md`.
 - Release tags use `<package>-v<version>`, for example
-  `ecsly-v0.0.1-dev.11` or `ecsly_flutter-v0.1.0-dev.2`.
+  `ecsly-v0.1.0-dev.13` or `ecsly_flutter-v0.1.0-dev.5`.
 - Tag pushes run `.github/workflows/pub-publish.yml`, which validates the tag
   with `tool/release/pub_package.dart` before publishing that one package.
 

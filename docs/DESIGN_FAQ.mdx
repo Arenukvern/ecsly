@@ -27,11 +27,25 @@ different cadence, so companion packages own those responsibilities.
 
 ## Claims And Evidence
 
-**Q: Why does public copy say "experimental" instead of "engine"?**
-A: The long-term direction is a practical Dart game-engine stack, but the
-current shipped surface is an experimental package family. Public docs should
-name the aspiration while keeping present-tense claims tied to code and
-validation that exists here.
+**Q: How does ecsly describe itself?**
+A: A high-performance Entity Component System for Dart — data-oriented
+simulation speed for apps and games on every runtime Dart reaches
+([ADR 0005](https://github.com/Arenukvern/ecsly/blob/main/docs/decisions/0005_high_performance_ecs_engine_positioning.md)). Public
+copy claims exactly what committed code, tests, examples, and benchmark
+artifacts prove, and it claims all of that: under-describing measured
+capability misleads readers just as over-describing unmeasured capability
+does. Rendering, input, and other engine subsystems are host or plugin
+ownership, stated as scope rather than absence.
+
+**Q: Why prerelease (`0.1.x-dev`) versioning?**
+A: The prerelease channel is an API-stability policy, not a runtime-quality
+statement. Versions follow semver prerelease semantics: pin a version, read
+the changelog when you upgrade, and expect API evolution within `0.1.x`. The
+code apps consume is the same code the public benchmark scorecard measures.
+
+**Q: Where are the documentation voice rules?**
+A: [docs/VOICE.mdx](/VOICE) — capability first, evidence linked, scope
+affirmative, one factual status sentence per surface.
 
 **Q: Why is Steward proof not package proof?**
 A: Steward validates repository routing, action contracts, and handoff shape.
