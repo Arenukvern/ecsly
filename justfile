@@ -62,6 +62,14 @@ test: test-core test-app test-codegen test-flutter test-serialization test-repla
 docs-check:
     npx --yes @docs.page/cli check
 
+# Regenerate README benchmark blocks and docs.json version from artifacts.
+sync-benchmarks:
+    dart tool/docs/sync_readme_benchmarks.dart
+
+# Fail when README benchmark blocks or docs.json drift from the artifacts.
+check-docs-sync:
+    dart tool/docs/sync_readme_benchmarks.dart --check
+
 # Run core publish dry-run.
 publish-core-dry-run:
     cd core_packages/ecsly && dart pub publish --dry-run
@@ -87,7 +95,7 @@ publish-tag-execute tag:
     dart tool/release/pub_package.dart --tag "{{tag}}" --execute --skip-existing
 
 # Run the default local gate used before PRs.
-check: probe get analyze-core test docs-check
+check: probe get analyze-core test docs-check check-docs-sync
 
 # Run the release-oriented local gate.
 release-check: check check-release-pubspecs publish-dry-run

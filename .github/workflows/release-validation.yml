@@ -71,5 +71,8 @@ jobs:
       - name: Check release pubspec versions
         run: dart tool/release/sync_release_pubspec_versions.dart --check
 
+      - name: Check docs sync (benchmark blocks, docs.json version)
+        run: dart tool/docs/sync_readme_benchmarks.dart --check
+
       - name: Publish dry-run all packages
         run: dart tool/release/pub_package.dart --all --skip-existing
