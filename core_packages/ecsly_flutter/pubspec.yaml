@@ -19,8 +19,8 @@ environment:
 resolution: workspace
 
 dependencies:
-  ecsly: ^0.0.1-dev.12
-  ecsly_app: ^0.1.0-dev.2
+  ecsly: ^0.1.0-dev.13
+  ecsly_app: ^0.1.0-dev.5
   flutter:
     sdk: flutter
 

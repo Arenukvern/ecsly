@@ -9,7 +9,7 @@ topics:
   - ecs
   - state-management
   - simulation
-# Requires ecsly >=0.0.1-dev.9 for World, Component, and Resource APIs.
+# Requires ecsly >=0.1.0-dev.13 for World, Component, and Resource APIs.
 # Published prerelease.
 version: 0.1.0-dev.5
 
@@ -19,7 +19,7 @@ environment:
 resolution: workspace
 
 dependencies:
-  ecsly: ^0.0.1-dev.12
+  ecsly: ^0.1.0-dev.13
   meta: ^1.16.0
 
 dev_dependencies:

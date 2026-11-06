@@ -7,6 +7,7 @@ description: >-
   policy are chosen here, never hand-rolled.
 version: 0.1.0-dev.1
 homepage: https://github.com/arenukvern/ecsly/plugins/ecsly_world_sync
+publish_to: none
 
 environment:
   sdk: ">=3.12.0 <4.0.0"

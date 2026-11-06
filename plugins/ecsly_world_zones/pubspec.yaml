@@ -5,6 +5,7 @@ description: >-
   interest policies (zone census, spatial) over the world-layer contract.
 version: 0.1.0-dev.1
 homepage: https://github.com/arenukvern/ecsly/plugins/ecsly_world_zones
+publish_to: none
 
 environment:
   sdk: ">=3.12.0 <4.0.0"
@@ -13,7 +14,7 @@ resolution: workspace
 
 dependencies:
   meta: ^1.16.0
-  ecsly: ^0.0.1-dev.13
+  ecsly:
   universal_storage_world: ^0.1.0-dev.1
 
 # The world layer published to pub.dev (0.1.0-dev.1, 2026-10-12); the
