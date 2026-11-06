@@ -10,18 +10,20 @@ Release configuration lives in:
 
 Release tags use `<package>-v<version>`:
 
-- `ecsly-v0.0.1-dev.x`
+- `ecsly-v0.1.0-dev.x`
 - `ecsly_app-v0.1.0-dev.x`
 - `ecsly_codegen-v0.1.0-dev.x`
 - `ecsly_flutter-v0.1.0-dev.x`
+- `ecsly_serialization-v0.1.0-dev.x`
+- `ecsly_replay-v0.1.0-dev.x`
 
 The tag workflow validates the package/version pair before publishing. Local
 maintainer preflight:
 
 ```sh
 dart tool/release/pub_package.dart --all --skip-existing
-dart tool/release/pub_package.dart --tag ecsly-v0.0.1-dev.11 --skip-existing
-just publish-tag-dry-run ecsly_flutter-v0.1.0-dev.2
+dart tool/release/pub_package.dart --tag ecsly-v0.1.0-dev.13 --skip-existing
+just publish-tag-dry-run ecsly_flutter-v0.1.0-dev.5
 ```
 
 Automated tag publishing requires two hosted settings:
@@ -51,16 +53,21 @@ Do not print the token in logs. The secret value lives only in GitHub Actions;
 the repo records the required secret name, scopes, and verification command.
 
 Bootstrap matters: pub.dev automated publishing only works after the first
-version of a package exists. Publish the first companion package versions
-manually, then enable automated publishing on their pub.dev admin pages.
+version of a package exists. Publish the first version of a new package
+manually, then enable automated publishing on its pub.dev admin page.
 
-Bootstrap order:
+Bootstrap order for packages that have never been published:
 
 ```sh
-cd core_packages/ecsly_app && dart pub publish
-cd ../ecsly_codegen && dart pub publish
-cd ../ecsly_flutter && flutter pub publish
+cd plugins/ecsly_serialization && dart pub publish
+cd ../ecsly_replay && dart pub publish
 ```
+
+`ecsly_serialization` and `ecsly_replay` were release-tagged on 2026-10-27
+(`v0.1.0-dev.2`) but never reached pub.dev: the publish workflow had no tag
+triggers for them at the time, and the tags' trees predate the workspace
+constraint fix, so they cannot publish as-is. Bootstrap them from a current
+release tag once the next release train cuts fresh versions.
 
 The release helper keeps the same package order for automation, uses
 `flutter pub publish` for `ecsly_flutter`, checks package changelog entries, and

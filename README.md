@@ -125,8 +125,9 @@ dart run example/main.dart
 | `ecsly_replay` | [source](plugins/ecsly_replay) | Record-and-seek replay logs with checkpoints |
 
 `ecsly_serialization` and `ecsly_replay` release from this repo's pipeline;
-their first pub.dev versions land with the next release train — until then,
-depend on them via git (see their READMEs).
+their first pub.dev release is a one-time manual bootstrap (see
+[release automation](docs/release.mdx)) — until then, depend on them via git
+(see their READMEs).
 
 In the repo, in active development, not yet published: a 3D scene adapter on
 `flutter_scene`, multiplayer world sync, zone travel, and isolate-parallel
