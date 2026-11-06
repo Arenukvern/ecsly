@@ -8,19 +8,15 @@ setup path shared: every host gets an `EcsScope`, an `EcsController`, selectors,
 and optional action helpers. Apps can run user actions without a loop. Games can
 add `EcsLoop` or `EcsFixedStepLoop` around the same scope.
 
-**Status:** published prerelease. Pin the `dev` version deliberately.
+Prerelease `0.1.x`: pin your version and follow the
+[CHANGELOG](CHANGELOG.md).
 
 Further docs: [DX_FAQ.md](DX_FAQ.md) (how) · [DESIGN_FAQ.md](DESIGN_FAQ.md) (why)
 
 ## Install
 
-```yaml
-dependencies:
-  ecsly: ^0.0.1-dev.12
-  ecsly_app: ^0.1.0-dev.2
-  ecsly_flutter: ^0.1.0-dev.3
-  flutter:
-    sdk: flutter
+```sh
+flutter pub add ecsly_flutter
 ```
 
 ```dart
@@ -42,12 +38,12 @@ cd core_packages/ecsly_flutter/example && flutter run
 
 ## Package chooser
 
-| Need | Package | Public status |
-|------|---------|---------------|
-| Hot simulation | `ecsly` | Public package |
-| Cold app path | `ecsly_app` | Published prerelease |
-| Typed-column builders | `ecsly_codegen` | Published prerelease |
-| Flutter host | `ecsly_flutter` | Published prerelease |
+| Need | Package |
+|------|---------|
+| Hot simulation | `ecsly` |
+| Cold app path | `ecsly_app` |
+| Typed-column builders | `ecsly_codegen` |
+| Flutter host | `ecsly_flutter` |
 
 Pure Dart app contracts such as `EcsAction`, `EcsDraft`, cold component lookup,
 and `EntityIndexResource` are owned by
@@ -305,5 +301,6 @@ mutates, pass an `EcsInvalidationBatch` to `EcsFrameSchedule` or an
 `DeltaTimeResource` and `ScheduleTimeResource` as changed on every narrow frame
 notification.
 
-Renderers, camera/input bindings, debug overlays, MCP tooling, and game-specific
-plugins are intentionally outside this package.
+Renderers, camera/input bindings, debug overlays, and game-specific plugins
+belong to the host app or its game plugins; this package owns the world ↔
+widget bridge.

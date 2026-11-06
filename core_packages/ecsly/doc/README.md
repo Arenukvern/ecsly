@@ -1,8 +1,6 @@
 # ECS package docs index
 
-> Last updated: 2026-06-19
-
-This folder tracks docs intended for ecosystem-facing publishing.
+This folder indexes the runtime-facing docs for `package:ecsly`.
 
 ## Current docs (runtime-facing)
 
@@ -12,11 +10,12 @@ This folder tracks docs intended for ecosystem-facing publishing.
 - [CHANGELOG.md](../CHANGELOG.md)
 - [ecs_architecture_diagram.md](ecs_architecture_diagram.md)
 
-## Forward-looking or experimental docs (not publication contracts)
+## Related records
 
-This public repo currently carries only migrated package docs and public
-ownership decisions. Internal plans, experiments, and validation tracks are not
-runtime publication contracts unless they are explicitly migrated here.
+Architectural decisions live in [docs/decisions/](../../../docs/decisions/) at
+the repo root; repo-wide charter and voice rules in
+[docs/NORTH_STAR.mdx](../../../docs/NORTH_STAR.mdx) and
+[docs/VOICE.mdx](../../../docs/VOICE.mdx).
 
 ## Publishing hygiene
 

@@ -5,6 +5,25 @@ world and seek forward or backward to any tick or opaque event key. Built for
 inspector time bars and harness tooling where agent commands are not
 deterministic but recorded outcomes are.
 
+## Install
+
+Until the first pub.dev release lands with the next release train, depend on
+the packages via git:
+
+```yaml
+dependencies:
+  ecsly_replay:
+    git:
+      url: https://github.com/Arenukvern/ecsly.git
+      path: plugins/ecsly_replay
+  ecsly_serialization:
+    git:
+      url: https://github.com/Arenukvern/ecsly.git
+      path: plugins/ecsly_serialization
+```
+
+After that: `dart pub add ecsly_replay ecsly_serialization`.
+
 ## Design
 
 - **Identity**: [PersistentId](https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_serialization)

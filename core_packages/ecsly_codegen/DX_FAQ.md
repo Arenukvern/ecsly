@@ -2,20 +2,16 @@
 
 Developer notes for practical setup and safe integration.
 
-**Requires `ecsly` `>=0.0.1-dev.9`.** `ecsly_codegen` is a published
-prerelease; see [README.md](README.md) for hosted and workspace setup.
+**Requires `ecsly` `>=0.1.0-dev.13`.** See [README.md](README.md) for hosted
+and workspace setup.
 
 ## Quick setup
 
 Add `ecsly`, `ecsly_codegen`, and `build_runner` to the component package:
 
-```yaml
-dependencies:
-  ecsly: ^0.0.1-dev.9
-  ecsly_codegen: ^0.1.0-dev.1
-
-dev_dependencies:
-  build_runner: ^2.7.1
+```sh
+dart pub add ecsly ecsly_codegen
+dart pub add --dev build_runner
 ```
 
 Keep `ecsly_codegen` in `dependencies` — the builder auto-applies via `build.yaml`.

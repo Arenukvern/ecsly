@@ -31,12 +31,19 @@ entities** into the target world — the target can be completely empty.
 
 ## Install
 
-Add to your `pubspec.yaml` (workspace consumers can use the path):
+Until the first pub.dev release lands with the next release train, depend on
+the package via git:
 
 ```yaml
 dependencies:
   ecsly_serialization:
+    git:
+      url: https://github.com/Arenukvern/ecsly.git
+      path: plugins/ecsly_serialization
 ```
+
+After that: `dart pub add ecsly_serialization`. Workspace consumers can use a
+key-only entry (`ecsly_serialization:`).
 
 ## Usage
 

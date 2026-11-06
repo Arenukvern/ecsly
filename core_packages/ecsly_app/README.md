@@ -6,16 +6,15 @@ Pure Dart app-layer helpers for [`ecsly`](https://pub.dev/packages/ecsly).
 [`ecsly_flutter`](../ecsly_flutter/README.md). It owns app workflows
 and derived infrastructure that are not core simulation machinery.
 
-**Status:** published prerelease. Pin the `dev` version deliberately.
+Prerelease `0.1.x`: pin your version and follow the
+[CHANGELOG](CHANGELOG.md).
 
 Further docs: [DX_FAQ.md](DX_FAQ.md) (how) · [DESIGN_FAQ.md](DESIGN_FAQ.md) (why)
 
 ## Install
 
-```yaml
-dependencies:
-  ecsly: ^0.0.1-dev.13
-  ecsly_app: ^0.1.0-dev.4
+```sh
+dart pub add ecsly ecsly_app
 ```
 
 ```dart
@@ -30,12 +29,12 @@ or local path overrides while developing multiple packages together.
 
 ## Package chooser
 
-| Need | Package | Public status |
-|------|---------|---------------|
-| Hot simulation | `ecsly` | Public package |
-| Cold app path | `ecsly_app` | Published prerelease |
-| Typed-column builders | `ecsly_codegen` | Published prerelease |
-| Flutter host | `ecsly_flutter` | Published prerelease |
+| Need | Package |
+|------|---------|
+| Hot simulation | `ecsly` |
+| Cold app path | `ecsly_app` |
+| Typed-column builders | `ecsly_codegen` |
+| Flutter host | `ecsly_flutter` |
 
 Keep hot simulation in `ecsly` systems and queries. Keep widgets and tickers in
 host packages. Stable app ids belong on normal components; indexes are optional
@@ -136,7 +135,7 @@ final titleDraft = world.getResource<EcsDraftsResource>().draft<String>(
 
 ## Entity indexes are projections
 
-`EntityIndexResource<TScope, K>` is experimental, data-only lookup
+`EntityIndexResource<TScope, K>` is optional, data-only lookup
 infrastructure. The stable id itself still belongs on a normal component.
 Feature actions must maintain the index when they spawn, despawn, or change ids:
 
@@ -157,11 +156,10 @@ Entity spawnTodo(final EcsActionContext context, final String id, final String t
 
 Do not treat the index as core ECS identity or an auto-maintained registry.
 
-## Cold lookup caveat
+## Cold lookup
 
-`findEcsEntityWithComponent` scans matching archetypes. Use it for screens,
-routes, and app actions — not hot simulation loops. Hot systems should use
-cached queries.
+`findEcsEntityWithComponent` scans matching archetypes. It is built for
+screens, routes, and app actions; hot simulation loops use cached queries.
 
 ## Flutter and other hosts
 

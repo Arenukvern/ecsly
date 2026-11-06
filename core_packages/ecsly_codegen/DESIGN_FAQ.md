@@ -4,8 +4,8 @@ Quick reference for design tradeoffs for ecsly_codegen. Focus: **why** this pack
 
 ## Publication status
 
-**Q: Is this package live on pub.dev?** A: Yes. `ecsly_codegen` is published as
-an early prerelease on pub.dev.
+**Q: Is this package live on pub.dev?** A: Yes — `ecsly_codegen` is published
+on the `0.1.x` prerelease channel; pin your version and follow the CHANGELOG.
 
 ## Why this package exists
 

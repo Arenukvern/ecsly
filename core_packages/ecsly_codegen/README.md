@@ -7,7 +7,8 @@ builder that emits `ColumnFactory` and `FacadeFactory` boilerplate for SoA
 extension components. The ECS runtime stays in `ecsly`; this package owns
 annotations and generated source only.
 
-**Status:** published prerelease. Pin the `dev` version deliberately.
+Prerelease `0.1.x`: pin your version and follow the
+[CHANGELOG](CHANGELOG.md).
 
 Further docs: [DX_FAQ.md](DX_FAQ.md) (how) · [DESIGN_FAQ.md](DESIGN_FAQ.md) (why)
 
@@ -15,13 +16,9 @@ Further docs: [DX_FAQ.md](DX_FAQ.md) (how) · [DESIGN_FAQ.md](DESIGN_FAQ.md) (wh
 
 Add to a component or plugin package that defines marker components:
 
-```yaml
-dependencies:
-  ecsly: ^0.0.1-dev.13
-  ecsly_codegen: ^0.1.0-dev.4s
-
-dev_dependencies:
-  build_runner: ^2.15.0
+```sh
+dart pub add ecsly ecsly_codegen
+dart pub add --dev build_runner
 ```
 
 `ecsly_codegen` belongs in `dependencies` (not only `dev_dependencies`) because
@@ -33,12 +30,12 @@ together.
 
 ## Package chooser
 
-| Need                  | Package         | Public status        |
-| --------------------- | --------------- | -------------------- |
-| Hot simulation        | `ecsly`         | Public package       |
-| Cold app path         | `ecsly_app`     | Published prerelease |
-| Typed-column builders | `ecsly_codegen` | Published prerelease |
-| Flutter host          | `ecsly_flutter` | Published prerelease |
+| Need                  | Package         |
+| --------------------- | --------------- |
+| Hot simulation        | `ecsly`         |
+| Cold app path         | `ecsly_app`     |
+| Typed-column builders | `ecsly_codegen` |
+| Flutter host          | `ecsly_flutter` |
 
 ## Use
 
@@ -107,11 +104,13 @@ See [example/](example/) for a runnable end-to-end sample.
 | Fixed stride per entity                   | Custom column construction logic             |
 | Standard facade wiring                    | Non-standard `initialize` behavior           |
 
-## Limitations
+## Scope
 
-- Generates factories and a registration handle only — extension type facades
-  stay hand-written.
-- Typed columns only (`float32`, `int32`, `uint8`). `uint8` ignores `stride`.
+- Generates column factories, facade factories, and a one-call registration
+  handle; extension type facades stay hand-written so you own the field API.
+- Covers the typed columns: `float32`, `int32`, `uint8` (`uint8` ignores
+  `stride`). Object columns are registered by hand — see the codegen-vs-manual
+  table above.
 - Marker classes must `extend Component`.
 - Annotated components belong under `lib/`; the builder applies to dependent
   packages' `lib/` sources.

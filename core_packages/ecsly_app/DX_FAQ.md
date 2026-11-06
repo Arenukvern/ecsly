@@ -2,15 +2,13 @@
 
 Developer notes for app-layer workflows on ecsly worlds.
 
-**Requires `ecsly` `>=0.0.1-dev.9`.** `ecsly_app` is a published prerelease;
-see [README.md](README.md) for hosted and workspace setup.
+**Requires `ecsly` `>=0.1.0-dev.13`.** See [README.md](README.md) for hosted
+and workspace setup.
 
 ## Quick setup
 
-```yaml
-dependencies:
-  ecsly: ^0.0.1-dev.9
-  ecsly_app: ^0.1.0-dev.1
+```sh
+dart pub add ecsly ecsly_app
 ```
 
 ```dart

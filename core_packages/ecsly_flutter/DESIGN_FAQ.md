@@ -2,8 +2,8 @@
 
 ## Publication status
 
-**Q: Is this package live on pub.dev?** A: Yes. `ecsly_flutter` is published as
-an early prerelease on pub.dev.
+**Q: Is this package live on pub.dev?** A: Yes — `ecsly_flutter` is published
+on the `0.1.x` prerelease channel; pin your version and follow the CHANGELOG.
 
 ## Why is this package small?
 
@@ -42,7 +42,7 @@ selected ids, filters, status tables, queues, caches, policies, and host
 coordination. A resource can index entities, but repeated/domain state should
 usually live on those entities as components.
 
-`EntityIndexResource<TScope, K>` is intentionally data-only and experimental. It
+`EntityIndexResource<TScope, K>` is intentionally data-only. It
 maps app ids to entities for one typed id space, but it does not own item
 payloads, UI controllers, callbacks, business logic, or the persistent identity
 itself. The feature plugin or action helper that owns that id space must update

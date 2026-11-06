@@ -6,9 +6,12 @@ decisions were made, not how to use the API.
 ## Core Performance Objective
 
 **Q: What is the primary performance objective?**
-A: Minimize GC in hot loops and maximize CPU cache locality in Dart. The current
-evidence is local benchmark data, so public claims should describe measured
-local scorecards separately from long-term scale targets.
+A: Minimize GC in hot loops and maximize CPU cache locality in Dart. The
+evidence is the committed scorecard (`benchmark/results/latest.md`): ~81M
+ops/sec raw chunk iteration, sub-millisecond p95 for 20k-entity game frames,
+near-zero RSS growth across steady frames, and flat query throughput from 1k
+to 100k entities. Each report records machine, SDK, and commit, and
+regenerates with one command.
 
 ## Unified Extraction Contracts
 
