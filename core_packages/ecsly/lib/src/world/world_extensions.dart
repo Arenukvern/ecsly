@@ -72,10 +72,111 @@ extension WorldBatchSpawnX on World {
   }
 }
 
+/// Result of one [World.appendRows] bulk reservation.
+///
+/// Rows are contiguous: the appended rows of [archetype] are exactly
+/// `[firstRow, firstRow + count)`, in the order of [entities].
+final class AppendedRows {
+  /// Creates the result of a bulk row append.
+  const AppendedRows({
+    required this.archetype,
+    required this.firstRow,
+    required this.entities,
+  });
+
+  /// The archetype that received the rows.
+  final Archetype archetype;
+
+  /// Row index of the first appended row.
+  final int firstRow;
+
+  /// The located entity handles, in row order.
+  final List<Entity> entities;
+
+  /// Number of rows appended.
+  int get count => entities.length;
+}
+
+extension WorldBulkAppendX on World {
+  /// Immediately reserves [count] entities AND archetype rows for
+  /// [signature], bypassing the deferred command queue, and returns the
+  /// rows for direct column fill.
+  ///
+  /// This is the supported path for APPEND-ONLY bulk ingest — data planes
+  /// folding an event/journal tail into a projection world, feed loaders,
+  /// replay restore — where the caller drives order, every entity gets the
+  /// same component set, and per-entity command overhead is the dominant
+  /// cost. The command queue stays the path for interleaved simulation
+  /// structural changes (spawn/despawn/migrate inside systems).
+  ///
+  /// All structural invariants the command flush maintains are maintained
+  /// here (an external caller CANNOT maintain them: the revision bump is
+  /// `@internal`):
+  /// - entities are created and LOCATED at their rows (`entities.setLocation`),
+  ///   so queries, `getComponent` and serialization see them;
+  /// - `structuralRevision` is bumped and cached query membership results
+  ///   are evicted for the signature's components;
+  /// - columns arrive blank (zeroed typed slots / null object slots).
+  ///
+  /// The caller fills the rows through [Archetype.getColumn] between
+  /// [AppendedRows.firstRow] and `firstRow + count`. Rows are dense and
+  /// stable for as long as nothing is despawned (removal swap-pops and
+  /// renumbers); an append-only world therefore has a caller-owned
+  /// row↔domain-id identity, which is the caller's contract to keep.
+  ///
+  /// Capacity for a known-size ingest can be pre-reserved per column with
+  /// [DataColumn.resize] to avoid growth reallocation during the fill.
+  ///
+  /// Not legal during a flush or a hot schedule (structural changes there
+  /// belong to the command queue); asserts refuse both.
+  AppendedRows appendRows(
+    final ArchetypeSignature signature,
+    final int count,
+  ) {
+    RangeError.checkNotNegative(count, 'count');
+    assert(
+      !isFlushing,
+      'appendRows is an immediate structural write and cannot run during '
+      'a flush; queue commands instead.',
+    );
+    assert(
+      !isInHotSchedule,
+      'appendRows is an immediate structural write and cannot run inside a '
+      'hot schedule; queue commands instead.',
+    );
+    final archetypeId = archetypes.getOrCreateArchetype(signature);
+    final archetype = archetypes[archetypes.findArchetypeIndex(archetypeId)];
+    final firstRow = archetype.entityCount;
+    if (count == 0) {
+      return AppendedRows(
+        archetype: archetype,
+        firstRow: firstRow,
+        entities: const <Entity>[],
+      );
+    }
+    final appended = reserveEmptyEntities(count);
+    archetype.addEntities(appended);
+    for (var i = 0; i < appended.length; i++) {
+      entities.setLocation(
+        appended[i],
+        EntityLocation(archetypeId, firstRow + i),
+      );
+    }
+    signature.mask.componentIds.forEach(
+      queryCache.evictForStructuralComponent,
+    );
+    recordStructuralChanged();
+    return AppendedRows(
+      archetype: archetype,
+      firstRow: firstRow,
+      entities: appended,
+    );
+  }
+}
+
 extension WorldComponentX on World {
   /// Get a component of type T for the given entity.
-  ///
-  /// Validates entity exists before accessing component. Throws [EntityNotFoundError]
+  ///  /// Validates entity exists before accessing component. Throws [EntityNotFoundError]
   /// if entity is not alive or [ComponentNotFoundError] if component is not found.
   ///
   /// Automatically flushes pending changes before access to ensure data consistency.

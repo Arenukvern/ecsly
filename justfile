@@ -55,6 +55,10 @@ test-replay:
 bench-serialization:
     cd plugins/ecsly_serialization && flutter test test/benchmark_test.dart
 
+# Run the append-only data-plane ingest benchmark (ADR 0006).
+bench-append-ingest:
+    cd core_packages/ecsly && dart run benchmark/append_only_ingest.dart --sizes=1000,100000,1000000 --samples=3 --json --out=benchmark/results/append_only_ingest.latest.json
+
 # Run all package tests that do not publish.
 test: test-core test-app test-codegen test-flutter test-serialization test-replay
 

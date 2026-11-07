@@ -1,0 +1,156 @@
+{
+  "schemaId": "ecsly.core.append_only_ingest",
+  "package": "ecsly",
+  "generatedAt": "2026-11-07T03:55:21.352029Z",
+  "command": "dart run benchmark/append_only_ingest.dart --sizes=1000,100000,1000000 --samples=3 --json --out=benchmark/results/append_only_ingest.latest.json",
+  "environment": {
+    "os": "macos",
+    "osVersion": "Version 27.2 (Build 26B123)",
+    "dartVersion": "3.13.4 (stable) (Tue Sep 15 01:01:15 2026 -0700) on \"macos_arm64\"",
+    "processors": 8,
+    "machineModel": "MacBookAir10,1",
+    "cpuBrand": "Apple M1",
+    "memoryGiB": "16.0"
+  },
+  "git": {
+    "commit": "57055c7fcba28676f8f658c054c329a342167a5c",
+    "branch": "main",
+    "dirty": true
+  },
+  "sizes": [
+    1000,
+    100000,
+    1000000
+  ],
+  "metrics": [
+    {
+      "name": "map_ingest_1000",
+      "entities": 1000,
+      "opsPerSec": 6410256,
+      "elapsedMicros": 156,
+      "rssDeltaBytes": 0,
+      "samples": 3
+    },
+    {
+      "name": "command_queue_ingest_1000",
+      "entities": 1000,
+      "opsPerSec": 1042753,
+      "elapsedMicros": 959,
+      "rssDeltaBytes": 0,
+      "samples": 3
+    },
+    {
+      "name": "append_rows_objects_ingest_1000",
+      "entities": 1000,
+      "opsPerSec": 5434783,
+      "elapsedMicros": 184,
+      "rssDeltaBytes": 0,
+      "samples": 3
+    },
+    {
+      "name": "append_rows_columns_ingest_1000",
+      "entities": 1000,
+      "opsPerSec": 5586592,
+      "elapsedMicros": 179,
+      "rssDeltaBytes": 0,
+      "samples": 3
+    },
+    {
+      "name": "map_ingest_100k",
+      "entities": 100000,
+      "opsPerSec": 5198316,
+      "elapsedMicros": 19237,
+      "rssDeltaBytes": -6176768,
+      "samples": 3
+    },
+    {
+      "name": "command_queue_ingest_100k",
+      "entities": 100000,
+      "opsPerSec": 1145003,
+      "elapsedMicros": 87336,
+      "rssDeltaBytes": 2080768,
+      "samples": 3
+    },
+    {
+      "name": "append_rows_objects_ingest_100k",
+      "entities": 100000,
+      "opsPerSec": 4663527,
+      "elapsedMicros": 21443,
+      "rssDeltaBytes": 16629760,
+      "samples": 3
+    },
+    {
+      "name": "append_rows_columns_ingest_100k",
+      "entities": 100000,
+      "opsPerSec": 4056301,
+      "elapsedMicros": 24653,
+      "rssDeltaBytes": -589824,
+      "samples": 3
+    },
+    {
+      "name": "map_ingest_1m",
+      "entities": 1000000,
+      "opsPerSec": 3698362,
+      "elapsedMicros": 270390,
+      "rssDeltaBytes": 152223744,
+      "samples": 3
+    },
+    {
+      "name": "command_queue_ingest_1m",
+      "entities": 1000000,
+      "opsPerSec": 1210290,
+      "elapsedMicros": 826248,
+      "rssDeltaBytes": 44859392,
+      "samples": 3
+    },
+    {
+      "name": "append_rows_objects_ingest_1m",
+      "entities": 1000000,
+      "opsPerSec": 3263846,
+      "elapsedMicros": 306387,
+      "rssDeltaBytes": -1228800,
+      "samples": 3
+    },
+    {
+      "name": "append_rows_columns_ingest_1m",
+      "entities": 1000000,
+      "opsPerSec": 4627787,
+      "elapsedMicros": 216086,
+      "rssDeltaBytes": -46907392,
+      "samples": 3
+    },
+    {
+      "name": "map_flag_scan_1m",
+      "entities": 1000000,
+      "opsPerSec": 229147571,
+      "elapsedMicros": 4364,
+      "rssDeltaBytes": 0,
+      "samples": 3
+    },
+    {
+      "name": "column_flag_scan_1m",
+      "entities": 1000000,
+      "opsPerSec": 543773790,
+      "elapsedMicros": 1839,
+      "rssDeltaBytes": 0,
+      "samples": 3
+    },
+    {
+      "name": "map_label_scan_1m",
+      "entities": 1000000,
+      "opsPerSec": 129399586,
+      "elapsedMicros": 7728,
+      "rssDeltaBytes": 0,
+      "samples": 3
+    },
+    {
+      "name": "column_label_scan_1m",
+      "entities": 1000000,
+      "opsPerSec": 226500566,
+      "elapsedMicros": 4415,
+      "rssDeltaBytes": 0,
+      "samples": 3
+    }
+  ],
+  "samples": 3
+}
