@@ -5,9 +5,6 @@
   "packages": {
     "core_packages/ecsly": {
       "release-type": "dart",
-      "versioning": "prerelease",
-      "prerelease": true,
-      "prerelease-type": "dev",
       "package-name": "ecsly",
       "component": "ecsly",
       "changelog-sections": [
@@ -22,9 +19,6 @@
     },
     "core_packages/ecsly_app": {
       "release-type": "dart",
-      "versioning": "prerelease",
-      "prerelease": true,
-      "prerelease-type": "dev",
       "package-name": "ecsly_app",
       "component": "ecsly_app",
       "changelog-sections": [
@@ -39,9 +33,6 @@
     },
     "core_packages/ecsly_codegen": {
       "release-type": "dart",
-      "versioning": "prerelease",
-      "prerelease": true,
-      "prerelease-type": "dev",
       "package-name": "ecsly_codegen",
       "component": "ecsly_codegen",
       "changelog-sections": [
@@ -56,9 +47,6 @@
     },
     "core_packages/ecsly_flutter": {
       "release-type": "dart",
-      "versioning": "prerelease",
-      "prerelease": true,
-      "prerelease-type": "dev",
       "package-name": "ecsly_flutter",
       "component": "ecsly_flutter",
       "changelog-sections": [
@@ -73,9 +61,6 @@
     },
     "plugins/ecsly_serialization": {
       "release-type": "dart",
-      "versioning": "prerelease",
-      "prerelease": true,
-      "prerelease-type": "dev",
       "package-name": "ecsly_serialization",
       "component": "ecsly_serialization",
       "changelog-sections": [
@@ -90,9 +75,6 @@
     },
     "plugins/ecsly_replay": {
       "release-type": "dart",
-      "versioning": "prerelease",
-      "prerelease": true,
-      "prerelease-type": "dev",
       "package-name": "ecsly_replay",
       "component": "ecsly_replay",
       "changelog-sections": [
