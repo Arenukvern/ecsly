@@ -52,14 +52,17 @@ jobs:
       - name: Sync pubspec versions from Release Please manifest
         run: dart tool/release/sync_release_pubspec_versions.dart
 
+      - name: Sync docs metadata (docs.json version, README benchmark blocks)
+        run: dart tool/docs/sync_readme_benchmarks.dart
+
       - name: Commit and push if changed
         run: |
-          if git diff --quiet -- core_packages/*/pubspec.yaml; then
-            echo "release pubspec versions already in sync"
+          if git diff --quiet -- core_packages/*/pubspec.yaml plugins/*/pubspec.yaml docs.json; then
+            echo "release metadata already in sync"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add core_packages/*/pubspec.yaml
-          git commit -m "chore: sync release pubspec versions"
+          git add core_packages/*/pubspec.yaml plugins/*/pubspec.yaml docs.json
+          git commit -m "chore: sync release pubspec versions and docs metadata"
           git push origin "HEAD:${{ github.event.pull_request.head.ref }}"

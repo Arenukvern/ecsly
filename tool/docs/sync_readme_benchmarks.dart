@@ -118,8 +118,14 @@ void main(List<String> args) {
   final docsJsonFile = File('${_repoRoot.path}/docs.json');
   if (pubspecVersion != null && docsJsonFile.existsSync()) {
     final docsJson = docsJsonFile.readAsStringSync();
-    final decoded = jsonDecode(docsJson) as Map<String, Object?>;
-    final variables = decoded['variables'];
+    final Object? decoded;
+    try {
+      decoded = jsonDecode(docsJson);
+    } on FormatException catch (error) {
+      stderr.writeln('docs.json is not valid JSON: $error');
+      exit(1);
+    }
+    final variables = decoded is Map ? decoded['variables'] : null;
     final current = variables is Map ? variables['version'] : null;
     if (current != pubspecVersion) {
       if (check) {
@@ -127,12 +133,34 @@ void main(List<String> args) {
           'docs.json: variables.version is $current, core pubspec is $pubspecVersion',
         );
       } else {
-        final updated = docsJson.replaceFirst(
-          RegExp(r'("variables":\s*\{\s*"version":\s*")[^"]*(")'),
-          '\$1$pubspecVersion\$2',
+        final pattern = RegExp(
+          r'("variables":\s*\{\s*"version":\s*")[^"]*(")',
         );
+        final match = pattern.firstMatch(docsJson);
+        if (match == null) {
+          stderr.writeln(
+            'docs.json: variables.version pattern not found; cannot update.',
+          );
+          exit(1);
+        }
+        // String.replaceFirst does NOT expand $1/$2 group references in the
+        // replacement — rebuild from the match groups explicitly, then prove
+        // the result parses before it touches the file.
+        final updated = docsJson.replaceRange(
+          match.start,
+          match.end,
+          '${match[1]}$pubspecVersion${match[2]}',
+        );
+        try {
+          jsonDecode(updated);
+        } on FormatException catch (error) {
+          stderr.writeln('docs.json update produced invalid JSON: $error');
+          exit(1);
+        }
         docsJsonFile.writeAsStringSync(updated);
-        stdout.writeln('updated docs.json variables.version');
+        stdout.writeln(
+          'updated docs.json variables.version: $current -> $pubspecVersion',
+        );
       }
     }
   }
