@@ -8,6 +8,12 @@ const _packages = <String, String>{
   'core_packages/ecsly_flutter': 'ecsly_flutter',
   'plugins/ecsly_serialization': 'ecsly_serialization',
   'plugins/ecsly_replay': 'ecsly_replay',
+  'plugins/async_parallel': 'async_parallel',
+  'plugins/ecsly_world_sync': 'ecsly_world_sync',
+  'plugins/ecsly_world_zones': 'ecsly_world_zones',
+  'plugins/ecsly_async_parallel': 'ecsly_async_parallel',
+  'plugins/ecsly_world_sync_bridge': 'ecsly_world_sync_bridge',
+  'plugins/ecsly_flutter_scene': 'ecsly_flutter_scene',
 };
 
 void main(List<String> args) {

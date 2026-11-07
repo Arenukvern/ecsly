@@ -21,13 +21,11 @@ present here is a public contract.
 ## Current Scope
 
 - Canonical here: `core_packages/ecsly`, `core_packages/ecsly_app`,
- `core_packages/ecsly_codegen`, `core_packages/ecsly_flutter`, and
- `plugins/ecsly_serialization`, `plugins/ecsly_replay`.
-- In-repo but unpublished (`publish_to: none`, active development):
-  `plugins/ecsly_flutter_scene`, `plugins/ecsly_world_sync`,
-  `plugins/ecsly_world_sync_bridge`, `plugins/ecsly_world_zones`,
-  `plugins/async_parallel`, `plugins/ecsly_async_parallel`. They are not
-  public contracts and must not be documented as shipped capabilities.
+ `core_packages/ecsly_codegen`, `core_packages/ecsly_flutter`, and the
+ `plugins/` companions: `ecsly_serialization`, `ecsly_replay`,
+ `async_parallel`, `ecsly_world_sync`, `ecsly_world_zones`,
+ `ecsly_async_parallel`, `ecsly_world_sync_bridge`, `ecsly_flutter_scene`.
+ All are published public contracts on pub.dev.
 - Not canonical here: packages, tools, experiments, or validation tracks that are
   not present in this repository.
 - Do not add compatibility sync scripts or bidirectional mirror machinery.

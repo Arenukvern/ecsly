@@ -5,7 +5,7 @@ description: >-
   a world-state projection. Consumes the convergence kernel (ADR 0011) and the
   shared anti-entropy session core (ADR 0004); merge strategy and compaction
   policy are chosen here, never hand-rolled.
-version: 0.1.0-dev.1
+version: 0.1.0
 homepage: https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_world_sync
 repository: https://github.com/Arenukvern/ecsly
 issue_tracker: https://github.com/Arenukvern/ecsly/issues
@@ -15,7 +15,6 @@ topics:
   - multiplayer
   - synchronization
   - crdt
-publish_to: none
 
 environment:
   sdk: ">=3.12.0 <4.0.0"
@@ -26,12 +25,6 @@ dependencies:
   meta: ^1.16.0
   universal_storage_convergence: ^0.1.0-dev.1
   universal_storage_convergence_session: ^0.1.0-dev.1
-
-# The kernel, session core, world layer, and mesh radio are all published
-# (0.1.0-dev.1, 2026-10-12); the bootstrap path overrides this workspace
-# carried until then (convergence + session + mesh_transport here, world in
-# ecsly_world_zones) are removed. The declared dependencies above are the
-# long-term contract.
 
 dev_dependencies:
   lints: ^6.1.0

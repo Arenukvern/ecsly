@@ -9,6 +9,12 @@ on:
       - 'ecsly_flutter-v*'
       - 'ecsly_serialization-v*'
       - 'ecsly_replay-v*'
+      - 'async_parallel-v*'
+      - 'ecsly_world_sync-v*'
+      - 'ecsly_world_zones-v*'
+      - 'ecsly_async_parallel-v*'
+      - 'ecsly_world_sync_bridge-v*'
+      - 'ecsly_flutter_scene-v*'
   workflow_dispatch:
     inputs:
       tag:

@@ -49,6 +49,36 @@ const _packageOrder = <_PackageSpec>[
     path: 'plugins/ecsly_replay',
     tool: _PubTool.dart,
   ),
+  _PackageSpec(
+    name: 'async_parallel',
+    path: 'plugins/async_parallel',
+    tool: _PubTool.dart,
+  ),
+  _PackageSpec(
+    name: 'ecsly_world_sync',
+    path: 'plugins/ecsly_world_sync',
+    tool: _PubTool.dart,
+  ),
+  _PackageSpec(
+    name: 'ecsly_world_zones',
+    path: 'plugins/ecsly_world_zones',
+    tool: _PubTool.dart,
+  ),
+  _PackageSpec(
+    name: 'ecsly_async_parallel',
+    path: 'plugins/ecsly_async_parallel',
+    tool: _PubTool.dart,
+  ),
+  _PackageSpec(
+    name: 'ecsly_world_sync_bridge',
+    path: 'plugins/ecsly_world_sync_bridge',
+    tool: _PubTool.dart,
+  ),
+  _PackageSpec(
+    name: 'ecsly_flutter_scene',
+    path: 'plugins/ecsly_flutter_scene',
+    tool: _PubTool.flutter,
+  ),
 ];
 
 final _packages = {for (final package in _packageOrder) package.name: package};

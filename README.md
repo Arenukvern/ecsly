@@ -123,10 +123,14 @@ dart run example/main.dart
 | `ecsly_flutter` | [![pub package](https://img.shields.io/pub/v/ecsly_flutter.svg?include_prereleases)](https://pub.dev/packages/ecsly_flutter) | Flutter bridge: scope, controller, selectors, actions, frame loops |
 | `ecsly_serialization` | [![pub package](https://img.shields.io/pub/v/ecsly_serialization.svg?include_prereleases)](https://pub.dev/packages/ecsly_serialization) | JSON world snapshots: `PersistentId` identity, migrations, object codecs |
 | `ecsly_replay` | [![pub package](https://img.shields.io/pub/v/ecsly_replay.svg?include_prereleases)](https://pub.dev/packages/ecsly_replay) | Record-and-seek replay logs with checkpoints |
+| `async_parallel` | [![pub package](https://img.shields.io/pub/v/async_parallel.svg?include_prereleases)](https://pub.dev/packages/async_parallel) | Zero-cost isolate management: pools, shared memory, transferable buffers |
+| `ecsly_world_sync` | [![pub package](https://img.shields.io/pub/v/ecsly_world_sync.svg?include_prereleases)](https://pub.dev/packages/ecsly_world_sync) | Multiplayer world sync over the convergence kernel and session core |
+| `ecsly_world_zones` | [![pub package](https://img.shields.io/pub/v/ecsly_world_zones.svg?include_prereleases)](https://pub.dev/packages/ecsly_world_zones) | Zone travel: the mesh sync pulse on the game's own scheduler |
+| `ecsly_async_parallel` | [![pub package](https://img.shields.io/pub/v/ecsly_async_parallel.svg?include_prereleases)](https://pub.dev/packages/ecsly_async_parallel) | ECS-aware parallel task systems built on `async_parallel` |
+| `ecsly_world_sync_bridge` | [![pub package](https://img.shields.io/pub/v/ecsly_world_sync_bridge.svg?include_prereleases)](https://pub.dev/packages/ecsly_world_sync_bridge) | Live World→delta bridge: world captures diffed into sync deltas at flush boundaries |
+| `ecsly_flutter_scene` | [![pub package](https://img.shields.io/pub/v/ecsly_flutter_scene.svg?include_prereleases)](https://pub.dev/packages/ecsly_flutter_scene) | 3D scene adapter on `flutter_scene`: per-component mappings, incremental binder, orbit camera |
 
-In the repo, in active development, not yet published: a 3D scene adapter on
-`flutter_scene`, multiplayer world sync, zone travel, and isolate-parallel
-systems — see the [package map](docs/packages.mdx).
+See the [package map](docs/packages.mdx) for sources and design records.
 
 ## How ecsly stays fast
 

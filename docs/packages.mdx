@@ -14,6 +14,12 @@ and follow each package's changelog.
 | `ecsly_flutter` | [`core_packages/ecsly_flutter`](https://github.com/Arenukvern/ecsly/tree/main/core_packages/ecsly_flutter) | Flutter bridge: scope, controller, selectors, actions, and loop widgets. |
 | `ecsly_serialization` | [`plugins/ecsly_serialization`](https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_serialization) | JSON world snapshots: `PersistentId` identity, migrations, object codecs. |
 | `ecsly_replay` | [`plugins/ecsly_replay`](https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_replay) | Record-and-seek replay logs with checkpoints, built on serialization snapshots. |
+| `async_parallel` | [`plugins/async_parallel`](https://github.com/Arenukvern/ecsly/tree/main/plugins/async_parallel) | Zero-cost isolate management primitives: pools, shared memory, transferable buffers. |
+| `ecsly_world_sync` | [`plugins/ecsly_world_sync`](https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_world_sync) | Multiplayer world sync over the convergence kernel and session core. |
+| `ecsly_world_zones` | [`plugins/ecsly_world_zones`](https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_world_zones) | Zone travel: the mesh sync pulse as an ordinary system on the game's own scheduler. |
+| `ecsly_async_parallel` | [`plugins/ecsly_async_parallel`](https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_async_parallel) | ECS-aware parallel task systems built on `async_parallel`. |
+| `ecsly_world_sync_bridge` | [`plugins/ecsly_world_sync_bridge`](https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_world_sync_bridge) | Live World→delta bridge: diffs world captures into sync deltas at flush boundaries. |
+| `ecsly_flutter_scene` | [`plugins/ecsly_flutter_scene`](https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_flutter_scene) | 3D scene adapter on `flutter_scene`: per-component visual mappings, incremental binder, orbit camera rig. |
 
 Use the package-local README, DX FAQ, and DESIGN FAQ as the source of truth for
 package behavior:
@@ -24,21 +30,12 @@ package behavior:
 - [`ecsly_flutter` README](https://github.com/Arenukvern/ecsly/blob/main/core_packages/ecsly_flutter/README.md)
 - [`ecsly_serialization` README](https://github.com/Arenukvern/ecsly/blob/main/plugins/ecsly_serialization/README.md)
 - [`ecsly_replay` README](https://github.com/Arenukvern/ecsly/blob/main/plugins/ecsly_replay/README.md)
-
-## In the repo, in development
-
-These packages live in `plugins/` under active development with
-`publish_to: none`. They are real code with tests and ADRs behind them, but
-they are not on pub.dev and not a public contract yet.
-
-| Package | Purpose | Design record |
-| --- | --- | --- |
-| `ecsly_flutter_scene` | 3D scene adapter on `flutter_scene`: per-component visual mappings, incremental binder, orbit camera rig. | package README |
-| `ecsly_world_sync` | Multiplayer world sync over the convergence kernel and session core. | [ADR 0001](/decisions), [ADR 0004](/decisions) |
-| `ecsly_world_sync_bridge` | Live World→delta bridge: diffs world captures into sync deltas at flush boundaries. | [ADR 0002](/decisions) |
-| `ecsly_world_zones` | Zone travel: the mesh sync pulse as an ordinary system on the game's own scheduler. | [ADR 0003](/decisions) |
-| `async_parallel` | Zero-cost isolate management primitives: pools, shared memory, transferable buffers. | package README |
-| `ecsly_async_parallel` | ECS-aware parallel task systems built on `async_parallel`. | package README |
+- [`async_parallel` README](https://github.com/Arenukvern/ecsly/blob/main/plugins/async_parallel/README.md)
+- [`ecsly_world_sync` README](https://github.com/Arenukvern/ecsly/blob/main/plugins/ecsly_world_sync/README.md)
+- [`ecsly_world_zones` README](https://github.com/Arenukvern/ecsly/blob/main/plugins/ecsly_world_zones/README.md)
+- [`ecsly_async_parallel` README](https://github.com/Arenukvern/ecsly/blob/main/plugins/ecsly_async_parallel/README.md)
+- [`ecsly_world_sync_bridge` README](https://github.com/Arenukvern/ecsly/blob/main/plugins/ecsly_world_sync_bridge/README.md)
+- [`ecsly_flutter_scene` README](https://github.com/Arenukvern/ecsly/blob/main/plugins/ecsly_flutter_scene/README.md)
 
 ## Ownership and workflows
 

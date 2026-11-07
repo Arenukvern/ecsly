@@ -14,12 +14,12 @@ alongside it.
 | `core_packages/ecsly_flutter/` | `ecsly_flutter`       | Flutter scope, controller, selectors, actions, and loops                              |
 | `plugins/ecsly_serialization/` | `ecsly_serialization` | World snapshot serialization and deserialization                                      |
 | `plugins/ecsly_replay/`        | `ecsly_replay`        | World replay logs, checkpoints, and seek                                              |
-
-`plugins/` also hosts packages in active development that are not published
-(`publish_to: none`): `ecsly_flutter_scene`, `ecsly_world_sync`,
-`ecsly_world_sync_bridge`, `ecsly_world_zones`, `async_parallel`, and
-`ecsly_async_parallel`. Their status and design records are listed in the
-[package map](docs/packages.mdx).
+| `plugins/async_parallel/`      | `async_parallel`      | Zero-cost isolate management primitives                                               |
+| `plugins/ecsly_world_sync/`    | `ecsly_world_sync`    | World sync over the convergence kernel and session core                               |
+| `plugins/ecsly_world_zones/`   | `ecsly_world_zones`   | Zone travel: the mesh sync pulse as an ordinary system                                |
+| `plugins/ecsly_async_parallel/` | `ecsly_async_parallel` | ECS-aware parallel task systems built on `async_parallel`                           |
+| `plugins/ecsly_world_sync_bridge/` | `ecsly_world_sync_bridge` | Live World→delta bridge at flush boundaries                                    |
+| `plugins/ecsly_flutter_scene/` | `ecsly_flutter_scene` | 3D scene adapter on `flutter_scene`                                                   |
 
 Packages, experiments, tools, docs, and validation tracks outside this
 repository are not public contracts.
@@ -27,7 +27,9 @@ repository are not public contracts.
 ## Repository Boundary
 
 Consumers depend on public package identities (`ecsly`, `ecsly_app`,
-`ecsly_codegen`, `ecsly_flutter`, `ecsly_serialization`, `ecsly_replay`).
+`ecsly_codegen`, `ecsly_flutter`, `ecsly_serialization`, `ecsly_replay`,
+`async_parallel`, `ecsly_world_sync`, `ecsly_world_zones`,
+`ecsly_async_parallel`, `ecsly_world_sync_bridge`, `ecsly_flutter_scene`).
 Inside this repository, all packages resolve through the root pub workspace;
 workspace members depend on each other with key-only or manifest-aligned
 constraints so `dart pub get` at the root is the single source of resolution

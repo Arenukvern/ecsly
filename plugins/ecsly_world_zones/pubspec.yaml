@@ -3,7 +3,7 @@ description: >-
   Zone-travel adapter for ecsly worlds (ADR 0003): the mesh sync pulse as
   an ordinary ecsly system driven by the game's OWN scheduler, and
   interest policies (zone census, spatial) over the world-layer contract.
-version: 0.1.0-dev.1
+version: 0.1.0
 homepage: https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_world_zones
 repository: https://github.com/Arenukvern/ecsly
 issue_tracker: https://github.com/Arenukvern/ecsly/issues
@@ -12,7 +12,6 @@ topics:
   - ecs
   - multiplayer
   - world-streaming
-publish_to: none
 
 environment:
   sdk: ">=3.12.0 <4.0.0"
@@ -21,12 +20,8 @@ resolution: workspace
 
 dependencies:
   meta: ^1.16.0
-  ecsly:
+  ecsly: ^0.1.0
   universal_storage_world: ^0.1.0-dev.1
-
-# The world layer published to pub.dev (0.1.0-dev.1, 2026-10-12); the
-# bootstrap path override this workspace carried until then is removed. The
-# declared dependency above is the long-term contract.
 
 dev_dependencies:
   lints: ^6.1.0
