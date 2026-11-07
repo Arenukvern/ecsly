@@ -146,11 +146,43 @@ Future<void> _preflight(_PackageSpec package, _Options options) async {
     return;
   }
 
-  await _run(package.tool.command, [
-    'pub',
-    'publish',
-    '--dry-run',
-  ], package.path);
+  await _runDryRun(package.tool.command, package.path);
+}
+
+/// Runs `pub publish --dry-run` and tolerates a warnings-only validation.
+///
+/// pub's dry-run exits 65 whenever validation reports ANY warning — including
+/// advisory ones such as "depends on a pre-release of another package". A
+/// real publish with `--force` proceeds through warnings ("publish without
+/// confirmation if there are no errors"), so a warnings-only dry-run must not
+/// block the release pipeline. Errors still fail.
+Future<void> _runDryRun(String executable, String workingDirectory) async {
+  stdout.writeln(
+    '> $executable pub publish --dry-run  ($workingDirectory)',
+  );
+  final result = await Process.run(
+    executable,
+    ['pub', 'publish', '--dry-run'],
+    workingDirectory: workingDirectory,
+  );
+  final output = (result.stdout.toString()) + (result.stderr.toString());
+  stdout.write(output);
+  final exitCode = result.exitCode;
+  if (exitCode == 0) return;
+
+  final hasWarningsOnly =
+      output.contains(RegExp(r'Package has [0-9]+ warning')) &&
+      !output.contains(RegExp(r'Package has [0-9]+ error')) &&
+      !output.contains(RegExp(r'^Error:', multiLine: true));
+  if (exitCode == 65 && hasWarningsOnly) {
+    stdout.writeln(
+      'dry-run reported warnings only; proceeding (a --force publish allows warnings).',
+    );
+    return;
+  }
+  _fail(
+    '$executable pub publish --dry-run failed in $workingDirectory with exit code $exitCode.',
+  );
 }
 
 Future<void> _publish(_PackageSpec package) async {
