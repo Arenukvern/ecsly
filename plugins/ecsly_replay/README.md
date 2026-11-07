@@ -46,7 +46,37 @@ After that: `dart pub add ecsly_replay ecsly_serialization`.
   explicit oracle. Use `seek`, `seekToTick`, `seekToEventKey`, or `seekTo`.
 - **No Flutter UI** in this package.
 
-## Quick start
+## Plugin
+
+`ReplayPlugin` installs the whole record-and-seek state into a world in one
+call — log, checkpoint store, recorder, and a player bound to that world,
+reachable from systems and tooling as `ReplayStateResource`:
+
+```dart
+world.addPlugin(ReplayPlugin(
+  header: ReplayLogHeader(
+    formatVersion: replayLogFormatVersion,
+    fingerprints: ReplayFingerprints(
+      buildFingerprint: myBuildId,
+      schemaFingerprint: 'schema-$schemaVersion',
+    ),
+  ),
+));
+
+final state = world.getResource<ReplayStateResource>();
+state.recorder.recordCommand(
+  tick: tick,
+  outcome: captureWorldSnapshot(world),
+  eventKey: harnessEncodedKey,
+);
+state.recorder.maybeCheckpoint(world, tick);
+state.player.seekToEventKey(harnessEncodedKey);
+```
+
+The standalone classes below remain the API for hosts that wire the pieces
+themselves (multiple worlds, external logs, custom players).
+
+## Manual wiring
 
 ```dart
 import 'package:ecsly_replay/ecsly_replay.dart';

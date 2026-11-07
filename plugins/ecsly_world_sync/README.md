@@ -40,6 +40,17 @@ Keys name state by stable identity —
 `ecsly_serialization` rule: runtime `Entity` handles are world-local and
 never travel.
 
+## Why this package has no `Plugin` of its own
+
+The charter (ADR 0001, kept by ADR 0002): this kernel adapter imports no
+core ecsly — it translates deltas and events, and folds remote ops, without
+ever touching a live `World`. An ecsly `Plugin` would reverse that
+dependency. The plugin face of world sync lives one layer up, where the ecsly
+dependency is legitimate: `WorldSyncBridgePlugin` in
+[`ecsly_world_sync_bridge`](../ecsly_world_sync_bridge) installs the
+live-World binding (and optionally the session) through
+`world.addPlugin(...)`.
+
 ## Dependencies
 
 The convergence kernel (`universal_storage_convergence`) and the session core

@@ -30,4 +30,5 @@ export 'package:universal_storage_convergence_session/universal_storage_converge
     show defaultMaxLogOps, defaultMinInterval, shouldCompact;
 
 export 'src/world_sync_bridge.dart';
+export 'src/world_sync_bridge_plugin.dart';
 export 'src/world_sync_session.dart';

@@ -31,6 +31,13 @@ Outside the repo, use git dependencies pointing at the `plugins/...` paths.
 
 ## Quick start
 
+Install the plugin once per world so job systems find their result queue
+(`AsyncParallelPlugin` registers `ScheduleJobResultQueueResource`):
+
+```dart
+world.addPlugin(AsyncParallelPlugin());
+```
+
 ### Partitioned job system (copy-based)
 
 Use `PartitionedScheduleJobSystem` when your chunk types are arbitrary Dart

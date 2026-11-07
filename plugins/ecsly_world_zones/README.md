@@ -13,8 +13,11 @@ policies.
 
 ## What it does
 
-Two pieces, both deliberately thin:
+Three surfaces, all deliberately thin:
 
+- **`WorldZonesPlugin`** — the one-call install: registers the mesh pulse
+  schedule into a world (`world.addPlugin(WorldZonesPlugin(session))`);
+  `removePlugin` removes the schedule again.
 - **`meshPulseSystem` / `registerMeshPulseSchedule`** — the mesh sync pulse
   as an ordinary ecsly system. There is no new scheduler here: the pulse
   composes with whatever loop the game already runs (`ecsly_flutter`'s frame
@@ -25,6 +28,11 @@ Two pieces, both deliberately thin:
   the world-layer contract. The zone census subscribes a whole zone from its
   catalog doc; spatial interest delegates membership to a game query, so
   positions live in the world and never in the storage family.
+
+```dart
+final session = MeshWorldSession(storage: storage, selfId: peerId);
+world.addPlugin(WorldZonesPlugin(session, trigger: EveryNSeconds(1)));
+```
 
 ## Dependencies
 

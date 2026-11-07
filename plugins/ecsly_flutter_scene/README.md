@@ -9,6 +9,10 @@ Built for inspectors and debug views — the first consumer visualizes
 agent worlds (actors as shapes, steps/claims as lifecycle-colored
 markers, meaning-tree neighborhoods as a graph).
 
+This package is the host-side (Flutter) surface: the view only READS the
+world through queries, so there is no world state to install and therefore
+no ecsly `Plugin` — mounting `EcsSceneView` is the integration.
+
 ## Design
 
 - **Pure core, thin renderer shell.** `SceneMapping`, `VisualState`, and

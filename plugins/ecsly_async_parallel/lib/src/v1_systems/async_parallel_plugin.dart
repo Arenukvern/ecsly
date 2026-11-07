@@ -11,12 +11,11 @@ import 'resource.dart';
 /// the policy), but the result queue was moved out of the core into this
 /// plugin — so it must be installed explicitly.
 ///
-/// Install this plugin alongside any job-system-using plugin (for example
-/// [ECSCollisionPlugin] in `ecs_collision_plugins`) before the first frame:
+/// Install this plugin before the first frame of any schedule that runs job
+/// systems:
 ///
 /// ```dart
 /// world.addPlugin(AsyncParallelPlugin());
-/// world.addPlugin(ECSCollisionPlugin(...));
 /// ```
 /// {@endtemplate}
 class AsyncParallelPlugin extends Plugin {

@@ -15,6 +15,27 @@ anti-entropy protocol itself is the session core's
 (`universal_storage_convergence_session`), not this package's. This package
 owns only the world→delta capture diff and the exchange schedule.
 
+## Plugin
+
+`WorldSyncBridgePlugin` wires a host-built replica (and optionally a
+host-built session) into a world in one call. Kernel identity and pairing
+stay host decisions; the plugin owns the world-side attachment:
+
+```dart
+final sync = WorldSync(actorId: 'peer-a');
+world.addPlugin(WorldSyncBridgePlugin(sync: sync));
+
+// Every world.flush() now emits deltas into the replica.
+// Projection reads and manual emits go through the resource:
+final bridge = world.getResource<WorldSyncBridgeResource>().bridge;
+```
+
+Pass `attachFlushObserver: false` for inert installs (host calls
+`bridge.emitDeltas()` on its own cadence), and a `session:` built over the
+mesh radio to keep anti-entropy reachable from the same resource.
+`removePlugin` detaches the observer, stops the session, and removes the
+resource.
+
 ## What it does
 
 - `WorldSyncBridge` — one live `World` → one `WorldSync`:

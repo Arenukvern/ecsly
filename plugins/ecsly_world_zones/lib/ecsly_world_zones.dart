@@ -17,4 +17,5 @@
 library;
 
 export 'src/mesh_pulse_system.dart';
+export 'src/world_zones_plugin.dart';
 export 'src/zone_interest.dart';

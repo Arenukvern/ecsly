@@ -13,5 +13,6 @@ export 'src/replay_codec.dart';
 export 'src/replay_entry.dart';
 export 'src/replay_log.dart';
 export 'src/replay_player.dart';
+export 'src/replay_plugin.dart';
 export 'src/replay_recorder.dart';
 export 'src/transient_policy.dart';
