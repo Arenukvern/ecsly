@@ -31,8 +31,10 @@ entities** into the target world — the target can be completely empty.
 
 ## Install
 
-Until the first pub.dev release lands with the next release train, depend on
-the package via git:
+This package releases from this repo's pipeline; its first pub.dev release is
+a one-time manual bootstrap (see
+[docs/release.mdx](../../docs/release.mdx)). Until then, depend on it via
+git:
 
 ```yaml
 dependencies:

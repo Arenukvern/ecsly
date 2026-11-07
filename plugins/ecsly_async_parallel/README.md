@@ -12,7 +12,13 @@ The low-level primitives — `DoubleBuffer`, `TransferableBuffer`, `BufferPool`,
 live in `async_parallel` and are ECS-agnostic. This package composes them into an ECS
 context.
 
+In the repo, in active development; not published (`publish_to: none`).
+Depend on it through the pub workspace inside this repo, or via a git
+dependency outside it. 13 tests cover the job systems and result queue.
+
 ## Installation
+
+Inside this repo's pub workspace, key-only entries resolve locally:
 
 ```yaml
 dependencies:
@@ -20,6 +26,8 @@ dependencies:
   ecsly:
   async_parallel:
 ```
+
+Outside the repo, use git dependencies pointing at the `plugins/...` paths.
 
 ## Quick start
 
@@ -216,11 +224,10 @@ class MyBufferedJobSystem
 | Flat `TypedData` buffers | `BufferedScheduleJobSystem` | `TypedData` | Zero-copy (`TransferableTypedData`) |
 
 Use `BufferedScheduleJobSystem` when your extract/merge can operate on raw
-buffers — that is the point at which zero-copy actually pays off. The collision
-plugin's broad-phase and narrow-phase chunks are the canonical example: they
-already work with `Float32List` bounds and `Int32List` pair indices, so
-packing them into flat buffers and transferring via `TransferableBuffer`
-eliminates the per-chunk copy entirely.
+buffers — that is the point at which zero-copy actually pays off. A physics
+broad-phase is the canonical example: bounds and pair indices already live in
+`Float32List`/`Int32List`, so packing them into flat buffers and transferring
+via `TransferableBuffer` eliminates the per-chunk copy entirely.
 
 ## Where the pieces live
 

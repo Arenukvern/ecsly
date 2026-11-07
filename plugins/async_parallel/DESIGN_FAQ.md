@@ -62,9 +62,9 @@ A: Standard trade-off for concurrent processing. Main isolate renders previous f
 **Q: Why buffer pooling not included?**
 A: Double buffering provides sufficient buffer reuse. Pooling adds complexity without clear benefit for frame-based updates. Trade-off: Pool management vs simple double buffer.
 
-## Integration with Game Algorithms
+## Integration with Pure Algorithms
 
-**Q: Why designed for game_algorithms package?**
+**Q: Why target pure-algorithm workloads over TypedData buffers?**
 A: Pure algorithms (TypedData buffers) are isolate-portable. Enables algorithm execution in background isolates. Maintains performance while offloading computation. Trade-off: Algorithm constraints vs concurrent execution.
 
 **Q: Why not ECS-integrated isolate management?**

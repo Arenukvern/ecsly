@@ -1,8 +1,16 @@
-# Game Isolates: Zero-Cost Isolate Management
+# async_parallel
 
 **Zero-cost isolate management for high-performance Dart applications.**
 
-Provides TransferableTypedData double buffering and malloc.allocate shared memory abstractions for concurrent computing without GC pressure.
+TransferableTypedData double buffering, buffer pooling, isolate executor
+seams, and malloc-backed shared memory abstractions for concurrent computing
+without GC pressure. This is the ECS-agnostic primitive layer; the ECS job
+systems built on it live in
+[`ecsly_async_parallel`](../ecsly_async_parallel).
+
+In the repo, in active development; not published (`publish_to: none`).
+Depend on it through the pub workspace inside this repo, or via a git
+dependency outside it. 51 tests cover the buffers, pools, and executor seams.
 
 ## Core Principles
 
@@ -18,7 +26,7 @@ Provides TransferableTypedData double buffering and malloc.allocate shared memor
 ### Double Buffering (Primary Strategy)
 
 ```dart
-import 'lib/async_parallel.dart';
+import 'package:async_parallel/async_parallel.dart';
 
 // Create isolate manager
 final isolateManager = IsolateManager(_computeFunction);
@@ -126,19 +134,20 @@ Frame N+1: Main (Render) ← Buffer B    Compute (Write) → Buffer A
 - **Double Buffering**: All Dart platforms
 - **Shared Memory**: Limited (dart:ffi dependent)
 
-## Integration with Game Algorithms
+## Integration pattern
 
-This package is designed to work alongside `game_algorithms` for ECS physics:
+The primitives compose with any pure-algorithm workload that operates on
+TypedData buffers — physics steppers, broad-phase scans, particle updates:
 
 ```dart
-// game_algorithms focuses on pure algorithms
+// Pure algorithms over TypedData are isolate-portable.
 class SIMDPhysicsStepper {
   void step(Float32List positions, Float32List velocities, double dt) {
     // Pure SIMD physics computation
   }
 }
 
-// async_parallel handles concurrent execution
+// async_parallel handles concurrent execution.
 void computeIsolate(_ComputeIsolateArgs args) {
   final stepper = SIMDPhysicsStepper();
   final buffer = DoubleBuffer(args.bufferSizeBytes);

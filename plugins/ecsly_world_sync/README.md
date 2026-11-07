@@ -40,17 +40,23 @@ Keys name state by stable identity —
 `ecsly_serialization` rule: runtime `Entity` handles are world-local and
 never travel.
 
-## Bootstrap dependency
+## Dependencies
 
-The kernel and the session core are not on pub.dev yet; the pubspec resolves
-them (plus the session core's transitive foundation packages) through local
-path overrides into the sibling `storage_problem` repo. Remove the overrides
-once those packages publish (ADR 0001 §3, ADR 0004).
+The convergence kernel (`universal_storage_convergence`) and the session core
+(`universal_storage_convergence_session`) are published on pub.dev
+(`0.1.0-dev.1`, 2026-10-12) and resolve as ordinary hosted dependencies — the
+bootstrap path overrides this package carried until then are removed
+(ADR 0001 §3, ADR 0004).
 
-## Validate
+## Status and validate
+
+In the repo, in active development; not published (`publish_to: none`).
+Depend on it through the pub workspace inside this repo, or via a git
+dependency outside it.
 
 ```sh
-flutter pub get   # workspace resolution (workspace contains Flutter packages)
+dart pub get        # from the repo root (pub workspace)
+cd plugins/ecsly_world_sync
 dart analyze
-flutter test      # `dart test` is blocked by the workspace's Flutter example package
+dart test           # 11 tests
 ```

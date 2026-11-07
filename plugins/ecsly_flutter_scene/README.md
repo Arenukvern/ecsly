@@ -76,5 +76,5 @@ EcsSceneView(world: world, mapping: mapping);
 Patterns (not code) from the private ecsly plugins: the mapping-DSL idea
 (`ecs_scene_description`), panel/toolbar ergonomics
 (`ecs_visual_workbench_flutter`), and replay-loop structure
-(`ecs_replay_tools_flutter`). Dependencies: flutter_scene + ecsly +
-ecsy_flutter only.
+(`ecs_replay_tools_flutter`). Dependencies: flutter_scene, ecsly,
+ecsly_flutter, and vector_math only.

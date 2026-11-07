@@ -40,7 +40,7 @@ owns only the world→delta capture diff and the exchange schedule.
   `defaultMinInterval`) is re-exported from the session core — it is that
   package's type now (ADR 0004).
 
-## Not claimed
+## Boundaries
 
 No networking *of its own*: pairing, discovery, framing, LAN sockets, and
 relays are `universal_storage_mesh_transport`'s domain (its `FakeMeshPair`
@@ -49,18 +49,22 @@ the projection; nothing rebuilds a live World), no presence/ephemeral ops,
 no rollback/re-sim, no resource sync. Core `ecsly` and `ecsly_world_sync`
 are unchanged dependencies, not surfaces of this package.
 
-## Bootstrap dependency
+## Dependencies
 
-Same as `plugins/ecsly_world_sync`: the kernel and the session core are not
-on pub.dev yet, so the workspace resolves them (and the session core's
-transitive foundation packages) through the path overrides declared in
-`plugins/ecsly_world_sync/pubspec.yaml`. Remove those overrides once the
-kernel and session core publish.
+Same as `plugins/ecsly_world_sync`: the kernel, the session core, and the
+mesh transport (`universal_storage_mesh_transport`) are published on pub.dev
+(`0.1.0-dev.1`, 2026-10-12) and resolve as ordinary hosted dependencies; the
+bootstrap path overrides are removed.
 
-## Validate
+## Status and validate
+
+In the repo, in active development; not published (`publish_to: none`).
+Depend on it through the pub workspace inside this repo, or via a git
+dependency outside it.
 
 ```sh
-fvm dart pub get
-fvm dart analyze
-fvm dart test
+dart pub get        # from the repo root (pub workspace)
+cd plugins/ecsly_world_sync_bridge
+dart analyze
+dart test           # 19 tests
 ```
