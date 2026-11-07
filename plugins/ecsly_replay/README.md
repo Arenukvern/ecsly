@@ -7,24 +7,9 @@ deterministic but recorded outcomes are.
 
 ## Install
 
-This package releases from this repo's pipeline; its first pub.dev release is
-a one-time manual bootstrap (see
-[docs/release.mdx](../../docs/release.mdx)). Until then, depend on the
-packages via git:
-
-```yaml
-dependencies:
-  ecsly_replay:
-    git:
-      url: https://github.com/Arenukvern/ecsly.git
-      path: plugins/ecsly_replay
-  ecsly_serialization:
-    git:
-      url: https://github.com/Arenukvern/ecsly.git
-      path: plugins/ecsly_serialization
+```sh
+dart pub add ecsly_replay ecsly_serialization
 ```
-
-After that: `dart pub add ecsly_replay ecsly_serialization`.
 
 ## Design
 

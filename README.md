@@ -121,13 +121,8 @@ dart run example/main.dart
 | `ecsly_app` | [![pub package](https://img.shields.io/pub/v/ecsly_app.svg?include_prereleases)](https://pub.dev/packages/ecsly_app) | Pure Dart app layer: actions, drafts, invalidation, identity projections |
 | `ecsly_codegen` | [![pub package](https://img.shields.io/pub/v/ecsly_codegen.svg?include_prereleases)](https://pub.dev/packages/ecsly_codegen) | `@EcsComponent` annotation and `build_runner` typed-column factories |
 | `ecsly_flutter` | [![pub package](https://img.shields.io/pub/v/ecsly_flutter.svg?include_prereleases)](https://pub.dev/packages/ecsly_flutter) | Flutter bridge: scope, controller, selectors, actions, frame loops |
-| `ecsly_serialization` | [source](plugins/ecsly_serialization) | JSON world snapshots: `PersistentId` identity, migrations, object codecs |
-| `ecsly_replay` | [source](plugins/ecsly_replay) | Record-and-seek replay logs with checkpoints |
-
-`ecsly_serialization` and `ecsly_replay` release from this repo's pipeline;
-their first pub.dev release is a one-time manual bootstrap (see
-[release automation](docs/release.mdx)) — until then, depend on them via git
-(see their READMEs).
+| `ecsly_serialization` | [![pub package](https://img.shields.io/pub/v/ecsly_serialization.svg?include_prereleases)](https://pub.dev/packages/ecsly_serialization) | JSON world snapshots: `PersistentId` identity, migrations, object codecs |
+| `ecsly_replay` | [![pub package](https://img.shields.io/pub/v/ecsly_replay.svg?include_prereleases)](https://pub.dev/packages/ecsly_replay) | Record-and-seek replay logs with checkpoints |
 
 In the repo, in active development, not yet published: a 3D scene adapter on
 `flutter_scene`, multiplayer world sync, zone travel, and isolate-parallel

@@ -31,21 +31,12 @@ entities** into the target world — the target can be completely empty.
 
 ## Install
 
-This package releases from this repo's pipeline; its first pub.dev release is
-a one-time manual bootstrap (see
-[docs/release.mdx](../../docs/release.mdx)). Until then, depend on it via
-git:
-
-```yaml
-dependencies:
-  ecsly_serialization:
-    git:
-      url: https://github.com/Arenukvern/ecsly.git
-      path: plugins/ecsly_serialization
+```sh
+dart pub add ecsly_serialization
 ```
 
-After that: `dart pub add ecsly_serialization`. Workspace consumers can use a
-key-only entry (`ecsly_serialization:`).
+Workspace consumers inside this repo can use a key-only entry
+(`ecsly_serialization:`).
 
 ## Usage
 

@@ -53,21 +53,27 @@ Do not print the token in logs. The secret value lives only in GitHub Actions;
 the repo records the required secret name, scopes, and verification command.
 
 Bootstrap matters: pub.dev automated publishing only works after the first
-version of a package exists. Publish the first version of a new package
-manually, then enable automated publishing on its pub.dev admin page.
-
-Bootstrap order for packages that have never been published:
+version of a package exists. All six current packages are published and have
+GitHub Actions publishing configured (`ecsly_serialization` and
+`ecsly_replay` were bootstrapped manually on 2026-11-07). For any FUTURE
+package, bootstrap once from its release tag, then enable automated
+publishing on its pub.dev admin page:
 
 ```sh
-cd plugins/ecsly_serialization && dart pub publish
-cd ../ecsly_replay && dart pub publish
+git fetch --tags && git checkout <package>-v<version>
+dart pub get
+cd <package-dir> && dart pub publish --force   # flutter pub publish for Flutter packages
 ```
 
-`ecsly_serialization` and `ecsly_replay` were release-tagged on 2026-10-27
-(`v0.1.0-dev.2`) but never reached pub.dev: the publish workflow had no tag
-triggers for them at the time, and the tags' trees predate the workspace
-constraint fix, so they cannot publish as-is. Bootstrap them from a current
-release tag once the next release train cuts fresh versions.
+Recovery: a tag publish that failed in CI can be re-driven without re-tagging:
+
+```sh
+gh workflow run pub-publish.yml -f tag=<package>-v<version> -f execute=true
+```
+
+The dispatch runs from `main` (the tag must match main's pubspec versions,
+which the preflight enforces), and pub.dev must allow `workflow_dispatch`
+publishing for that package — it is enabled for all six.
 
 The release helper keeps the same package order for automation, uses
 `flutter pub publish` for `ecsly_flutter`, checks package changelog entries, and
