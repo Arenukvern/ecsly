@@ -6,6 +6,19 @@
 
 * **ecsly:** fix `EventReader.drain()` to actually consume events from the channel, matching its documented contract and the conventional drain semantic in ECS/event-queue systems. Previously `drain()` returned a snapshot without clearing the channel, leaving events for re-processing.
 
+## [0.1.0-dev.14](https://github.com/Arenukvern/ecsly/compare/ecsly-v0.1.0-dev.13...ecsly-v0.1.0-dev.14) (2026-11-07)
+
+
+### Features
+
+* **core:** World.appendRows — append-only data-plane ingest as a first-class path (ADR 0006) ([65ea54b](https://github.com/Arenukvern/ecsly/commit/65ea54b7edc7270f8be94d36779022c4cc355163))
+
+
+### Documentation
+
+* align package READMEs and FAQs with the repositioned voice ([936f0b7](https://github.com/Arenukvern/ecsly/commit/936f0b75c58a354bb77b5d287fa59b693a1b375a))
+* reposition ecsly as a high-performance Dart ECS engine (ADR 0005) ([aefc5aa](https://github.com/Arenukvern/ecsly/commit/aefc5aa6b3ed2b90ea1eab477f7613cf42e05a50))
+
 ## [0.1.0-dev.13](https://github.com/Arenukvern/ecsly/compare/ecsly-v0.0.1-dev.13...ecsly-v0.1.0-dev.13) (2026-10-27)
 
 

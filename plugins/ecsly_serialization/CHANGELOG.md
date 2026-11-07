@@ -6,6 +6,19 @@
   in-place restore by `PersistentId` (component set reconciliation, despawn
   absent persisted entities, leave non-persistent entities untouched).
 
+## [0.1.0-dev.3](https://github.com/Arenukvern/ecsly/compare/ecsly_serialization-v0.1.0-dev.2...ecsly_serialization-v0.1.0-dev.3) (2026-11-07)
+
+
+### Bug Fixes
+
+* align workspace ecsly constraints with 0.1.0-dev.13; guard unpublished plugins ([b6bfef6](https://github.com/Arenukvern/ecsly/commit/b6bfef612134ef4d29f4006953fbb90648e4524e))
+
+
+### Documentation
+
+* align package READMEs and FAQs with the repositioned voice ([936f0b7](https://github.com/Arenukvern/ecsly/commit/936f0b75c58a354bb77b5d287fa59b693a1b375a))
+* **plugins:** align plugin READMEs with reality; add missing world_zones README ([57055c7](https://github.com/Arenukvern/ecsly/commit/57055c7fcba28676f8f658c054c329a342167a5c))
+
 ## [0.1.0-dev.2](https://github.com/Arenukvern/ecsly/compare/ecsly_serialization-v0.1.0-dev.1...ecsly_serialization-v0.1.0-dev.2) (2026-10-27)
 
 
