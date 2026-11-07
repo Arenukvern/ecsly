@@ -13,6 +13,13 @@
   uses `createColdWorld` (fresh worlds) plus `replayColdCapture` /
   `persistedCapturesMatch`.
 
+## [0.1.0-dev.4](https://github.com/Arenukvern/ecsly/compare/ecsly_replay-v0.1.0-dev.3...ecsly_replay-v0.1.0-dev.4) (2026-11-07)
+
+
+### Documentation
+
+* ecsly_serialization and ecsly_replay are on pub.dev ([57df2a8](https://github.com/Arenukvern/ecsly/commit/57df2a8de68f36a64c7d58586ed561ff2b49920c))
+
 ## [0.1.0-dev.3](https://github.com/Arenukvern/ecsly/compare/ecsly_replay-v0.1.0-dev.2...ecsly_replay-v0.1.0-dev.3) (2026-11-07)
 
 
