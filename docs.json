@@ -43,7 +43,7 @@
     "noindex": false
   },
   "variables": {
-    "version": "0.1.0-dev.13",
+    "version": "0.1.0-dev.14",
     "repo": "https://github.com/Arenukvern/ecsly",
     "docs": "https://docs.page/arenukvern/ecsly"
   },
