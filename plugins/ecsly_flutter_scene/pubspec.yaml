@@ -4,7 +4,15 @@ description: >-
   visual mappings, an incremental binder that keeps a flutter_scene Scene in
   sync with world queries, and an orbit camera rig.
 version: 0.1.0-dev.1
-homepage: https://github.com/arenukvern/ecsly/plugins/ecsly_flutter_scene
+homepage: https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_flutter_scene
+repository: https://github.com/Arenukvern/ecsly
+issue_tracker: https://github.com/Arenukvern/ecsly/issues
+license: MIT
+topics:
+  - ecs
+  - flutter
+  - scene
+  - 3d
 publish_to: none
 
 environment:

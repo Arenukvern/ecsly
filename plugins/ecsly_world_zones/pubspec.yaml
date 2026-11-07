@@ -4,7 +4,14 @@ description: >-
   an ordinary ecsly system driven by the game's OWN scheduler, and
   interest policies (zone census, spatial) over the world-layer contract.
 version: 0.1.0-dev.1
-homepage: https://github.com/arenukvern/ecsly/plugins/ecsly_world_zones
+homepage: https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_world_zones
+repository: https://github.com/Arenukvern/ecsly
+issue_tracker: https://github.com/Arenukvern/ecsly/issues
+license: MIT
+topics:
+  - ecs
+  - multiplayer
+  - world-streaming
 publish_to: none
 
 environment:

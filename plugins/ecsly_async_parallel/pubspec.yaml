@@ -1,7 +1,14 @@
 name: ecsly_async_parallel
 description: ECS-aware parallel task systems built on async_parallel.
 version: 0.1.0
-homepage: https://github.com/arenukvern/ecsly/plugins/ecsly_async_parallel
+homepage: https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_async_parallel
+repository: https://github.com/Arenukvern/ecsly
+issue_tracker: https://github.com/Arenukvern/ecsly/issues
+license: MIT
+topics:
+  - ecs
+  - isolates
+  - concurrency
 publish_to: none
 
 environment:
