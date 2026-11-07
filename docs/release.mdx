@@ -76,12 +76,15 @@ waits for internal hosted dependencies before publishing dependent packages.
 Release Please is still the source of truth for release PR versions through
 `.release-please-manifest.json`. Because the Dart updater can format prerelease
 pubspec versions incorrectly, release PRs run
-`.github/workflows/release-pr-sync-pubspecs.yml`, which normalizes each package
-`pubspec.yaml` from the manifest. Maintainers can run the same sync locally:
+`.github/workflows/release-pr-sync-pubspecs.yml`, which normalizes every
+package `pubspec.yaml` (core and plugins) from the manifest and syncs
+`docs.json`'s version variable with the core pubspec. Maintainers can run the
+same sync locally:
 
 ```sh
 just sync-release-pubspecs
 just check-release-pubspecs
+just sync-benchmarks
 ```
 
 Agent auto-approval is label-gated. Configure `AUTO_APPROVE_TOKEN` with a
