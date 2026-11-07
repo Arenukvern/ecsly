@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.0-dev.6](https://github.com/Arenukvern/ecsly/compare/ecsly_app-v0.1.0-dev.5...ecsly_app-v0.1.0-dev.6) (2026-11-07)
+
+
+### Bug Fixes
+
+* align workspace ecsly constraints with 0.1.0-dev.13; guard unpublished plugins ([b6bfef6](https://github.com/Arenukvern/ecsly/commit/b6bfef612134ef4d29f4006953fbb90648e4524e))
+
+
+### Documentation
+
+* align package READMEs and FAQs with the repositioned voice ([936f0b7](https://github.com/Arenukvern/ecsly/commit/936f0b75c58a354bb77b5d287fa59b693a1b375a))
+* reposition ecsly as a high-performance Dart ECS engine (ADR 0005) ([aefc5aa](https://github.com/Arenukvern/ecsly/commit/aefc5aa6b3ed2b90ea1eab477f7613cf42e05a50))
+
 ## [0.1.0-dev.5](https://github.com/Arenukvern/ecsly/compare/ecsly_app-v0.1.0-dev.4...ecsly_app-v0.1.0-dev.5) (2026-10-27)
 
 
