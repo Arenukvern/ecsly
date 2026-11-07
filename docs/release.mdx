@@ -68,12 +68,16 @@ cd <package-dir> && dart pub publish --force   # flutter pub publish for Flutter
 Recovery: a tag publish that failed in CI can be re-driven without re-tagging:
 
 ```sh
-gh workflow run pub-publish.yml -f tag=<package>-v<version> -f execute=true
+gh workflow run pub-publish.yml --ref <package>-v<version> \
+  -f tag=<package>-v<version> -f execute=true
 ```
 
-The dispatch runs from `main` (the tag must match main's pubspec versions,
-which the preflight enforces), and pub.dev must allow `workflow_dispatch`
-publishing for that package — it is enabled for all six.
+Dispatch the workflow **at the tag ref** (`--ref <tag>`): pub.dev requires the
+OIDC token's `ref_type` to be `tag` even for `workflow_dispatch` runs, and a
+dispatch against `main` carries `ref_type: branch`, which pub.dev rejects. The
+tag ref also guarantees the checked-out pubspec versions match the tag, which
+the preflight enforces. pub.dev must allow `workflow_dispatch` publishing for
+that package — it is enabled for all six.
 
 The release helper keeps the same package order for automation, uses
 `flutter pub publish` for `ecsly_flutter`, checks package changelog entries, and
