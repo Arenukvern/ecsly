@@ -12,9 +12,14 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Release tag to preflight, for example ecsly-v0.1.0-dev.13'
+        description: 'Release tag to publish, for example ecsly-v0.1.0-dev.14'
         required: true
         type: string
+      execute:
+        description: 'Actually publish (unchecked = preflight only). Runs from main; the tag must match main pubspec versions.'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -48,5 +53,5 @@ jobs:
         run: dart tool/release/pub_package.dart --tag "$RELEASE_TAG" --skip-existing
 
       - name: Publish package
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' || inputs.execute == true
         run: dart tool/release/pub_package.dart --tag "$RELEASE_TAG" --execute --skip-existing

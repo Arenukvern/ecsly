@@ -191,14 +191,14 @@ Future<void> _waitForInternalDependencies(_PackageSpec package) async {
   for (final dependency in dependencies.entries) {
     if (!_packages.containsKey(dependency.key)) continue;
 
-    final version = _minimumVersionFromConstraint(dependency.value);
-    if (version == null) {
+    final constraint = dependency.value;
+    if (_minimumVersionFromConstraint(constraint) == null) {
       _fail(
         '${package.name} depends on ${dependency.key} without a hosted version constraint.',
       );
     }
 
-    await _waitUntilPublished(dependency.key, version);
+    await _waitUntilConstraintSatisfied(dependency.key, constraint);
   }
 }
 
@@ -228,6 +228,48 @@ String? _minimumVersionFromConstraint(String constraint) {
   return match?.group(1);
 }
 
+/// Waits until ANY version of [packageName] published on pub.dev satisfies
+/// [constraint]. Waiting for the exact floor version (the old behavior)
+/// deadlocks whenever the floor was cut from a release that never published
+/// — e.g. `^0.1.0-dev.13` is satisfied by the newer `0.1.0-dev.14`.
+Future<void> _waitUntilConstraintSatisfied(
+  String packageName,
+  String constraint,
+) async {
+  const attempts = 18;
+  const pause = Duration(seconds: 20);
+
+  for (var attempt = 1; attempt <= attempts; attempt++) {
+    final published = await _publishedVersions(packageName);
+    final satisfying =
+        published.where((v) => _satisfiesConstraint(v, constraint)).toList();
+    if (satisfying.isNotEmpty) {
+      stdout.writeln(
+        '$packageName "${constraint}" is satisfied on pub.dev '
+        '(latest match: ${satisfying.last}).',
+      );
+      return;
+    }
+
+    if (attempt < attempts) {
+      stdout.writeln(
+        'Waiting for a published $packageName satisfying "$constraint" '
+        '($attempt/$attempts)...',
+      );
+      await Future<void>.delayed(pause);
+    }
+  }
+
+  _fail('No published $packageName version satisfies "$constraint".');
+}
+
+Future<bool> _isPublished(String packageName, String version) async {
+  final versions = await _publishedVersions(packageName);
+  return versions.contains(version);
+}
+
+/// Post-publish confirmation: waits for THIS exact [version] to become
+/// visible on pub.dev before a dependent package's turn runs.
 Future<void> _waitUntilPublished(String packageName, String version) async {
   const attempts = 18;
   const pause = Duration(seconds: 20);
@@ -250,14 +292,14 @@ Future<void> _waitUntilPublished(String packageName, String version) async {
   _fail('$packageName $version did not become visible on pub.dev.');
 }
 
-Future<bool> _isPublished(String packageName, String version) async {
+Future<List<String>> _publishedVersions(String packageName) async {
   final client = HttpClient();
   client.connectionTimeout = const Duration(seconds: 10);
   try {
     final uri = Uri.https('pub.dev', '/api/packages/$packageName');
     final request = await client.getUrl(uri);
     final response = await request.close();
-    if (response.statusCode == 404) return false;
+    if (response.statusCode == 404) return const [];
     if (response.statusCode != 200) {
       _fail('pub.dev lookup for $packageName returned ${response.statusCode}.');
     }
@@ -265,11 +307,11 @@ Future<bool> _isPublished(String packageName, String version) async {
     final payload =
         jsonDecode(await response.transform(utf8.decoder).join())
             as Map<String, dynamic>;
-    final versions = (payload['versions'] as List<dynamic>? ?? const [])
+    return (payload['versions'] as List<dynamic>? ?? const [])
         .cast<Map<String, dynamic>>()
         .map((entry) => entry['version'])
-        .whereType<String>();
-    return versions.contains(version);
+        .whereType<String>()
+        .toList();
   } on SocketException catch (error) {
     _fail('pub.dev lookup for $packageName failed: $error.');
   } on TlsException catch (error) {
@@ -279,6 +321,88 @@ Future<bool> _isPublished(String packageName, String version) async {
   } finally {
     client.close(force: true);
   }
+}
+
+/// Splits "major.minor.patch[-prerelease]" (build metadata dropped).
+(List<int>, List<String>)? _parseVersion(String version) {
+  final core = version.split('+').first;
+  final dash = core.indexOf('-');
+  final numeric = dash < 0 ? core : core.substring(0, dash);
+  final prerelease = dash < 0 ? '' : core.substring(dash + 1);
+  final parts = numeric.split('.');
+  if (parts.length != 3) return null;
+  final numbers = <int>[];
+  for (final part in parts) {
+    final value = int.tryParse(part);
+    if (value == null) return null;
+    numbers.add(value);
+  }
+  return (numbers, prerelease.isEmpty ? const [] : prerelease.split('.'));
+}
+
+int _comparePrerelease(List<String> a, List<String> b) {
+  if (a.isEmpty && b.isEmpty) return 0;
+  if (a.isEmpty) return 1; // a release outranks any prerelease
+  if (b.isEmpty) return -1;
+  for (var i = 0; i < a.length && i < b.length; i++) {
+    final an = int.tryParse(a[i]);
+    final bn = int.tryParse(b[i]);
+    final int result;
+    if (an != null && bn != null) {
+      result = an.compareTo(bn);
+    } else if (an != null) {
+      result = -1; // numeric identifiers rank below alphanumeric
+    } else if (bn != null) {
+      result = 1;
+    } else {
+      result = a[i].compareTo(b[i]);
+    }
+    if (result != 0) return result;
+  }
+  return a.length.compareTo(b.length);
+}
+
+int _compareVersions(String a, String b) {
+  final pa = _parseVersion(a);
+  final pb = _parseVersion(b);
+  if (pa == null || pb == null) return a.compareTo(b);
+  for (var i = 0; i < 3; i++) {
+    final result = pa.$1[i].compareTo(pb.$1[i]);
+    if (result != 0) return result;
+  }
+  return _comparePrerelease(pa.$2, pb.$2);
+}
+
+/// Satisfaction check for the constraint shapes internal deps use:
+/// `^x.y.z[-pre]` (caret), `>=x.y.z[-pre]` (floor), `=x.y.z` (exact).
+bool _satisfiesConstraint(String version, String constraint) {
+  final trimmed = constraint.trim();
+  final lower = _minimumVersionFromConstraint(trimmed);
+  if (lower == null) return false;
+  if (_compareVersions(version, lower) < 0) return false;
+
+  if (trimmed.startsWith('=')) return version == lower;
+  if (!trimmed.startsWith('^')) return true; // `>=` floor: no upper bound
+
+  final parsedLower = _parseVersion(lower);
+  final parsedVersion = _parseVersion(version);
+  if (parsedLower == null || parsedVersion == null) return true;
+  // Caret upper bound (exclusive): <(major+1).0.0 normally; <0.(minor+1).0
+  // when major == 0; <0.0.(patch+1) when major == 0 and minor == 0.
+  final lowerNums = parsedLower.$1;
+  final upper = lowerNums[0] != 0
+      ? [lowerNums[0] + 1, 0, 0]
+      : (lowerNums[1] != 0
+            ? [0, lowerNums[1] + 1, 0]
+            : [0, 0, lowerNums[2] + 1]);
+  for (var i = 0; i < 3; i++) {
+    if (parsedVersion.$1[i] != upper[i]) {
+      return parsedVersion.$1[i] < upper[i];
+    }
+  }
+  // Base tuple equal to the exclusive upper bound: outside the range
+  // (its own prereleases included).
+  return false;
 }
 
 Future<void> _run(
