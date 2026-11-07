@@ -20,7 +20,7 @@ platforms:
   windows:
 
 # Prerelease channel: pin versions; API evolves within 0.1.x (ADR 0005).
-version: 0.1.0-dev.14
+version: 0.1.0
 
 environment:
   sdk: ">=3.12.0 <4.0.0"

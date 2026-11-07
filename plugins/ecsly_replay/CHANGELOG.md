@@ -1,17 +1,8 @@
 # Changelog
 
-## Unreleased
+## [0.1.0](https://github.com/Arenukvern/ecsly/compare/ecsly_replay-v0.1.0-dev.4...ecsly_replay-v0.1.0) (2026-11-07)
 
-- Checkpoint restore in [ReplayPlayer] defaults to reconcile by `PersistentId`
-  (`CheckpointRestoreMode.reconcile`); spawn restore is opt-in.
-- Add `ReplayPlayer.seek({tick, eventKey})` convenience API.
-- `TransientPolicy` (`keep` default, `despawn` on seek) for non-persistent
-  entities; `verifyDeterminism` requires `despawn`.
-- Seeking before the first checkpoint reconciles from `initialBaseline` (or an
-  empty persisted set); missing checkpoint payload throws instead of no-op.
-- `TransientPolicy.despawn` runs before and after forward replay; `verifyDeterminism`
-  uses `createColdWorld` (fresh worlds) plus `replayColdCapture` /
-  `persistedCapturesMatch`.
+First stable release. The API surface is unchanged from `ecsly_replay` 0.1.0-dev.4; the prerelease entries below carry the full history.
 
 ## [0.1.0-dev.4](https://github.com/Arenukvern/ecsly/compare/ecsly_replay-v0.1.0-dev.3...ecsly_replay-v0.1.0-dev.4) (2026-11-07)
 

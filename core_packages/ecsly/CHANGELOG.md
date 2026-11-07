@@ -1,10 +1,8 @@
 # Changelog
 
-## Unreleased
+## [0.1.0](https://github.com/Arenukvern/ecsly/compare/ecsly-v0.1.0-dev.14...ecsly-v0.1.0) (2026-11-07)
 
-### Bug Fixes
-
-* **ecsly:** fix `EventReader.drain()` to actually consume events from the channel, matching its documented contract and the conventional drain semantic in ECS/event-queue systems. Previously `drain()` returned a snapshot without clearing the channel, leaving events for re-processing.
+First stable release. The API surface is unchanged from `ecsly` 0.1.0-dev.14; the prerelease entries below carry the full history.
 
 ## [0.1.0-dev.14](https://github.com/Arenukvern/ecsly/compare/ecsly-v0.1.0-dev.13...ecsly-v0.1.0-dev.14) (2026-11-07)
 

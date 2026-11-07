@@ -37,11 +37,13 @@ capability misleads readers just as over-describing unmeasured capability
 does. Rendering, input, and other engine subsystems are host or plugin
 ownership, stated as scope rather than absence.
 
-**Q: Why prerelease (`0.1.x-dev`) versioning?**
-A: The prerelease channel is an API-stability policy, not a runtime-quality
-statement. Versions follow semver prerelease semantics: pin a version, read
-the changelog when you upgrade, and expect API evolution within `0.1.x`. The
-code apps consume is the same code the public benchmark scorecard measures.
+**Q: Why `0.x` versioning instead of `1.0`?**
+A: `0.x` is an API-stability policy, not a runtime-quality statement: the
+engine ships stable semver releases (`0.1.0` and upward) while the API can
+still evolve within `0.x`. Pin a version, read the changelog when you
+upgrade, and expect the code apps consume to be the same code the public
+benchmark scorecard measures. `1.0.0` comes when the API surface earns a
+stability guarantee, not before.
 
 **Q: Where are the documentation voice rules?**
 A: [docs/VOICE.mdx](/VOICE) — capability first, evidence linked, scope

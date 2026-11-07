@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.0](https://github.com/Arenukvern/ecsly/compare/ecsly_flutter-v0.1.0-dev.6...ecsly_flutter-v0.1.0) (2026-11-07)
+
+First stable release. The API surface is unchanged from `ecsly_flutter` 0.1.0-dev.6; the prerelease entries below carry the full history.
+
 ## [0.1.0-dev.6](https://github.com/Arenukvern/ecsly/compare/ecsly_flutter-v0.1.0-dev.5...ecsly_flutter-v0.1.0-dev.6) (2026-11-07)
 
 

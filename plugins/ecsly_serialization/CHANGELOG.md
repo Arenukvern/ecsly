@@ -1,10 +1,8 @@
 # Changelog
 
-## Unreleased
+## [0.1.0](https://github.com/Arenukvern/ecsly/compare/ecsly_serialization-v0.1.0-dev.4...ecsly_serialization-v0.1.0) (2026-11-07)
 
-- Add `WorldSnapshotRestoreMode.reconcile` and `reconcileWorldSnapshot` for
-  in-place restore by `PersistentId` (component set reconciliation, despawn
-  absent persisted entities, leave non-persistent entities untouched).
+First stable release. The API surface is unchanged from `ecsly_serialization` 0.1.0-dev.4; the prerelease entries below carry the full history.
 
 ## [0.1.0-dev.4](https://github.com/Arenukvern/ecsly/compare/ecsly_serialization-v0.1.0-dev.3...ecsly_serialization-v0.1.0-dev.4) (2026-11-07)
 

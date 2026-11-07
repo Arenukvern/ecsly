@@ -99,7 +99,7 @@ This repo uses Release Please for independent Dart package releases:
 - Manifest: `.release-please-manifest.json`.
 - Release PRs update the touched package `pubspec.yaml` and `CHANGELOG.md`.
 - Release tags use `<package>-v<version>`, for example
-  `ecsly-v0.1.0-dev.13` or `ecsly_flutter-v0.1.0-dev.5`.
+  `ecsly-v0.1.0` or `ecsly_flutter-v0.1.0`.
 - Tag pushes run `.github/workflows/pub-publish.yml`, which validates the tag
   with `tool/release/pub_package.dart` before publishing that one package.
 
