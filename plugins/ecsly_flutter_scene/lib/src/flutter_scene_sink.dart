@@ -27,6 +27,13 @@ class FlutterSceneSink implements SceneSink {
 
   final Map<String, Node> _nodes = {};
 
+  /// Geometry identity per key: shape + size. When an update keeps both,
+  /// only position/color changed and the node is mutated IN PLACE — no
+  /// geometry rebuild, no scene remove/add churn. This is the hot path
+  /// for moving actors (people dots at 30 Hz): a sphere that moves keeps
+  /// its mesh and material.
+  final Map<String, (SceneShape, double)> _geometryIdentity = {};
+
   @override
   int get count => _nodes.length;
 
@@ -36,14 +43,37 @@ class FlutterSceneSink implements SceneSink {
     final node = _build(visual);
     if (node == null) return;
     _nodes[key] = node;
+    _geometryIdentity[key] = (visual.shape, visual.size);
     scene.add(node);
   }
 
   @override
   void update(String key, VisualState visual) {
-    final existing = _nodes.remove(key);
+    final existing = _nodes[key];
+    final identity = _geometryIdentity[key];
+    if (existing != null &&
+        identity != null &&
+        identity.$1 == visual.shape &&
+        identity.$2 == visual.size &&
+        existing.mesh != null) {
+      // Same geometry: mutate position and color in place.
+      existing.position = vm.Vector3(
+        visual.position[0],
+        visual.position.length > 1 ? visual.position[1] : 0,
+        visual.position.length > 2 ? visual.position[2] : 0,
+      );
+      final material = existing.mesh!.primitives.first.material;
+      if (material is PhysicallyBasedMaterial) {
+        material.baseColorFactor = _colorOf(visual);
+      } else if (material is UnlitMaterial) {
+        material.baseColorFactor = _colorOf(visual);
+      }
+      return;
+    }
     if (existing != null) {
       scene.remove(existing);
+      _nodes.remove(key);
+      _geometryIdentity.remove(key);
     }
     add(key, visual);
   }
@@ -51,8 +81,17 @@ class FlutterSceneSink implements SceneSink {
   @override
   void remove(String key) {
     final existing = _nodes.remove(key);
+    _geometryIdentity.remove(key);
     if (existing != null) scene.remove(existing);
   }
+
+  /// ARGB int → the sink flavor of an RGBA vector.
+  static vm.Vector4 _colorOf(VisualState visual) => vm.Vector4(
+    ((visual.argb >> 16) & 0xFF) / 255,
+    ((visual.argb >> 8) & 0xFF) / 255,
+    (visual.argb & 0xFF) / 255,
+    ((visual.argb >> 24) & 0xFF) / 255,
+  );
 
   /// Builds the node for one visual. Geometry per [SceneShape]; color
   /// via the PBR base-color factor (an RGBA Vector4). `billboard` maps
@@ -64,12 +103,7 @@ class FlutterSceneSink implements SceneSink {
       visual.position.length > 1 ? visual.position[1] : 0,
       visual.position.length > 2 ? visual.position[2] : 0,
     );
-    final color = vm.Vector4(
-      ((visual.argb >> 16) & 0xFF) / 255,
-      ((visual.argb >> 8) & 0xFF) / 255,
-      (visual.argb & 0xFF) / 255,
-      ((visual.argb >> 24) & 0xFF) / 255,
-    );
+    final color = _colorOf(visual);
     final Mesh mesh = switch (visual.shape) {
       SceneShape.sphere => Mesh(
         SphereGeometry(radius: visual.size),
@@ -172,6 +206,20 @@ class SceneCameraRig {
     );
   }
 
-  /// ARGB int → the sink flavor of an RGBA vector.
+  /// The orbit target as a camera Vector3.
   vm.Vector3 cameraTarget() => vm.Vector3(target[0], target[1], target[2]);
+
+  /// Pan: slide the orbit target across the ground plane, camera-relative
+  /// (drag right → content follows right; drag down → content follows
+  /// down). Scale rides distance so panning feels constant at any zoom.
+  void pan(double dx, double dy) {
+    final scale = distance * 0.0016;
+    final sinYaw = math.sin(yaw);
+    final cosYaw = math.cos(yaw);
+    target = [
+      target[0] + (-dx * cosYaw - dy * sinYaw) * scale,
+      target[1],
+      target[2] + (dx * sinYaw - dy * cosYaw) * scale,
+    ];
+  }
 }

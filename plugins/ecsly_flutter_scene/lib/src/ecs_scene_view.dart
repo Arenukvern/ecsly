@@ -14,6 +14,7 @@ import 'dart:async';
 import 'package:ecsly/ecsly.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_scene/scene.dart';
 
 import 'ecs_scene_binder.dart';
@@ -38,6 +39,8 @@ class EcsSceneView extends StatefulWidget {
     this.onManipulationUpdate,
     this.onManipulationEnd,
     this.loadingColor,
+    this.environmentRevision,
+    this.onEnvironmentBuild,
   });
 
   /// Initial camera distance from the orbit target.
@@ -80,6 +83,20 @@ class EcsSceneView extends StatefulWidget {
   /// passes its paper so the loading state reads as the same material.
   final Color? loadingColor;
 
+  /// Cheap revision token for consumer-owned environment content (city
+  /// terrain, roads, buildings — geometry too rich for the closed
+  /// [VisualState] actor vocabulary, which it bypasses by design). When
+  /// the token changes between sync ticks, [onEnvironmentBuild] runs.
+  /// Both null = no environment tier (pure actor view, the default).
+  final int Function(World world)? environmentRevision;
+
+  /// Builds (or rebuilds) the consumer's environment subtree. The
+  /// consumer owns its root node's lifecycle: remove the previous root,
+  /// add the next. Called once after scene creation, then on every
+  /// [environmentRevision] change. Runs on the sync tick, never inside
+  /// the world's own schedule.
+  final void Function(Scene scene, World world)? onEnvironmentBuild;
+
   @override
   State<EcsSceneView> createState() => _EcsSceneViewState();
 }
@@ -95,6 +112,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
   Timer? _syncTimer;
   Offset? _lastPan;
   String? _manipulationId;
+  int? _envRevision;
 
   @override
   void initState() {
@@ -112,6 +130,10 @@ class _EcsSceneViewState extends State<EcsSceneView> {
         mapping: widget.mapping,
       );
       if (!mounted) return;
+      // Environment tier first (the ground the actors stand on), then
+      // the actor binder's initial sync rides the same timer below.
+      _envRevision = widget.environmentRevision?.call(widget.world);
+      widget.onEnvironmentBuild?.call(scene, widget.world);
       setState(() {
         _scene = scene;
         _ready = true;
@@ -122,7 +144,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
       _binder = binder;
       _syncTimer = Timer.periodic(
         const Duration(milliseconds: 33),
-        (_) => _binder?.sync(),
+        (_) => _syncTick(),
       );
       _reportCamera();
     } on Object catch (e) {
@@ -135,6 +157,20 @@ class _EcsSceneViewState extends State<EcsSceneView> {
   void dispose() {
     _syncTimer?.cancel();
     super.dispose();
+  }
+
+  /// One 30 Hz read pass: actor binder sync, then the environment
+  /// revision gate (rebuild only when the consumer's token changed).
+  void _syncTick() {
+    _binder?.sync();
+    final revisionOf = widget.environmentRevision;
+    final build = widget.onEnvironmentBuild;
+    final scene = _scene;
+    if (revisionOf == null || build == null || scene == null) return;
+    final revision = revisionOf(widget.world);
+    if (revision == _envRevision) return;
+    _envRevision = revision;
+    build(scene, widget.world);
   }
 
   @override
@@ -183,11 +219,16 @@ class _EcsSceneViewState extends State<EcsSceneView> {
           _lastPan = details.localPosition;
           return;
         }
+        final dx = details.localPosition.dx - last.dx;
+        final dy = details.localPosition.dy - last.dy;
         setState(() {
-          _rig.orbit(
-            details.localPosition.dx - last.dx,
-            details.localPosition.dy - last.dy,
-          );
+          // Shift-drag pans the orbit target across the ground plane;
+          // plain drag orbits (the inspector default, unchanged).
+          if (HardwareKeyboard.instance.isShiftPressed) {
+            _rig.pan(dx, dy);
+          } else {
+            _rig.orbit(dx, dy);
+          }
         });
         _lastPan = details.localPosition;
         _reportCamera();
