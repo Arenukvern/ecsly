@@ -41,6 +41,7 @@ class EcsSceneView extends StatefulWidget {
     this.loadingColor,
     this.environmentRevision,
     this.onEnvironmentBuild,
+    this.onEnvironmentTick,
   });
 
   /// Initial camera distance from the orbit target.
@@ -96,6 +97,11 @@ class EcsSceneView extends StatefulWidget {
   /// [environmentRevision] change. Runs on the sync tick, never inside
   /// the world's own schedule.
   final void Function(Scene scene, World world)? onEnvironmentBuild;
+
+  /// Cheap per-tick environment update (sun position, fog, palette
+  /// uniforms) — runs every sync tick WITHOUT a geometry rebuild, so
+  /// time-of-day advances smoothly while meshes stay cached.
+  final void Function(Scene scene, World world)? onEnvironmentTick;
 
   @override
   State<EcsSceneView> createState() => _EcsSceneViewState();
@@ -163,14 +169,18 @@ class _EcsSceneViewState extends State<EcsSceneView> {
   /// revision gate (rebuild only when the consumer's token changed).
   void _syncTick() {
     _binder?.sync();
+    final scene = _scene;
+    if (scene == null) return;
     final revisionOf = widget.environmentRevision;
     final build = widget.onEnvironmentBuild;
-    final scene = _scene;
-    if (revisionOf == null || build == null || scene == null) return;
-    final revision = revisionOf(widget.world);
-    if (revision == _envRevision) return;
-    _envRevision = revision;
-    build(scene, widget.world);
+    if (revisionOf != null && build != null) {
+      final revision = revisionOf(widget.world);
+      if (revision != _envRevision) {
+        _envRevision = revision;
+        build(scene, widget.world);
+      }
+    }
+    widget.onEnvironmentTick?.call(scene, widget.world);
   }
 
   @override
