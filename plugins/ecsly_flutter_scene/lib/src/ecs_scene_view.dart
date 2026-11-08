@@ -16,6 +16,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_scene/scene.dart';
+import 'package:vector_math/vector_math.dart' as vm;
 
 import 'ecs_scene_binder.dart';
 import 'flutter_scene_sink.dart';
@@ -42,6 +43,7 @@ class EcsSceneView extends StatefulWidget {
     this.environmentRevision,
     this.onEnvironmentBuild,
     this.onEnvironmentTick,
+    this.onTapRay,
   });
 
   /// Initial camera distance from the orbit target.
@@ -102,6 +104,12 @@ class EcsSceneView extends StatefulWidget {
   /// uniforms) — runs every sync tick WITHOUT a geometry rebuild, so
   /// time-of-day advances smoothly while meshes stay cached.
   final void Function(Scene scene, World world)? onEnvironmentTick;
+
+  /// Every tap also reports its world ray (render-camera basis), whether
+  /// or not a named visual was hit — consumers ray-march their own
+  /// geometry (terrain brushes, plot placement). Entity pick still fires
+  /// independently via [onEntityTap].
+  final void Function(vm.Ray ray)? onTapRay;
 
   @override
   State<EcsSceneView> createState() => _EcsSceneViewState();
@@ -246,7 +254,14 @@ class _EcsSceneViewState extends State<EcsSceneView> {
       onPanEnd: (_) => _endManipulation(false),
       onPanCancel: () => _endManipulation(true),
       onDoubleTap: () => _zoomBy(0.8),
-      onTapUp: (details) => _pickAt(details.localPosition, widget.onEntityTap),
+      onTapUp: (details) {
+        _pickAt(details.localPosition, widget.onEntityTap);
+        final rayCb = widget.onTapRay;
+        if (rayCb != null) {
+          final ray = _rayAt(details.localPosition);
+          if (ray != null) rayCb(ray);
+        }
+      },
       onLongPressStart: (details) =>
           _pickAt(details.localPosition, widget.onEntityHold),
       child: Listener(
@@ -282,9 +297,19 @@ class _EcsSceneViewState extends State<EcsSceneView> {
   /// all silently do nothing; a gesture on empty space is not a verb.
   void _pickAt(Offset local, void Function(String pickId)? callback) {
     if (callback == null || _binder == null) return;
+    final ray = _rayAt(local);
+    if (ray == null) return;
+    final hit = pickVisuals(visuals: _binder!.current, ray: ray);
+    if (hit != null) callback(hit.pickId);
+  }
+
+  /// Pointer → world ray through the render camera's basis. Consumers
+  /// ray-march their own geometry against it (terrain editing); null
+  /// before the first layout.
+  vm.Ray? _rayAt(Offset local) {
     final box = context.findRenderObject() as RenderBox?;
     final size = box?.size;
-    if (size == null || size.width <= 0 || size.height <= 0) return;
+    if (size == null || size.width <= 0 || size.height <= 0) return null;
     final basis = SceneCameraBasis(
       eye: _rig.cameraPosition().storage.toList(),
       target: _rig.target,
@@ -296,11 +321,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
       size.width,
       size.height,
     );
-    final hit = pickVisuals(
-      visuals: _binder!.current,
-      ray: basis.rayThrough(ndcX, ndcY),
-    );
-    if (hit != null) callback(hit.pickId);
+    return basis.rayThrough(ndcX, ndcY);
   }
 
   void _zoomBy(double factor) {
