@@ -44,6 +44,9 @@ class EcsSceneView extends StatefulWidget {
     this.onEnvironmentBuild,
     this.onEnvironmentTick,
     this.onTapRay,
+    this.onHoverRay,
+    this.onDragRay,
+    this.claimDragForPaint = false,
   });
 
   /// Initial camera distance from the orbit target.
@@ -111,6 +114,20 @@ class EcsSceneView extends StatefulWidget {
   /// independently via [onEntityTap].
   final void Function(vm.Ray ray)? onTapRay;
 
+  /// Pointer hover (mouse moves with no button) reports its world ray —
+  /// consumers draw a placement ghost / brush footprint under the cursor.
+  /// Null before the first layout; never fires during a drag.
+  final void Function(vm.Ray ray)? onHoverRay;
+
+  /// While [claimDragForPaint] is true, a plain drag reports its ray each
+  /// move instead of orbiting — continuous brush painting. Shift-drag
+  /// still pans regardless. Null = drags always orbit/pan.
+  final void Function(vm.Ray ray)? onDragRay;
+
+  /// When true (and [onDragRay] set), plain drags paint rather than orbit.
+  /// The consumer toggles this with its edit mode + active brush tool.
+  final bool claimDragForPaint;
+
   @override
   State<EcsSceneView> createState() => _EcsSceneViewState();
 }
@@ -127,6 +144,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
   Offset? _lastPan;
   String? _manipulationId;
   int? _envRevision;
+  bool _painting = false;
 
   @override
   void initState() {
@@ -219,6 +237,19 @@ class _EcsSceneViewState extends State<EcsSceneView> {
       onPanStart: (details) {
         _lastPan = details.localPosition;
         _manipulationId = null;
+        _painting = false;
+        // Edit-mode brushes claim the drag for continuous painting;
+        // shift-drag still pans the camera regardless.
+        if (widget.claimDragForPaint &&
+            widget.onDragRay != null &&
+            !HardwareKeyboard.instance.isShiftPressed) {
+          final ray = _rayAt(details.localPosition);
+          if (ray != null) {
+            _painting = true;
+            widget.onDragRay!(ray);
+            return;
+          }
+        }
         _pickAt(details.localPosition, (id) {
           if (widget.onManipulationStart?.call(id) ?? false) {
             _manipulationId = id;
@@ -227,6 +258,12 @@ class _EcsSceneViewState extends State<EcsSceneView> {
       },
       onPanUpdate: (details) {
         final last = _lastPan ?? details.localPosition;
+        if (_painting) {
+          final ray = _rayAt(details.localPosition);
+          if (ray != null) widget.onDragRay!(ray);
+          _lastPan = details.localPosition;
+          return;
+        }
         final id = _manipulationId;
         if (id != null) {
           widget.onManipulationUpdate?.call(
@@ -264,13 +301,21 @@ class _EcsSceneViewState extends State<EcsSceneView> {
       },
       onLongPressStart: (details) =>
           _pickAt(details.localPosition, widget.onEntityHold),
-      child: Listener(
+        child: Listener(
         // Scroll dolly (desktop/trackpad): wheel down zooms out, up zooms
         // in. The altitude hook rides every distance change.
         onPointerSignal: (event) {
           if (event is PointerScrollEvent) {
             _zoomBy(event.scrollDelta.dy > 0 ? 1.1 : 0.9);
           }
+        },
+        // Hover ray (mouse, no button): the placement ghost follows the
+        // cursor so tools land directly under the pointer.
+        onPointerHover: (event) {
+          final cb = widget.onHoverRay;
+          if (cb == null) return;
+          final ray = _rayAt(event.localPosition);
+          if (ray != null) cb(ray);
         },
         child: SceneView(_scene!, camera: camera),
       ),
@@ -280,6 +325,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
   void _endManipulation(bool cancelled) {
     final id = _manipulationId;
     _manipulationId = null;
+    _painting = false;
     _lastPan = null;
     if (id != null) widget.onManipulationEnd?.call(id, cancelled);
   }
