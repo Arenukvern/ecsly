@@ -10,3 +10,4 @@ workspace:
   - core_packages/ecsly_codegen/example
   - core_packages/ecsly_flutter/example
   - plugins/*
+  - plugins/*/*
