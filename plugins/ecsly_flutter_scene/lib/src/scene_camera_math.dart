@@ -24,8 +24,17 @@ import 'visual_state.dart';
 const double defaultFovRadiansY = 45 * math.pi / 180;
 
 /// The derived camera basis for one eye/target pair: forward/right/up
-/// axes and the vertical half-FOV tangent. World-up is (0,1,0); pitch is
-/// clamped by the rig away from the degenerate straight-down case.
+/// axes and the vertical half-FOV tangent. The convention is EXACTLY
+/// flutter_scene's `_matrix4LookAt` (camera.dart): a LEFT-HANDED view
+/// space — forward = (target − eye) normalized points INTO the screen
+/// (view +Z is the clip-space w), right = worldUp × forward, and
+/// up = forward × right. A right-handed basis (right = forward × up)
+/// mirrors the X axis against the rendered image: picking and label
+/// projection then disagree with pixels horizontally. The convention
+/// test (test/scene_camera_math_test.dart) pins this against
+/// [PerspectiveCamera.getViewMatrix] itself. World-up is (0,1,0);
+/// pitch is clamped by the rig away from the degenerate straight-down
+/// case.
 class SceneCameraBasis {
   /// Builds the basis. [aspect] is width/height of the viewport the
   /// pointer (or label) coordinates refer to.
@@ -38,14 +47,14 @@ class SceneCameraBasis {
     final e = vm.Vector3(eye[0], eye[1], eye[2]);
     final t = vm.Vector3(target[0], target[1], target[2]);
     final forward = (t - e)..normalize();
-    var right = forward.cross(vm.Vector3(0, 1, 0));
+    var right = vm.Vector3(0, 1, 0).cross(forward);
     if (right.length2 < 1e-8) {
       // Straight down/up (never reached through the rig's pitch clamp,
-      // but a basis must exist for any input): fall back to +X.
-      right = forward.cross(vm.Vector3(0, 0, 1));
+      // but a basis must exist for any input): any perpendicular will do.
+      right = vm.Vector3(0, 0, 1).cross(forward);
     }
     right.normalize();
-    final up = right.cross(forward)..normalize();
+    final up = forward.cross(right)..normalize();
     return SceneCameraBasis._(
       e,
       forward,

@@ -2,6 +2,10 @@
 import 'dart:math' as math;
 
 import 'package:ecsly_flutter_scene/ecsly_flutter_scene.dart';
+// Deliberate direct pin: the convention test asserts against the RENDERER's
+// own PerspectiveCamera, not the adapter's re-export of it.
+// ignore: unnecessary_import
+import 'package:flutter_scene/scene.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
@@ -126,5 +130,63 @@ void main() {
     final collected = mapping.collect(world);
     expect(collected, hasLength(1));
     expect(collected.keys.first, 'static|g0');
+  });
+
+  // THE CONVENTION PIN: the basis must equal flutter_scene's own view
+  // matrix, which is LEFT-HANDED (right = up × forward, view +Z into the
+  // screen — see camera.dart _matrix4LookAt). A right-handed basis
+  // mirrors the X axis against the rendered image: ghosts, taps and
+  // label overlays land on the wrong side of the screen. This test
+  // derives expectations from getViewMatrix() itself, so a renderer
+  // convention change fails HERE, not in a user's bug report.
+  group('handedness convention (pins against PerspectiveCamera)', () {
+    final eye = vm.Vector3(0, 5, 10);
+    final target = vm.Vector3.zero();
+    final view =
+        PerspectiveCamera(position: eye, target: target).getViewMatrix();
+    const aspect = 2.0;
+    final basis = SceneCameraBasis(
+      eye: eye.storage.toList(),
+      target: target.storage.toList(),
+      aspect: aspect,
+    );
+    final tanHalf = math.tan(defaultFovRadiansY / 2);
+
+    test('ndcOfWorld equals the renderer view matrix projection', () {
+      for (final p in [
+        vm.Vector3(2, 0, 0),
+        vm.Vector3(-3, 1, -2),
+        vm.Vector3(0.5, -0.5, 4),
+      ]) {
+        // transform3 MUTATES its argument — feed it a clone so the basis
+        // still sees the world-space point.
+        final v = view.transform3(p.clone()); // (x_view, y_view, z_view)
+        expect(v.z, greaterThan(0));
+        final (ndcX, ndcY) = basis.ndcOfWorld(p)!;
+        // 1e-6: the renderer matrix stores Float32 entries; a handedness
+        // slip would differ by O(1), not by rounding dust.
+        expect(ndcX, closeTo(v.x / (v.z * tanHalf * aspect), 1e-6));
+        expect(ndcY, closeTo(v.y / (v.z * tanHalf), 1e-6));
+      }
+    });
+
+    test('world +X renders on the LEFT when the camera looks toward -Z',
+        () {
+      // The eye sits on +Z; flutter_scene's screen right is worldUp ×
+      // forward = -X. This single sign is what a right-handed basis
+      // gets backwards.
+      final v = view.transform3(vm.Vector3(2, 0, 0));
+      expect(v.x, lessThan(0));
+      expect(basis.ndcOfWorld(vm.Vector3(2, 0, 0))!.$1, lessThan(0));
+    });
+
+    test('rayThrough(ndc) lands where the renderer draws that pixel', () {
+      // A world point projected to a pixel is re-picked by the ray
+      // through that pixel — the full pick/place loop, declaratively.
+      final p = vm.Vector3(1.5, 0.4, -0.5);
+      final (ndcX, ndcY) = basis.ndcOfWorld(p)!;
+      final ray = basis.rayThrough(ndcX, ndcY);
+      expect(raySphere(ray, p, 0.05), isNotNull);
+    });
   });
 }

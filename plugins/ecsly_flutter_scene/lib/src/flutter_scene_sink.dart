@@ -177,12 +177,14 @@ class SceneCameraRig {
 
   /// The orbit target as a camera Vector3.
   ///
-  /// Grab-the-world convention (matching touch/trackpad orbit everywhere):
-  /// drag right → the world turns right (camera orbits left); drag down →
-  /// the world tilts toward the viewer (pitch lowers). The previous
-  /// same-sign mapping read as inverted on both axes.
+  /// Grab-the-world convention under flutter_scene's LEFT-HANDED render
+  /// (screen right = worldUp × forward; with the default view looking
+  /// toward −Z, world +X renders on the LEFT): drag right → yaw += dx →
+  /// the eye swings toward +X → content follows the finger right. Drag
+  /// down → pitch lowers. Signs verified against getViewMatrix in the
+  /// convention test; a right-handed assumption inverts the yaw.
   void orbit(double dx, double dy) {
-    yaw -= dx * 0.01;
+    yaw += dx * 0.01;
     pitch = math.max(_minPitch, math.min(_maxPitch, pitch - dy * 0.01));
   }
 
@@ -215,16 +217,20 @@ class SceneCameraRig {
   vm.Vector3 cameraTarget() => vm.Vector3(target[0], target[1], target[2]);
 
   /// Pan: slide the orbit target across the ground plane, camera-relative
-  /// (drag right → content follows right; drag down → content follows
-  /// down). Scale rides distance so panning feels constant at any zoom.
+  /// (grab-the-world: drag right → content follows right; drag down →
+  /// content follows down). Signs derived from flutter_scene's
+  /// left-handed screen axes (right_g = (−cosYaw, +sinYaw),
+  /// up_g = −(sinYaw, cosYaw) in world XZ); a right-handed assumption
+  /// mirrors the X term. Scale rides distance so panning feels constant
+  /// at any zoom.
   void pan(double dx, double dy) {
     final scale = distance * 0.0016;
     final sinYaw = math.sin(yaw);
     final cosYaw = math.cos(yaw);
     target = [
-      target[0] + (-dx * cosYaw - dy * sinYaw) * scale,
+      target[0] + (dx * cosYaw - dy * sinYaw) * scale,
       target[1],
-      target[2] + (dx * sinYaw - dy * cosYaw) * scale,
+      target[2] + (-dx * sinYaw - dy * cosYaw) * scale,
     ];
   }
 }

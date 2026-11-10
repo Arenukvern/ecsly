@@ -3,7 +3,9 @@
 // ignore_for_file: prefer_final_parameters
 
 /// The embedding widget: an ecsly World rendered as a flutter_scene 3D
-/// view, with orbit gestures and per-frame binder sync. Requires
+/// view, with the standard map-camera gestures (drag pans, right/shift
+/// drags orbit, two fingers pinch+twist, the wheel zooms at the cursor)
+/// and per-frame binder sync. Requires
 /// Flutter 3.47+ with Flutter GPU enabled on the platform, and
 /// `Scene.initializeStaticResources()` before first geometry — handled
 /// in state init (the static future is cached by flutter_scene itself).
@@ -141,11 +143,11 @@ class EcsSceneView extends StatefulWidget {
   final void Function(vm.Ray ray)? onHoverRay;
 
   /// While [claimDragForPaint] is true, a plain drag reports its ray each
-  /// move instead of orbiting — continuous brush painting. Shift-drag
-  /// still pans regardless. Null = drags always orbit/pan.
+  /// move instead of panning — continuous brush painting. Middle-drag and
+  /// shift-drag still orbit regardless. Null = drags always pan/orbit.
   final void Function(vm.Ray ray)? onDragRay;
 
-  /// When true (and [onDragRay] set), plain drags paint rather than orbit.
+  /// When true (and [onDragRay] set), plain drags paint rather than pan.
   /// The consumer toggles this with its edit mode + active brush tool.
   final bool claimDragForPaint;
 
@@ -162,7 +164,10 @@ class _EcsSceneViewState extends State<EcsSceneView> {
     distance: widget.initialDistance,
   );
   Timer? _syncTimer;
-  Offset? _lastPan;
+  Offset? _lastFocal;
+  double _lastScale = 1;
+  double _lastRotation = 0;
+  bool _middleDrag = false;
   String? _manipulationId;
   int? _envRevision;
   bool _painting = false;
@@ -261,63 +266,93 @@ class _EcsSceneViewState extends State<EcsSceneView> {
       target: _rig.cameraTarget(),
     );
     return GestureDetector(
-      onPanStart: (details) {
-        _lastPan = details.localPosition;
+      // One recognizer for mouse + touch (the city-builder camera map):
+      //   single-finger/left drag ......... PAN (tool drag paints when
+      //                                     claimDragForPaint is on)
+      //   middle-drag / shift-drag ........ ORBIT
+      //   two-finger drag ................. PAN + PINCH zoom + TWIST yaw
+      //   wheel / double-tap .............. zoom AT the cursor
+      //   trackpad two-finger / pinch ..... PAN / zoom (pan-zoom events)
+      onScaleStart: (details) {
+        _lastFocal = details.localFocalPoint;
+        _lastScale = 1;
+        _lastRotation = 0;
         _manipulationId = null;
         _painting = false;
-        // Edit-mode brushes claim the drag for continuous painting;
-        // shift-drag still pans the camera regardless.
-        if (widget.claimDragForPaint &&
-            widget.onDragRay != null &&
-            !HardwareKeyboard.instance.isShiftPressed) {
-          final ray = _rayAt(details.localPosition);
+        if (details.pointerCount > 1) return;
+        final orbitDrag =
+            _middleDrag || HardwareKeyboard.instance.isShiftPressed;
+        if (!orbitDrag &&
+            widget.claimDragForPaint &&
+            widget.onDragRay != null) {
+          final ray = _rayAt(details.localFocalPoint);
           if (ray != null) {
             _painting = true;
             widget.onDragRay!(ray);
             return;
           }
         }
-        _pickAt(details.localPosition, (id) {
-          if (widget.onManipulationStart?.call(id) ?? false) {
-            _manipulationId = id;
-          }
-        });
+        if (!orbitDrag) {
+          _pickAt(details.localFocalPoint, (id) {
+            if (widget.onManipulationStart?.call(id) ?? false) {
+              _manipulationId = id;
+            }
+          });
+        }
       },
-      onPanUpdate: (details) {
-        final last = _lastPan ?? details.localPosition;
+      onScaleUpdate: (details) {
+        final last = _lastFocal ?? details.localFocalPoint;
+        final dx = details.localFocalPoint.dx - last.dx;
+        final dy = details.localFocalPoint.dy - last.dy;
+        if (details.pointerCount > 1) {
+          // Touch transform: focal pan + pinch dolly + twist orbit.
+          final pinch = details.scale / (_lastScale == 0 ? 1 : _lastScale);
+          final twist = details.rotation - _lastRotation;
+          setState(() {
+            _rig.pan(dx, dy);
+            if (pinch != 1) _rig.zoom(1 / pinch);
+            _rig.yaw += twist;
+          });
+          _lastScale = details.scale;
+          _lastRotation = details.rotation;
+          _lastFocal = details.localFocalPoint;
+          widget.onDistanceChange?.call(_rig.distance);
+          _reportCamera();
+          return;
+        }
         if (_painting) {
-          final ray = _rayAt(details.localPosition);
+          final ray = _rayAt(details.localFocalPoint);
           if (ray != null) widget.onDragRay!(ray);
-          _lastPan = details.localPosition;
+          _lastFocal = details.localFocalPoint;
           return;
         }
         final id = _manipulationId;
         if (id != null) {
-          widget.onManipulationUpdate?.call(
-            id,
-            details.localPosition.dx - last.dx,
-            details.localPosition.dy - last.dy,
-          );
-          _lastPan = details.localPosition;
+          widget.onManipulationUpdate?.call(id, dx, dy);
+          _lastFocal = details.localFocalPoint;
           return;
         }
-        final dx = details.localPosition.dx - last.dx;
-        final dy = details.localPosition.dy - last.dy;
+        // Single "pointer" but scale changing = trackpad pinch (macOS
+        // pan-zoom gestures ride the scale recognizer): dolly.
+        final trackpadPinch = _lastScale == 0 ? 1 : details.scale / _lastScale;
+        _lastScale = details.scale;
         setState(() {
-          // Shift-drag pans the orbit target across the ground plane;
-          // plain drag orbits (the inspector default, unchanged).
-          if (HardwareKeyboard.instance.isShiftPressed) {
-            _rig.pan(dx, dy);
-          } else {
+          if (trackpadPinch != 1) _rig.zoom(1 / trackpadPinch);
+          // Middle-drag (or shift-drag for trackpads) orbits; every other
+          // plain drag pans — the industry default for map cameras.
+          if (_middleDrag ||
+              HardwareKeyboard.instance.isShiftPressed) {
             _rig.orbit(dx, dy);
+          } else {
+            _rig.pan(dx, dy);
           }
         });
-        _lastPan = details.localPosition;
+        _lastFocal = details.localFocalPoint;
+        widget.onDistanceChange?.call(_rig.distance);
         _reportCamera();
       },
-      onPanEnd: (_) => _endManipulation(false),
-      onPanCancel: () => _endManipulation(true),
-      onDoubleTap: () => _zoomBy(0.8),
+      onScaleEnd: (_) => _endManipulation(false),
+      onDoubleTapDown: (details) => _zoomAt(0.8, details.localPosition),
       onTapUp: (details) {
         _pickAt(details.localPosition, widget.onEntityTap);
         final rayCb = widget.onTapRay;
@@ -328,12 +363,20 @@ class _EcsSceneViewState extends State<EcsSceneView> {
       },
       onLongPressStart: (details) =>
           _pickAt(details.localPosition, widget.onEntityHold),
-        child: Listener(
-        // Scroll dolly (desktop/trackpad): wheel down zooms out, up zooms
-        // in. The altitude hook rides every distance change.
+      child: Listener(
+        // Which mouse button owns the current drag (middle = orbit).
+        onPointerDown: (event) {
+          _middleDrag = (event.buttons & kTertiaryButton) != 0;
+        },
+        onPointerUp: (_) => _middleDrag = false,
+        onPointerCancel: (_) => _middleDrag = false,
+        // Wheel dolly AT the cursor (desktop): the ground point under the
+        // pointer stays under it while the distance scales. Trackpad
+        // two-finger pan/pinch rides the scale recognizer above (macOS
+        // delivers it as pan-zoom gestures, not scroll signals).
         onPointerSignal: (event) {
           if (event is PointerScrollEvent) {
-            _zoomBy(event.scrollDelta.dy > 0 ? 1.1 : 0.9);
+            _zoomAt(event.scrollDelta.dy > 0 ? 1.1 : 0.9, event.localPosition);
           }
         },
         // Hover ray (mouse, no button): the placement ghost follows the
@@ -353,7 +396,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
     final id = _manipulationId;
     _manipulationId = null;
     _painting = false;
-    _lastPan = null;
+    _lastFocal = null;
     if (id != null) widget.onManipulationEnd?.call(id, cancelled);
   }
 
@@ -397,8 +440,30 @@ class _EcsSceneViewState extends State<EcsSceneView> {
     return basis.rayThrough(ndcX, ndcY);
   }
 
-  void _zoomBy(double factor) {
-    setState(() => _rig.zoom(factor));
+  /// Dolly by [factor], keeping the ground point under [local] fixed
+  /// (zoom-at-cursor, the desktop city-builder standard). Falls back to a
+  /// centered zoom when the cursor ray misses the target's horizontal
+  /// plane (looking up, or before the first layout).
+  void _zoomAt(double factor, Offset? local) {
+    vm.Vector3? hit;
+    final ray = local == null ? null : _rayAt(local);
+    final dirY = ray?.direction.y ?? 0;
+    if (ray != null && dirY.abs() > 1e-6) {
+      final t = (_rig.target[1] - ray.origin.y) / dirY;
+      if (t > 0) hit = ray.origin + ray.direction * t;
+    }
+    setState(() {
+      _rig.zoom(factor);
+      final pinned = hit;
+      if (pinned != null) {
+        final keep = 1 - factor;
+        _rig.target = [
+          _rig.target[0] + (pinned.x - _rig.target[0]) * keep,
+          _rig.target[1],
+          _rig.target[2] + (pinned.z - _rig.target[2]) * keep,
+        ];
+      }
+    });
     widget.onDistanceChange?.call(_rig.distance);
     _reportCamera();
   }
