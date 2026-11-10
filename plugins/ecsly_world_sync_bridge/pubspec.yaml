@@ -6,7 +6,7 @@ description: >-
   the convergence session core owns the wire, the delta planning, and the
   compaction policy (ADR 0004). Merge semantics stay in the convergence
   kernel.
-version: 0.1.0
+version: 0.2.0
 homepage: https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_world_sync_bridge
 repository: https://github.com/Arenukvern/ecsly
 issue_tracker: https://github.com/Arenukvern/ecsly/issues

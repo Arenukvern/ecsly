@@ -5,10 +5,10 @@
   "core_packages/ecsly_flutter": "0.1.0",
   "plugins/ecsly_serialization": "0.1.0",
   "plugins/ecsly_replay": "0.1.0",
-  "plugins/async_parallel": "0.1.0",
-  "plugins/ecsly_world_sync": "0.1.0",
-  "plugins/ecsly_world_zones": "0.1.0",
-  "plugins/ecsly_async_parallel": "0.1.0",
-  "plugins/ecsly_world_sync_bridge": "0.1.0",
-  "plugins/ecsly_flutter_scene": "0.1.0"
+  "plugins/async_parallel": "0.2.0",
+  "plugins/ecsly_world_sync": "0.2.0",
+  "plugins/ecsly_world_zones": "0.2.0",
+  "plugins/ecsly_async_parallel": "0.2.0",
+  "plugins/ecsly_world_sync_bridge": "0.2.0",
+  "plugins/ecsly_flutter_scene": "0.2.0"
 }

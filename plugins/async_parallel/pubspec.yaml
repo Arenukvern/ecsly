@@ -1,6 +1,6 @@
 name: async_parallel
 description: Zero-cost isolate management for high-performance Dart applications
-version: 0.1.0
+version: 0.2.0
 homepage: https://github.com/Arenukvern/ecsly/tree/main/plugins/async_parallel
 repository: https://github.com/Arenukvern/ecsly
 issue_tracker: https://github.com/Arenukvern/ecsly/issues
