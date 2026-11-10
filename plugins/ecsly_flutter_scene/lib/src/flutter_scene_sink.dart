@@ -131,17 +131,14 @@ class FlutterSceneSink implements SceneSink {
                 UnlitMaterial()..baseColorFactor = color,
               )
             : Mesh(
-                PolylineGeometry(
-                  [
-                    for (final p in visual.points)
-                      vm.Vector3(
-                        p[0],
-                        p.length > 1 ? p[1] : 0,
-                        p.length > 2 ? p[2] : 0,
-                      ),
-                  ],
-                  width: visual.size,
-                ),
+                PolylineGeometry([
+                  for (final p in visual.points)
+                    vm.Vector3(
+                      p[0],
+                      p.length > 1 ? p[1] : 0,
+                      p.length > 2 ? p[2] : 0,
+                    ),
+                ], width: visual.size),
                 UnlitMaterial()..baseColorFactor = color,
               ),
     };
@@ -163,10 +160,13 @@ class SceneCameraRig {
 
   /// Orbit: [dx] spins yaw, [dy] clamps pitch.
   List<double> target;
+
   /// Dolly: [factor] scales the distance (clamped).
   double distance;
+
   /// Points the rig at one world position (the focus action).
   double yaw;
+
   /// The orbit target, as XYZ.
   double pitch;
 

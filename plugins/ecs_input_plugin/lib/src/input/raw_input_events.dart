@@ -166,6 +166,32 @@ sealed class RawPointerEvent extends EcsEvent
   ];
 }
 
+/// Raw pointer hover event (mouse move with NO buttons pressed).
+///
+/// Flutter reports hover through `PointerHoverEvent`, which never reaches
+/// `Listener.onPointerMove` — hosts that need cursor tracking without a
+/// pressed button (placement ghosts, tooltip picking) consume this event.
+class RawPointerHoverEvent extends RawPointerEvent {
+  const RawPointerHoverEvent({
+    required super.position,
+    required super.worldPosition,
+    required super.timestamp,
+    required super.pointer,
+    super.buttons,
+    super.modifierMask,
+  });
+
+  static RawPointerHoverEvent fromDoubleFields(final List<double> fields) =>
+      RawPointerHoverEvent(
+        position: ui.Offset(fields[0], fields[1]),
+        worldPosition: ui.Offset(fields[2], fields[3]),
+        timestamp: fields[4].toInt(),
+        pointer: fields[5].toInt(),
+        buttons: _intField(fields, 6),
+        modifierMask: _intField(fields, 7),
+      );
+}
+
 /// Raw pointer move event.
 class RawPointerMoveEvent extends RawPointerEvent {
   final ui.Offset delta;
@@ -267,6 +293,12 @@ class RawScaleStartEvent extends EcsEvent
 }
 
 /// Raw scale update event (pinch gesture continue).
+///
+/// [scale] and [rotation] are CUMULATIVE from gesture start (matching
+/// Flutter's ScaleUpdateDetails); consumers that need per-update deltas
+/// track their own previous values. [worldFocalPoint] is the focal point
+/// run through the host's `toWorldCoords` converter when one is provided
+/// (equals [focalPoint] otherwise) — 3D hosts use it for zoom-at-cursor.
 class RawScaleUpdateEvent extends EcsEvent
     with TypedDataEventMixin
     implements TypedDataEvent {
@@ -277,14 +309,19 @@ class RawScaleUpdateEvent extends EcsEvent
   final double scale;
   final int pointerCount;
   final int timestamp;
-  const RawScaleUpdateEvent({
+
+  /// Focal point in host world coordinates (falls back to [focalPoint]
+  /// when the host supplies no converter).
+  final ui.Offset worldFocalPoint;
+  RawScaleUpdateEvent({
     required this.focalPoint,
     required this.scale,
     this.focalPointDelta = ui.Offset.zero,
     this.rotation = 0.0,
     this.pointerCount = 0,
     required this.timestamp,
-  });
+    final ui.Offset? worldFocalPoint,
+  }) : worldFocalPoint = worldFocalPoint ?? focalPoint;
 
   @override
   List<double> get numericFields => [
@@ -296,6 +333,8 @@ class RawScaleUpdateEvent extends EcsEvent
     focalPointDelta.dy,
     rotation,
     pointerCount.toDouble(),
+    worldFocalPoint.dx,
+    worldFocalPoint.dy,
   ];
 
   static RawScaleUpdateEvent fromDoubleFields(final List<double> fields) =>
@@ -308,5 +347,8 @@ class RawScaleUpdateEvent extends EcsEvent
             : ui.Offset.zero,
         rotation: fields.length >= 7 ? fields[6] : 0.0,
         pointerCount: fields.length >= 8 ? fields[7].toInt() : 0,
+        worldFocalPoint: fields.length >= 10
+            ? ui.Offset(fields[8], fields[9])
+            : null,
       );
 }

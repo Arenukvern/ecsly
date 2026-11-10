@@ -9,24 +9,24 @@ import 'package:ecsly/ecsly.dart';
 import '../gesture_events.dart';
 import '../raw_input_events.dart';
 
-/// Converts RawScaleUpdateEvent to PinchEvent with screen coordinates.
+/// Converts RawScaleUpdateEvent to PinchEvent.
 ///
-/// Unlike pointer gestures (tap/drag) that require state tracking for classification,
-/// scale gestures are already classified by Flutter's GestureDetector. This system
-/// emits PinchEvent with screen coordinates. Camera coordinate transformation is
-/// handled by camera_control_plugin systems that consume PinchEvent.
+/// Unlike pointer gestures (tap/drag) that require state tracking for
+/// classification, scale gestures are already classified by Flutter's
+/// GestureDetector. The world focal point comes from the host's
+/// `toWorldCoords` converter when one is wired (RawScaleUpdateEvent
+/// .worldFocalPoint), so camera systems can zoom at the cursor without
+/// knowing the projection; without a converter it equals the screen focal.
+/// scale/rotation stay CUMULATIVE (Flutter semantics) — consumers track
+/// their own per-gesture deltas.
 void scaleClassificationSystem(final World world) {
   // Process RawScaleUpdateEvent → PinchEvent conversion
   final updateReader = world.events.reader<RawScaleUpdateEvent>();
   for (final event in updateReader.iter()) {
-    // Emit PinchEvent with screen coordinates
-    // Camera coordinate transformation is handled by camera_control_plugin systems
-    final worldFocalPoint = event.focalPoint; // screen coordinates for now
-
     world.events.writer<PinchEvent>().send(
       PinchEvent(
         position: event.focalPoint,
-        worldPosition: worldFocalPoint,
+        worldPosition: event.worldFocalPoint,
         scale: event.scale,
         focalPoint: event.focalPoint,
         focalPointDelta: event.focalPointDelta,

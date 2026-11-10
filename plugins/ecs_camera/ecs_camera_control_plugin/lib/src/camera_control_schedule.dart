@@ -69,23 +69,34 @@ void configureCameraControlSchedule(
     runBefore: ['entitySelectionSystem'],
   );
 
+  // ORDERING IS EXPLICIT everywhere below: the ecsly scheduler resolves
+  // systems without dependency edges ALPHABETICALLY (topological tie-break),
+  // not by insertion order — an unpinned system can land before the systems
+  // it reads or after the end-of-run event clear. Missing names degrade
+  // gracefully (edges to unknown systems are ignored).
+
   // Keyboard zoom needs to run every frame for continuous input (key held)
   // Add to KeyboardInput schedule which runs every frame
   if (enableZoom) {
     if (world.hasSchedule(const ScheduleId('KeyboardInput'))) {
-      // Add to KeyboardInput schedule after inputBindingSystem
-      // This ensures InputStateTracker is updated before we read it
-      // The system will run every frame, allowing continuous zoom while key is held
-      // We add it before inputCleanupSystem (which is already in the schedule)
-      // by using then() to chain after the last system, or add() to insert before cleanup
-      final keyboardSchedule = world.schedule(const ScheduleId('KeyboardInput'));
-      // Add with explicit ordering: after inputBindingSystem, before cleanup
-      // Since systems are added in order and cleanup is last, this will work correctly
-      keyboardSchedule.add(genericCameraZoomSystem);
+      // After inputBindingSystem so InputStateTracker reflects this frame.
+      final keyboardSchedule = world.schedule(
+        const ScheduleId('KeyboardInput'),
+      );
+      keyboardSchedule.add(
+        genericCameraZoomSystem,
+        name: 'genericCameraZoomSystem',
+        runAfter: ['inputBindingSystem'],
+      );
     } else {
       // Fallback: add to Input schedule if KeyboardInput doesn't exist
       // This will only work on key press events, not continuous hold
-      inputSchedule.add(genericCameraZoomSystem);
+      inputSchedule.add(
+        genericCameraZoomSystem,
+        name: 'genericCameraZoomSystem',
+        runAfter: ['scaleClassificationSystem'],
+        runBefore: ['eventInputClearSystem'],
+      );
     }
   }
 
@@ -93,23 +104,54 @@ void configureCameraControlSchedule(
   if (enablePan) {
     // Add to KeyboardInput schedule for continuous keyboard input (WASD/arrows)
     if (world.hasSchedule(const ScheduleId('KeyboardInput'))) {
-      final keyboardSchedule = world.schedule(const ScheduleId('KeyboardInput'));
-      keyboardSchedule.add(genericCameraPanSystem);
+      final keyboardSchedule = world.schedule(
+        const ScheduleId('KeyboardInput'),
+      );
+      keyboardSchedule.add(
+        genericCameraPanSystem,
+        name: 'genericCameraPanSystem',
+        runAfter: ['inputBindingSystem'],
+      );
     }
     // Also add to Input schedule for drag gestures (event-driven)
-    inputSchedule.add(genericCameraPanSystem);
+    inputSchedule.add(
+      genericCameraPanSystem,
+      name: 'genericCameraPanSystem',
+      runAfter: ['scaleClassificationSystem'],
+      runBefore: ['eventInputClearSystem'],
+    );
   }
   if (enableScrollZoom) {
-    inputSchedule.add(scrollZoomSystem);
+    inputSchedule.add(
+      scrollZoomSystem,
+      name: 'scrollZoomSystem',
+      runAfter: ['scaleClassificationSystem'],
+      runBefore: ['eventInputClearSystem'],
+    );
   }
   if (enablePinchZoom) {
-    inputSchedule.add(pinchZoomSystem);
+    inputSchedule.add(
+      pinchZoomSystem,
+      name: 'pinchZoomSystem',
+      runAfter: ['scaleClassificationSystem'],
+      runBefore: ['eventInputClearSystem'],
+    );
   }
   if (enableScrollToZoomAction) {
-    inputSchedule.add(scrollToZoomActionSystem);
+    inputSchedule.add(
+      scrollToZoomActionSystem,
+      name: 'scrollToZoomActionSystem',
+      runAfter: ['scaleClassificationSystem'],
+      runBefore: ['eventInputClearSystem'],
+    );
   }
   if (enableEntityDragging) {
-    inputSchedule.add(entityDraggingSystem);
+    inputSchedule.add(
+      entityDraggingSystem,
+      name: 'entityDraggingSystem',
+      runAfter: ['dragStartSelectionSystem'],
+      runBefore: ['eventInputClearSystem'],
+    );
   }
 
   // Note: Camera target systems (cameraFollowTargetSystem, etc.) and update systems

@@ -67,8 +67,15 @@ void main() {
   );
 
   testWidgets(
-    'UnifiedInputWidget forwards trackpad pan/zoom as raw scale events',
+    'Listener skips pan-zoom callbacks so trackpad gestures are not doubled',
     (final tester) async {
+      // Regression pin: macOS routes trackpad pan/zoom to BOTH
+      // Listener.onPointerPanZoom* AND the scale recognizer (Flutter feeds
+      // PointerPanZoom events to ScaleGestureRecognizer too). Wiring both
+      // paths double-emits every trackpad gesture — double pan/zoom speed,
+      // the exact bug paid for once in the flutter_scene adapter. The scale
+      // recognizer is the single source of scale/pan-zoom; the Listener
+      // must NOT also listen for pan-zoom.
       final world = World()..addPlugin(InputPlugin());
 
       await tester.pumpWidget(
@@ -83,56 +90,119 @@ void main() {
         ),
       );
 
-      final listenerFinder = find.byWidgetPredicate(
+      final listener = tester.widget<Listener>(
+        find.byWidgetPredicate(
+          (final widget) =>
+              widget is Listener && widget.onPointerSignal != null,
+        ),
+      );
+      expect(listener.onPointerPanZoomStart, isNull);
+      expect(listener.onPointerPanZoomUpdate, isNull);
+      expect(listener.onPointerPanZoomEnd, isNull);
+
+      // The scale path (single source for touch + trackpad) stays wired.
+      final gestureDetector = tester.widget<GestureDetector>(
+        find.byWidgetPredicate(
+          (final widget) =>
+              widget is GestureDetector && widget.onScaleUpdate != null,
+        ),
+      );
+      expect(gestureDetector.onScaleStart, isNotNull);
+      expect(gestureDetector.onScaleUpdate, isNotNull);
+      expect(gestureDetector.onScaleEnd, isNotNull);
+    },
+  );
+
+  testWidgets(
+    'UnifiedInputWidget forwards pointer hover as a raw hover event',
+    (final tester) async {
+      // Hover (mouse move with NO buttons) never reaches onPointerMove —
+      // hosts that track the cursor without a press (placement ghosts,
+      // hover picking) rely on this dedicated event.
+      final world = World()..addPlugin(InputPlugin());
+
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: SizedBox.expand(
+            child: UnifiedInputWidget(
+              world: world,
+              toWorldCoords: (final p, final size) =>
+                  ui.Offset(p.dx * 2, p.dy * 2),
+              child: const SizedBox.expand(),
+            ),
+          ),
+        ),
+      );
+
+      final listener = tester.widget<Listener>(
+        find.byWidgetPredicate(
+          (final widget) => widget is Listener && widget.onPointerHover != null,
+        ),
+      );
+      listener.onPointerHover!(
+        const PointerHoverEvent(
+          timeStamp: Duration(milliseconds: 5),
+          position: ui.Offset(30, 40),
+        ),
+      );
+
+      final hovers = world.events
+          .reader<RawPointerHoverEvent>()
+          .iter()
+          .toList();
+      expect(hovers, hasLength(1));
+      expect(hovers.single.position, const ui.Offset(30, 40));
+      // The host converter ran on the hover position.
+      expect(hovers.single.worldPosition, const ui.Offset(60, 80));
+      expect(hovers.single.buttons, 0);
+    },
+  );
+
+  testWidgets(
+    'Scale updates carry the host world focal point into PinchEvent',
+    (final tester) async {
+      final world = World()..addPlugin(InputPlugin());
+
+      await tester.pumpWidget(
+        Directionality(
+          textDirection: TextDirection.ltr,
+          child: SizedBox.expand(
+            child: UnifiedInputWidget(
+              world: world,
+              toWorldCoords: (final p, final size) =>
+                  ui.Offset(p.dx * 2, p.dy * 2),
+              child: const SizedBox.expand(),
+            ),
+          ),
+        ),
+      );
+
+      final gestureFinder = find.byWidgetPredicate(
         (final widget) =>
-            widget is Listener &&
-            widget.onPointerPanZoomStart != null &&
-            widget.onPointerPanZoomUpdate != null &&
-            widget.onPointerPanZoomEnd != null,
+            widget is GestureDetector && widget.onScaleUpdate != null,
       );
-      expect(listenerFinder, findsOneWidget);
-      final listener = tester.widget<Listener>(listenerFinder);
-      listener.onPointerPanZoomStart!(
-        const PointerPanZoomStartEvent(
-          timeStamp: Duration(milliseconds: 1),
-          position: ui.Offset(80, 90),
-        ),
-      );
-      listener.onPointerPanZoomUpdate!(
-        const PointerPanZoomUpdateEvent(
-          timeStamp: Duration(milliseconds: 2),
-          position: ui.Offset(82, 95),
-          panDelta: ui.Offset(2, 5),
-          scale: 1.4,
-          rotation: 0.25,
-        ),
-      );
-      listener.onPointerPanZoomEnd!(
-        const PointerPanZoomEndEvent(
-          timeStamp: Duration(milliseconds: 3),
-          position: ui.Offset(82, 95),
+      final gestureDetector = tester.widget<GestureDetector>(gestureFinder);
+      gestureDetector.onScaleUpdate!(
+        ScaleUpdateDetails(
+          focalPoint: ui.Offset(120, 240),
+          localFocalPoint: ui.Offset(12, 24),
+          focalPointDelta: ui.Offset(-5, 7),
+          scale: 1.25,
+          rotation: 0.4,
+          pointerCount: 2,
         ),
       );
 
-      final startEvents = world.events
-          .reader<RawScaleStartEvent>()
-          .iter()
-          .toList();
-      final updateEvents = world.events
-          .reader<RawScaleUpdateEvent>()
-          .iter()
-          .toList();
-      final endEvents = world.events.reader<RawScaleEndEvent>().iter().toList();
-      expect(startEvents, hasLength(1));
-      expect(updateEvents, hasLength(1));
-      expect(endEvents, hasLength(1));
+      final raw = world.events.reader<RawScaleUpdateEvent>().iter().single;
+      expect(raw.worldFocalPoint, const ui.Offset(24, 48));
 
-      expect(startEvents.single.focalPoint, const ui.Offset(80, 90));
-      expect(updateEvents.single.focalPoint, const ui.Offset(82, 95));
-      expect(updateEvents.single.focalPointDelta, const ui.Offset(2, 5));
-      expect(updateEvents.single.scale, closeTo(1.4, 1e-6));
-      expect(updateEvents.single.rotation, closeTo(0.25, 1e-6));
-      expect(updateEvents.single.pointerCount, 0);
+      // Classification passes the world focal through to PinchEvent, so
+      // camera systems can zoom-at-cursor without knowing the projection.
+      scaleClassificationSystem(world);
+      final pinch = world.events.reader<PinchEvent>().iter().single;
+      expect(pinch.worldPosition, const ui.Offset(24, 48));
+      expect(pinch.focalPoint, const ui.Offset(12, 24));
     },
   );
 

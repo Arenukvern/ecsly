@@ -27,6 +27,7 @@ void eventInputClearSystem(final World world) {
   world.events.reader<RawPointerDownEvent>().iter();
   world.events.reader<RawPointerUpEvent>().iter();
   world.events.reader<RawPointerMoveEvent>().iter();
+  world.events.reader<RawPointerHoverEvent>().iter();
   world.events.reader<RawPointerCancelEvent>().iter();
   world.events.reader<RawScaleStartEvent>().iter();
   world.events.reader<RawScaleUpdateEvent>().iter();

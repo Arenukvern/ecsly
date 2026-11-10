@@ -25,14 +25,21 @@ import 'flutter_scene_sink.dart';
 import 'scene_camera_math.dart';
 import 'scene_mapping.dart';
 
-/// The world whose mapped components this view renders (READ-ONLY —
-/// the app loop ticks it; the view never does).
-/// Imperative close-up request evaluated on the sync tick: aim the orbit
-/// rig at [target] (world XYZ) with an optional distance/pitch override.
-/// Returned null each tick means "leave the camera to the player".
+/// Imperative camera request evaluated on the sync tick: mirror the orbit
+/// rig to [target] (world XYZ) with optional distance/pitch/yaw overrides.
+/// Returning null each tick means "leave the camera to the player's
+/// gestures". Hosts that keep camera state in ECS (e.g. an
+/// OrbitCameraResource driven by input systems) return its full pose here
+/// every tick — the rig becomes a pure mirror of the renderer-agnostic
+/// state, and this widget is only the bridge.
 class SceneCameraFocus {
   /// Creates a focus request.
-  const SceneCameraFocus({required this.target, this.distance, this.pitch});
+  const SceneCameraFocus({
+    required this.target,
+    this.distance,
+    this.pitch,
+    this.yaw,
+  });
 
   /// World-space orbit target (XYZ).
   final List<double> target;
@@ -42,6 +49,10 @@ class SceneCameraFocus {
 
   /// Pitch override (radians).
   final double? pitch;
+
+  /// Yaw override (radians). Null leaves the rig's yaw untouched (close-up
+  /// framings historically preserve the player's heading).
+  final double? yaw;
 }
 
 class EcsSceneView extends StatefulWidget {
@@ -171,6 +182,12 @@ class _EcsSceneViewState extends State<EcsSceneView> {
   String? _manipulationId;
   int? _envRevision;
   bool _painting = false;
+  // Last pose handed to onCameraChanged/onDistanceChange — the sync tick's
+  // change detector compares against it so ECS-driven camera moves report
+  // exactly once (and gesture-driven moves don't report twice).
+  List<double>? _lastReportedEye;
+  List<double>? _lastReportedTarget;
+  double? _lastReportedDistance;
 
   @override
   void initState() {
@@ -238,7 +255,13 @@ class _EcsSceneViewState extends State<EcsSceneView> {
       _rig.focus(focus.target);
       if (focus.distance != null) _rig.distance = focus.distance!;
       if (focus.pitch != null) _rig.pitch = focus.pitch!;
+      if (focus.yaw != null) _rig.yaw = focus.yaw!;
     }
+    // Camera consumers (LOD hook, pose rendezvous) must see moves made
+    // OUTSIDE the gesture handlers too — an ECS orbit state mirrored via
+    // cameraFocusTick never touches the gesture path. Change-detected so
+    // idle ticks cost one comparison.
+    _reportCameraIfChanged();
   }
 
   @override
@@ -340,8 +363,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
           if (trackpadPinch != 1) _rig.zoom(1 / trackpadPinch);
           // Middle-drag (or shift-drag for trackpads) orbits; every other
           // plain drag pans — the industry default for map cameras.
-          if (_middleDrag ||
-              HardwareKeyboard.instance.isShiftPressed) {
+          if (_middleDrag || HardwareKeyboard.instance.isShiftPressed) {
             _rig.orbit(dx, dy);
           } else {
             _rig.pan(dx, dy);
@@ -400,12 +422,41 @@ class _EcsSceneViewState extends State<EcsSceneView> {
     if (id != null) widget.onManipulationEnd?.call(id, cancelled);
   }
 
-  /// Reports the current camera to the consumer (overlay projection).
+  /// Reports the current camera to the consumer (overlay projection) and
+  /// records the pose snapshot the sync-tick change detector reads.
   void _reportCamera() {
+    final eye = _rig.cameraPosition();
+    _lastReportedEye = [eye.x, eye.y, eye.z];
+    _lastReportedTarget = [_rig.target[0], _rig.target[1], _rig.target[2]];
+    _lastReportedDistance = _rig.distance;
     final cb = widget.onCameraChanged;
     if (cb == null) return;
+    cb(_lastReportedEye!, _lastReportedTarget!);
+  }
+
+  /// Change-detected report for camera moves that bypass the gesture
+  /// handlers (ECS orbit state mirrored through [SceneCameraFocus], agent
+  /// close-ups): fires [EcsSceneView.onCameraChanged] and — when the
+  /// distance moved — [EcsSceneView.onDistanceChange].
+  void _reportCameraIfChanged() {
     final eye = _rig.cameraPosition();
-    cb([eye.x, eye.y, eye.z], [_rig.target[0], _rig.target[1], _rig.target[2]]);
+    final lastEye = _lastReportedEye;
+    final lastTarget = _lastReportedTarget;
+    final lastDistance = _lastReportedDistance;
+    if (lastEye != null &&
+        lastTarget != null &&
+        lastDistance == _rig.distance &&
+        lastEye[0] == eye.x &&
+        lastEye[1] == eye.y &&
+        lastEye[2] == eye.z &&
+        lastTarget[0] == _rig.target[0] &&
+        lastTarget[1] == _rig.target[1] &&
+        lastTarget[2] == _rig.target[2]) {
+      return;
+    }
+    final distanceChanged = lastDistance != _rig.distance;
+    _reportCamera();
+    if (distanceChanged) widget.onDistanceChange?.call(_rig.distance);
   }
 
   /// The pick read: pointer → ray through THIS viewport's basis → nearest

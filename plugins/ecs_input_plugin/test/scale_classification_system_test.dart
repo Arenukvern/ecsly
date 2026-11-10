@@ -25,7 +25,7 @@ void main() {
       const timestamp = 1234567890;
 
       world.events.writer<RawScaleUpdateEvent>().send(
-        const RawScaleUpdateEvent(
+        RawScaleUpdateEvent(
           focalPoint: focalPoint,
           focalPointDelta: focalPointDelta,
           rotation: rotation,
@@ -59,7 +59,7 @@ void main() {
     test('handles multiple RawScaleUpdateEvent events', () {
       // Send multiple RawScaleUpdateEvent events
       world.events.writer<RawScaleUpdateEvent>().send(
-        const RawScaleUpdateEvent(
+        RawScaleUpdateEvent(
           focalPoint: ui.Offset(100, 200),
           focalPointDelta: ui.Offset(1, 2),
           rotation: 0.1,
@@ -70,7 +70,7 @@ void main() {
       );
 
       world.events.writer<RawScaleUpdateEvent>().send(
-        const RawScaleUpdateEvent(
+        RawScaleUpdateEvent(
           focalPoint: ui.Offset(150, 250),
           focalPointDelta: ui.Offset(-2, 5),
           rotation: -0.2,

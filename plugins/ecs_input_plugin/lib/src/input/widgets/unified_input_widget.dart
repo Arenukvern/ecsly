@@ -126,11 +126,16 @@ class _UnifiedInputWidgetState extends State<UnifiedInputWidget> {
                   _sendPointerEvent(event);
                 },
                 onPointerMove: _sendPointerEvent,
+                onPointerHover: _sendPointerEvent,
                 onPointerUp: _sendPointerEvent,
                 onPointerCancel: _sendPointerEvent,
-                onPointerPanZoomStart: _sendPanZoomEvent,
-                onPointerPanZoomUpdate: _sendPanZoomEvent,
-                onPointerPanZoomEnd: _sendPanZoomEvent,
+                // NOTE: no onPointerPanZoom* handlers here on purpose.
+                // Desktop trackpad pan-zoom gestures ALSO ride the scale
+                // recognizer below (Flutter routes PointerPanZoom events to
+                // ScaleGestureRecognizer), so a Listener pan-zoom path
+                // double-emits every trackpad event (double pan/zoom speed).
+                // The scale path is the single source; verified against the
+                // macOS double-pan bug in the flutter_scene adapter.
                 onPointerSignal: _sendPointerSignal,
                 child: GestureDetector(
                   behavior: HitTestBehavior.opaque,
@@ -216,6 +221,17 @@ class _UnifiedInputWidgetState extends State<UnifiedInputWidget> {
           modifierMask: modifierMask,
         ),
       );
+    } else if (event is PointerHoverEvent) {
+      widget.world.events.writer<RawPointerHoverEvent>().send(
+        RawPointerHoverEvent(
+          position: event.localPosition,
+          worldPosition: worldPos,
+          timestamp: event.timeStamp.inMilliseconds,
+          pointer: event.pointer,
+          buttons: event.buttons,
+          modifierMask: modifierMask,
+        ),
+      );
     } else if (event is PointerMoveEvent) {
       widget.world.events.writer<RawPointerMoveEvent>().send(
         RawPointerMoveEvent(
@@ -283,36 +299,6 @@ class _UnifiedInputWidgetState extends State<UnifiedInputWidget> {
     }
   }
 
-  void _sendPanZoomEvent(final PointerEvent event) {
-    if (event is PointerPanZoomStartEvent) {
-      widget.world.events.writer<RawScaleStartEvent>().send(
-        RawScaleStartEvent(
-          focalPoint: event.localPosition,
-          timestamp: event.timeStamp.inMilliseconds,
-        ),
-      );
-      return;
-    }
-    if (event is PointerPanZoomUpdateEvent) {
-      widget.world.events.writer<RawScaleUpdateEvent>().send(
-        RawScaleUpdateEvent(
-          focalPoint: event.localPosition,
-          focalPointDelta: event.localPanDelta,
-          rotation: event.rotation,
-          pointerCount: 0,
-          scale: event.scale,
-          timestamp: event.timeStamp.inMilliseconds,
-        ),
-      );
-      return;
-    }
-    if (event is PointerPanZoomEndEvent) {
-      widget.world.events.writer<RawScaleEndEvent>().send(
-        RawScaleEndEvent(timestamp: event.timeStamp.inMilliseconds),
-      );
-    }
-  }
-
   void _sendScaleEvent(final details) {
     if (details is ScaleStartDetails) {
       widget.world.events.writer<RawScaleStartEvent>().send(
@@ -330,6 +316,7 @@ class _UnifiedInputWidgetState extends State<UnifiedInputWidget> {
           pointerCount: details.pointerCount,
           scale: details.scale,
           timestamp: DateTime.now().millisecondsSinceEpoch,
+          worldFocalPoint: _toWorldCoords(details.localFocalPoint, context),
         ),
       );
     } else if (details is ScaleEndDetails) {

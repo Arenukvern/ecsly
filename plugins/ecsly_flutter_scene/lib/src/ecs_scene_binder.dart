@@ -18,8 +18,10 @@ import 'visual_state.dart';
 abstract class SceneSink {
   /// Adds [visual] under [key].
   void add(String key, VisualState visual);
+
   /// Replaces the visual under [key].
   void update(String key, VisualState visual);
+
   /// Drops the visual under [key].
   void remove(String key);
 
@@ -32,12 +34,18 @@ abstract class SceneSink {
 /// that touches the real renderer (besides the widget/camera shells).
 class EcsSceneBinder {
   /// Adds [visual] under [key].
-  EcsSceneBinder({required this.world, required this.sink, required this.mapping});
+  EcsSceneBinder({
+    required this.world,
+    required this.sink,
+    required this.mapping,
+  });
 
   /// Replaces the visual under [key].
   final World world;
+
   /// Drops the visual under [key].
   final SceneSink sink;
+
   /// How many visuals the sink currently materializes (tests/telemetry).
   final SceneMapping mapping;
 

@@ -48,8 +48,7 @@ class SceneMapping {
         T,
         (world) => world.prepareQuery1<T>().entities.toList(),
         (world, entity) => world.getEntity(entity).$1.get<T>(),
-        (entity, component, world) =>
-            visualOf(entity, component as T, world),
+        (entity, component, world) => visualOf(entity, component as T, world),
         skip,
       ),
     );
@@ -57,6 +56,7 @@ class SceneMapping {
 
   /// True while no component type is mapped.
   bool get isEmpty => _specs.isEmpty;
+
   /// How many component types are mapped.
   int get specCount => _specs.length;
 

@@ -17,6 +17,7 @@ export 'src/systems/entity_dragging_system.dart';
 export 'src/systems/generic_camera_pan_system.dart';
 export 'src/systems/generic_camera_zoom_system.dart';
 export 'src/systems/orbit_camera_control_system.dart';
+export 'src/systems/orbit_camera_keyboard_system.dart';
 export 'src/systems/pinch_zoom_system.dart';
 export 'src/systems/scroll_to_zoom_action_system.dart';
 export 'src/systems/scroll_zoom_system.dart';

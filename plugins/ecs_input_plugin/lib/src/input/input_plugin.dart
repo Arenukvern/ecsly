@@ -99,6 +99,17 @@ class InputPlugin extends Plugin {
       ),
     );
 
+    world.events.register<RawPointerHoverEvent>(
+      capacity: dragCapacity,
+      fromDoubleFieldsFactory: RawPointerHoverEvent.fromDoubleFields,
+      sampleEvent: const RawPointerHoverEvent(
+        position: ui.Offset.zero,
+        worldPosition: ui.Offset.zero,
+        timestamp: 0,
+        pointer: 0,
+      ),
+    );
+
     world.events.register<RawPointerMoveEvent>(
       capacity: dragCapacity,
       fromDoubleFieldsFactory: RawPointerMoveEvent.fromDoubleFields,
@@ -168,7 +179,7 @@ class InputPlugin extends Plugin {
     world.events.register<RawScaleUpdateEvent>(
       capacity: pinchCapacity,
       fromDoubleFieldsFactory: RawScaleUpdateEvent.fromDoubleFields,
-      sampleEvent: const RawScaleUpdateEvent(
+      sampleEvent: RawScaleUpdateEvent(
         focalPoint: ui.Offset.zero,
         focalPointDelta: ui.Offset.zero,
         rotation: 0.0,

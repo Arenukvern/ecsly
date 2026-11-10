@@ -21,7 +21,8 @@ import 'package:vector_math/vector_math.dart' as vm;
 /// agree; the adapter convention test pins the handedness).
 class OrbitCameraResource extends Resource {
   /// Creates an orbit camera. Defaults match the game's rig (yaw 0.6, pitch
-  /// 0.5) so a host can drop it in without a visual jump.
+  /// 0.5) so a host can drop it in without a visual jump. The initial pose
+  /// is also captured as the HOME pose that [resetToHome] returns to.
   OrbitCameraResource({
     this.yaw = 0.6,
     this.pitch = 0.5,
@@ -35,7 +36,15 @@ class OrbitCameraResource extends Resource {
     this.maxDistance = 400,
     this.orbitSensitivity = 0.01,
     this.panScale = 0.0016,
-  });
+    this.zoomAtCursor = false,
+    this.keyPanSpeed = 600,
+    this.keyZoomSpeed = 1,
+  }) : homeYaw = yaw,
+       homePitch = pitch,
+       homeDistance = distance,
+       homeTargetX = targetX,
+       homeTargetY = targetY,
+       homeTargetZ = targetZ;
 
   /// Orbit angle around the target's Y axis (radians).
   double yaw;
@@ -73,6 +82,65 @@ class OrbitCameraResource extends Resource {
   /// Pan distance factor (rides [distance] so panning feels constant per zoom).
   final double panScale;
 
+  /// When true, zoom inputs (scroll wheel, double-tap, pinch) keep the
+  /// ground point under the cursor fixed instead of dollying about the
+  /// target. The renderer bridge owns the projection: it must fill gesture
+  /// events' `worldPosition` with the ground-plane hit under the pointer,
+  /// encoded as Offset(worldX, worldZ), and the zoom plane height is
+  /// [targetY]. Hosts that supply no world projection leave this false.
+  bool zoomAtCursor;
+
+  /// Keyboard pan speed in drag-equivalent pixels per second (fed through
+  /// [pan], so the feel rides [distance] exactly like a drag).
+  final double keyPanSpeed;
+
+  /// Keyboard zoom speed in distance-halvings (or doublings) per second.
+  final double keyZoomSpeed;
+
+  /// HOME pose (captured at construction): what `cameraReset` returns to.
+  final double homeYaw;
+
+  /// HOME pose pitch.
+  final double homePitch;
+
+  /// HOME pose distance.
+  final double homeDistance;
+
+  /// HOME pose target X.
+  final double homeTargetX;
+
+  /// HOME pose target Y.
+  final double homeTargetY;
+
+  /// HOME pose target Z.
+  final double homeTargetZ;
+
+  /// Pinch-gesture delta tracking: Flutter reports scale/rotation
+  /// CUMULATIVE from gesture start, so [orbitCameraControlSystem] converts
+  /// to per-update deltas against these and resets them on the gesture
+  /// boundary (RawScaleStart/End). Interaction state, kept here so the
+  /// control system stays a pure function of (events, resource).
+  double lastPinchScale = 1;
+
+  /// Cumulative rotation seen so far in the active pinch gesture (radians).
+  double lastPinchRotation = 0;
+
+  /// Resets the per-gesture pinch delta tracking (gesture start/end).
+  void resetPinchGesture() {
+    lastPinchScale = 1;
+    lastPinchRotation = 0;
+  }
+
+  /// Returns the camera to the HOME pose captured at construction.
+  void resetToHome() {
+    yaw = homeYaw;
+    pitch = homePitch;
+    distance = homeDistance;
+    targetX = homeTargetX;
+    targetY = homeTargetY;
+    targetZ = homeTargetZ;
+  }
+
   /// Grab-the-world orbit: [dx] spins yaw, [dy] tilts pitch (clamped).
   void orbit(final double dx, final double dy) {
     yaw += dx * orbitSensitivity;
@@ -95,10 +163,7 @@ class OrbitCameraResource extends Resource {
 
   /// Scales [distance] by [factor] (clamped). factor < 1 zooms in.
   void zoom(final double factor) {
-    distance = math.max(
-      minDistance,
-      math.min(maxDistance, distance * factor),
-    );
+    distance = math.max(minDistance, math.min(maxDistance, distance * factor));
   }
 
   /// Zoom-at-cursor: scale [distance] by [factor] while sliding the target
