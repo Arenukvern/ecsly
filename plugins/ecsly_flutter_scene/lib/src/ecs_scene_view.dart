@@ -25,6 +25,23 @@ import 'scene_mapping.dart';
 
 /// The world whose mapped components this view renders (READ-ONLY —
 /// the app loop ticks it; the view never does).
+/// Imperative close-up request evaluated on the sync tick: aim the orbit
+/// rig at [target] (world XYZ) with an optional distance/pitch override.
+/// Returned null each tick means "leave the camera to the player".
+class SceneCameraFocus {
+  /// Creates a focus request.
+  const SceneCameraFocus({required this.target, this.distance, this.pitch});
+
+  /// World-space orbit target (XYZ).
+  final List<double> target;
+
+  /// Orbit distance override (meters).
+  final double? distance;
+
+  /// Pitch override (radians).
+  final double? pitch;
+}
+
 class EcsSceneView extends StatefulWidget {
   /// The component→visual mapping driving the binder.
   const EcsSceneView({
@@ -43,6 +60,7 @@ class EcsSceneView extends StatefulWidget {
     this.environmentRevision,
     this.onEnvironmentBuild,
     this.onEnvironmentTick,
+    this.cameraFocusTick,
     this.onTapRay,
     this.onHoverRay,
     this.onDragRay,
@@ -107,6 +125,9 @@ class EcsSceneView extends StatefulWidget {
   /// uniforms) — runs every sync tick WITHOUT a geometry rebuild, so
   /// time-of-day advances smoothly while meshes stay cached.
   final void Function(Scene scene, World world)? onEnvironmentTick;
+
+  /// Close-up camera request per sync tick (null = player keeps control).
+  final SceneCameraFocus? Function(World world)? cameraFocusTick;
 
   /// Every tap also reports its world ray (render-camera basis), whether
   /// or not a named visual was hit — consumers ray-march their own
@@ -207,6 +228,12 @@ class _EcsSceneViewState extends State<EcsSceneView> {
       }
     }
     widget.onEnvironmentTick?.call(scene, widget.world);
+    final focus = widget.cameraFocusTick?.call(widget.world);
+    if (focus != null) {
+      _rig.focus(focus.target);
+      if (focus.distance != null) _rig.distance = focus.distance!;
+      if (focus.pitch != null) _rig.pitch = focus.pitch!;
+    }
   }
 
   @override

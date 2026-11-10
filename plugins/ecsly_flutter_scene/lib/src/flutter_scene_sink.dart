@@ -176,9 +176,14 @@ class SceneCameraRig {
   static const double _maxDistance = 400;
 
   /// The orbit target as a camera Vector3.
+  ///
+  /// Grab-the-world convention (matching touch/trackpad orbit everywhere):
+  /// drag right → the world turns right (camera orbits left); drag down →
+  /// the world tilts toward the viewer (pitch lowers). The previous
+  /// same-sign mapping read as inverted on both axes.
   void orbit(double dx, double dy) {
-    yaw += dx * 0.01;
-    pitch = math.max(_minPitch, math.min(_maxPitch, pitch + dy * 0.01));
+    yaw -= dx * 0.01;
+    pitch = math.max(_minPitch, math.min(_maxPitch, pitch - dy * 0.01));
   }
 
   /// The camera eye as a camera Vector3.
