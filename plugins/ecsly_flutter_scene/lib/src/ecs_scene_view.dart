@@ -180,6 +180,12 @@ class _EcsSceneViewState extends State<EcsSceneView> {
   late final SceneCameraRig _rig = SceneCameraRig(
     distance: widget.initialDistance,
   );
+
+  /// The ONE camera the scene renders through. Mutated in place by
+  /// [SceneCameraRig.applyToCamera] (per sync tick and per gesture) —
+  /// flutter_scene re-reads its position/target every frame, so the view
+  /// follows ECS-driven camera moves without any rebuild.
+  late final PerspectiveCamera _camera = PerspectiveCamera();
   Timer? _syncTimer;
   Offset? _lastFocal;
   double _lastScale = 1;
@@ -263,6 +269,11 @@ class _EcsSceneViewState extends State<EcsSceneView> {
       if (focus.pitch != null) _rig.pitch = focus.pitch!;
       if (focus.yaw != null) _rig.yaw = focus.yaw!;
     }
+    // The rig pose reaches the renderer by mutating the held camera —
+    // flutter_scene reads it per frame. (Rebuild-driven camera updates
+    // froze the picture under the ECS input bridge: no gesture handler
+    // runs there, so no setState ever fired.)
+    _rig.applyToCamera(_camera);
     // Camera consumers (LOD hook, pose rendezvous) must see moves made
     // OUTSIDE the gesture handlers too — an ECS orbit state mirrored via
     // cameraFocusTick never touches the gesture path. Change-detected so
@@ -290,10 +301,6 @@ class _EcsSceneViewState extends State<EcsSceneView> {
         child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
       );
     }
-    final camera = PerspectiveCamera(
-      position: _rig.cameraPosition(),
-      target: _rig.cameraTarget(),
-    );
     return GestureDetector(
       // One recognizer for mouse + touch (the city-builder camera map):
       //   single-finger/left drag ......... PAN (tool drag paints when
@@ -342,6 +349,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
             if (pinch != 1) _rig.zoom(1 / pinch);
             _rig.yaw += twist;
           });
+          _rig.applyToCamera(_camera);
           _lastScale = details.scale;
           _lastRotation = details.rotation;
           _lastFocal = details.localFocalPoint;
@@ -375,6 +383,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
             _rig.pan(dx, dy);
           }
         });
+        _rig.applyToCamera(_camera);
         _lastFocal = details.localFocalPoint;
         widget.onDistanceChange?.call(_rig.distance);
         _reportCamera();
@@ -415,7 +424,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
           final ray = _rayAt(event.localPosition);
           if (ray != null) cb(ray);
         },
-        child: SceneView(_scene!, camera: camera, warmUp: widget.warmUp),
+        child: SceneView(_scene!, camera: _camera, warmUp: widget.warmUp),
       ),
     );
   }
@@ -521,6 +530,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
         ];
       }
     });
+    _rig.applyToCamera(_camera);
     widget.onDistanceChange?.call(_rig.distance);
     _reportCamera();
   }

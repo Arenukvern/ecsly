@@ -148,7 +148,12 @@ class FlutterSceneSink implements SceneSink {
 
 /// Orbit/zoom over a flutter_scene [PerspectiveCamera] — the inspector's
 /// camera rig. State lives here; the widget feeds gestures in and writes
-/// the rig's evaluation into the camera each build.
+/// the rig's evaluation into ONE camera held by the view (see
+/// [applyToCamera]) — per sync tick for ECS-driven moves and per gesture
+/// for pointer-driven ones. flutter_scene re-reads position/target on
+/// every rendered frame, so in-place mutation is the live path; creating
+/// the camera only inside `build` froze the view whenever no rebuild
+/// happened (the input-bridge regression this method exists for).
 class SceneCameraRig {
   /// The camera eye for the CURRENT rig state.
   SceneCameraRig({
@@ -215,6 +220,20 @@ class SceneCameraRig {
 
   /// The orbit target as a camera Vector3.
   vm.Vector3 cameraTarget() => vm.Vector3(target[0], target[1], target[2]);
+
+  /// Writes the CURRENT rig pose into [camera] in place.
+  ///
+  /// flutter_scene's [PerspectiveCamera.getViewTransform] reads
+  /// `position`/`target` live on every rendered frame, so mutating the
+  /// camera the view already holds is the whole update path — no
+  /// `setState`/rebuild involved (a rebuild-driven camera went stale the
+  /// moment camera moves stopped originating inside the widget's own
+  /// gesture handlers).
+  void applyToCamera(PerspectiveCamera camera) {
+    camera
+      ..position.setFrom(cameraPosition())
+      ..target.setFrom(cameraTarget());
+  }
 
   /// Pan: slide the orbit target across the ground plane, camera-relative
   /// (grab-the-world: drag right → content follows right; drag down →

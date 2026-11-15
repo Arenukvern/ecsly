@@ -70,4 +70,56 @@ void main() {
       expect(rig.pitch, lessThan(0.5));
     });
   });
+
+  // The renderer-update contract behind the input bridge: flutter_scene
+  // re-reads position/target on every rendered frame, so the ONLY way a
+  // camera move becomes pixels is an in-place write into the camera the
+  // SceneView holds. A rebuild-driven camera went stale the moment camera
+  // moves stopped originating inside the view's own gesture handlers
+  // (ECS-driven moves never produced a setState — the rendered picture
+  // froze while the rig kept moving). These tests pin the in-place write.
+  group('SceneCameraRig.applyToCamera', () {
+    test('writes the rig pose into the held camera, in place', () {
+      final rig = SceneCameraRig(
+        target: [4, 0, -2],
+        distance: 30,
+        yaw: 1.1,
+        pitch: 0.7,
+      );
+      final camera = PerspectiveCamera();
+      rig.applyToCamera(camera);
+
+      final eye = rig.cameraPosition();
+      expect(camera.position.x, closeTo(eye.x, 1e-6));
+      expect(camera.position.y, closeTo(eye.y, 1e-6));
+      expect(camera.position.z, closeTo(eye.z, 1e-6));
+      expect(camera.target.x, 4);
+      expect(camera.target.y, 0);
+      expect(camera.target.z, -2);
+    });
+
+    test('re-applying after a rig move updates the SAME camera', () {
+      final rig = SceneCameraRig(distance: 10, yaw: 0);
+      final camera = PerspectiveCamera();
+      rig.applyToCamera(camera);
+      final before = List<double>.of(camera.getViewMatrix().storage);
+
+      rig.zoom(0.5);
+      rig.orbit(50, 0);
+      rig.applyToCamera(camera);
+
+      final eye = rig.cameraPosition();
+      expect(camera.position.x, closeTo(eye.x, 1e-6));
+      expect(camera.position.y, closeTo(eye.y, 1e-6));
+      var viewChanged = false;
+      final after = camera.getViewMatrix().storage;
+      for (var i = 0; i < 16; i++) {
+        if ((after[i] - before[i]).abs() > 1e-9) {
+          viewChanged = true;
+          break;
+        }
+      }
+      expect(viewChanged, isTrue, reason: 'the render path must see the move');
+    });
+  });
 }
