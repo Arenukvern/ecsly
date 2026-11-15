@@ -78,7 +78,13 @@ class EcsSceneView extends StatefulWidget {
     this.onHoverRay,
     this.onDragRay,
     this.claimDragForPaint = false,
+    this.warmUp = false,
   });
+
+  /// Pre-compile the view's shaders before reveal (flutter_scene
+  /// [SceneView.warmUp]): late-mounted views (preview cells under a route)
+  /// can otherwise hold their first blank frame indefinitely.
+  final bool warmUp;
 
   /// Initial camera distance from the orbit target.
   final World world;
@@ -409,7 +415,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
           final ray = _rayAt(event.localPosition);
           if (ray != null) cb(ray);
         },
-        child: SceneView(_scene!, camera: camera),
+        child: SceneView(_scene!, camera: camera, warmUp: widget.warmUp),
       ),
     );
   }
