@@ -23,6 +23,7 @@ import 'package:vector_math/vector_math.dart' as vm;
 import 'ecs_scene_binder.dart';
 import 'flutter_scene_sink.dart';
 import 'scene_camera_math.dart';
+import 'scene_frame_capture.dart';
 import 'scene_mapping.dart';
 
 /// Imperative camera request evaluated on the sync tick: mirror the orbit
@@ -79,12 +80,19 @@ class EcsSceneView extends StatefulWidget {
     this.onDragRay,
     this.claimDragForPaint = false,
     this.warmUp = false,
+    this.frameCapture,
   });
 
   /// Pre-compile the view's shaders before reveal (flutter_scene
   /// [SceneView.warmUp]): late-mounted views (preview cells under a route)
   /// can otherwise hold their first blank frame indefinitely.
   final bool warmUp;
+
+  /// One-frame PNG capture controller (see [SceneFrameCapture]) wired to
+  /// THIS view's scene and camera on ready, detached on unmount. The
+  /// capture mirrors the live view (shared camera, aspect from the
+  /// caller-chosen target size). Null = no capture support.
+  final SceneFrameCapture? frameCapture;
 
   /// Initial camera distance from the orbit target.
   final World world;
@@ -225,6 +233,9 @@ class _EcsSceneViewState extends State<EcsSceneView> {
         _scene = scene;
         _ready = true;
       });
+      // The capture controller mirrors THIS view (shared camera) from
+      // the first ready frame; dispose detaches it again.
+      widget.frameCapture?.attach(scene: scene, camera: _camera);
       // The app's own loop ticks the WORLD; the view only READS it — a
       // 30 Hz sync pass is plenty for an inspector and never contends
       // with the world schedule.
@@ -242,6 +253,7 @@ class _EcsSceneViewState extends State<EcsSceneView> {
 
   @override
   void dispose() {
+    widget.frameCapture?.detach();
     _syncTimer?.cancel();
     super.dispose();
   }
