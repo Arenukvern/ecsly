@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.0](https://github.com/Arenukvern/ecsly/compare/ecsly_codegen-v0.1.0...ecsly_codegen-v1.0.0) (2026-11-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* **ecsly_serialization:** PersistentEntity is the one durable identity (ADR 0007)
+
+### Features
+
+* **ecsly_serialization:** PersistentEntity is the one durable identity (ADR 0007) ([c9bdd15](https://github.com/Arenukvern/ecsly/commit/c9bdd152346a78eedf726ca7ed7cef4a055123f3))
+
 ## [0.1.0](https://github.com/Arenukvern/ecsly/compare/ecsly_codegen-v0.1.0-dev.6...ecsly_codegen-v0.1.0) (2026-11-07)
 
 First stable release. The API surface is unchanged from `ecsly_codegen` 0.1.0-dev.6; the prerelease entries below carry the full history.

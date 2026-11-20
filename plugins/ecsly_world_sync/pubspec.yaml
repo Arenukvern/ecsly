@@ -5,7 +5,7 @@ description: >-
   a world-state projection. Consumes the convergence kernel (ADR 0011) and the
   shared anti-entropy session core (ADR 0004); merge strategy and compaction
   policy are chosen here, never hand-rolled.
-version: 0.1.0
+version: 0.2.0
 homepage: https://github.com/Arenukvern/ecsly/tree/main/plugins/ecsly_world_sync
 repository: https://github.com/Arenukvern/ecsly
 issue_tracker: https://github.com/Arenukvern/ecsly/issues
