@@ -91,15 +91,18 @@ cd core_packages/ecsly_flutter && flutter test
 
 ## Release Automation
 
-This repo uses Release Please for independent Dart package releases:
+This repo releases independent Dart packages via
+[dart_changesets](https://github.com/Arenukvern/dart_changesets) (migrated
+from Release Please, 2026-11-21):
 
-- Config: `release-please-config.json`.
-- Manifest: `.release-please-manifest.json`.
-- Release PRs update the touched package `pubspec.yaml` and `CHANGELOG.md`.
-- Release tags use `<package>-v<version>`, for example
-  `ecsly-v0.1.0` or `ecsly_flutter-v0.1.0`.
-- Tag pushes run `.github/workflows/pub-publish.yml`, which validates the tag
-  with `tool/release/pub_package.dart` before publishing that one package.
+- Intent files: `.changesets/*.md` (frontmatter: `'ecsly': minor` + changelog
+  prose); dependents cascade automatically via the package graph.
+- On `main` push, `.github/workflows/dart_changesets.yml` assembles ONE
+  `chore: version packages` PR (pubspec bumps + changelogs + dependent
+  constraint rewrites).
+- Merging that PR pushes one `<package>-v<version>` tag per release, for
+  example `ecsly-v1.0.0` or `ecsly_flutter-v0.2.0`, and dispatches
+  `.github/workflows/dart_changesets_publish.yml` per tag.
 
 Publishing requires pub.dev automated publishing to be enabled per package with:
 

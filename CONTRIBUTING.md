@@ -86,9 +86,11 @@ See [docs/contributing/contributors.mdx](docs/contributing/contributors.mdx).
 
 Release automation:
 
-- Release Please config: `release-please-config.json`
-- Manifest: `.release-please-manifest.json`
-- Publish workflow: `.github/workflows/pub-publish.yml`
+- Intent files: `.changesets/` (dart_changesets; release intent lives in
+  reviewed files, not commit messages)
+- Assemble workflow: `.github/workflows/dart_changesets.yml`
+- Publish workflow: `.github/workflows/dart_changesets_publish.yml` (per-tag
+  via the reusable `Arenukvern/dart_changesets` workflow)
 - Agent approval workflow: `.github/workflows/agent-auto-approve.yml`
 - Local preflight: `dart tool/release/pub_package.dart --all --skip-existing`
 
@@ -99,5 +101,5 @@ and environment `pub.dev`.
 Agent auto-approval requires a repository secret named `AUTO_APPROVE_TOKEN`.
 Use a dedicated machine user token with write access to this repository. The
 workflow only approves same-repo PRs from `Arenukvern` on `codex/` branches or
-`github-actions[bot]` on `release-please--` branches after `Release validation`
+`github-actions[bot]` on `changesets/version-packages` branches after `Release validation`
 succeeds and the PR has the `agent-auto-approve` label.

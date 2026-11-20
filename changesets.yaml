@@ -1,0 +1,7 @@
+# dart_changesets configuration (replaces the release-please package train:
+# intent files declare bumps, the graph cascades dependents). Package
+# discovery uses the root pubspec `workspace:` declaration (core_packages/*,
+# plugins/*, nested plugin members); packages_dir is the fallback.
+packages_dir: core_packages
+dependent_bump: patch
+tag_format: '{package}-v{version}'
