@@ -10,7 +10,7 @@ topics:
   - state-management
   - simulation
 # Requires ecsly >=0.1.0-dev.13 for World, Component, and Resource APIs.
-version: 0.1.0
+version: 0.1.1
 
 environment:
   sdk: ">=3.14.0 <4.0.0"
