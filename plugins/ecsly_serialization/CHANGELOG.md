@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0](https://github.com/Arenukvern/ecsly/compare/ecsly_serialization-v1.0.0...ecsly_serialization-v1.1.0) (2026-11-20)
+
+
+### Features
+
+* **ecsly_serialization:** re-export PersistentEntity from the barrel ([bb6f0ab](https://github.com/Arenukvern/ecsly/commit/bb6f0ab3b59bdb70c4849291573df84e40154fe0))
+
+
+### Bug Fixes
+
+* widen sibling constraints to the 1.0.0 generation ([e1d5a72](https://github.com/Arenukvern/ecsly/commit/e1d5a72f129e438d2dbbcd82458ea54308bf7b1b))
+
 ## [1.0.0](https://github.com/Arenukvern/ecsly/compare/ecsly_serialization-v0.1.0...ecsly_serialization-v1.0.0) (2026-11-20)
 
 

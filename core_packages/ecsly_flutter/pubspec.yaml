@@ -9,7 +9,7 @@ topics:
   - ecs
   - flutter
   - state-management
-version: 0.1.0
+version: 0.1.1
 
 environment:
   sdk: ">=3.14.0 <4.0.0"
