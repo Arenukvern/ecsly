@@ -15,8 +15,8 @@ environment:
 
 resolution: workspace
 dependencies:
-  async_parallel: ^0.1.0
-  ecsly: ^0.1.0
+  async_parallel: ^0.2.0
+  ecsly: ^1.0.0
 
 dev_dependencies:
   lints: ^6.1.0

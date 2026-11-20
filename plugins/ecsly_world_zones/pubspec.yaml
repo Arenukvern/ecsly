@@ -20,7 +20,7 @@ resolution: workspace
 
 dependencies:
   meta: ^1.16.0
-  ecsly: ^0.1.0
+  ecsly: ^1.0.0
   universal_storage_world: ^0.1.0-dev.1
 
 dev_dependencies:
