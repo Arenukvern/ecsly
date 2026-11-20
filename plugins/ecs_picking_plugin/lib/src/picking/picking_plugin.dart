@@ -15,7 +15,7 @@ class PickingPlugin extends Plugin {
   String get name => 'Picking';
 
   @override
-  void install(final World world) {
+  void install(World world) {
     world.upsertResource(PickingIntentResource());
     world.upsertResource(PickingResultResource());
   }

@@ -95,8 +95,8 @@ World _createTestWorld() {
 final class _TestPosColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => FloatColumn(stride: 2, initialCapacity: initialCapacity);
 }
 
@@ -105,18 +105,18 @@ abstract final class _TestPosComponent extends Component {}
 
 final class _TestPosFacadeFactory extends ComponentFacadeFactory<_TestPos> {
   @override
-  _TestPos create(final int index) => _TestPos._(index);
+  _TestPos create(int index) => _TestPos._(index);
 
   @override
-  void initialize(final DataColumn column) =>
+  void initialize(DataColumn column) =>
       _TestPos._init(column as FloatColumn);
 }
 
 extension type _TestPos._(int index) {
   static late FloatColumn _col;
   double get x => _col.getValueUnsafe(index, 0);
-  set x(final double v) => _col.setValue(index, 0, v);
+  set x(double v) => _col.setValue(index, 0, v);
   double get y => _col.getValueUnsafe(index, 1);
-  set y(final double v) => _col.setValue(index, 1, v);
-  static void _init(final FloatColumn c) => _col = c;
+  set y(double v) => _col.setValue(index, 1, v);
+  static void _init(FloatColumn c) => _col = c;
 }

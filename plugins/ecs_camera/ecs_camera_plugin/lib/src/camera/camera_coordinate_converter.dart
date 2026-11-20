@@ -29,9 +29,9 @@ import 'resources/viewport_size_resource.dart';
 /// [cameraEntity] Entity with CameraComponent and CameraPositionComponent
 ui.Offset Function(ui.Offset screenPos, ui.Size viewportSize)
 createCameraToWorldConverter(
-  final World world,
-  final Entity cameraEntity,
-) => (final screenPos, final viewportSize) {
+  World world,
+  Entity cameraEntity,
+) => (screenPos, viewportSize) {
   try {
     final cameraExt = world.getEntityExtension(cameraEntity);
     if (!cameraExt.$2) return screenPos;
@@ -97,8 +97,8 @@ createCameraToWorldConverter(
 /// If ViewportSizeResource doesn't exist, the function does nothing (no-op).
 ///
 /// [world] ECS world containing ViewportSizeResource
-void Function(ui.Size size) createViewportSizeUpdater(final World world) =>
-    (final size) {
+void Function(ui.Size size) createViewportSizeUpdater(World world) =>
+    (size) {
       // Update ViewportSizeResource with actual game viewport size
       // This ensures coordinate conversion uses the correct size
       if (world.resources.has<ViewportSizeResource>()) {

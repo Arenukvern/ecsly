@@ -16,7 +16,7 @@ final class WorldProjection {
   /// Values are read through the kernel's own public readers
   /// ([LwwMapStrategy.readValue]) — the sync layer never re-derives fold
   /// rules, it only decodes the JSON payload it encoded.
-  factory WorldProjection.fromState(final Map<String, Object?> state) {
+  factory WorldProjection.fromState(Map<String, Object?> state) {
     final values = <String, Object?>{};
     for (final key in state.keys) {
       final encoded = LwwMapStrategy.readValue(state, key);
@@ -34,23 +34,23 @@ final class WorldProjection {
   /// Raw value for [key], or `null` when absent/tombstoned. Note that a
   /// stored `null` value is also reported as `null`; use [contains] when
   /// the distinction matters.
-  Object? operator [](final String key) => _values[key];
+  Object? operator [](String key) => _values[key];
 
   /// Whether [key] currently holds a live (non-tombstoned) value.
-  bool contains(final String key) => _values.containsKey(key);
+  bool contains(String key) => _values.containsKey(key);
 
   /// Value for a component field, or `null` when absent/tombstoned.
   Object? componentValue({
-    required final String entityKey,
-    required final String component,
-    required final String field,
+    required String entityKey,
+    required String component,
+    required String field,
   }) =>
       _values['$entityKey/$component/$field'];
 
   /// Value for a sync event, or `null` when absent/tombstoned.
   Object? eventValue({
-    required final String name,
-    required final String key,
+    required String name,
+    required String key,
   }) =>
       _values['event/$name/$key'];
 

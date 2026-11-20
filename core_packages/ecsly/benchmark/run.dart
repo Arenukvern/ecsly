@@ -6,7 +6,7 @@ import 'dart:typed_data';
 
 import 'package:ecsly/ecsly.dart';
 
-void main(final List<String> args) {
+void main(List<String> args) {
   final check = args.contains('--check');
   final json = args.contains('--json');
   final markdown = args.contains('--markdown');
@@ -64,14 +64,14 @@ void main(final List<String> args) {
   }
 }
 
-String? _argValue(final List<String> args, final String prefix) {
+String? _argValue(List<String> args, String prefix) {
   for (final arg in args) {
     if (arg.startsWith(prefix)) return arg.substring(prefix.length);
   }
   return null;
 }
 
-int _parseSamples(final List<String> args) {
+int _parseSamples(List<String> args) {
   final raw = _argValue(args, '--samples=') ?? '1';
   final samples = int.tryParse(raw);
   if (samples == null || samples < 1) {
@@ -81,15 +81,15 @@ int _parseSamples(final List<String> args) {
   return samples;
 }
 
-void _writeText(final String path, final String text) {
+void _writeText(String path, String text) {
   final file = File(path);
   file.parent.createSync(recursive: true);
   file.writeAsStringSync(text);
 }
 
 _BenchmarkReport _runSampledReport({
-  required final int samples,
-  required final bool includeLimits,
+  required int samples,
+  required bool includeLimits,
 }) {
   final reports = <_BenchmarkReport>[];
   for (var i = 0; i < samples; i++) {
@@ -130,7 +130,7 @@ _BenchmarkReport _runSampledReport({
   );
 }
 
-double _median(final List<double> values) {
+double _median(List<double> values) {
   if (values.isEmpty) return 0;
   final sorted = [...values]..sort();
   final middle = sorted.length ~/ 2;
@@ -138,7 +138,7 @@ double _median(final List<double> values) {
   return (sorted[middle - 1] + sorted[middle]) / 2;
 }
 
-_BenchmarkReport _runReport({required final bool includeLimits}) {
+_BenchmarkReport _runReport({required bool includeLimits}) {
   _gameFrame20kCache = null;
   final startedAt = DateTime.now().toUtc();
   final metrics = <_BenchmarkMetric>[
@@ -289,11 +289,11 @@ _BenchmarkReport _runReport({required final bool includeLimits}) {
 }
 
 _BenchmarkMetric _ops({
-  required final String name,
-  required final double value,
-  required final String category,
-  required final int entities,
-  required final String notes,
+  required String name,
+  required double value,
+  required String category,
+  required int entities,
+  required String notes,
 }) => _BenchmarkMetric(
   name: name,
   value: value,
@@ -323,7 +323,7 @@ double _benchEventRead() {
   final world = _buildWorld();
   world.events.register<_BenchEvent>(
     capacity: 100000,
-    fromDoubleFieldsFactory: (final fields) =>
+    fromDoubleFieldsFactory: (fields) =>
         _BenchEvent(fields[0].toInt(), fields[1]),
     sampleEvent: const _BenchEvent(0, 0),
   );
@@ -348,7 +348,7 @@ double _benchEventSend() {
   final world = _buildWorld();
   world.events.register<_BenchEvent>(
     capacity: 100000,
-    fromDoubleFieldsFactory: (final fields) =>
+    fromDoubleFieldsFactory: (fields) =>
         _BenchEvent(fields[0].toInt(), fields[1]),
     sampleEvent: const _BenchEvent(0, 0),
   );
@@ -507,7 +507,7 @@ double _benchRawQueryChunk() {
               _BenchBComponent,
               _BenchB
             >()) {
-      chunk.forEachRow((final _, final _, final a, final b) {
+      chunk.forEachRow((_, _, a, b) {
         accumulator += a.value + b.value;
       });
     }
@@ -578,7 +578,7 @@ _GameFrameStats _measureGameFrame20k() {
               _BenchCComponent,
               _BenchC
             >()) {
-      chunk.forEachRow((final _, final _, final a, final b, final c) {
+      chunk.forEachRow((_, _, a, b, c) {
         packet[offset++] = a.value.toDouble();
         packet[offset++] = b.value.toDouble();
         packet[offset++] = c.value.toDouble();
@@ -599,13 +599,13 @@ _GameFrameStats _measureGameFrame20k() {
   );
 }
 
-int _percentile(final List<int> sortedValues, final double percentile) {
+int _percentile(List<int> sortedValues, double percentile) {
   final index = ((sortedValues.length - 1) * percentile).round();
   final safeIndex = index.clamp(0, sortedValues.length - 1);
   return sortedValues[safeIndex];
 }
 
-String _formatMemoryGiB(final int bytes) {
+String _formatMemoryGiB(int bytes) {
   if (bytes <= 0) return '';
   return (bytes / (1024 * 1024 * 1024)).toStringAsFixed(1);
 }
@@ -629,7 +629,7 @@ double _benchRenderPacketExtract() {
               _BenchCComponent,
               _BenchC
             >()) {
-      chunk.forEachRow((final _, final _, final a, final b, final c) {
+      chunk.forEachRow((_, _, a, b, c) {
         packet[offset++] = a.value.toDouble();
         packet[offset++] = b.value.toDouble();
         packet[offset++] = c.value.toDouble();
@@ -746,14 +746,14 @@ final class _BenchmarkThreshold {
     required this.direction,
   });
 
-  factory _BenchmarkThreshold.minimum(final String name, final double limit) =>
+  factory _BenchmarkThreshold.minimum(String name, double limit) =>
       _BenchmarkThreshold._(
         name: name,
         limit: limit,
         direction: _BenchmarkThresholdDirection.minimum,
       );
 
-  factory _BenchmarkThreshold.maximum(final String name, final double limit) =>
+  factory _BenchmarkThreshold.maximum(String name, double limit) =>
       _BenchmarkThreshold._(
         name: name,
         limit: limit,
@@ -764,7 +764,7 @@ final class _BenchmarkThreshold {
   final double limit;
   final _BenchmarkThresholdDirection direction;
 
-  bool fails(final double actual) => switch (direction) {
+  bool fails(double actual) => switch (direction) {
     _BenchmarkThresholdDirection.minimum => actual < limit,
     _BenchmarkThresholdDirection.maximum => actual > limit,
   };
@@ -787,7 +787,7 @@ final class _BenchmarkThresholdBuilder {
   String? direction;
   bool? lowerIsBetter;
 
-  void accept(final String key, final String value) {
+  void accept(String key, String value) {
     switch (key) {
       case 'min' || 'minimum':
         min = double.tryParse(value);
@@ -822,7 +822,7 @@ final class _BenchmarkThresholdBuilder {
   }
 }
 
-bool? _parseBool(final String value) => switch (value.toLowerCase()) {
+bool? _parseBool(String value) => switch (value.toLowerCase()) {
   'true' || 'yes' || '1' => true,
   'false' || 'no' || '0' => false,
   _ => null,
@@ -842,7 +842,7 @@ List<_BenchmarkMetric> _benchQueryScale() {
   ];
 }
 
-double _benchQueryIterationFor(final int count) {
+double _benchQueryIterationFor(int count) {
   final world = _buildWorld();
   _seed(world, count: count, withTag: false);
   final runs = count <= 10000 ? 50 : 20;
@@ -867,9 +867,9 @@ double _benchQueryIterationFor(final int count) {
 }
 
 List<Entity> _seed(
-  final World world, {
-  required final int count,
-  required final bool withTag,
+  World world, {
+  required int count,
+  required bool withTag,
 }) {
   final entities = world.reserveEmptyEntities(count);
   final baseBundle = ComponentBundle.fromLists(const [], const [
@@ -891,7 +891,7 @@ List<Entity> _seed(
             _BenchCComponent,
             _BenchC
           >()) {
-    chunk.forEachRow((final _, final _, final a, final b, final c) {
+    chunk.forEachRow((_, _, a, b, c) {
       a.value = 1;
       b.value = 2;
       c.value = 3;
@@ -920,34 +920,34 @@ abstract final class _BenchCComponent extends Component {}
 extension type _BenchA._(int index) {
   static late IntColumn _column;
 
-  static void _init(final IntColumn column) {
+  static void _init(IntColumn column) {
     _column = column;
   }
 
   int get value => _column.getValueAt(index);
-  set value(final int v) => _column.setValueAt(index, v);
+  set value(int v) => _column.setValueAt(index, v);
 }
 
 extension type _BenchB._(int index) {
   static late IntColumn _column;
 
-  static void _init(final IntColumn column) {
+  static void _init(IntColumn column) {
     _column = column;
   }
 
   int get value => _column.getValueAt(index);
-  set value(final int v) => _column.setValueAt(index, v);
+  set value(int v) => _column.setValueAt(index, v);
 }
 
 extension type _BenchC._(int index) {
   static late IntColumn _column;
 
-  static void _init(final IntColumn column) {
+  static void _init(IntColumn column) {
     _column = column;
   }
 
   int get value => _column.getValueAt(index);
-  set value(final int v) => _column.setValueAt(index, v);
+  set value(int v) => _column.setValueAt(index, v);
 }
 
 class _BenchEvent extends EcsEvent
@@ -965,7 +965,7 @@ class _BenchEvent extends EcsEvent
   List<double> get numericFields => [id.toDouble(), value];
 
   @override
-  void writeNumericFieldsTo(final Float32List target) {
+  void writeNumericFieldsTo(Float32List target) {
     target[0] = id.toDouble();
     target[1] = value;
   }
@@ -978,66 +978,66 @@ class _BenchTagComponent extends Component {
 extension type _BenchTag._(int index) {
   static late Uint8Column _column;
 
-  static void _init(final Uint8Column column) {
+  static void _init(Uint8Column column) {
     _column = column;
   }
 
   int get value => _column.getValue(index);
-  set value(final int v) => _column.setValue(index, v);
+  set value(int v) => _column.setValue(index, v);
 }
 
 final class _BenchTagColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => Uint8Column(initialCapacity: initialCapacity);
 }
 
 final class _BenchScalarColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => IntColumn(initialCapacity: initialCapacity);
 }
 
 final class _BenchAFacadeFactory extends ComponentFacadeFactory<_BenchA> {
   @override
-  _BenchA create(final int index) => _BenchA._(index);
+  _BenchA create(int index) => _BenchA._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     _BenchA._init(column as IntColumn);
   }
 }
 
 final class _BenchBFacadeFactory extends ComponentFacadeFactory<_BenchB> {
   @override
-  _BenchB create(final int index) => _BenchB._(index);
+  _BenchB create(int index) => _BenchB._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     _BenchB._init(column as IntColumn);
   }
 }
 
 final class _BenchCFacadeFactory extends ComponentFacadeFactory<_BenchC> {
   @override
-  _BenchC create(final int index) => _BenchC._(index);
+  _BenchC create(int index) => _BenchC._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     _BenchC._init(column as IntColumn);
   }
 }
 
 final class _BenchTagFacadeFactory extends ComponentFacadeFactory<_BenchTag> {
   @override
-  _BenchTag create(final int index) => _BenchTag._(index);
+  _BenchTag create(int index) => _BenchTag._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     _BenchTag._init(column as Uint8Column);
   }
 }
@@ -1102,19 +1102,19 @@ final class _BenchmarkEnvironment {
   };
 }
 
-String _sysctl(final String key) {
+String _sysctl(String key) {
   if (!Platform.isMacOS) return '';
   final result = Process.runSync('sysctl', ['-n', key]);
   if (result.exitCode != 0) return '';
   return result.stdout.toString().trim();
 }
 
-String _friendlyMachineName(final String model) => switch (model) {
+String _friendlyMachineName(String model) => switch (model) {
   'Mac14,2' => 'MacBook Air (M2, 2022)',
   _ => model,
 };
 
-String _gitOutput(final List<String> args) {
+String _gitOutput(List<String> args) {
   final result = Process.runSync('git', args);
   if (result.exitCode != 0) return '';
   return result.stdout.toString().trim();
@@ -1160,12 +1160,12 @@ final class _BenchmarkMetric {
 
   double? get minSample {
     if (samples.isEmpty) return null;
-    return samples.reduce((final a, final b) => a < b ? a : b);
+    return samples.reduce((a, b) => a < b ? a : b);
   }
 
   double? get maxSample {
     if (samples.isEmpty) return null;
-    return samples.reduce((final a, final b) => a > b ? a : b);
+    return samples.reduce((a, b) => a > b ? a : b);
   }
 
   String get improvementDirection {

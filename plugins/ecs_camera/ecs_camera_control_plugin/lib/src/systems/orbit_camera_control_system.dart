@@ -46,7 +46,7 @@ const int kOrbitMiddleButton = 0x04;
 ///
 /// Runs in the Input schedule via [configureOrbitCameraControlSchedule];
 /// keyboard navigation is the sibling [orbitCameraKeyboardSystem].
-void orbitCameraControlSystem(final World world) {
+void orbitCameraControlSystem(World world) {
   if (!world.resources.has<OrbitCameraResource>()) return;
   final cam = world.getResource<OrbitCameraResource>();
 
@@ -174,7 +174,7 @@ void orbitCameraControlSystem(final World world) {
 /// gesture classification and before the end-of-run event clear. Hosts adding
 /// their own Input-schedule systems (editor drags that consume events, for
 /// instance) must chain them the same way — see `configureInputSchedule`.
-void configureOrbitCameraControlSchedule(final World world) {
+void configureOrbitCameraControlSchedule(World world) {
   if (!world.hasSchedule(const ScheduleId('Input'))) {
     throw StateError(
       'Input schedule not found. Install InputPlugin (with configureSchedule) '

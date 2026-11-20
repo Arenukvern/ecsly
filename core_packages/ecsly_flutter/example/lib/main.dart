@@ -3,7 +3,7 @@ import 'dart:async';
 // ignore_for_file: experimental_member_use
 
 import 'package:ecsly_flutter/ecsly_flutter.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class TodoTitle extends Component {
   const TodoTitle(this.value);
@@ -42,7 +42,7 @@ class TodoAppPlugin extends Plugin {
   String get name => 'todo_app';
 
   @override
-  void install(final World world) {
+  void install(World world) {
     world.components.registerObjectComponent<TodoId>();
     world.components.registerObjectComponent<TodoTitle>();
     world.components.registerObjectComponent<TodoDone>();
@@ -55,7 +55,7 @@ class SeedTodosAction extends EcsAction<void> {
   const SeedTodosAction();
 
   @override
-  void run(final EcsActionContext context) {
+  void run(EcsActionContext context) {
     final ui = context.readResource<TodoUiResource>();
     if (ui.didSeed) return;
 
@@ -65,7 +65,7 @@ class SeedTodosAction extends EcsAction<void> {
     ]) {
       _spawnTodo(context, title);
     }
-    context.mutateResource<TodoUiResource>((final ui) {
+    context.mutateResource<TodoUiResource>((ui) {
       ui.didSeed = true;
     });
   }
@@ -75,7 +75,7 @@ class AddTodoAction extends EcsAction<Entity> {
   const AddTodoAction();
 
   @override
-  Entity run(final EcsActionContext context) {
+  Entity run(EcsActionContext context) {
     final ui = context.readResource<TodoUiResource>();
     return _spawnTodo(context, 'Todo ${ui.nextNumber}');
   }
@@ -87,7 +87,7 @@ class ToggleTodoAction extends EcsAction<void> {
   final Entity entity;
 
   @override
-  void run(final EcsActionContext context) {
+  void run(EcsActionContext context) {
     final done = context.getComponent<TodoDone>(entity: entity);
     context.upsertComponent(entity, TodoDone(value: !done.value));
   }
@@ -99,9 +99,9 @@ class ActivateTodoAction extends EcsAction<void> {
   final Entity entity;
 
   @override
-  void run(final EcsActionContext context) {
+  void run(EcsActionContext context) {
     final id = context.getComponent<TodoId>(entity: entity);
-    context.mutateResource<TodoUiResource>((final ui) {
+    context.mutateResource<TodoUiResource>((ui) {
       ui.activeTodoId = id.value;
     });
   }
@@ -111,8 +111,8 @@ class ToggleDoneVisibilityAction extends EcsAction<void> {
   const ToggleDoneVisibilityAction();
 
   @override
-  void run(final EcsActionContext context) {
-    context.mutateResource<TodoUiResource>((final ui) {
+  void run(EcsActionContext context) {
+    context.mutateResource<TodoUiResource>((ui) {
       ui.showDone = !ui.showDone;
     });
   }
@@ -127,7 +127,7 @@ void main() {
 
 World buildTodoWorld() => World()..addPlugin(const TodoAppPlugin());
 
-Entity _spawnTodo(final EcsActionContext context, final String title) {
+Entity _spawnTodo(EcsActionContext context, String title) {
   final ui = context.getResource<TodoUiResource>();
   final index = context.getResource<EntityIndexResource<TodoIdIndex, String>>();
   final id = 'todo-${ui.nextNumber}';
@@ -138,7 +138,7 @@ Entity _spawnTodo(final EcsActionContext context, final String title) {
   ]);
   index.upsert(id, entity);
   context.invalidateResource<EntityIndexResource<TodoIdIndex, String>>();
-  context.mutateResource<TodoUiResource>((final ui) {
+  context.mutateResource<TodoUiResource>((ui) {
     ui.order.add(id);
     ui.activeTodoId ??= id;
     ui.nextNumber += 1;
@@ -153,7 +153,7 @@ class TodoApp extends StatelessWidget {
   final EcsController controller;
 
   @override
-  Widget build(final BuildContext context) => MaterialApp(
+  Widget build(BuildContext context) => MaterialApp(
     home: EcsScope(
       world: world,
       controller: controller,
@@ -169,13 +169,13 @@ class TodoScreen extends StatelessWidget {
   const TodoScreen({super.key});
 
   @override
-  Widget build(final BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
       title: const Text('ecsly_flutter todos'),
       actions: <Widget>[
         EcsResourceSelector<TodoUiResource, bool>(
-          select: (final ui) => ui.showDone,
-          builder: (final context, final showDone) => IconButton(
+          select: (ui) => ui.showDone,
+          builder: (context, showDone) => IconButton(
             tooltip: showDone ? 'Hide completed' : 'Show completed',
             onPressed: () => unawaited(
               context.runEcsAction(const ToggleDoneVisibilityAction()),
@@ -193,7 +193,7 @@ class TodoScreen extends StatelessWidget {
     ),
     floatingActionButton: EcsActionBuilder<Entity>(
       action: const AddTodoAction(),
-      builder: (final context, final status, final run) => FloatingActionButton(
+      builder: (context, status, run) => FloatingActionButton(
         onPressed: run == null ? null : () => unawaited(run()),
         child: status.isRunning
             ? const SizedBox.square(
@@ -210,9 +210,9 @@ class ActiveTodoPanel extends StatelessWidget {
   const ActiveTodoPanel({super.key});
 
   @override
-  Widget build(final BuildContext context) => EcsWorldSelector<String?>(
+  Widget build(BuildContext context) => EcsWorldSelector<String?>(
     select: _selectActiveTodoLabel,
-    builder: (final context, final label) {
+    builder: (context, label) {
       if (label == null) return const SizedBox.shrink();
       return Padding(
         padding: const EdgeInsets.all(16),
@@ -225,7 +225,7 @@ class ActiveTodoPanel extends StatelessWidget {
   );
 }
 
-String? _selectActiveTodoLabel(final World world) {
+String? _selectActiveTodoLabel(World world) {
   final activeId = world.getResource<TodoUiResource>().activeTodoId;
   if (activeId == null) return null;
 
@@ -244,18 +244,18 @@ class TodoList extends StatelessWidget {
   const TodoList({super.key});
 
   @override
-  Widget build(final BuildContext context) => EcsWorldSelector<List<Entity>>(
+  Widget build(BuildContext context) => EcsWorldSelector<List<Entity>>(
     select: _selectVisibleTodos,
     equals: _sameEntities,
-    builder: (final context, final entities) => ListView.builder(
+    builder: (context, entities) => ListView.builder(
       itemCount: entities.length,
-      itemBuilder: (final context, final index) =>
+      itemBuilder: (context, index) =>
           TodoTile(entity: entities[index]),
     ),
   );
 }
 
-List<Entity> _selectVisibleTodos(final World world) {
+List<Entity> _selectVisibleTodos(World world) {
   final ui = world.getResource<TodoUiResource>();
   final index = world.getResource<EntityIndexResource<TodoIdIndex, String>>();
   final visible = <Entity>[];
@@ -270,7 +270,7 @@ List<Entity> _selectVisibleTodos(final World world) {
   return List<Entity>.unmodifiable(visible);
 }
 
-bool _sameEntities(final List<Entity> previous, final List<Entity> next) {
+bool _sameEntities(List<Entity> previous, List<Entity> next) {
   if (identical(previous, next)) return true;
   if (previous.length != next.length) return false;
   for (var i = 0; i < previous.length; i += 1) {
@@ -285,15 +285,15 @@ class TodoTile extends StatelessWidget {
   final Entity entity;
 
   @override
-  Widget build(final BuildContext context) =>
+  Widget build(BuildContext context) =>
       EcsComponentSelector<TodoDone, bool>(
         entity: entity,
-        select: (final done) => done.value,
-        builder: (final context, final done) =>
+        select: (done) => done.value,
+        builder: (context, done) =>
             EcsComponentSelector<TodoTitle, String>(
               entity: entity,
-              select: (final title) => title.value,
-              builder: (final context, final title) => CheckboxListTile(
+              select: (title) => title.value,
+              builder: (context, title) => CheckboxListTile(
                 value: done,
                 onChanged: (_) {
                   unawaited(context.runEcsAction(ActivateTodoAction(entity)));

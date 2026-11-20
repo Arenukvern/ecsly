@@ -7,7 +7,7 @@ import '../resources/camera_projection_mode_resource.dart';
 
 /// Fills [ActiveCamerasResource] with active cameras in priority order (high first).
 /// Cameras without [CameraViewportRectComponent] get [ViewportRect.fullScreen].
-void activeCamerasSystem(final World world) {
+void activeCamerasSystem(World world) {
   final resource = world.getResource<ActiveCamerasResource>();
   final modeResource = world.getResource<CameraProjectionModeResource>();
   resource.cameras.clear();
@@ -32,7 +32,7 @@ void activeCamerasSystem(final World world) {
       mode: modeResource.effectiveMode,
     ));
   }
-  list.sort((final a, final b) => b.priority.compareTo(a.priority));
+  list.sort((a, b) => b.priority.compareTo(a.priority));
   for (final e in list) {
     resource.cameras.add(
       ActiveCameraEntry(entity: e.entity, viewport: e.viewport, mode: e.mode),

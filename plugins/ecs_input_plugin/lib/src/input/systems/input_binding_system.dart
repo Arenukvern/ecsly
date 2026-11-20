@@ -15,7 +15,7 @@ import '../utils/gesture_types.dart';
 ///
 /// Reads RuntimeInputMap to determine source→action mappings,
 /// then emits InputActionEvent for state changes.
-void inputBindingSystem(final World world) {
+void inputBindingSystem(World world) {
   final inputMap = world.getResource<RuntimeInputMap>();
   final stateTracker = world.getResource<InputStateTracker>();
   final keyboard = HardwareKeyboard.instance;
@@ -24,7 +24,7 @@ void inputBindingSystem(final World world) {
   // Developer logging: Log pressed keys
   if (pressedKeys.isNotEmpty) {
     developer.log(
-      'Pressed keys: ${pressedKeys.map((final k) => k.keyLabel).join(', ')}',
+      'Pressed keys: ${pressedKeys.map((k) => k.keyLabel).join(', ')}',
       name: 'InputBindingSystem',
     );
   }
@@ -45,7 +45,7 @@ void inputBindingSystem(final World world) {
       // Developer logging: Log action mappings
       if (actions.isNotEmpty) {
         developer.log(
-          'Key ${key.keyLabel} -> Actions: ${actions.map((final a) => a.name).join(', ')}',
+          'Key ${key.keyLabel} -> Actions: ${actions.map((a) => a.name).join(', ')}',
           name: 'InputBindingSystem',
         );
       }
@@ -63,7 +63,7 @@ void inputBindingSystem(final World world) {
     // Developer logging: Log gesture actions
     if (actions.isNotEmpty) {
       developer.log(
-        'Active drag gesture -> Actions: ${actions.map((final a) => a.name).join(', ')}',
+        'Active drag gesture -> Actions: ${actions.map((a) => a.name).join(', ')}',
         name: 'InputBindingSystem',
       );
     }

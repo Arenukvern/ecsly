@@ -17,31 +17,31 @@ extension type Position._(int index) {
   static late FloatColumn _column;
 
   // ignore: use_setters_to_change_properties - internal column bootstrap
-  static void _setTypedColumn(final FloatColumn column) {
+  static void _setTypedColumn(FloatColumn column) {
     _column = column;
   }
 
   double get x => _column.getValueUnsafe(index, 0);
   double get y => _column.getValueUnsafe(index, 1);
 
-  set x(final double value) => _column.setValue(index, 0, value);
-  set y(final double value) => _column.setValue(index, 1, value);
+  set x(double value) => _column.setValue(index, 0, value);
+  set y(double value) => _column.setValue(index, 1, value);
 }
 
 final class _PositionColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => FloatColumn(stride: 2, initialCapacity: initialCapacity);
 }
 
 final class _PositionFacadeFactory extends ComponentFacadeFactory<Position> {
   @override
-  Position create(final int index) => Position._(index);
+  Position create(int index) => Position._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     Position._setTypedColumn(column as FloatColumn);
   }
 }
@@ -54,29 +54,29 @@ extension type Health._(int index) {
   static late Uint8Column _column;
 
   // ignore: use_setters_to_change_properties - internal column bootstrap
-  static void _setTypedColumn(final Uint8Column column) {
+  static void _setTypedColumn(Uint8Column column) {
     _column = column;
   }
 
   int get value => _column.getValue(index);
 
-  set value(final int v) => _column.setValue(index, v);
+  set value(int v) => _column.setValue(index, v);
 }
 
 final class _HealthColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => Uint8Column(initialCapacity: initialCapacity);
 }
 
 final class _HealthFacadeFactory extends ComponentFacadeFactory<Health> {
   @override
-  Health create(final int index) => Health._(index);
+  Health create(int index) => Health._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     Health._setTypedColumn(column as Uint8Column);
   }
 }
@@ -89,29 +89,29 @@ extension type Score._(int index) {
   static late IntColumn _column;
 
   // ignore: use_setters_to_change_properties - internal column bootstrap
-  static void _setTypedColumn(final IntColumn column) {
+  static void _setTypedColumn(IntColumn column) {
     _column = column;
   }
 
   int get value => _column.getValueAt(index);
 
-  set value(final int v) => _column.setValueAt(index, v);
+  set value(int v) => _column.setValueAt(index, v);
 }
 
 final class _ScoreColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => IntColumn(initialCapacity: initialCapacity);
 }
 
 final class _ScoreFacadeFactory extends ComponentFacadeFactory<Score> {
   @override
-  Score create(final int index) => Score._(index);
+  Score create(int index) => Score._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     Score._setTypedColumn(column as IntColumn);
   }
 }
@@ -128,10 +128,10 @@ class NameCodec extends ObjectComponentCodec<NameComponent> {
   const NameCodec();
 
   @override
-  Object? toJson(final NameComponent component) => component.value;
+  Object? toJson(NameComponent component) => component.value;
 
   @override
-  NameComponent fromJson(final Object? value) =>
+  NameComponent fromJson(Object? value) =>
       NameComponent(value as String? ?? '');
 }
 
@@ -161,12 +161,12 @@ World buildTestWorld() {
 /// Spawns an entity with [PersistentId] [pid] plus the given SoA components
 /// and flushes. Returns the entity handle (world-local; never synced).
 Entity spawnShip(
-  final World world,
-  final int pid, {
-  final bool position = true,
-  final bool health = false,
-  final bool score = false,
-  final NameComponent? name,
+  World world,
+  int pid, {
+  bool position = true,
+  bool health = false,
+  bool score = false,
+  NameComponent? name,
 }) {
   final entity = world.spawnComponents([
     PersistentId(pid),
@@ -182,11 +182,11 @@ Entity spawnShip(
 /// Writes one column value without extension-type facades (safe with
 /// multiple live worlds).
 void writeColumn(
-  final World world,
-  final Entity entity,
-  final Type componentType,
-  final int offset,
-  final num value,
+  World world,
+  Entity entity,
+  Type componentType,
+  int offset,
+  num value,
 ) {
   final (column, row) = _columnAndRow(world, entity, componentType);
   switch (column) {
@@ -203,10 +203,10 @@ void writeColumn(
 
 /// Reads one column value without extension-type facades.
 num readColumn(
-  final World world,
-  final Entity entity,
-  final Type componentType,
-  final int offset,
+  World world,
+  Entity entity,
+  Type componentType,
+  int offset,
 ) {
   final (column, row) = _columnAndRow(world, entity, componentType);
   return switch (column) {
@@ -220,9 +220,9 @@ num readColumn(
 }
 
 (DataColumn, int) _columnAndRow(
-  final World world,
-  final Entity entity,
-  final Type componentType,
+  World world,
+  Entity entity,
+  Type componentType,
 ) {
   final componentId = world.components.getComponentIdByType(componentType)!;
   final location = world.entities.getLocation(entity);
@@ -237,7 +237,7 @@ num readColumn(
 /// Deterministic monotonic clock shared by both replicas so LWW winners are
 /// decided by issue order, not actor tie-breaks.
 final class TestClock {
-  TestClock([final DateTime? start])
+  TestClock([DateTime? start])
     : _next = start ?? DateTime.utc(2026, 9, 26, 12);
 
   DateTime _next;

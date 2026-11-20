@@ -3,8 +3,8 @@ import 'dart:async';
 // ignore_for_file: experimental_member_use
 
 import 'package:ecsly_flutter/ecsly_flutter.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 
 class CounterResource extends Resource {
   int count = 0;
@@ -46,7 +46,7 @@ class TodoRecord extends Component {
   final String title;
   final bool done;
 
-  TodoRecord copyWith({final String? title, final bool? done}) =>
+  TodoRecord copyWith({String? title, bool? done}) =>
       TodoRecord(id: id, title: title ?? this.title, done: done ?? this.done);
 }
 
@@ -60,9 +60,9 @@ class IncrementCounterAction extends EcsAction<int> {
   final int by;
 
   @override
-  FutureOr<int> run(final EcsActionContext context) {
+  FutureOr<int> run(EcsActionContext context) {
     late int next;
-    context.mutateResource<CounterResource>((final counter) {
+    context.mutateResource<CounterResource>((counter) {
       next = counter.count += by;
     });
     return next;
@@ -73,8 +73,8 @@ class MarkCounterAction extends EcsAction<void> {
   const MarkCounterAction();
 
   @override
-  void run(final EcsActionContext context) {
-    context.mutateResource<CounterResource>((final counter) {
+  void run(EcsActionContext context) {
+    context.mutateResource<CounterResource>((counter) {
       counter.count += 1;
     });
   }
@@ -84,8 +84,8 @@ class MarkOtherAction extends EcsAction<void> {
   const MarkOtherAction();
 
   @override
-  void run(final EcsActionContext context) {
-    context.mutateResource<OtherResource>((final other) {
+  void run(EcsActionContext context) {
+    context.mutateResource<OtherResource>((other) {
       other.count += 1;
     });
   }
@@ -95,7 +95,7 @@ class ChainCounterAction extends EcsAction<void> {
   const ChainCounterAction();
 
   @override
-  Future<void> run(final EcsActionContext context) async {
+  Future<void> run(EcsActionContext context) async {
     await context.run(const MarkCounterAction());
     await context.run(const MarkCounterAction());
   }
@@ -107,9 +107,9 @@ class DelayedCounterAction extends EcsAction<int> {
   final Completer<int> completer;
 
   @override
-  Future<int> run(final EcsActionContext context) async {
+  Future<int> run(EcsActionContext context) async {
     final value = await completer.future;
-    context.mutateResource<CounterResource>((final counter) {
+    context.mutateResource<CounterResource>((counter) {
       counter.count = value;
     });
     return value;
@@ -126,7 +126,7 @@ class SharedStatusDelayedAction extends EcsAction<int> {
   Object get statusKey => 'shared-counter';
 
   @override
-  Future<int> run(final EcsActionContext context) async {
+  Future<int> run(EcsActionContext context) async {
     await completer.future;
     return value;
   }
@@ -136,8 +136,8 @@ class SeedCounterAction extends EcsAction<void> {
   const SeedCounterAction();
 
   @override
-  void run(final EcsActionContext context) {
-    context.mutateResource<CounterResource>((final counter) {
+  void run(EcsActionContext context) {
+    context.mutateResource<CounterResource>((counter) {
       counter.count += 1;
     });
   }
@@ -149,7 +149,7 @@ class SpawnTodoAction extends EcsAction<Entity> {
   final String id;
 
   @override
-  Entity run(final EcsActionContext context) => context.spawnComponents([
+  Entity run(EcsActionContext context) => context.spawnComponents([
     TodoRecord(id: id, title: 'Spawned $id', done: false),
     const TodoDone(value: false),
   ]);
@@ -165,9 +165,9 @@ class CompleteTodoByIdAction extends EcsAction<void> {
   final String id;
 
   @override
-  void run(final EcsActionContext context) {
+  void run(EcsActionContext context) {
     final entity = context.findEntityWithComponent<TodoRecord>(
-      where: (final entity, final todo) => todo.id == id,
+      where: (entity, todo) => todo.id == id,
     );
     final todo = context.getComponent<TodoRecord>(entity: entity);
     context.upsertComponent(entity, todo.copyWith(done: true));
@@ -181,7 +181,7 @@ World _todoWorld() => World()
   ..components.registerObjectComponent<TodoRecord>();
 
 void main() {
-  testWidgets('EcsScope exposes world and controller', (final tester) async {
+  testWidgets('EcsScope exposes world and controller', (tester) async {
     final world = _todoWorld();
     final controller = EcsController(world: world);
 
@@ -192,7 +192,7 @@ void main() {
         world: world,
         controller: controller,
         child: Builder(
-          builder: (final context) {
+          builder: (context) {
             resolvedWorld = EcsScope.worldOf(context);
             resolvedController = EcsScope.controllerOf(context);
             return const SizedBox();
@@ -206,7 +206,7 @@ void main() {
   });
 
   testWidgets('EcsResourceSelector rebuilds after controller transaction', (
-    final tester,
+    tester,
   ) async {
     final world = World()..upsertResource(CounterResource());
     final controller = EcsController(world: world);
@@ -217,8 +217,8 @@ void main() {
           world: world,
           controller: controller,
           child: EcsResourceSelector<CounterResource, int>(
-            select: (final resource) => resource.count,
-            builder: (final context, final count) => Text('count: $count'),
+            select: (resource) => resource.count,
+            builder: (context, count) => Text('count: $count'),
           ),
         ),
       ),
@@ -226,7 +226,7 @@ void main() {
 
     expect(find.text('count: 0'), findsOneWidget);
 
-    controller.runTransaction((final world) {
+    controller.runTransaction((world) {
       world.getResource<CounterResource>().count += 1;
     });
     await tester.pump();
@@ -235,7 +235,7 @@ void main() {
   });
 
   testWidgets('EcsResourceBuilder renders absence fallback', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld();
     final controller = EcsController(world: world);
@@ -247,7 +247,7 @@ void main() {
           controller: controller,
           child: EcsResourceBuilder<MissingResource>(
             whenAbsent: const Text('missing'),
-            builder: (final context, final resource) => const Text('present'),
+            builder: (context, resource) => const Text('present'),
           ),
         ),
       ),
@@ -258,7 +258,7 @@ void main() {
   });
 
   testWidgets('EcsResourceSelector skips unrelated tracked changes', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld()..upsertResource(CounterResource());
     final entity = world.entities.create();
@@ -273,11 +273,11 @@ void main() {
           world: world,
           controller: controller,
           child: EcsResourceSelector<CounterResource, int>(
-            select: (final resource) {
+            select: (resource) {
               selectCount += 1;
               return resource.count;
             },
-            builder: (final context, final count) => Text('count: $count'),
+            builder: (context, count) => Text('count: $count'),
           ),
         ),
       ),
@@ -285,7 +285,7 @@ void main() {
 
     expect(selectCount, 1);
 
-    controller.runTransaction((final world) {
+    controller.runTransaction((world) {
       world.upsertComponent(entity, const TodoTitle('saved'));
     }, invalidation: EcsInvalidationBatch.component<TodoTitle>(entity: entity));
     await tester.pump();
@@ -296,7 +296,7 @@ void main() {
 
   testWidgets(
     'selector outside EcsScope can use explicit controller fallback',
-    (final tester) async {
+    (tester) async {
       final world = _todoWorld()..upsertResource(CounterResource());
       final entity = world.entities.create();
       world.upsertComponent(entity, const TodoTitle('draft'));
@@ -309,11 +309,11 @@ void main() {
           home: EcsResourceSelector<CounterResource, int>(
             world: world,
             controller: controller,
-            select: (final resource) {
+            select: (resource) {
               selectCount += 1;
               return resource.count;
             },
-            builder: (final context, final count) => Text('count: $count'),
+            builder: (context, count) => Text('count: $count'),
           ),
         ),
       );
@@ -321,7 +321,7 @@ void main() {
       expect(selectCount, 1);
 
       controller.runTransaction(
-        (final world) {
+        (world) {
           world.upsertComponent(entity, const TodoTitle('saved'));
         },
         invalidation: EcsInvalidationBatch.component<TodoTitle>(entity: entity),
@@ -329,7 +329,7 @@ void main() {
       await tester.pump();
       expect(selectCount, 1);
 
-      controller.runTransaction((final world) {
+      controller.runTransaction((world) {
         world.getResource<CounterResource>().count = 1;
       }, invalidation: EcsInvalidationBatch.resource<CounterResource>());
       await tester.pump();
@@ -340,7 +340,7 @@ void main() {
   );
 
   testWidgets('EcsComponentSelector rebuilds from sliced component state', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld();
     final entity = world.entities.create();
@@ -356,8 +356,8 @@ void main() {
           controller: controller,
           child: EcsComponentSelector<TodoTitle, String>(
             entity: entity,
-            select: (final component) => component.value,
-            builder: (final context, final title) => Text(title),
+            select: (component) => component.value,
+            builder: (context, title) => Text(title),
           ),
         ),
       ),
@@ -365,7 +365,7 @@ void main() {
 
     expect(find.text('brew coffee'), findsOneWidget);
 
-    controller.runTransaction((final world) {
+    controller.runTransaction((world) {
       world.upsertComponent(entity, const TodoTitle('taste coffee'));
     });
     await tester.pump();
@@ -374,7 +374,7 @@ void main() {
   });
 
   testWidgets('EcsComponentSelector skips rebuild for equal selected value', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld();
     final entity = world.entities.create();
@@ -390,8 +390,8 @@ void main() {
           controller: controller,
           child: EcsComponentSelector<TodoTitle, int>(
             entity: entity,
-            select: (final component) => component.value.length,
-            builder: (final context, final length) {
+            select: (component) => component.value.length,
+            builder: (context, length) {
               buildCount++;
               return Text('length: $length');
             },
@@ -402,7 +402,7 @@ void main() {
 
     expect(buildCount, 1);
 
-    controller.runTransaction((final world) {
+    controller.runTransaction((world) {
       world.upsertComponent(entity, const TodoTitle('bravo'));
     });
     await tester.pump();
@@ -412,7 +412,7 @@ void main() {
   });
 
   testWidgets('EcsComponentSelector skips tracked changes on other entities', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld();
     final first = world.entities.create();
@@ -430,11 +430,11 @@ void main() {
           controller: controller,
           child: EcsComponentSelector<TodoTitle, String>(
             entity: first,
-            select: (final component) {
+            select: (component) {
               selectCount += 1;
               return component.value;
             },
-            builder: (final context, final title) => Text(title),
+            builder: (context, title) => Text(title),
           ),
         ),
       ),
@@ -442,7 +442,7 @@ void main() {
 
     expect(selectCount, 1);
 
-    controller.runTransaction((final world) {
+    controller.runTransaction((world) {
       world.upsertComponent(second, const TodoTitle('changed'));
     }, invalidation: EcsInvalidationBatch.component<TodoTitle>(entity: second));
     await tester.pump();
@@ -452,7 +452,7 @@ void main() {
   });
 
   testWidgets('sliced app components resolve through typed id projection', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld()
       ..upsertResource(EntityIndexResource<TodoIndexScope, String>());
@@ -474,16 +474,16 @@ void main() {
           world: world,
           controller: controller,
           child: Builder(
-            builder: (final context) {
+            builder: (context) {
               final resolved = context
                   .getEcsResource<EntityIndexResource<TodoIndexScope, String>>()
                   .entityOf('todo-1');
               final title = context.selectEcsComponent<TodoTitle, String>(
-                (final component) => component.value,
+                (component) => component.value,
                 entity: resolved,
               );
               final done = context.selectEcsComponent<TodoDone, bool>(
-                (final component) => component.value,
+                (component) => component.value,
                 entity: resolved,
               );
               return Text('$title:${done ? 'done' : 'open'}');
@@ -495,7 +495,7 @@ void main() {
 
     expect(find.text('Write docs:open'), findsOneWidget);
 
-    controller.runTransaction((final world) {
+    controller.runTransaction((world) {
       world.upsertComponent(entity, const TodoDone(value: true));
     });
     await tester.pump();
@@ -505,7 +505,7 @@ void main() {
 
   testWidgets(
     'EcsWorldSelector derives values across resources and components',
-    (final tester) async {
+    (tester) async {
       final world = _todoWorld()..upsertResource(CounterResource());
       final entity = world.entities.create();
       world.upsertComponent(entity, const TodoTitle('draft'));
@@ -518,12 +518,12 @@ void main() {
             world: world,
             controller: controller,
             child: EcsWorldSelector<String>(
-              select: (final world) {
+              select: (world) {
                 final count = world.getResource<CounterResource>().count;
                 final title = world.getComponent<TodoTitle>(entity).value;
                 return '$title:$count';
               },
-              builder: (final context, final value) => Text(value),
+              builder: (context, value) => Text(value),
             ),
           ),
         ),
@@ -531,7 +531,7 @@ void main() {
 
       expect(find.text('draft:0'), findsOneWidget);
 
-      controller.runTransaction((final world) {
+      controller.runTransaction((world) {
         world.getResource<CounterResource>().count = 2;
         world.upsertComponent(entity, const TodoTitle('saved'));
       });
@@ -542,7 +542,7 @@ void main() {
   );
 
   testWidgets('EcsWorldSelector dependency hints skip unrelated changes', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld()..upsertResource(CounterResource());
     final entity = world.entities.create();
@@ -560,11 +560,11 @@ void main() {
             dependencies: const EcsWorldSelectorDependencies(
               resourceTypes: [CounterResource],
             ),
-            select: (final world) {
+            select: (world) {
               selectCount += 1;
               return world.getResource<CounterResource>().count;
             },
-            builder: (final context, final value) => Text('count: $value'),
+            builder: (context, value) => Text('count: $value'),
           ),
         ),
       ),
@@ -572,14 +572,14 @@ void main() {
 
     expect(selectCount, 1);
 
-    controller.runTransaction((final world) {
+    controller.runTransaction((world) {
       world.upsertComponent(entity, const TodoTitle('saved'));
     }, invalidation: EcsInvalidationBatch.component<TodoTitle>(entity: entity));
     await tester.pump();
 
     expect(selectCount, 1);
 
-    controller.runTransaction((final world) {
+    controller.runTransaction((world) {
       world.getResource<CounterResource>().count = 1;
     }, invalidation: EcsInvalidationBatch.resource<CounterResource>());
     await tester.pump();
@@ -589,7 +589,7 @@ void main() {
   });
 
   testWidgets('EcsWorldSelector component dependency refreshes on component', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld()..upsertResource(CounterResource());
     final entity = world.entities.create();
@@ -607,11 +607,11 @@ void main() {
             dependencies: const EcsWorldSelectorDependencies(
               componentTypes: [TodoTitle],
             ),
-            select: (final world) {
+            select: (world) {
               selectCount += 1;
               return world.getComponent<TodoTitle>(entity).value;
             },
-            builder: (final context, final value) => Text(value),
+            builder: (context, value) => Text(value),
           ),
         ),
       ),
@@ -619,14 +619,14 @@ void main() {
 
     expect(selectCount, 1);
 
-    controller.runTransaction((final world) {
+    controller.runTransaction((world) {
       world.getResource<CounterResource>().count = 1;
     }, invalidation: EcsInvalidationBatch.resource<CounterResource>());
     await tester.pump();
 
     expect(selectCount, 1);
 
-    controller.runTransaction((final world) {
+    controller.runTransaction((world) {
       world.upsertComponent(entity, const TodoTitle('saved'));
     }, invalidation: EcsInvalidationBatch.component<TodoTitle>(entity: entity));
     await tester.pump();
@@ -636,7 +636,7 @@ void main() {
   });
 
   testWidgets('selectors conservatively refresh untracked transactions', (
-    final tester,
+    tester,
   ) async {
     final world = World()..upsertResource(CounterResource());
     world.flush();
@@ -649,11 +649,11 @@ void main() {
           world: world,
           controller: controller,
           child: EcsResourceSelector<CounterResource, int>(
-            select: (final resource) {
+            select: (resource) {
               selectCount += 1;
               return resource.count;
             },
-            builder: (final context, final count) => Text('count: $count'),
+            builder: (context, count) => Text('count: $count'),
           ),
         ),
       ),
@@ -661,7 +661,7 @@ void main() {
 
     expect(selectCount, 1);
 
-    controller.runTransaction((final world) {
+    controller.runTransaction((world) {
       world.getResource<CounterResource>().count = 1;
     });
     await tester.pump();
@@ -671,7 +671,7 @@ void main() {
   });
 
   testWidgets('BuildContext ecs helpers read resources and components', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld()..upsertResource(CounterResource());
     final entity = world.entities.create();
@@ -685,13 +685,13 @@ void main() {
           world: world,
           controller: controller,
           child: Builder(
-            builder: (final context) {
+            builder: (context) {
               final count = context.selectEcsResource<CounterResource, int>(
-                (final resource) => resource.count,
+                (resource) => resource.count,
               );
               expect(context.getEcsResource<CounterResource>().count, count);
               final title = context.selectEcsComponent<TodoTitle, String>(
-                (final component) => component.value,
+                (component) => component.value,
                 entity: entity,
               );
               expect(
@@ -707,7 +707,7 @@ void main() {
 
     expect(find.text('initial: 0'), findsOneWidget);
 
-    controller.runTransaction((final world) {
+    controller.runTransaction((world) {
       world.getResource<CounterResource>().count = 3;
       world.upsertComponent(entity, const TodoTitle('updated'));
     });
@@ -717,7 +717,7 @@ void main() {
   });
 
   testWidgets('EcsController runs actions and records status', (
-    final tester,
+    tester,
   ) async {
     final world = World()..upsertResource(CounterResource());
     final controller = EcsController(world: world);
@@ -735,7 +735,7 @@ void main() {
 
   testWidgets(
     'EcsComponentSelector can resolve a component without an entity',
-    (final tester) async {
+    (tester) async {
       final world = _todoWorld();
       final first = world.entities.create();
       final second = world.entities.create();
@@ -756,9 +756,9 @@ void main() {
             world: world,
             controller: controller,
             child: EcsComponentSelector<TodoRecord, String>(
-              where: (final entity, final todo) => todo.id == 'b',
-              select: (final todo) => todo.title,
-              builder: (final context, final title) => Text(title),
+              where: (entity, todo) => todo.id == 'b',
+              select: (todo) => todo.title,
+              builder: (context, title) => Text(title),
             ),
           ),
         ),
@@ -766,7 +766,7 @@ void main() {
 
       expect(find.text('Robusta'), findsOneWidget);
 
-      controller.runTransaction((final world) {
+      controller.runTransaction((world) {
         world.upsertComponent(
           second,
           const TodoRecord(id: 'b', title: 'Liberica', done: false),
@@ -779,7 +779,7 @@ void main() {
   );
 
   testWidgets('context component lookup can return the resolved entity', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld();
     final entity = world.entities.create();
@@ -796,11 +796,11 @@ void main() {
           world: world,
           controller: controller,
           child: Builder(
-            builder: (final context) {
+            builder: (context) {
               final label = context.selectEcsComponent<TodoRecord, String>(
-                (final todo) => todo.title,
-                where: (final candidate, final todo) => todo.id == 'chosen',
-                selectWithEntity: (final resolved, final todo) {
+                (todo) => todo.title,
+                where: (candidate, todo) => todo.id == 'chosen',
+                selectWithEntity: (resolved, todo) {
                   expect(resolved, entity);
                   return '${todo.title}:${todo.id}';
                 },
@@ -816,7 +816,7 @@ void main() {
   });
 
   testWidgets('EcsAction can resolve and mutate a component by app data', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld();
     final entity = world.entities.create();
@@ -838,7 +838,7 @@ void main() {
   });
 
   testWidgets('EcsActionContext spawns bundled component entities', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld();
     final controller = EcsController(world: world);
@@ -851,7 +851,7 @@ void main() {
   });
 
   testWidgets('EntityIndexResource maps stable app ids to entities', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld()
       ..upsertResource(EntityIndexResource<TodoIndexScope, String>());
@@ -874,7 +874,7 @@ void main() {
   });
 
   testWidgets('EcsActionBuilder disables run while action is running', (
-    final tester,
+    tester,
   ) async {
     final world = World()..upsertResource(CounterResource());
     final controller = EcsController(world: world);
@@ -888,7 +888,7 @@ void main() {
           controller: controller,
           child: EcsActionBuilder<int>(
             action: action,
-            builder: (final context, final status, final run) => ElevatedButton(
+            builder: (context, status, run) => ElevatedButton(
               onPressed: run == null ? null : () => unawaited(run()),
               child: Text(status.isRunning ? 'saving' : 'save'),
             ),
@@ -913,7 +913,7 @@ void main() {
   });
 
   testWidgets('EcsActionStatusSelector observes action status', (
-    final tester,
+    tester,
   ) async {
     final world = World()..upsertResource(CounterResource());
     final controller = EcsController(world: world);
@@ -925,7 +925,7 @@ void main() {
           controller: controller,
           child: EcsActionStatusSelector(
             statusKey: IncrementCounterAction,
-            builder: (final context, final status) =>
+            builder: (context, status) =>
                 Text(status.hasSucceeded ? 'done' : status.phase.name),
           ),
         ),
@@ -940,7 +940,7 @@ void main() {
     expect(find.text('done'), findsOneWidget);
   });
 
-  testWidgets('EcsActionOnMount runs once after mount', (final tester) async {
+  testWidgets('EcsActionOnMount runs once after mount', (tester) async {
     final world = World()..upsertResource(CounterResource());
     final controller = EcsController(world: world);
 
@@ -967,14 +967,14 @@ void main() {
   });
 
   testWidgets('EcsAppScope runs mount and after-action schedules', (
-    final tester,
+    tester,
   ) async {
     final events = <EcsScheduleRunEvent>[];
     final world = World()..upsertResource(CounterResource());
-    world.getOrCreateSchedule(const ScheduleId('boot')).add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('boot')).add((world) {
       world.getResource<CounterResource>().count += 1;
     });
-    world.getOrCreateSchedule(const ScheduleId('afterAction')).add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('afterAction')).add((world) {
       world.getResource<CounterResource>().count += 10;
     });
     final controller = EcsController(world: world);
@@ -1006,10 +1006,10 @@ void main() {
   });
 
   testWidgets('EcsAppScope runs flutterFrame frame schedules', (
-    final tester,
+    tester,
   ) async {
     final world = World()..upsertResource(CounterResource());
-    world.getOrCreateSchedule(const ScheduleId('frame')).add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('frame')).add((world) {
       world.getResource<CounterResource>().count += 1;
     });
     final controller = EcsController(world: world);
@@ -1040,7 +1040,7 @@ void main() {
   });
 
   testWidgets('EcsLoop can narrow frame invalidation to schedule hints', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld()..upsertResource(CounterResource());
     final entity = world.spawnComponents(const [TodoTitle('initial')]);
@@ -1049,7 +1049,7 @@ void main() {
     var frame = 0;
     var resourceSelects = 0;
     var componentSelects = 0;
-    world.getOrCreateSchedule(const ScheduleId('frame')).add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('frame')).add((world) {
       frame += 1;
       world.upsertComponent(entity, TodoTitle('frame $frame'));
     });
@@ -1068,20 +1068,20 @@ void main() {
             child: Column(
               children: [
                 EcsResourceSelector<CounterResource, int>(
-                  select: (final counter) {
+                  select: (counter) {
                     resourceSelects += 1;
                     return counter.count;
                   },
-                  builder: (final context, final count) =>
+                  builder: (context, count) =>
                       Text('count: $count'),
                 ),
                 EcsComponentSelector<TodoTitle, String>(
                   entity: entity,
-                  select: (final title) {
+                  select: (title) {
                     componentSelects += 1;
                     return title.value;
                   },
-                  builder: (final context, final title) => Text(title),
+                  builder: (context, title) => Text(title),
                 ),
               ],
             ),
@@ -1111,14 +1111,14 @@ void main() {
   });
 
   testWidgets('EcsLoop broad-invalidates when schedule hints are omitted', (
-    final tester,
+    tester,
   ) async {
     final world = _todoWorld()..upsertResource(CounterResource());
     final entity = world.spawnComponents(const [TodoTitle('initial')]);
     world.flush();
     final controller = EcsController(world: world);
     var resourceSelects = 0;
-    world.getOrCreateSchedule(const ScheduleId('frame')).add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('frame')).add((world) {
       world.upsertComponent(entity, const TodoTitle('changed'));
     });
 
@@ -1132,11 +1132,11 @@ void main() {
             controller: controller,
             schedules: const ['frame'],
             child: EcsResourceSelector<CounterResource, int>(
-              select: (final counter) {
+              select: (counter) {
                 resourceSelects += 1;
                 return counter.count;
               },
-              builder: (final context, final count) => Text('count: $count'),
+              builder: (context, count) => Text('count: $count'),
             ),
           ),
         ),
@@ -1154,7 +1154,7 @@ void main() {
 
   testWidgets(
     'EcsFixedStepLoop coalesces narrow invalidation per ticker frame',
-    (final tester) async {
+    (tester) async {
       final world = _todoWorld();
       final entity = world.spawnComponents(const [TodoTitle('initial')]);
       world.flush();
@@ -1163,7 +1163,7 @@ void main() {
       var componentSelects = 0;
       var frame = 0;
       controller.addListener(() => notifications += 1);
-      world.getOrCreateSchedule(const ScheduleId('fixed')).add((final world) {
+      world.getOrCreateSchedule(const ScheduleId('fixed')).add((world) {
         frame += 1;
         world.upsertComponent(entity, TodoTitle('step $frame'));
       });
@@ -1182,11 +1182,11 @@ void main() {
                   EcsInvalidationBatch.component<TodoTitle>(entity: entity),
               child: EcsComponentSelector<TodoTitle, String>(
                 entity: entity,
-                select: (final title) {
+                select: (title) {
                   componentSelects += 1;
                   return title.value;
                 },
-                builder: (final context, final title) => Text(title),
+                builder: (context, title) => Text(title),
               ),
             ),
           ),
@@ -1220,7 +1220,7 @@ void main() {
       ..upsertResource(OtherResource())
       ..upsertResource(DerivedResource())
       ..flush();
-    world.getOrCreateSchedule(const ScheduleId('afterAction')).add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('afterAction')).add((world) {
       world.getResource<DerivedResource>()
         ..runs += 1
         ..value = world.getResource<CounterResource>().count * 2;
@@ -1245,7 +1245,7 @@ void main() {
       ..upsertResource(CounterResource())
       ..upsertResource(DerivedResource())
       ..flush();
-    world.getOrCreateSchedule(const ScheduleId('afterAction')).add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('afterAction')).add((world) {
       world.getResource<DerivedResource>().runs += 1;
     });
     final controller = EcsController(
@@ -1267,7 +1267,7 @@ void main() {
         ..upsertResource(OtherResource())
         ..upsertResource(DerivedResource())
         ..flush();
-      world.getOrCreateSchedule(const ScheduleId('afterAction')).add((final world) {
+      world.getOrCreateSchedule(const ScheduleId('afterAction')).add((world) {
         world.getResource<DerivedResource>()
           ..runs += 1
           ..value = world.getResource<CounterResource>().count * 2;
@@ -1277,7 +1277,7 @@ void main() {
         afterActionScheduleSpec: EcsHostSchedule(
           'afterAction',
           invalidation: EcsInvalidationBatch.resource<DerivedResource>(),
-          runWhen: (final trigger) =>
+          runWhen: (trigger) =>
               trigger.matchesResourceType(CounterResource),
         ),
       );
@@ -1321,7 +1321,7 @@ void main() {
     final world = _todoWorld()
       ..upsertResource(CountTodosResource())
       ..flush();
-    world.getOrCreateSchedule(const ScheduleId('afterAction')).add((final world) {
+    world.getOrCreateSchedule(const ScheduleId('afterAction')).add((world) {
       final rows = world.query<TodoRecord>().toList(growable: false);
       world.getResource<CountTodosResource>().count = rows.length;
     });

@@ -40,7 +40,7 @@ class EcsActionBuilder<T> extends StatelessWidget {
   final EcsActionWidgetBuilder<T> builder;
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     final resolvedWorld =
         world ?? EcsScope.maybeOf(context, listen: false)?.world;
     final resolvedController = controller ?? EcsScope.controllerOf(context);
@@ -59,8 +59,8 @@ class EcsActionBuilder<T> extends StatelessWidget {
     }
 
     Widget buildForStatus(
-      final BuildContext context,
-      final EcsActionStatus status,
+      BuildContext context,
+      EcsActionStatus status,
     ) {
       final canRun = run != null && (!disableWhileRunning || !status.isRunning);
       return builder(context, status, canRun ? run : null);
@@ -91,7 +91,7 @@ class EcsActionStatusSelector extends StatelessWidget {
   final EcsActionStatusWidgetBuilder builder;
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     final resolvedWorld =
         world ?? EcsScope.maybeOf(context, listen: false)?.world;
     final resolvedController = controller ?? EcsScope.controllerOf(context);
@@ -107,10 +107,10 @@ class EcsActionStatusSelector extends StatelessWidget {
     return EcsResourceSelector<EcsActionStatusResource, EcsActionStatus>(
       world: resolvedWorld,
       controller: resolvedController,
-      select: (final resource) => resource.statusOf(statusKey),
+      select: (resource) => resource.statusOf(statusKey),
       builder: builder,
       whenAbsent: Builder(
-        builder: (final context) =>
+        builder: (context) =>
             builder(context, const EcsActionStatus.idle()),
       ),
     );

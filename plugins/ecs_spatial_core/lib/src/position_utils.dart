@@ -6,11 +6,11 @@ import 'position_config_resource.dart';
 ///
 /// Pure helper; no callbacks. Use from systems (e.g. drag).
 bool applyPositionDelta(
-  final World world,
-  final Entity entity,
-  final double dx,
-  final double dy,
-  final PositionConfigResource config,
+  World world,
+  Entity entity,
+  double dx,
+  double dy,
+  PositionConfigResource config,
 ) {
   final (worldEntity, valid) = world.getEntity(entity);
   if (!valid) return false;
@@ -35,9 +35,9 @@ bool applyPositionDelta(
 ///
 /// Pure helper; no callbacks. Use from systems or input/camera code.
 (double x, double y)? positionFromConfig(
-  final World world,
-  final Entity entity,
-  final PositionConfigResource config,
+  World world,
+  Entity entity,
+  PositionConfigResource config,
 ) {
   final (worldEntity, valid) = world.getEntity(entity);
   if (!valid) return null;

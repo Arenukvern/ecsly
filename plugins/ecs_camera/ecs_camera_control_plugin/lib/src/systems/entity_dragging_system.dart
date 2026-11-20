@@ -15,7 +15,7 @@ import '../resources/camera_interaction_mode_resource.dart';
 /// and entities are currently selected.
 ///
 /// Note: Works without camera plugin. Uses zoom = 1.0 when camera is not available.
-void entityDraggingSystem(final World world) {
+void entityDraggingSystem(World world) {
   final dragReader = world.events.reader<DragEvent>();
 
   // Check if entity dragging is enabled in current interaction mode
@@ -80,10 +80,10 @@ void entityDraggingSystem(final World world) {
 /// [deltaX] X movement delta (world units)
 /// [deltaY] Y movement delta (world units)
 void _applyDragToEntity(
-  final World world,
-  final Entity entity,
-  final double deltaX,
-  final double deltaY,
+  World world,
+  Entity entity,
+  double deltaX,
+  double deltaY,
 ) {
   final (worldEntity, isValid) = world.getEntity(entity);
   if (!isValid) return;
@@ -105,8 +105,8 @@ void _applyDragToEntity(
 /// [selectionManager] Current selection manager
 /// Returns list of all draggable selected entities
 List<Entity> _getAllSelectedDraggableEntities(
-  final World world,
-  final SelectionManager selectionManager,
+  World world,
+  SelectionManager selectionManager,
 ) {
   final draggableEntities = <Entity>[];
 

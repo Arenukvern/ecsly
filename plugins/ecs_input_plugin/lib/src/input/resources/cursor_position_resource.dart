@@ -22,9 +22,9 @@ class CursorPositionResource extends Resource {
   /// [worldY] World Y coordinate
   /// [isHovering] Whether cursor is hovering
   void updatePosition({
-    required final bool isHovering,
-    final double? worldX,
-    final double? worldY,
+    required bool isHovering,
+    double? worldX,
+    double? worldY,
   }) {
     this.worldX = worldX;
     this.worldY = worldY;

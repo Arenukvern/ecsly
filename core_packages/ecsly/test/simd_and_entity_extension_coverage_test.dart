@@ -121,7 +121,7 @@ void main() {
   });
 }
 
-FloatColumn _column2(final List<(double, double)> rows) {
+FloatColumn _column2(List<(double, double)> rows) {
   final c = FloatColumn(stride: 2, initialCapacity: rows.length);
   for (final (x, y) in rows) {
     c.addBlank();

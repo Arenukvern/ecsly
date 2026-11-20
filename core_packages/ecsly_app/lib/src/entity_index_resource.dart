@@ -11,7 +11,7 @@ import 'package:meta/meta.dart';
 /// and user ids that are both strings.
 @experimental
 class EntityIndexResource<TScope, K> extends Resource {
-  EntityIndexResource([final Map<K, Entity>? initial])
+  EntityIndexResource([Map<K, Entity>? initial])
     : _entities = initial == null ? <K, Entity>{} : Map<K, Entity>.of(initial);
 
   final Map<K, Entity> _entities;
@@ -24,21 +24,21 @@ class EntityIndexResource<TScope, K> extends Resource {
 
   bool get isEmpty => _entities.isEmpty;
 
-  bool containsKey(final K key) => _entities.containsKey(key);
+  bool containsKey(K key) => _entities.containsKey(key);
 
-  Entity? maybeEntityOf(final K key) => _entities[key];
+  Entity? maybeEntityOf(K key) => _entities[key];
 
-  Entity entityOf(final K key) {
+  Entity entityOf(K key) {
     final entity = _entities[key];
     if (entity != null) return entity;
     throw StateError('No ECS entity indexed for key $key.');
   }
 
-  void upsert(final K key, final Entity entity) {
+  void upsert(K key, Entity entity) {
     _entities[key] = entity;
   }
 
-  Entity? remove(final K key) => _entities.remove(key);
+  Entity? remove(K key) => _entities.remove(key);
 
   void clear() {
     _entities.clear();

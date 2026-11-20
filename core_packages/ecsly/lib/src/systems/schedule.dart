@@ -61,7 +61,7 @@ import 'system_descriptor.dart';
 import 'system_executor.dart';
 
 /// System that does nothing
-void noopSystem(final World _) {}
+void noopSystem(World _) {}
 
 /// {@template schedule}
 /// A collection of systems that run together with defined ordering.
@@ -85,7 +85,7 @@ class Schedule {
   Schedule(
     this.name, {
     this.trigger = const ManualTrigger(),
-    final SystemExecutor? executor,
+    SystemExecutor? executor,
     this.maxExecutionRate,
     this.isHotPath = false,
   }) : executor = executor ?? const SystemExecutor();
@@ -145,11 +145,11 @@ class Schedule {
   ///
   /// [mode] determines how the system executes (sync, async, etc.).
   Schedule add(
-    final System system, {
-    final String? name,
-    final List<String> runAfter = const [],
-    final List<String> runBefore = const [],
-    final ExecutionMode mode = ExecutionMode.sync,
+    System system, {
+    String? name,
+    List<String> runAfter = const [],
+    List<String> runBefore = const [],
+    ExecutionMode mode = ExecutionMode.sync,
   }) {
     final assignedName = name ?? '__add_${_tempNameCounter++}';
     _systems.add(
@@ -169,7 +169,7 @@ class Schedule {
   /// Add multiple systems in order.
   ///
   /// Systems are added with incrementing priorities.
-  Schedule addSystems(final List<System> systems) {
+  Schedule addSystems(List<System> systems) {
     systems.forEach(add);
     invalidateCache();
     return this;
@@ -200,8 +200,8 @@ class Schedule {
   /// All systems in the group are marked as parallelizable for async execution
   /// and can run concurrently at the same dependency level.
   Schedule parallel(
-    final List<System> systems, {
-    final ExecutionMode mode = ExecutionMode.asyncParallel,
+    List<System> systems, {
+    ExecutionMode mode = ExecutionMode.asyncParallel,
   }) {
     for (final sys in systems) {
       _systems.add(
@@ -214,9 +214,9 @@ class Schedule {
   }
 
   /// Remove a system by name.
-  bool removeSystem(final String name) {
+  bool removeSystem(String name) {
     final initialLength = _systems.length;
-    _systems.removeWhere((final desc) => desc.name == name);
+    _systems.removeWhere((desc) => desc.name == name);
     if (_systems.length < initialLength) {
       if (lastSystemName == name) {
         lastSystemName = null;
@@ -234,7 +234,7 @@ class Schedule {
   /// Note: This method does not flush automatically. Developers must add
   /// phase systems (flushEntitiesSystem, flushCommandsSystem, etc.) to
   /// schedules explicitly to control when flushing occurs.
-  void run(final World world) {
+  void run(World world) {
     if (!trigger.shouldRun(world)) return;
 
     if (maxExecutionRate != null) {
@@ -261,7 +261,7 @@ class Schedule {
   /// Note: This method does not flush automatically. Developers must add
   /// phase systems (flushEntitiesSystem, flushCommandsSystem, etc.) to
   /// schedules explicitly to control when flushing occurs.
-  Future<void> runAsync(final World world) async {
+  Future<void> runAsync(World world) async {
     if (!trigger.shouldRun(world)) return;
 
     if (maxExecutionRate != null) {
@@ -282,7 +282,7 @@ class Schedule {
   }
 
   /// Toggle hot-path mode for this schedule.
-  Schedule hotPath({final bool enabled = true}) {
+  Schedule hotPath({bool enabled = true}) {
     isHotPath = enabled;
     return this;
   }
@@ -292,7 +292,7 @@ class Schedule {
   /// This creates an implicit dependency to ensure sequential execution.
   /// Systems created by then() are assigned temporary names to enable
   /// dependency resolution, even when no explicit name is provided.
-  Schedule then(final System system, {final String? name}) {
+  Schedule then(System system, {String? name}) {
     final assignedName = name ?? '__then_${_tempNameCounter++}';
     return add(
       system,
@@ -316,7 +316,7 @@ class Schedule {
   /// - Systems must execute in dependency order (topological sort guarantees this)
   /// - Systems marked canRunInParallel can execute concurrently within groups
   /// - This provides correctness + performance optimization
-  List<List<int>> _groupByDependencyLevel(final List<int> indices) {
+  List<List<int>> _groupByDependencyLevel(List<int> indices) {
     if (indices.isEmpty) return [];
 
     // Group systems by their parallel execution capability
@@ -393,7 +393,7 @@ class Schedule {
 
     final directedGraph = DirectedGraph<String>(
       graphData,
-      comparator: (final a, final b) =>
+      comparator: (a, b) =>
           a.compareTo(b), // lexicographical ordering
     );
 

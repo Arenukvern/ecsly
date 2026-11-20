@@ -4,7 +4,7 @@ import 'package:ecsly/ecsly.dart';
 
 import 'components.dart';
 
-void regenerateEnergy(final World world) {
+void regenerateEnergy(World world) {
   // queryExt asks for the marker component and the facade type together:
   // EnergyComponent selects the storage; Energy gives typed column access.
   for (final (entity, energy) in world.queryExt<EnergyComponent, Energy>()) {

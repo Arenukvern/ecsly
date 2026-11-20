@@ -12,10 +12,10 @@ abstract final class ExamplePositionComponent extends Component {}
 
 extension type const ExamplePosition((int, FloatColumn) data) {
   double get x => data.$2.getValue(data.$1, 0);
-  set x(final double value) => data.$2.setValue(data.$1, 0, value);
+  set x(double value) => data.$2.setValue(data.$1, 0, value);
 
   double get y => data.$2.getValue(data.$1, 1);
-  set y(final double value) => data.$2.setValue(data.$1, 1, value);
+  set y(double value) => data.$2.setValue(data.$1, 1, value);
 }
 
 void main() {

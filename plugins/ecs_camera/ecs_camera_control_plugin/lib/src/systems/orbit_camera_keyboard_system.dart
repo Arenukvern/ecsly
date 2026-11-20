@@ -25,7 +25,7 @@ import '../resources/orbit_camera_resource.dart';
 /// gating as [orbitCameraControlSystem] applies. dt comes from the core
 /// [DeltaTimeResource] when the host loop maintains it (the ecsly_flutter
 /// fixed-step bridge does), falling back to 1/60.
-void orbitCameraKeyboardSystem(final World world) {
+void orbitCameraKeyboardSystem(World world) {
   if (!world.resources.has<OrbitCameraResource>()) return;
   if (!world.resources.has<InputStateTracker>()) return;
   final cam = world.getResource<OrbitCameraResource>();
@@ -68,7 +68,7 @@ void orbitCameraKeyboardSystem(final World world) {
 /// frame), pinned after `inputBindingSystem` so the tracker reflects this
 /// frame's keys. Ordering is explicit — the ecsly scheduler resolves
 /// unconstrained systems alphabetically, not by insertion order.
-void configureOrbitCameraKeyboardSchedule(final World world) {
+void configureOrbitCameraKeyboardSchedule(World world) {
   if (!world.hasSchedule(const ScheduleId('KeyboardInput'))) {
     throw StateError(
       'KeyboardInput schedule not found. Install InputPlugin (with '

@@ -4,7 +4,7 @@ publish_to: none
 version: 0.1.0
 
 environment:
-  sdk: ^3.13.4
+  sdk: ^3.14.0
   flutter: ">=3.47.0"
 
 dependencies:
@@ -25,6 +25,7 @@ dependencies:
   shared_preferences: ^2.5.3
   hooks: ^2.0.2
 
+  material_ui: any
 dependency_overrides:
   ecsly:
     path: ../../core_packages/ecsly

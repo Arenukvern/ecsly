@@ -1,7 +1,7 @@
 name: ecsly_visualization_dogfood
 publish_to: none
 environment:
-  sdk: ^3.13.4
+  sdk: ^3.14.0
 dependencies:
   flutter_mcp_harness: ^7.0.0
   yaml: ^3.1.2

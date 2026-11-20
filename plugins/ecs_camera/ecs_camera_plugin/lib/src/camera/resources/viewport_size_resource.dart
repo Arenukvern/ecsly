@@ -37,7 +37,7 @@ class ViewportSizeResource extends Resource {
   ui.Size get size => ui.Size(width, height);
 
   /// Updates width/height from a new size.
-  void update(final ui.Size size) {
+  void update(ui.Size size) {
     width = size.width;
     height = size.height;
   }

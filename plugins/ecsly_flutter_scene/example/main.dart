@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:ecsly/ecsly.dart';
 import 'package:ecsly_flutter_scene/ecsly_flutter_scene.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// A minimal example: ten markers in a ring, rendered as 3D shapes with
 /// an orbiting inspector camera. Run with Flutter GPU enabled:

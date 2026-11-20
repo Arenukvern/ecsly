@@ -9,8 +9,8 @@ import 'component_mask/component_mask.dart';
 class ArchetypeMatchResult {
   ArchetypeMatchResult._(this.matchingArchetypes);
   factory ArchetypeMatchResult._compute(
-    final ComponentMask mask,
-    final ArchetypeRegistry archetypes,
+    ComponentMask mask,
+    ArchetypeRegistry archetypes,
   ) {
     final matching = <Archetype>[];
 
@@ -41,12 +41,12 @@ class QueryStructuralTouchTracker {
   }
 
   /// Mark a component type as touched by a structural write.
-  void markTouched(final ComponentId componentId) {
+  void markTouched(ComponentId componentId) {
     _touchedComponents.add(componentId);
   }
 
   /// Check if any component in the mask was structurally touched.
-  bool maskWasTouched(final ComponentMask mask) {
+  bool maskWasTouched(ComponentMask mask) {
     for (final componentId in mask.componentIds) {
       if (_touchedComponents.contains(componentId)) {
         return true;
@@ -56,7 +56,7 @@ class QueryStructuralTouchTracker {
   }
 
   /// Check if a component type was structurally touched.
-  bool wasTouched(final ComponentId componentId) =>
+  bool wasTouched(ComponentId componentId) =>
       _touchedComponents.contains(componentId);
 }
 
@@ -128,9 +128,9 @@ class QueryCache {
 
   /// Get cached query result or compute and cache it
   QueryCacheEntry? getCachedResult(
-    final QueryCacheKey key,
-    final ArchetypeRegistry archetypes,
-    final List<Entity> Function() computeResult,
+    QueryCacheKey key,
+    ArchetypeRegistry archetypes,
+    List<Entity> Function() computeResult,
   ) {
     if (!enableResultCaching) {
       return null;
@@ -154,8 +154,8 @@ class QueryCache {
 
   /// Get or compute archetype matches for a component mask.
   ArchetypeMatchResult getOrCompute(
-    final ComponentMask mask,
-    final ArchetypeRegistry archetypes,
+    ComponentMask mask,
+    ArchetypeRegistry archetypes,
   ) {
     var result = _archetypeCache[mask];
     if (result != null) {
@@ -178,12 +178,12 @@ class QueryCache {
   /// Evict cached results for queries shaped by a structurally touched type.
   ///
   /// Used by [CommandQueue] when structural writes affect query membership.
-  void evictForStructuralComponent(final ComponentId componentId) {
+  void evictForStructuralComponent(ComponentId componentId) {
     markStructurallyTouched(componentId);
   }
 
   /// Mark query-result entries for structural eviction by component mask.
-  void markStructurallyTouched(final ComponentId componentId) {
+  void markStructurallyTouched(ComponentId componentId) {
     if (enableResultCaching) {
       _resultCache.markStructurallyTouched(componentId);
     }
@@ -220,8 +220,8 @@ class QueryCacheEntry {
 
   /// Check if this entry is still valid
   bool isValid(
-    final int currentFlushVersion,
-    final int currentArchetypeVersion,
+    int currentFlushVersion,
+    int currentArchetypeVersion,
   ) =>
       flushVersion == currentFlushVersion &&
       archetypeVersion == currentArchetypeVersion;
@@ -244,7 +244,7 @@ class QueryCacheKey {
   int get hashCode => Object.hash(mask, predicate);
 
   @override
-  bool operator ==(final Object other) {
+  bool operator ==(Object other) {
     if (identical(this, other)) return true;
     return other is QueryCacheKey &&
         mask == other.mask &&
@@ -316,7 +316,7 @@ class QueryResultCache {
   }
 
   /// Get cached query result or null if not cached or stale
-  QueryCacheEntry? get(final QueryCacheKey key) {
+  QueryCacheEntry? get(QueryCacheKey key) {
     final entry = _cache[key];
     if (entry == null) {
       _misses++;
@@ -351,7 +351,7 @@ class QueryResultCache {
   }
 
   /// Mark a component as structurally touched.
-  void markStructurallyTouched(final ComponentId componentId) {
+  void markStructurallyTouched(ComponentId componentId) {
     if (enableStructuralTouchTracking) {
       _structuralTouches.markTouched(componentId);
     } else {
@@ -374,7 +374,7 @@ class QueryResultCache {
   }
 
   /// Store query result in cache
-  void put(final QueryCacheKey key, final List<Entity> entities) {
+  void put(QueryCacheKey key, List<Entity> entities) {
     // Implement LRU eviction if over size limit
     if (_cache.length >= maxSize) {
       // Simple eviction: remove oldest entry

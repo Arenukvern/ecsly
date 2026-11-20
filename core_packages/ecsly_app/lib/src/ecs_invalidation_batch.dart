@@ -36,12 +36,12 @@ final class EcsInvalidationBatch {
   static EcsInvalidationBatch resource<T extends Resource>() =>
       EcsInvalidationBatch(resourceTypes: <Type>[T]);
 
-  static EcsInvalidationBatch resources(final Iterable<Type> types) =>
+  static EcsInvalidationBatch resources(Iterable<Type> types) =>
       EcsInvalidationBatch(resourceTypes: List<Type>.of(types));
 
   static EcsInvalidationBatch component<T extends Component>({
-    final Entity? entity,
-    final bool structural = false,
+    Entity? entity,
+    bool structural = false,
   }) => EcsInvalidationBatch(
     structural: structural,
     componentTypes: <Type>[T],
@@ -49,10 +49,10 @@ final class EcsInvalidationBatch {
   );
 
   static EcsInvalidationBatch components(
-    final Iterable<Type> types, {
-    final Iterable<Entity> entities = const <Entity>[],
-    final bool structural = false,
-    final bool entityDetailOverflow = false,
+    Iterable<Type> types, {
+    Iterable<Entity> entities = const <Entity>[],
+    bool structural = false,
+    bool entityDetailOverflow = false,
   }) => EcsInvalidationBatch(
     structural: structural,
     componentTypes: List<Type>.of(types),
@@ -78,10 +78,10 @@ final class EcsInvalidationBatch {
       touchedEntities.isEmpty &&
       !entityDetailOverflow;
 
-  bool matchesResourceType(final Type type) =>
+  bool matchesResourceType(Type type) =>
       broad || resourceTypes.contains(type);
 
-  bool matchesComponentType(final Type type, {final Entity? entity}) {
+  bool matchesComponentType(Type type, {Entity? entity}) {
     if (broad) return true;
     if (structural) return true;
     if (!componentTypes.contains(type)) return false;
@@ -92,7 +92,7 @@ final class EcsInvalidationBatch {
 
   bool matchesStructural() => broad || structural;
 
-  EcsInvalidationBatch merge(final EcsInvalidationBatch other) {
+  EcsInvalidationBatch merge(EcsInvalidationBatch other) {
     if (broad || other.broad) return const EcsInvalidationBatch.broad();
     if (isEmpty) return other;
     if (other.isEmpty) return this;
@@ -105,7 +105,7 @@ final class EcsInvalidationBatch {
     );
   }
 
-  static List<T> _mergeUnique<T>(final List<T> left, final List<T> right) {
+  static List<T> _mergeUnique<T>(List<T> left, List<T> right) {
     if (left.isEmpty) return List<T>.of(right);
     if (right.isEmpty) return List<T>.of(left);
     final result = <T>[...left];

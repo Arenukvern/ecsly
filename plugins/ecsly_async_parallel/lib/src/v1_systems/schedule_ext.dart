@@ -11,10 +11,10 @@ extension ScheduleExt on Schedule {
   ///
   /// Returns `this` for chaining.
   Schedule addJobSystem(
-    final ScheduleParallelTaskSystem jobSystem, {
-    required final String name,
-    final List<String> runAfter = const [],
-    final List<String> runBefore = const [],
+    ScheduleParallelTaskSystem jobSystem, {
+    required String name,
+    List<String> runAfter = const [],
+    List<String> runBefore = const [],
   }) => add(
     jobSystem.runAsync,
     name: name,
@@ -24,8 +24,8 @@ extension ScheduleExt on Schedule {
 
   /// Adds a job system that runs sequentially after the last added system.
   Schedule thenJobSystem(
-    final ScheduleParallelTaskSystem jobSystem, {
-    required final String name,
+    ScheduleParallelTaskSystem jobSystem, {
+    required String name,
   }) => addJobSystem(
     jobSystem,
     name: name,

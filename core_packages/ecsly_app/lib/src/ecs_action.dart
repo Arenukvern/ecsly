@@ -49,14 +49,14 @@ class EcsActionStatus {
   bool get isCancelled => phase == EcsActionPhase.cancelled;
 
   EcsActionStatus copyWith({
-    final EcsActionPhase? phase,
-    final int? runId,
-    final DateTime? startedAt,
-    final DateTime? finishedAt,
-    final double? progress,
-    final Object? result,
-    final Object? error,
-    final StackTrace? stackTrace,
+    EcsActionPhase? phase,
+    int? runId,
+    DateTime? startedAt,
+    DateTime? finishedAt,
+    double? progress,
+    Object? result,
+    Object? error,
+    StackTrace? stackTrace,
   }) => EcsActionStatus(
     phase: phase ?? this.phase,
     runId: runId ?? this.runId,
@@ -69,7 +69,7 @@ class EcsActionStatus {
   );
 
   @override
-  bool operator ==(final Object other) =>
+  bool operator ==(Object other) =>
       identical(this, other) ||
       other is EcsActionStatus &&
           phase == other.phase &&
@@ -101,20 +101,20 @@ class EcsActionStatus {
 class EcsActionStatusResource extends Resource {
   final Map<Object, EcsActionStatus> _statuses = <Object, EcsActionStatus>{};
 
-  EcsActionStatus statusOf(final Object key) =>
+  EcsActionStatus statusOf(Object key) =>
       _statuses[key] ?? const EcsActionStatus.idle();
 
-  bool isRunning(final Object key) => statusOf(key).isRunning;
+  bool isRunning(Object key) => statusOf(key).isRunning;
 
   Map<Object, EcsActionStatus> get statuses => Map.unmodifiable(_statuses);
 
   @internal
-  void setStatus(final Object key, final EcsActionStatus status) {
+  void setStatus(Object key, EcsActionStatus status) {
     _statuses[key] = status;
   }
 
   @internal
-  void clearStatus(final Object key) {
+  void clearStatus(Object key) {
     _statuses.remove(key);
   }
 }
@@ -124,7 +124,7 @@ class EcsActionStatusResource extends Resource {
 /// Apps may still use their own DI. This registry exists so actions can remain
 /// Flutter-free without requiring a specific service locator package.
 class EcsActionServices {
-  EcsActionServices([final Map<Type, Object>? services])
+  EcsActionServices([Map<Type, Object>? services])
     : _services = Map<Type, Object>.of(services ?? const <Type, Object>{});
 
   final Map<Type, Object> _services;
@@ -137,7 +137,7 @@ class EcsActionServices {
     throw StateError('No EcsAction service registered for $T.');
   }
 
-  void upsert<T extends Object>(final T service) {
+  void upsert<T extends Object>(T service) {
     _services[T] = service;
   }
 }
@@ -198,73 +198,73 @@ class EcsActionContext {
   T? maybeGetResource<T extends Resource>() => maybeReadResource<T>();
 
   Entity findEntityWithComponent<T extends Component>({
-    required final EcsComponentWhere<T> where,
+    required EcsComponentWhere<T> where,
   }) => world.findEcsEntityWithComponent<T>(where: where);
 
   Entity? maybeFindEntityWithComponent<T extends Component>({
-    required final EcsComponentWhere<T> where,
+    required EcsComponentWhere<T> where,
   }) => world.maybeFindEcsEntityWithComponent<T>(where: where);
 
   T getComponent<T extends Component>({
-    required final Entity entity,
-    final EcsComponentWhere<T>? where,
+    required Entity entity,
+    EcsComponentWhere<T>? where,
   }) => world.getEcsComponent<T>(entity: entity, where: where);
 
   T? maybeGetComponent<T extends Component>({
-    required final Entity entity,
-    final EcsComponentWhere<T>? where,
+    required Entity entity,
+    EcsComponentWhere<T>? where,
   }) => world.maybeGetEcsComponent<T>(entity: entity, where: where);
 
   T readComponent<T extends Component>({
-    required final Entity entity,
-    final EcsComponentWhere<T>? where,
+    required Entity entity,
+    EcsComponentWhere<T>? where,
   }) => getComponent<T>(entity: entity, where: where);
 
   T? maybeReadComponent<T extends Component>({
-    required final Entity entity,
-    final EcsComponentWhere<T>? where,
+    required Entity entity,
+    EcsComponentWhere<T>? where,
   }) => maybeGetComponent<T>(entity: entity, where: where);
 
   T readService<T extends Object>() => services.read<T>();
 
   bool hasService<T extends Object>() => services.has<T>();
 
-  Future<T> run<T>(final EcsAction<T> action) => runAction(action);
+  Future<T> run<T>(EcsAction<T> action) => runAction(action);
 
-  void mutateResource<T extends Resource>(final void Function(T resource) run) {
+  void mutateResource<T extends Resource>(void Function(T resource) run) {
     run(getResource<T>());
     invalidateResource<T>();
   }
 
-  void upsertResource<T extends Resource>(final T resource) {
+  void upsertResource<T extends Resource>(T resource) {
     world.upsertResource(resource);
     invalidateResource<T>();
   }
 
   EntityCommands upsertComponent<T extends Component>(
-    final Entity entity,
-    final T component, {
-    final bool structural = false,
+    Entity entity,
+    T component, {
+    bool structural = false,
   }) {
     final commands = world.upsertComponent<T>(entity, component);
     invalidateComponent<T>(entity: entity, structural: structural);
     return commands;
   }
 
-  Entity spawnComponentBundle(final ComponentBundle bundle) {
+  Entity spawnComponentBundle(ComponentBundle bundle) {
     invalidateStructural();
     return world.spawnComponentBundle(bundle);
   }
 
   Entity spawnComponents(
-    final List<Component> components, [
-    final List<(Type, Type)> extensionComponents = const [],
+    List<Component> components, [
+    List<(Type, Type)> extensionComponents = const [],
   ]) {
     invalidateStructural();
     return world.spawnComponents(components, extensionComponents);
   }
 
-  void invalidate(final EcsInvalidationBatch batch) {
+  void invalidate(EcsInvalidationBatch batch) {
     _hasExplicitInvalidation = true;
     _invalidation = _invalidation.merge(batch);
   }
@@ -278,8 +278,8 @@ class EcsActionContext {
       invalidate(EcsInvalidationBatch.resource<T>());
 
   void invalidateComponent<T extends Component>({
-    final Entity? entity,
-    final bool structural = false,
+    Entity? entity,
+    bool structural = false,
   }) => invalidate(
     EcsInvalidationBatch.component<T>(entity: entity, structural: structural),
   );
@@ -305,5 +305,5 @@ abstract class EcsAction<TResult> {
   /// Override this for independent instances of the same action type.
   Object get statusKey => runtimeType;
 
-  FutureOr<TResult> run(final EcsActionContext context);
+  FutureOr<TResult> run(EcsActionContext context);
 }

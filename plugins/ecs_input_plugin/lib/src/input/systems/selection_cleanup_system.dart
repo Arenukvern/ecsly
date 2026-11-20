@@ -6,7 +6,7 @@ import '../resources/selection_manager.dart';
 ///
 /// Runs each frame to prevent memory leaks from despawned entities
 /// remaining in selection state.
-void selectionCleanupSystem(final World world) {
+void selectionCleanupSystem(World world) {
   final selectionManager = world.resources.has<SelectionManager>()
       ? world.getResource<SelectionManager>()
       : null;

@@ -12,10 +12,10 @@ import 'entity_world_position.dart';
 /// Uses the entity's position component and the interactive element's hit shape
 /// to perform hit testing in world coordinates. All coordinates are pure doubles.
 bool hitTest(
-  final double pointerWorldX,
-  final double pointerWorldY,
-  final Entity entity,
-  final World world,
+  double pointerWorldX,
+  double pointerWorldY,
+  Entity entity,
+  World world,
 ) {
   final position = extractEntityWorldPosition(entity, world);
   if (position == null) return false;

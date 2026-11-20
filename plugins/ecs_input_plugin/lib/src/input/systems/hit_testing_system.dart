@@ -22,7 +22,7 @@ import '../utils/gesture_types.dart';
 ///
 /// Processes TapEvent, DragEvent, LongPressEvent, SecondaryTapEvent, DoubleTapEvent
 /// and dispatches corresponding EntityTapEvent, EntityDragEvent, etc. to hit entities.
-void unifiedHitTestingSystem(final World world) {
+void unifiedHitTestingSystem(World world) {
   // Get cached interactive entities sorted by priority
   final cache = world.getResource<InteractiveEntitiesCache>();
   final interactives = cache.getEntities(world);
@@ -32,7 +32,7 @@ void unifiedHitTestingSystem(final World world) {
     world: world,
     interactives: interactives,
     gestureType: GestureType.tap,
-    createEntityEvent: (final entity, final event) => EntityTapEvent(
+    createEntityEvent: (entity, event) => EntityTapEvent(
       entity: entity,
       position: event.position,
       worldPosition: event.worldPosition,
@@ -45,7 +45,7 @@ void unifiedHitTestingSystem(final World world) {
     world: world,
     interactives: interactives,
     gestureType: GestureType.drag,
-    createEntityEvent: (final entity, final event) => EntityDragEvent(
+    createEntityEvent: (entity, event) => EntityDragEvent(
       entity: entity,
       position: event.position,
       worldPosition: event.worldPosition,
@@ -59,7 +59,7 @@ void unifiedHitTestingSystem(final World world) {
     world: world,
     interactives: interactives,
     gestureType: GestureType.longPress,
-    createEntityEvent: (final entity, final event) => EntityLongPressEvent(
+    createEntityEvent: (entity, event) => EntityLongPressEvent(
       entity: entity,
       position: event.position,
       worldPosition: event.worldPosition,
@@ -72,7 +72,7 @@ void unifiedHitTestingSystem(final World world) {
     world: world,
     interactives: interactives,
     gestureType: GestureType.secondaryTap,
-    createEntityEvent: (final entity, final event) => EntitySecondaryTapEvent(
+    createEntityEvent: (entity, event) => EntitySecondaryTapEvent(
       entity: entity,
       position: event.position,
       worldPosition: event.worldPosition,
@@ -85,7 +85,7 @@ void unifiedHitTestingSystem(final World world) {
     world: world,
     interactives: interactives,
     gestureType: GestureType.doubleTap,
-    createEntityEvent: (final entity, final event) => EntityTapEvent(
+    createEntityEvent: (entity, event) => EntityTapEvent(
       entity: entity,
       position: event.position,
       worldPosition: event.worldPosition,
@@ -96,10 +96,10 @@ void unifiedHitTestingSystem(final World world) {
 
 /// Hit test (pointerWorldX, pointerWorldY) against entity (pure doubles).
 bool _hitTest(
-  final double pointerWorldX,
-  final double pointerWorldY,
-  final Entity entity,
-  final World world,
+  double pointerWorldX,
+  double pointerWorldY,
+  Entity entity,
+  World world,
 ) {
   final position = extractEntityWorldPosition(entity, world);
   if (position == null) return false;
@@ -127,8 +127,8 @@ bool _hitTest(
 
 /// Marks a gesture event as consumed in the tracker.
 void _markEventConsumed(
-  final GestureConsumptionTracker tracker,
-  final GestureEvent event,
+  GestureConsumptionTracker tracker,
+  GestureEvent event,
 ) {
   switch (event) {
     case DragEvent():
@@ -179,10 +179,10 @@ void _processGestureEvents<
   TGestureEvent extends GestureEvent,
   TEntityEvent extends TypedDataEvent
 >({
-  required final World world,
-  required final List<(Entity, InteractiveElement)> interactives,
-  required final GestureType gestureType,
-  required final TEntityEvent Function(Entity, TGestureEvent) createEntityEvent,
+  required World world,
+  required List<(Entity, InteractiveElement)> interactives,
+  required GestureType gestureType,
+  required TEntityEvent Function(Entity, TGestureEvent) createEntityEvent,
 }) {
   final gestureReader = world.events.reader<TGestureEvent>();
   final entityWriter = world.events.writer<TEntityEvent>();

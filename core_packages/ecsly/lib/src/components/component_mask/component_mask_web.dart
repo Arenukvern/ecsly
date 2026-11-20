@@ -19,12 +19,12 @@ class ComponentMaskImpl extends ComponentMaskBase {
         /// Internal storage: each Uint32 holds 32 bits
         /// For 256 components, we need 8 Uint32s
         bits: Uint32List((maxComponents + 31) ~/ 32),
-        factory: ({required final maxComponents}) =>
+        factory: ({required maxComponents}) =>
             ComponentMaskImpl(maxComponents: maxComponents),
       );
 
   /// Create mask with specific components set
-  factory ComponentMaskImpl.fromIds(final Iterable<ComponentId> ids) {
+  factory ComponentMaskImpl.fromIds(Iterable<ComponentId> ids) {
     final mask = ComponentMaskImpl();
     ids.forEach(mask.set);
     return mask;

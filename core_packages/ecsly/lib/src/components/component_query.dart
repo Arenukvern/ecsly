@@ -23,9 +23,9 @@ typedef ExtensionPredicate<T> = bool Function(T extensionType);
 // Factories are shared and nested reads may rebind them. Restore the local
 // column immediately before creation, without a registry lookup or allocation.
 Object _createBoundFacade(
-  final ComponentFacadeFactory factory,
-  final DataColumn column,
-  final int row,
+  ComponentFacadeFactory factory,
+  DataColumn column,
+  int row,
 ) {
   factory.initialize(column);
   return factory.create(row) as Object;
@@ -37,8 +37,8 @@ class ComponentQuery {
   /// Create a query with required and/or excluded components.
   ComponentQuery({
     required this.world,
-    final Iterable<ComponentId>? required,
-    final Iterable<ComponentId>? excluded,
+    Iterable<ComponentId>? required,
+    Iterable<ComponentId>? excluded,
   }) : requiredMask = required != null
            ? createComponentMask(required)
            : emptyComponentMask,
@@ -47,7 +47,7 @@ class ComponentQuery {
            : emptyComponentMask;
 
   /// Create a new query builder for the given world.
-  factory ComponentQuery.fromWorld(final World world) =>
+  factory ComponentQuery.fromWorld(World world) =>
       ComponentQuery._(world, emptyComponentMask, emptyComponentMask);
 
   ComponentQuery._(this.world, this.requiredMask, this.excludedMask);
@@ -168,7 +168,7 @@ class ComponentQuery {
     return false;
   }
 
-  List<Archetype> _resolveArchetypesForIds(final List<ComponentId> ids) {
+  List<Archetype> _resolveArchetypesForIds(List<ComponentId> ids) {
     world.assertHotScheduleCompatible(ids);
     final key = _packPlanKey(ids);
     final plan = _compiledPlans.putIfAbsent(
@@ -210,7 +210,7 @@ class ComponentQuery {
   ///   }
   /// ```
   Iterable<(WorldEntity, T1)> iter1Where<T1 extends Component>(
-    final ComponentPredicate<T1> predicate,
+    ComponentPredicate<T1> predicate,
   ) {
     world.ensureFlushed();
     final componentId = world.components.getComponentId<T1>();
@@ -410,7 +410,7 @@ class ComponentQuery {
   Iterable<(WorldEntityExtension, TExt)> iterExt1Where<
     TComp extends Component,
     TExt
-  >(final ExtensionPredicate<TExt> predicate) {
+  >(ExtensionPredicate<TExt> predicate) {
     if (TComp == TExt) {
       // Dedicated same-type path: avoids per-element .map() closure and
       // tuple re-allocation that the generic path would pay.
@@ -477,7 +477,7 @@ class ComponentQuery {
     TExt,
     T2Comp extends Component,
     T2Ext
-  >(final ExtensionPredicate<TExt> predicate) {
+  >(ExtensionPredicate<TExt> predicate) {
     world.ensureFlushed();
     final id1 = world.components.getComponentId<TComp>();
     final id2 = world.components.getComponentId<T2Comp>();
@@ -841,7 +841,7 @@ class ComponentQuery {
   }
 
   /// Check if an archetype signature matches this query.
-  bool matches(final ArchetypeSignature signature) {
+  bool matches(ArchetypeSignature signature) {
     // Must have all required components
     if (!signature.mask.contains(requiredMask)) {
       return false;
@@ -883,20 +883,20 @@ final class RawComponentColumn<T> {
   final DataColumn _column;
   final int length;
 
-  T operator [](final int row) {
+  T operator [](int row) {
     if (row < 0 || row >= length) {
       throw RangeError.index(row, this, 'row', null, length);
     }
     return _createBoundFacade(_factory, _column, row) as T;
   }
 
-  void forEachIndexed(final void Function(int row, T component) visitor) {
+  void forEachIndexed(void Function(int row, T component) visitor) {
     for (var row = 0; row < length; row++) {
       visitor(row, _createBoundFacade(_factory, _column, row) as T);
     }
   }
 
-  T _createAt(final int row) => _createBoundFacade(_factory, _column, row) as T;
+  T _createAt(int row) => _createBoundFacade(_factory, _column, row) as T;
 }
 
 final class RawQueryChunk2<T1, T2> {
@@ -917,7 +917,7 @@ final class RawQueryChunk2<T1, T2> {
   final RawComponentColumn<T2> column2;
 
   void forEachRow(
-    final void Function(int row, Entity entity, T1 c1, T2 c2) visitor,
+    void Function(int row, Entity entity, T1 c1, T2 c2) visitor,
   ) {
     for (var row = 0; row < rowCount; row++) {
       final entity = entities[row];
@@ -949,7 +949,7 @@ final class RawQueryChunk3<T1, T2, T3> {
   final RawComponentColumn<T3> column3;
 
   void forEachRow(
-    final void Function(int row, Entity entity, T1 c1, T2 c2, T3 c3) visitor,
+    void Function(int row, Entity entity, T1 c1, T2 c2, T3 c3) visitor,
   ) {
     for (var row = 0; row < rowCount; row++) {
       final entity = entities[row];
@@ -989,7 +989,7 @@ final class RawQueryChunk4<T1, T2, T3, T4> {
   final RawComponentColumn<T4> column4;
 
   void forEachRow(
-    final void Function(int row, Entity entity, T1 c1, T2 c2, T3 c3, T4 c4)
+    void Function(int row, Entity entity, T1 c1, T2 c2, T3 c3, T4 c4)
     visitor,
   ) {
     for (var row = 0; row < rowCount; row++) {
@@ -1009,14 +1009,14 @@ final class RawQueryChunk4<T1, T2, T3, T4> {
   }
 }
 
-int _minRowCount3(final int a, final int b, final int c) {
+int _minRowCount3(int a, int b, int c) {
   var min = a;
   if (b < min) min = b;
   if (c < min) min = c;
   return min;
 }
 
-int _minRowCount4(final int a, final int b, final int c, final int d) {
+int _minRowCount4(int a, int b, int c, int d) {
   var min = a;
   if (b < min) min = b;
   if (c < min) min = c;
@@ -1025,11 +1025,11 @@ int _minRowCount4(final int a, final int b, final int c, final int d) {
 }
 
 int _minRowCount5(
-  final int a,
-  final int b,
-  final int c,
-  final int d,
-  final int e,
+  int a,
+  int b,
+  int c,
+  int d,
+  int e,
 ) {
   var min = a;
   if (b < min) min = b;
@@ -1040,20 +1040,20 @@ int _minRowCount5(
 }
 
 bool _isEntityRowCurrent(
-  final World world,
-  final Archetype archetype,
-  final Entity entity,
-  final int row,
+  World world,
+  Archetype archetype,
+  Entity entity,
+  int row,
 ) => _isEntityRowCurrentAtLocation(world, archetype.archetypeId, entity, row);
 
 bool _isEntityRowCurrentAtLocation(
-  final World world,
-  final ArchetypeId archetypeId,
-  final Entity entity,
-  final int row,
+  World world,
+  ArchetypeId archetypeId,
+  Entity entity,
+  int row,
 ) => world.entities.isAt(entity, archetypeId, row);
 
-int _packPlanKey(final List<ComponentId> ids) {
+int _packPlanKey(List<ComponentId> ids) {
   var key = ids.length & 0xF;
   for (var i = 0; i < ids.length; i++) {
     key |= (ids[i].value & 0xFF) << (4 + (i * 8));
@@ -1068,7 +1068,7 @@ final class _CompiledQueryPlan {
   int _cachedArchetypeVersion = -1;
   List<Archetype>? _cachedArchetypes;
 
-  List<Archetype> resolve(final World world) {
+  List<Archetype> resolve(World world) {
     final version = world.archetypes.structuralVersion;
     final cached = _cachedArchetypes;
     if (cached != null && _cachedArchetypeVersion == version) {
@@ -1098,13 +1098,13 @@ class ComponentQueryBuilder {
   );
 
   /// Add required component.
-  ComponentQueryBuilder withComponent(final ComponentId id) {
+  ComponentQueryBuilder withComponent(ComponentId id) {
     _required.add(id);
     return this;
   }
 
   /// Add excluded component.
-  ComponentQueryBuilder withoutComponent(final ComponentId id) {
+  ComponentQueryBuilder withoutComponent(ComponentId id) {
     _excluded.add(id);
     return this;
   }
@@ -1112,25 +1112,25 @@ class ComponentQueryBuilder {
 
 /// Query for entities that MUST NOT have any specified components.
 class ExcludedQuery {
-  ExcludedQuery(final Iterable<ComponentId> excluded)
+  ExcludedQuery(Iterable<ComponentId> excluded)
     : excludedMask = createComponentMask(excluded);
 
   final ComponentMask excludedMask;
 
   /// Check if archetype matches this query.
-  bool matches(final ArchetypeSignature signature) =>
+  bool matches(ArchetypeSignature signature) =>
       !signature.mask.intersects(excludedMask);
 }
 
 /// Query for entities that MUST have all specified components.
 class RequiredQuery {
-  RequiredQuery(final Iterable<ComponentId> required)
+  RequiredQuery(Iterable<ComponentId> required)
     : requiredMask = createComponentMask(required);
 
   final ComponentMask requiredMask;
 
   /// Check if archetype matches this query.
-  bool matches(final ArchetypeSignature signature) =>
+  bool matches(ArchetypeSignature signature) =>
       signature.mask.contains(requiredMask);
 }
 

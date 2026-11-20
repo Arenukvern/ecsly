@@ -12,7 +12,7 @@ final _shakeRandom = math.Random();
 /// Generates random shake offsets and applies decay over time.
 /// Requires CameraShake component. Shake is applied to camera position
 /// during rendering (via CameraPosition offset).
-void cameraShakeSystem(final World world) {
+void cameraShakeSystem(World world) {
   final dt = world.getResource<DeltaTimeResource>().deltaTime;
 
   for (final (_, shake)

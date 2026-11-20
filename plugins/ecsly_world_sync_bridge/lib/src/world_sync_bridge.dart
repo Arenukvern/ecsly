@@ -54,8 +54,8 @@ final class WorldSyncBridge {
   WorldSyncBridge({
     required this.world,
     required this.sync,
-    final ObjectComponentCodecRegistry? codecs,
-    final DateTime Function()? clock,
+    ObjectComponentCodecRegistry? codecs,
+    DateTime Function()? clock,
   }) : _captureOptions = WorldSnapshotOptions(codecs: codecs),
        _now = clock ?? DateTime.now;
 
@@ -127,7 +127,7 @@ final class WorldSyncBridge {
     }
   }
 
-  int _diffAndEmit(final WorldSnapshot snapshot) {
+  int _diffAndEmit(WorldSnapshot snapshot) {
     final now = _now();
     final persistentIdId = world.components
         .getComponentIdByType(PersistentId)
@@ -213,8 +213,8 @@ final class _EmittedKey {
 /// Anything unparsable, or without a known type name, is skipped — it cannot
 /// be named stably, so it must not travel.
 (String, String, int)? _parseColumnKey(
-  final String key,
-  final Map<int, String> typeNameById,
+  String key,
+  Map<int, String> typeNameById,
 ) {
   if (key.startsWith('obj_')) {
     final id = int.tryParse(key.substring(4));
@@ -236,7 +236,7 @@ final class _EmittedKey {
 
 /// Structural equality for JSON-shaped captured values (num/bool/String and
 /// nested Map/List from object codecs).
-bool _deepEquals(final Object? a, final Object? b) {
+bool _deepEquals(Object? a, Object? b) {
   if (a is Map<Object?, Object?> && b is Map<Object?, Object?>) {
     if (a.length != b.length) return false;
     for (final entry in a.entries) {
@@ -262,11 +262,11 @@ final class _BridgeFlushObserver implements WorldFlushObserver {
 
   @override
   void onFlushEnd(
-    final World world, {
-    required final int elapsedMicroseconds,
-    required final int commandsExecuted,
-    required final int resourcesPushed,
-    required final int resourcesRemoved,
+    World world, {
+    required int elapsedMicroseconds,
+    required int commandsExecuted,
+    required int resourcesPushed,
+    required int resourcesRemoved,
   }) {
     // Delegate to whoever was displaced by attach() (null when absent).
     final previous = _bridge._previousObserver;
@@ -281,7 +281,7 @@ final class _BridgeFlushObserver implements WorldFlushObserver {
   }
 
   @override
-  void onFlushStart(final World world) {
+  void onFlushStart(World world) {
     _bridge._previousObserver?.onFlushStart(world);
   }
 }

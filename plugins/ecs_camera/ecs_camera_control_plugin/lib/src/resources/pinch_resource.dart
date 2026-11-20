@@ -19,28 +19,28 @@ class PinchZoomResource extends Resource {
   }
 
   /// Get previous scale for a camera, defaulting to 1.0
-  double getPreviousScale(final Entity cameraEntity) =>
+  double getPreviousScale(Entity cameraEntity) =>
       _previousScales[cameraEntity] ?? 1.0;
 
   /// Update previous scale for a camera
-  void setPreviousScale(final Entity cameraEntity, final double scale) {
+  void setPreviousScale(Entity cameraEntity, double scale) {
     _previousScales[cameraEntity] = scale;
   }
 
   /// Get world focal point for a camera (null if not set)
-  ui.Offset? getWorldFocalPoint(final Entity cameraEntity) =>
+  ui.Offset? getWorldFocalPoint(Entity cameraEntity) =>
       _worldFocalPoints[cameraEntity];
 
   /// Set world focal point for a camera
   void setWorldFocalPoint(
-    final Entity cameraEntity,
-    final ui.Offset focalPoint,
+    Entity cameraEntity,
+    ui.Offset focalPoint,
   ) {
     _worldFocalPoints[cameraEntity] = focalPoint;
   }
 
   /// Clear world focal point for a camera
-  void clearWorldFocalPoint(final Entity cameraEntity) {
+  void clearWorldFocalPoint(Entity cameraEntity) {
     _worldFocalPoints.remove(cameraEntity);
   }
 }

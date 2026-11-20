@@ -31,7 +31,7 @@ World fixture() {
   return w;
 }
 
-World typedFixture(final double offset) {
+World typedFixture(double offset) {
   final w = fixture();
   for (final row in w.query<NameComponent>().toList()) {
     row.$1.insert(const PositionComponent());
@@ -140,7 +140,7 @@ void main() {
     final w = fixture();
     final seen = <String>[];
     for (final chunk in w.queryRaw2<NameComponent, NameComponent, D1, D1>()) {
-      chunk.forEachRow((final row, final entity, final a, final b) {
+      chunk.forEachRow((row, entity, a, b) {
         seen.add(a.value);
         w.query<NameComponent>().toList();
       });
@@ -152,7 +152,7 @@ void main() {
     final seen = <String>[];
     for (final chunk
         in w.queryRaw3<NameComponent, NameComponent, D1, D1, D2, D2>()) {
-      chunk.forEachRow((final row, final entity, final a, final b, final c) {
+      chunk.forEachRow((row, entity, a, b, c) {
         seen.add(a.value);
         w.query<NameComponent>().toList();
       });
@@ -175,12 +175,12 @@ void main() {
               D3
             >()) {
       chunk.forEachRow((
-        final row,
-        final entity,
-        final a,
-        final b,
-        final c,
-        final d,
+        row,
+        entity,
+        a,
+        b,
+        c,
+        d,
       ) {
         seen.add(a.value);
         w.query<NameComponent>().toList();
@@ -192,7 +192,7 @@ void main() {
     final w = fixture();
     final seen = <String>[];
     for (final chunk in w.queryRaw2<NameComponent, NameComponent, D1, D1>()) {
-      chunk.column1.forEachIndexed((final row, final name) {
+      chunk.column1.forEachIndexed((row, name) {
         seen.add(name.value);
         for (final inner in w.query<NameComponent>()) {
           if (inner.$2.value == 'row3') break;
@@ -303,7 +303,7 @@ void main() {
     final w = typedFixture(10);
     final seen = <double>[];
     for (final row in w.queryExtWhere<PositionComponent, Position>((
-      final value,
+      value,
     ) {
       w.queryExt<PositionComponent, Position>().toList();
       return true;
@@ -321,7 +321,7 @@ void main() {
           Position,
           HealthComponent,
           Health
-        >((final value) {
+        >((value) {
           w.queryExt<PositionComponent, Position>().toList();
           return true;
         })) {

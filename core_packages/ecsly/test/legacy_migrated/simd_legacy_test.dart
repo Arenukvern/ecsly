@@ -41,7 +41,7 @@ void main() {
       column.setValue(0, 3, 4);
 
       // Scale by 2
-      column.simdProcess((final vec) => vec * Float32x4.splat(2));
+      column.simdProcess((vec) => vec * Float32x4.splat(2));
 
       expect(column.getValue(0, 0), closeTo(2.0, 0.001));
       expect(column.getValue(0, 1), closeTo(4.0, 0.001));
@@ -56,7 +56,7 @@ void main() {
       column.setValue(0, 1, 2);
 
       // Scale by 2
-      column.simdProcess((final vec) => vec * Float32x4.splat(2));
+      column.simdProcess((vec) => vec * Float32x4.splat(2));
 
       expect(column.getValue(0, 0), closeTo(2.0, 0.001));
       expect(column.getValue(0, 1), closeTo(4.0, 0.001));

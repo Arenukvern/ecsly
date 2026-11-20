@@ -51,13 +51,13 @@ class BufferPool {
   /// Returns a buffer to the pool for reuse.
   ///
   /// The buffer must be reinitialized by the caller before reuse.
-  void returnBuffer(final TransferableBuffer buffer) {
+  void returnBuffer(TransferableBuffer buffer) {
     if (_allBuffers.contains(buffer) && !_available.contains(buffer)) {
       _available.add(buffer);
     }
   }
 
-  void _growPool(final int count) {
+  void _growPool(int count) {
     for (var i = 0; i < count; i++) {
       final buffer = TransferableBuffer(bufferSizeBytes);
       _allBuffers.add(buffer);

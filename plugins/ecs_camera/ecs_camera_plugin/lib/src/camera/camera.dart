@@ -24,7 +24,7 @@ sealed class Camera {
 
   /// Get the world bounds currently visible on screen, used for entity culling.
   /// Returns a Rect in world coordinates representing the visible area.
-  ui.Rect getViewBounds(final ui.Size viewport);
+  ui.Rect getViewBounds(ui.Size viewport);
 
   /// Get the world position of the viewport center.
   /// Useful for camera-relative positioning of UI elements.
@@ -37,5 +37,5 @@ sealed class Camera {
   /// **Deprecated.** All rendering should use the GPU pipeline via
   /// SceneCamera → ECS camera components → UnifiedRenderPacket → wgpu.
   @Deprecated('Use SceneCamera + GPU pipeline instead of Canvas rendering.')
-  void transformCanvas(final ui.Canvas canvas, final ui.Size viewport);
+  void transformCanvas(ui.Canvas canvas, ui.Size viewport);
 }

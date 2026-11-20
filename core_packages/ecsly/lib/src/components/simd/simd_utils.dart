@@ -9,9 +9,9 @@ class SimdUtils {
   /// Add two FloatColumns element-wise (SIMD).
   /// Requires all columns to have same stride and length.
   static void addColumnsSimd(
-    final FloatColumn a,
-    final FloatColumn b,
-    final FloatColumn result,
+    FloatColumn a,
+    FloatColumn b,
+    FloatColumn result,
   ) {
     assert(
       a.stride == b.stride && b.stride == result.stride,
@@ -44,7 +44,7 @@ class SimdUtils {
   /// Dot product of two FloatColumns (SIMD).
   /// Returns a new FloatColumn with stride 1 containing dot products.
   /// Requires both columns to have same stride and length.
-  static FloatColumn dotProductSimd(final FloatColumn a, final FloatColumn b) {
+  static FloatColumn dotProductSimd(FloatColumn a, FloatColumn b) {
     assert(a.stride == b.stride, 'Columns must have the same stride');
     assert(a.length == b.length, 'Columns must have the same length');
 
@@ -113,8 +113,8 @@ class SimdUtils {
 
   /// Multiply FloatColumn by scalar (SIMD).
   static void multiplyColumnSimd(
-    final FloatColumn column,
-    final double scalar,
+    FloatColumn column,
+    double scalar,
   ) {
     final simd = column.simdView;
     final scalarVec = Float32x4.splat(scalar);

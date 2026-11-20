@@ -10,7 +10,7 @@ import '../resources/selection_manager.dart';
 /// - Removing invalid entities from SelectionManager
 /// - Cleaning up stale pointers from GestureClassificationState
 /// - Advancing InputStateTracker to next frame
-void inputCleanupSystem(final World world) {
+void inputCleanupSystem(World world) {
   final now = DateTime.now();
 
   // Clean up invalid entities from selection manager

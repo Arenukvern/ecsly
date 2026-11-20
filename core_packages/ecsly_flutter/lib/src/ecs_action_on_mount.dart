@@ -44,7 +44,7 @@ class _EcsActionOnMountState<T> extends State<EcsActionOnMount<T>> {
   Object get _effectiveRunKey => widget.runKey ?? widget.action.statusKey;
 
   @override
-  Widget build(final BuildContext context) => widget.child;
+  Widget build(BuildContext context) => widget.child;
 
   @override
   void initState() {
@@ -53,7 +53,7 @@ class _EcsActionOnMountState<T> extends State<EcsActionOnMount<T>> {
   }
 
   @override
-  void didUpdateWidget(covariant final EcsActionOnMount<T> oldWidget) {
+  void didUpdateWidget(covariant EcsActionOnMount<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!widget.enabled) return;
     if (!oldWidget.enabled ||
@@ -66,7 +66,7 @@ class _EcsActionOnMountState<T> extends State<EcsActionOnMount<T>> {
 
   void _scheduleRun() {
     if (!widget.enabled) return;
-    WidgetsBinding.instance.addPostFrameCallback((final _) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || !widget.enabled) return;
       final runKey = _effectiveRunKey;
       if (_lastRunKey == runKey) return;
@@ -78,11 +78,11 @@ class _EcsActionOnMountState<T> extends State<EcsActionOnMount<T>> {
       _running = future;
       unawaited(
         future.then<void>(
-          (final result) {
+          (result) {
             if (!mounted || !identical(_running, future)) return;
             widget.onComplete?.call(result);
           },
-          onError: (final Object error, final StackTrace stackTrace) {
+          onError: (Object error, StackTrace stackTrace) {
             if (!mounted || !identical(_running, future)) return;
             widget.onError?.call(error, stackTrace);
           },

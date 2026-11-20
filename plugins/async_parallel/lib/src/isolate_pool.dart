@@ -83,7 +83,7 @@ class IsolateExecutorPool {
   ///
   /// Completes with a [StateError] if the pool was shut down, a worker died
   /// mid-task, or no worker could be spawned.
-  Future<R> execute<R>(final Object? payload) {
+  Future<R> execute<R>(Object? payload) {
     if (_shutdown) {
       throw StateError('IsolateExecutorPool has been shut down');
     }
@@ -108,7 +108,7 @@ class IsolateExecutorPool {
     _workers.clear();
   }
 
-  void _enqueue(final _PendingWork work) {
+  void _enqueue(_PendingWork work) {
     _maybeSpawn();
     _queue.add(work);
     _pump();
@@ -126,7 +126,7 @@ class IsolateExecutorPool {
       onIdle: _onWorkerIdle,
     );
     unawaited(
-      worker.spawn().then((final _) {
+      worker.spawn().then((_) {
         _spawning -= 1;
         if (_shutdown) {
           // The pool closed while this spawn was in flight.
@@ -135,7 +135,7 @@ class IsolateExecutorPool {
         }
         _workers.add(worker);
         _pump();
-      }, onError: (final Object _) {
+      }, onError: (Object _) {
         _spawning -= 1;
         // Nothing can serve the queue if no worker ever came up.
         _failQueueIfNoCapacity();
@@ -143,7 +143,7 @@ class IsolateExecutorPool {
     );
   }
 
-  void _onWorkerRetired(final _PoolWorker worker) {
+  void _onWorkerRetired(_PoolWorker worker) {
     _workers.remove(worker);
     // Retire/failure frees a capacity slot; keep the queue served.
     _maybeSpawn();
@@ -152,7 +152,7 @@ class IsolateExecutorPool {
 
   /// A worker finished its task and is idle again — the queue may be
   /// waiting on exactly this worker.
-  void _onWorkerIdle(final _PoolWorker worker) {
+  void _onWorkerIdle(_PoolWorker worker) {
     _pump();
   }
 
@@ -201,8 +201,8 @@ class IsolateExecutorPoolAdapter extends IsolateExecutor {
 
   @override
   Future<R> compute<Q, R>(
-    final FutureOr<R> Function(Q message) function,
-    final Q message,
+    FutureOr<R> Function(Q message) function,
+    Q message,
   ) => pool.execute<R>(message as Object?);
 }
 
@@ -270,7 +270,7 @@ class _PoolWorker {
     // Death BETWEEN tasks has no reply port to fail — the exit port is the
     // liveness signal that keeps the pool from dispatching into a corpse.
     unawaited(
-      exitPort.first.whenComplete(exitPort.close).then((final _) {
+      exitPort.first.whenComplete(exitPort.close).then((_) {
         if (_retired) return;
         _retired = true;
         _cancelIdleTimer();
@@ -286,7 +286,7 @@ class _PoolWorker {
     );
   }
 
-  void dispatch(final Object? payload, final Completer<dynamic> completer) {
+  void dispatch(Object? payload, Completer<dynamic> completer) {
     final sendPort = _sendPort;
     if (sendPort == null || _busy || _retired) {
       completer.completeError(StateError('pool worker is not available'));
@@ -299,7 +299,7 @@ class _PoolWorker {
     sendPort.send([replyPort.sendPort, payload]);
     late final StreamSubscription<dynamic> subscription;
     subscription = replyPort.listen(
-      (final message) {
+      (message) {
         if (message is List<Object?>) {
           final envelope = message;
           final ok = envelope[0]! as bool;
@@ -326,7 +326,7 @@ class _PoolWorker {
         _retire();
         completer.completeError(StateError('worker isolate died mid-task'));
       },
-      onError: (final Object error) {
+      onError: (Object error) {
         _finishTask();
         unawaited(subscription.cancel());
         replyPort.close();
@@ -401,10 +401,10 @@ class _PendingWork {
 /// Receives the owner's send port, announces its own port, then processes
 /// `[SendPort replyTo, int payload]` items by sending `[true, doubled]` back.
 /// {@endtemplate}
-void examplePoolWorkerEntry(final SendPort ownerSendPort) {
+void examplePoolWorkerEntry(SendPort ownerSendPort) {
   final port = ReceivePort();
   ownerSendPort.send(port.sendPort);
-  port.listen((final message) {
+  port.listen((message) {
     if (message is List<Object?>) {
       final pair = message;
       final replyTo = pair[0]! as SendPort;

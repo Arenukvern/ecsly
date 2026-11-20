@@ -92,12 +92,12 @@ class EcsFlutterSchedules {
   final EcsHostSchedule? onPauseSpec;
   final EcsFrameSchedule? frame;
 
-  Iterable<String> scheduleNamesFor(final EcsFlutterScheduleReason reason) {
+  Iterable<String> scheduleNamesFor(EcsFlutterScheduleReason reason) {
     final scheduleName = scheduleFor(reason)?.name;
     return scheduleName == null ? const <String>[] : <String>[scheduleName];
   }
 
-  EcsHostSchedule? scheduleFor(final EcsFlutterScheduleReason reason) =>
+  EcsHostSchedule? scheduleFor(EcsFlutterScheduleReason reason) =>
       switch (reason) {
         EcsFlutterScheduleReason.onMount =>
           onMountSpec ?? _hostScheduleFrom(onMount),
@@ -151,7 +151,7 @@ class _EcsAppScopeState extends State<EcsAppScope> with WidgetsBindingObserver {
   bool _mountScheduled = false;
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     final scoped = EcsScope(
       world: widget.world,
       controller: _controller,
@@ -171,7 +171,7 @@ class _EcsAppScopeState extends State<EcsAppScope> with WidgetsBindingObserver {
   }
 
   @override
-  void didUpdateWidget(covariant final EcsAppScope oldWidget) {
+  void didUpdateWidget(covariant EcsAppScope oldWidget) {
     super.didUpdateWidget(oldWidget);
     final controllerChanged =
         oldWidget.controller != widget.controller ||
@@ -199,7 +199,7 @@ class _EcsAppScopeState extends State<EcsAppScope> with WidgetsBindingObserver {
   }
 
   @override
-  void didChangeAppLifecycleState(final AppLifecycleState state) {
+  void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
         _runLifecycleSchedule(EcsFlutterScheduleReason.onResume);
@@ -221,7 +221,7 @@ class _EcsAppScopeState extends State<EcsAppScope> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  Widget _buildFrameHost(final Widget child) {
+  Widget _buildFrameHost(Widget child) {
     final frame = widget.schedules.frame;
     if (frame == null) return child;
     return switch (frame.mode) {
@@ -285,13 +285,13 @@ class _EcsAppScopeState extends State<EcsAppScope> with WidgetsBindingObserver {
   void _scheduleMount() {
     if (!widget.runOnMount || _mountScheduled) return;
     _mountScheduled = true;
-    WidgetsBinding.instance.addPostFrameCallback((final _) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _runLifecycleSchedule(EcsFlutterScheduleReason.onMount);
     });
   }
 
-  void _runLifecycleSchedule(final EcsFlutterScheduleReason reason) {
+  void _runLifecycleSchedule(EcsFlutterScheduleReason reason) {
     final schedule = widget.schedules.scheduleFor(reason);
     if (schedule == null) return;
     if (!schedule.shouldRun(const EcsInvalidationBatch.empty())) return;
@@ -305,5 +305,5 @@ class _EcsAppScopeState extends State<EcsAppScope> with WidgetsBindingObserver {
   }
 }
 
-EcsHostSchedule? _hostScheduleFrom(final String? name) =>
+EcsHostSchedule? _hostScheduleFrom(String? name) =>
     name == null ? null : EcsHostSchedule(name);

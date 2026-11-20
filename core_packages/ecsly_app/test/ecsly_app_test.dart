@@ -19,7 +19,7 @@ class IncrementAction extends EcsAction<int> {
   const IncrementAction();
 
   @override
-  int run(final EcsActionContext context) {
+  int run(EcsActionContext context) {
     final counter = context.getResource<CounterResource>();
     counter.value += context.readService<int>();
     context.invalidateResource<CounterResource>();
@@ -31,7 +31,7 @@ class FailingAction extends EcsAction<void> {
   const FailingAction();
 
   @override
-  void run(final EcsActionContext context) {
+  void run(EcsActionContext context) {
     throw StateError('nope');
   }
 }
@@ -40,7 +40,7 @@ class CancellingAction extends EcsAction<void> {
   const CancellingAction();
 
   @override
-  void run(final EcsActionContext context) {
+  void run(EcsActionContext context) {
     context.cancellationToken.cancel();
     context.cancelIfRequested();
   }
@@ -56,7 +56,7 @@ class SharedDelayedAction extends EcsAction<int> {
   Object get statusKey => SharedDelayedAction;
 
   @override
-  Future<int> run(final EcsActionContext context) async {
+  Future<int> run(EcsActionContext context) async {
     await completer.future;
     return result;
   }
@@ -66,7 +66,7 @@ class ProgressAction extends EcsAction<void> {
   const ProgressAction();
 
   @override
-  void run(final EcsActionContext context) {
+  void run(EcsActionContext context) {
     context.setProgress(0.5);
   }
 }
@@ -77,8 +77,8 @@ class HelperMutationAction extends EcsAction<void> {
   final Entity entity;
 
   @override
-  void run(final EcsActionContext context) {
-    context.mutateResource<CounterResource>((final counter) {
+  void run(EcsActionContext context) {
+    context.mutateResource<CounterResource>((counter) {
       counter.value += 1;
     });
     context.upsertComponent(entity, const NameComponent('updated'));
@@ -89,7 +89,7 @@ class ServiceRoundTripAction extends EcsAction<String> {
   const ServiceRoundTripAction();
 
   @override
-  String run(final EcsActionContext context) {
+  String run(EcsActionContext context) {
     expect(context.hasService<String>(), isTrue);
     context.services.upsert<double>(2.5);
     return '${context.readService<String>()}:${context.readService<double>()}';
@@ -108,7 +108,7 @@ void main() {
 
       final result = await runner.run(
         const IncrementAction(),
-        onChanged: ({final flush = true, final invalidation}) {
+        onChanged: ({flush = true, invalidation}) {
           notifications += 1;
           if (flush) world.flush();
         },
@@ -171,7 +171,7 @@ void main() {
 
       await runner.run(
         const ProgressAction(),
-        onChanged: ({final flush = true, final invalidation}) {
+        onChanged: ({flush = true, invalidation}) {
           if (flush) world.flush();
           observedProgress.add(runner.actionStatusOf(ProgressAction).progress);
         },
@@ -195,7 +195,7 @@ void main() {
 
       await runner.run(
         HelperMutationAction(entity),
-        onChanged: ({final flush = true, final invalidation}) {
+        onChanged: ({flush = true, invalidation}) {
           invalidations.add(invalidation ?? const EcsInvalidationBatch.broad());
           if (flush) world.flush();
         },
@@ -268,9 +268,9 @@ void main() {
     final draft = EcsDraft<List<int>>(
       original: [1, 2],
       current: [1, 2],
-      equals: (final previous, final next) =>
+      equals: (previous, next) =>
           previous.length == next.length &&
-          previous.indexed.every((final item) => item.$2 == next[item.$1]),
+          previous.indexed.every((item) => item.$2 == next[item.$1]),
     );
 
     expect(draft.isDirty, isFalse);
@@ -321,7 +321,7 @@ void main() {
 
     expect(
       world.findEcsEntityWithComponent<NameComponent>(
-        where: (final _, final name) => name.value == 'a',
+        where: (_, name) => name.value == 'a',
       ),
       entity,
     );
@@ -331,7 +331,7 @@ void main() {
 
     expect(
       world.maybeFindEcsEntityWithComponent<NameComponent>(
-        where: (final _, final name) => name.value == 'a',
+        where: (_, name) => name.value == 'a',
       ),
       isNull,
     );
@@ -351,7 +351,7 @@ void main() {
     test('shouldRun respects runWhen predicate', () {
       final schedule = EcsHostSchedule(
         'app.after_action',
-        runWhen: (final invalidation) =>
+        runWhen: (invalidation) =>
             invalidation.matchesResourceType(CounterResource),
       );
 

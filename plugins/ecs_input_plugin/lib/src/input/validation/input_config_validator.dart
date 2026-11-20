@@ -31,8 +31,8 @@ class InputConfigValidator {
   /// [inputMap] Input map to check for bindings
   /// Returns validation result with missing bindings if any
   InputConfigValidationResult validateActions(
-    final List<InputAction> requiredActions,
-    final RuntimeInputMap inputMap,
+    List<InputAction> requiredActions,
+    RuntimeInputMap inputMap,
   ) {
     final missingBindings = <InputAction>[];
 

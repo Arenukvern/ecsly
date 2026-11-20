@@ -7,10 +7,10 @@ class GestureSource extends InputSource {
   const GestureSource(this.type);
 
   /// Deserialize from JSON.
-  factory GestureSource.fromJson(final Map<String, dynamic> json) {
+  factory GestureSource.fromJson(Map<String, dynamic> json) {
     final typeName = json['type'] as String;
     final type = GestureType.values.firstWhere(
-      (final t) => t.name == typeName,
+      (t) => t.name == typeName,
       orElse: () => throw ArgumentError('Unknown gesture type: $typeName'),
     );
     return GestureSource(type);
@@ -34,7 +34,7 @@ sealed class InputSource {
   const InputSource();
 
   /// Deserialize from JSON.
-  factory InputSource.fromJson(final Map<String, dynamic> json) {
+  factory InputSource.fromJson(Map<String, dynamic> json) {
     final type = json['type'] as String;
     final data = json['data'] as Map<String, dynamic>;
 
@@ -55,7 +55,7 @@ sealed class InputSource {
   /// Reconstruct InputSource from its unique ID string.
   ///
   /// This is used for deserialization when only the uniqueId is stored.
-  static InputSource? fromUniqueId(final String uniqueId) {
+  static InputSource? fromUniqueId(String uniqueId) {
     // Parse keyboard sources: kb:123 or kb:123+ctrl+shift
     if (uniqueId.startsWith('kb:')) {
       final parts = uniqueId.substring(3).split('+');
@@ -110,7 +110,7 @@ sealed class InputSource {
       final typeName = uniqueId.substring(8);
       try {
         final type = GestureType.values.firstWhere(
-          (final t) => t.name == typeName,
+          (t) => t.name == typeName,
         );
         return GestureSource(type);
       } catch (e) {
@@ -127,7 +127,7 @@ class KeyboardSource extends InputSource {
   const KeyboardSource(this.key, {this.modifiers});
 
   /// Deserialize from JSON.
-  factory KeyboardSource.fromJson(final Map<String, dynamic> json) {
+  factory KeyboardSource.fromJson(Map<String, dynamic> json) {
     final keyId = json['keyId'] as int;
     final key =
         LogicalKeyboardKey.findKeyByKeyId(keyId) ??
@@ -154,8 +154,8 @@ class KeyboardSource extends InputSource {
   String get uniqueId => 'kb:${key.keyId}${modifiers?.suffix ?? ''}';
 
   bool matches(
-    final LogicalKeyboardKey pressedKey,
-    final Set<LogicalKeyboardKey> pressed,
+    LogicalKeyboardKey pressedKey,
+    Set<LogicalKeyboardKey> pressed,
   ) {
     if (pressedKey != key) return false;
     return modifiers?.matches(pressed) ?? true;
@@ -195,7 +195,7 @@ class KeyModifiers {
   String get suffix =>
       '${ctrl ? '+ctrl' : ''}${shift ? '+shift' : ''}${alt ? '+alt' : ''}${meta ? '+meta' : ''}';
 
-  bool matches(final Set<LogicalKeyboardKey> pressed) {
+  bool matches(Set<LogicalKeyboardKey> pressed) {
     // Check if required modifiers match actual pressed state
     final ctrlPressed =
         pressed.contains(LogicalKeyboardKey.controlLeft) ||
@@ -223,7 +223,7 @@ class MouseButtonSource extends InputSource {
   const MouseButtonSource(this.button, {this.modifiers});
 
   /// Deserialize from JSON.
-  factory MouseButtonSource.fromJson(final Map<String, dynamic> json) {
+  factory MouseButtonSource.fromJson(Map<String, dynamic> json) {
     final button = json['button'] as int;
 
     KeyModifiers? modifiers;

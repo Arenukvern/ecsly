@@ -12,7 +12,7 @@ import 'dart:ui' as ui;
 
 import 'package:ecsly/ecsly.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart' as services;
 
 import '../gesture_events.dart';
@@ -102,8 +102,8 @@ class _UnifiedInputWidgetState extends State<UnifiedInputWidget> {
   ui.Size _viewportSize = Size.zero;
 
   @override
-  Widget build(final BuildContext context) => LayoutBuilder(
-    builder: (final context, final constraints) {
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
       // Update viewport size resource if callback is provided
       final viewportSize = Size(constraints.maxWidth, constraints.maxHeight);
       _viewportSize = viewportSize;
@@ -112,7 +112,7 @@ class _UnifiedInputWidgetState extends State<UnifiedInputWidget> {
       return Focus(
         focusNode: _focusNode,
         autofocus: true,
-        onKeyEvent: (final node, final event) => _handleKeyEvent(event),
+        onKeyEvent: (node, event) => _handleKeyEvent(event),
         child: Stack(
           fit: StackFit.expand,
           children: <Widget>[
@@ -120,7 +120,7 @@ class _UnifiedInputWidgetState extends State<UnifiedInputWidget> {
             Positioned.fill(
               child: Listener(
                 behavior: HitTestBehavior.opaque,
-                onPointerDown: (final event) {
+                onPointerDown: (event) {
                   // Request focus when user clicks to ensure keyboard events are captured
                   _focusNode.requestFocus();
                   _sendPointerEvent(event);
@@ -142,7 +142,7 @@ class _UnifiedInputWidgetState extends State<UnifiedInputWidget> {
                   onScaleStart: _sendScaleEvent,
                   onScaleUpdate: _sendScaleEvent,
                   onScaleEnd: _sendScaleEvent,
-                  onSecondaryTapDown: (final details) {
+                  onSecondaryTapDown: (details) {
                     // Send as secondary tap event (already classified by Flutter)
                     final event = SecondaryTapEvent(
                       position: details.globalPosition,
@@ -179,7 +179,7 @@ class _UnifiedInputWidgetState extends State<UnifiedInputWidget> {
     });
   }
 
-  KeyEventResult _handleKeyEvent(final services.KeyEvent event) {
+  KeyEventResult _handleKeyEvent(services.KeyEvent event) {
     // Emit raw keyboard events for logging and debugging
     final timestamp = DateTime.now().millisecondsSinceEpoch;
 
@@ -205,7 +205,7 @@ class _UnifiedInputWidgetState extends State<UnifiedInputWidget> {
     return KeyEventResult.handled;
   }
 
-  void _sendPointerEvent(final PointerEvent event) {
+  void _sendPointerEvent(PointerEvent event) {
     final worldPos = _toWorldCoords(event.localPosition, context);
     final modifierMask = modifierMaskFromPressedKeys(
       services.HardwareKeyboard.instance.logicalKeysPressed,
@@ -267,7 +267,7 @@ class _UnifiedInputWidgetState extends State<UnifiedInputWidget> {
     }
   }
 
-  void _sendPointerSignal(final PointerSignalEvent event) {
+  void _sendPointerSignal(PointerSignalEvent event) {
     if (event is PointerScrollEvent) {
       final worldPos = _toWorldCoords(event.localPosition, context);
       final modifierMask = modifierMaskFromPressedKeys(
@@ -299,7 +299,7 @@ class _UnifiedInputWidgetState extends State<UnifiedInputWidget> {
     }
   }
 
-  void _sendScaleEvent(final details) {
+  void _sendScaleEvent(details) {
     if (details is ScaleStartDetails) {
       widget.world.events.writer<RawScaleStartEvent>().send(
         RawScaleStartEvent(
@@ -327,8 +327,8 @@ class _UnifiedInputWidgetState extends State<UnifiedInputWidget> {
   }
 
   ui.Offset _toWorldCoords(
-    final ui.Offset screenPos,
-    final BuildContext context,
+    ui.Offset screenPos,
+    BuildContext context,
   ) {
     // Use the actual widget viewport size from LayoutBuilder, not full screen size
     // This ensures coordinate conversion uses the correct viewport dimensions
@@ -343,6 +343,6 @@ class _UnifiedInputWidgetState extends State<UnifiedInputWidget> {
     return screenPos;
   }
 
-  bool _hasModifier(final int modifierMask, final int mask) =>
+  bool _hasModifier(int modifierMask, int mask) =>
       (modifierMask & mask) != 0;
 }

@@ -236,7 +236,7 @@ class EventChannel<T extends EcsEvent> implements Resource {
   /// Consider using [EventReader.iter()] for better performance in tight loops.
   ///
   /// Useful for processing multiple events efficiently when you need a List.
-  List<T> readBatch(final int count) {
+  List<T> readBatch(int count) {
     final snapshotHead = _head;
     final snapshotLength = _length;
     final maxCount = count < snapshotLength ? count : snapshotLength;
@@ -255,10 +255,10 @@ class EventChannel<T extends EcsEvent> implements Resource {
 
   // Internal storage access for readers
   @internal
-  T readEvent(final int index) => readEventAt(index, head: _head);
+  T readEvent(int index) => readEventAt(index, head: _head);
 
   @internal
-  T readEventAt(final int index, {required final int head}) =>
+  T readEventAt(int index, {required int head}) =>
       _loadEvent((head + index) % capacity);
 
   /// Send an event to this channel.
@@ -270,7 +270,7 @@ class EventChannel<T extends EcsEvent> implements Resource {
   /// - [EventCapacityPolicy.dropNew]: Returns false, event ignored
   /// - [EventCapacityPolicy.dropOld]: Removes oldest event, sends new one
   /// - [EventCapacityPolicy.throwOnOverflow]: Throws [EventCapacityOverflow]
-  bool send(final T event) {
+  bool send(T event) {
     if (_length >= capacity) {
       // Handle capacity overflow
       switch (capacityPolicy) {
@@ -309,7 +309,7 @@ class EventChannel<T extends EcsEvent> implements Resource {
   ///
   /// Useful for high-throughput scenarios where you want to send
   /// multiple related events together.
-  int sendBatch(final List<T> events) {
+  int sendBatch(List<T> events) {
     var sent = 0;
     for (final event in events) {
       if (send(event)) {
@@ -341,17 +341,17 @@ class EventChannel<T extends EcsEvent> implements Resource {
     }
   }
 
-  void _clearEventAt(final int index) {
+  void _clearEventAt(int index) {
     // Use column's clear method to prevent memory leaks
     _column.clearEvent(index);
   }
 
-  T _loadEvent(final int index) => _column.loadEvent<T>(
+  T _loadEvent(int index) => _column.loadEvent<T>(
     index,
     fromDoubleFieldsFactory: _config.fromDoubleFieldsFactory,
   );
 
-  void _reportOverflow(final T event, {required final bool dropped}) {
+  void _reportOverflow(T event, {required bool dropped}) {
     metricsHook?.call(
       EventCapacityOverflow(
         channelType: T,
@@ -362,12 +362,12 @@ class EventChannel<T extends EcsEvent> implements Resource {
     );
   }
 
-  void _storeEvent(final int index, final T event) {
+  void _storeEvent(int index, T event) {
     // Use column-based storage
     _column.storeEvent(index, event);
   }
 
-  static bool _isPowerOfTwo(final int n) => n > 0 && (n & (n - 1)) == 0;
+  static bool _isPowerOfTwo(int n) => n > 0 && (n & (n - 1)) == 0;
 }
 
 /// {@template event_reader}
@@ -413,17 +413,17 @@ class EventReader<T extends EcsEvent> {
   /// Read event at [index] in the current snapshot.
   ///
   /// Throws [RangeError] if index is out of bounds.
-  T readAt(final int index) => cursor().readAt(index);
+  T readAt(int index) => cursor().readAt(index);
 
   /// Read event at [index] in the current snapshot.
   ///
   /// Returns null if index is out of bounds.
-  T? tryReadAt(final int index) => cursor().tryReadAt(index);
+  T? tryReadAt(int index) => cursor().tryReadAt(index);
 
   /// Iterate events with an allocation-free index loop.
   ///
   /// This avoids constructing iterators and should be preferred in hot paths.
-  void forEach(final void Function(T event) onEvent) {
+  void forEach(void Function(T event) onEvent) {
     final snapshot = cursor();
     while (snapshot.moveNext()) {
       onEvent(snapshot.current);
@@ -434,7 +434,7 @@ class EventReader<T extends EcsEvent> {
   ///
   /// Index values are relative to the cursor snapshot and do not account for
   /// concurrent drops in other cursors.
-  void forEachIndexed(final void Function(int index, T event) onEvent) {
+  void forEachIndexed(void Function(int index, T event) onEvent) {
     final snapshot = cursor();
     while (snapshot.moveNext()) {
       onEvent(snapshot.index, snapshot.current);
@@ -564,7 +564,7 @@ class EventCursor<T extends EcsEvent> {
   /// Read an event by index from this snapshot.
   ///
   /// Throws [RangeError] if index is out of bounds.
-  T readAt(final int index) {
+  T readAt(int index) {
     _assertSnapshotValid();
     _validateIndex(index);
     return _channel.readEventAt(index, head: _headSnapshot);
@@ -573,7 +573,7 @@ class EventCursor<T extends EcsEvent> {
   /// Read an event by index from this snapshot.
   ///
   /// Returns null if [index] is out of bounds.
-  T? tryReadAt(final int index) {
+  T? tryReadAt(int index) {
     _assertSnapshotValid();
     if (index < 0 || index >= _lengthSnapshot) {
       return null;
@@ -581,7 +581,7 @@ class EventCursor<T extends EcsEvent> {
     return _channel.readEventAt(index, head: _headSnapshot);
   }
 
-  void _validateIndex(final int index) {
+  void _validateIndex(int index) {
     if (index < 0 || index >= _lengthSnapshot) {
       throw RangeError(
         'index $index out of bounds for length $_lengthSnapshot',
@@ -625,25 +625,25 @@ class EventWriter<T extends EcsEvent> {
   /// Send an event (fire-and-forget).
   ///
   /// Equivalent to [trySend] but ignores the result.
-  void send(final T event) => _channel.send(event);
+  void send(T event) => _channel.send(event);
 
   /// Send multiple events in batch.
   ///
   /// Attempts to send all events, stopping on first failure.
   /// Returns the number of events successfully sent.
-  int sendBatch(final List<T> events) => _channel.sendBatch(events);
+  int sendBatch(List<T> events) => _channel.sendBatch(events);
 
   /// Send an event only if the condition is true.
   ///
   /// Convenient for conditional event sending without if statements.
-  void sendIf(final T event, {required final bool condition}) {
+  void sendIf(T event, {required bool condition}) {
     if (condition) send(event);
   }
 
   /// Send an event, returning true if successful.
   ///
   /// Returns false if the event was dropped due to capacity policy.
-  bool trySend(final T event) => _channel.send(event);
+  bool trySend(T event) => _channel.send(event);
 }
 
 /// Iterable for FloatColumn events.

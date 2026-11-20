@@ -34,10 +34,10 @@ abstract class Plugin {
   ///
   /// This is where you register resources, add systems to schedules,
   /// create new schedules, and add other plugins.
-  void install(final World world);
+  void install(World world);
 
   /// Optional cleanup when the plugin is removed.
   ///
   /// Override this to remove resources or systems added by this plugin.
-  void uninstall(final World world) {}
+  void uninstall(World world) {}
 }

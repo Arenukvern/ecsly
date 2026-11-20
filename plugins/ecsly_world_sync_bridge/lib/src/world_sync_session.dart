@@ -53,10 +53,10 @@ final class WorldSyncSession {
     required this.transport,
     required this.peerId,
     required this.peers,
-    final String? displayName,
+    String? displayName,
     this.maxLogOps = defaultMaxLogOps,
     this.minInterval = defaultMinInterval,
-    final DateTime Function()? clock,
+    DateTime Function()? clock,
   }) : _displayName = displayName ?? peerId,
        _now = clock ?? DateTime.now,
        _lastCompactionAt = (clock ?? DateTime.now)();
@@ -123,7 +123,7 @@ final class WorldSyncSession {
     final settling = _incomingCancel;
     if (settling != null) {
       unawaited(
-        settling.then((final _) {
+        settling.then((_) {
           if (epoch == _listenEpoch) {
             _incomingCancel = null;
             _subscribe();
@@ -142,10 +142,10 @@ final class WorldSyncSession {
   /// Starts the periodic mode: [listen]s to the radio and repeats [tick]
   /// every [interval]. Calling [start] while running re-times the period
   /// without dropping the live inbound subscription.
-  void start({final Duration interval = const Duration(seconds: 5)}) {
+  void start({Duration interval = const Duration(seconds: 5)}) {
     listen();
     _timer?.cancel();
-    _timer = Timer.periodic(interval, (final _) {
+    _timer = Timer.periodic(interval, (_) {
       unawaited(_tickGuarded());
     });
     _running = true;
@@ -174,7 +174,7 @@ final class WorldSyncSession {
     _maybeCompact();
   }
 
-  Future<void> _dial(final MeshPeerRecord peer) async {
+  Future<void> _dial(MeshPeerRecord peer) async {
     try {
       final session = await transport.connect(peer);
       await _exchangeWith(session);
@@ -188,7 +188,7 @@ final class WorldSyncSession {
     }
   }
 
-  Future<void> _accept(final MeshSession session) async {
+  Future<void> _accept(MeshSession session) async {
     try {
       await _exchangeWith(session);
     }
@@ -215,7 +215,7 @@ final class WorldSyncSession {
   /// One symmetric script over [session] — the session-core protocol
   /// (hello, vv, delta), planned by [DeltaPlanner] against the replica's
   /// own [DeltaReplica] seam. The session closes when the round ends.
-  Future<void> _exchangeWith(final MeshSession session) async {
+  Future<void> _exchangeWith(MeshSession session) async {
     final inbound = StreamIterator<Uint8List>(session.inbound);
     try {
       await _send(
@@ -279,12 +279,12 @@ final class WorldSyncSession {
     _compactions++;
   }
 
-  Future<void> _send(final MeshSession session, final Map<String, Object?> message) =>
+  Future<void> _send(MeshSession session, Map<String, Object?> message) =>
       session.send(MeshSyncProtocol.encode(message));
 
   Future<Map<String, Object?>> _recvOfType(
-    final StreamIterator<Uint8List> inbound,
-    final String type,
+    StreamIterator<Uint8List> inbound,
+    String type,
   ) async {
     while (await inbound.moveNext()) {
       final message = MeshSyncProtocol.decode(inbound.current);

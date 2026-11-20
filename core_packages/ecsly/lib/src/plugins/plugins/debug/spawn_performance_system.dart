@@ -5,7 +5,7 @@ import '../../../world/world.dart';
 import 'spawn_performance_resource.dart';
 
 /// Flush system with timing instrumentation
-void flushAllWithTimingSystem(final World world) {
+void flushAllWithTimingSystem(World world) {
   final stopwatch = Stopwatch()..start();
   developer.Timeline.startSync('flush');
 

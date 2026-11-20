@@ -34,14 +34,14 @@ extension type const WorldId(int value) {
 /// Should never use commands directly -> for that, use [WorldCommands].
 class World {
   World({
-    final ArchetypeRegistry? archetypes,
-    final Entities? entities,
-    final CommandQueue? commandQueue,
-    final ComponentRegistry? components,
-    final ResourceRegistry? resources,
-    final SystemsRegistry? systems,
-    final QueryCache? queryCache,
-    final EventRegistry? events,
+    ArchetypeRegistry? archetypes,
+    Entities? entities,
+    CommandQueue? commandQueue,
+    ComponentRegistry? components,
+    ResourceRegistry? resources,
+    SystemsRegistry? systems,
+    QueryCache? queryCache,
+    EventRegistry? events,
     this.id = WorldId.zero,
     this.executionObserver,
     this.flushObserver,
@@ -105,7 +105,7 @@ class World {
 
   /// Sets the flushing state. Used internally by flush() to prevent recursion.
   @internal
-  set isFlushing(final bool value) {
+  set isFlushing(bool value) {
     assert(
       !value || !_isFlushing,
       'Attempted to set isFlushing=true while already flushing. '
@@ -116,7 +116,7 @@ class World {
 
   /// Evict cached query results shaped by a structurally touched [componentId].
   @internal
-  void evictQueriesForStructuralComponent(final ComponentId componentId) {
+  void evictQueriesForStructuralComponent(ComponentId componentId) {
     queryCache.markStructurallyTouched(componentId);
   }
 
@@ -146,7 +146,7 @@ class World {
 
   /// Validate component IDs against the hot schedule SoA guard.
   @internal
-  void assertHotScheduleCompatible(final List<ComponentId> componentIds) {
+  void assertHotScheduleCompatible(List<ComponentId> componentIds) {
     if (!enforceSoAForHotSchedules || !isInHotSchedule) {
       return;
     }

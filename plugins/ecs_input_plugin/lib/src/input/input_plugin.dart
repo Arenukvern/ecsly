@@ -67,7 +67,7 @@ class InputPlugin extends Plugin {
   String get name => 'Input';
 
   @override
-  void install(final World world) {
+  void install(World world) {
     // 1. Register all components
     world.components.registerObjectComponent<InteractiveElement>();
     world.components.registerObjectComponent<SelectableComponent>();

@@ -13,9 +13,9 @@ final Map<int, Int32List> _intWriteScratch = {};
 /// Extracts numeric fields from the FloatColumn's TypedData backing store
 /// and uses the provided factory function to reconstruct the event instance.
 T _loadFromFloatColumn<T extends EcsEvent>(
-  final FloatColumn column,
-  final int index,
-  final T Function(List<double>) factory,
+  FloatColumn column,
+  int index,
+  T Function(List<double>) factory,
 ) {
   final stride = column.stride;
   final offset = index * stride;
@@ -33,9 +33,9 @@ T _loadFromFloatColumn<T extends EcsEvent>(
 /// and uses the provided factory function to reconstruct the event instance.
 /// Supports multi-field events with stride.
 T _loadFromIntColumn<T extends EcsEvent>(
-  final IntColumn column,
-  final int index,
-  final T Function(List<double>) factory,
+  IntColumn column,
+  int index,
+  T Function(List<double>) factory,
 ) {
   final stride = column.stride;
   final offset = index * stride;
@@ -58,9 +58,9 @@ T _loadFromIntColumn<T extends EcsEvent>(
 /// Throws [EventStrideMismatchError] if the event's numericFields length
 /// doesn't match the column's stride.
 void _storeToFloatColumn<T extends EcsEvent>(
-  final FloatColumn column,
-  final int index,
-  final T event,
+  FloatColumn column,
+  int index,
+  T event,
 ) {
   final typedEvent = event as TypedDataEventMixin;
   final stride = column.stride;
@@ -88,9 +88,9 @@ void _storeToFloatColumn<T extends EcsEvent>(
 /// Throws [EventStrideMismatchError] if the event's numericFields length
 /// doesn't match the column's stride.
 void _storeToIntColumn<T extends EcsEvent>(
-  final IntColumn column,
-  final int index,
-  final T event,
+  IntColumn column,
+  int index,
+  T event,
 ) {
   final typedEvent = event as TypedDataEventMixin;
   final stride = column.stride;
@@ -111,8 +111,8 @@ void _storeToIntColumn<T extends EcsEvent>(
 /// Throws [EventStrideMismatchError] if the event's numericFields length
 /// doesn't match the column's stride.
 void _validateEventStride<T extends EcsEvent>(
-  final int columnStride,
-  final int eventFieldCount,
+  int columnStride,
+  int eventFieldCount,
 ) {
   if (eventFieldCount != columnStride) {
     throw EventStrideMismatchError(
@@ -202,11 +202,11 @@ class EventColumnMapper {
   /// Throws [EventRegistrationException] if TypedDataEvent registration
   /// is missing required parameters.
   static EventColumnConfig<T> mapEventType<T extends EcsEvent>({
-    required final int capacity,
-    final T Function(List<double>)? fromDoubleFieldsFactory,
-    final T? sampleEvent,
-    final int? stride,
-    final TypedDataEventRegistry? registry,
+    required int capacity,
+    T Function(List<double>)? fromDoubleFieldsFactory,
+    T? sampleEvent,
+    int? stride,
+    TypedDataEventRegistry? registry,
   }) {
     // Check if factory is provided (explicit TypedDataEvent) or sampleEvent indicates TypedDataEvent
     if (fromDoubleFieldsFactory != null ||
@@ -234,8 +234,8 @@ class EventColumnMapper {
   ///
   /// Validates that stride is positive when provided explicitly.
   static int _calculateStrideForTypedDataEvent<T>(
-    final T? sampleEvent,
-    final int? stride,
+    T? sampleEvent,
+    int? stride,
   ) {
     if (stride != null) {
       if (stride <= 0) {
@@ -270,11 +270,11 @@ class EventColumnMapper {
   /// Analyzes event structure to determine FloatColumn vs IntColumn
   /// and calculates stride from sampleEvent if available.
   static EventColumnConfig<T> _createTypedDataConfig<T extends EcsEvent>({
-    required final int capacity,
-    final T Function(List<double>)? fromDoubleFieldsFactory,
-    final T? sampleEvent,
-    final int? stride,
-    final TypedDataEventRegistry? registry,
+    required int capacity,
+    T Function(List<double>)? fromDoubleFieldsFactory,
+    T? sampleEvent,
+    int? stride,
+    TypedDataEventRegistry? registry,
   }) {
     if (fromDoubleFieldsFactory == null) {
       throw EventRegistrationException(
@@ -308,12 +308,12 @@ class EventColumnMapper {
   /// Analyzes sampleEvent to choose IntColumn for int-only events,
   /// FloatColumn otherwise.
   static ColumnType _determineColumnTypeForTypedDataEvent<T>(
-    final T? sampleEvent,
+    T? sampleEvent,
   ) {
     if (sampleEvent != null && sampleEvent is TypedDataEventMixin) {
       // Analyze field types - use IntColumn if all fields are integers
       final fields = sampleEvent.numericFields;
-      final allInts = fields.every((final field) => field is int);
+      final allInts = fields.every((field) => field is int);
       if (allInts) {
         return ColumnType.int;
       }
@@ -346,7 +346,7 @@ class TypedDataEventRegistry {
   /// Register a TypedDataEvent type with its stride.
   ///
   /// [stride] is the number of numeric fields in the event.
-  void register<T extends EcsEvent>(final int stride) {
+  void register<T extends EcsEvent>(int stride) {
     _typedDataEventRegistry.register<T>();
     _typedDataEventStrideRegistry.register<T>(stride);
   }
@@ -384,7 +384,7 @@ final class _TypedDataEventStrideRegistry {
   int? getStride<T>() => _strides[T];
 
   /// Register stride for an event type.
-  void register<T extends EcsEvent>(final int stride) {
+  void register<T extends EcsEvent>(int stride) {
     _strides[T] = stride;
   }
 }
@@ -396,7 +396,7 @@ extension EventColumnStorage on DataColumn {
   /// Performance: O(1) for all column types.
   /// - TypedData columns (FloatColumn, IntColumn): no-op (value types)
   /// - ObjectColumn: sets reference to null
-  void clearEvent(final int index) {
+  void clearEvent(int index) {
     final column = this;
     if (column case final ObjectColumn objectColumn) {
       // Ensure the column has capacity at this index before clearing.
@@ -417,8 +417,8 @@ extension EventColumnStorage on DataColumn {
   /// Throws [EventColumnUnsupportedError] for unsupported column types.
   /// Throws [EventTypeMismatchError] for missing factory or invalid events.
   T loadEvent<T extends EcsEvent>(
-    final int index, {
-    final T Function(List<double>)? fromDoubleFieldsFactory,
+    int index, {
+    T Function(List<double>)? fromDoubleFieldsFactory,
   }) {
     switch (this) {
       case final ObjectColumn<T> objectColumn:
@@ -470,7 +470,7 @@ extension EventColumnStorage on DataColumn {
   /// Throws [EventColumnUnsupportedError] for unsupported column types.
   /// Throws [EventTypeMismatchError] for type mismatches.
   /// Throws [EventStrideMismatchError] for stride validation failures.
-  void storeEvent<T extends EcsEvent>(final int index, final T event) {
+  void storeEvent<T extends EcsEvent>(int index, T event) {
     switch (this) {
       case final ObjectColumn<T> objectColumn:
         // Ensure the column has capacity at this index before writing.

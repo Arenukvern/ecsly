@@ -26,7 +26,7 @@ class CameraPlugin extends Plugin {
   ///
   /// Registers camera components and spawns a default camera entity.
   @override
-  void install(final World world) {
+  void install(World world) {
     // Register CameraComponent (regular component, uses ObjectColumn)
     world.components.registerObjectComponent<CameraComponent>();
 

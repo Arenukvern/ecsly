@@ -9,7 +9,7 @@ import '../components/camera_components.dart';
 ///
 /// Interpolates between two camera targets over time.
 /// Automatically removes the blend component when transition completes.
-void cameraBlendSystem(final World world) {
+void cameraBlendSystem(World world) {
   final dt = world.getResource<DeltaTimeResource>().deltaTime;
 
   for (final (entity, pos, blend)
@@ -52,7 +52,7 @@ void cameraBlendSystem(final World world) {
   }
 }
 
-void _addTargetComponent(final WorldEntity entity, final CameraTarget target) {
+void _addTargetComponent(WorldEntity entity, CameraTarget target) {
   switch (target) {
     case FollowTarget():
       entity.insert(target);
@@ -65,7 +65,7 @@ void _addTargetComponent(final WorldEntity entity, final CameraTarget target) {
   }
 }
 
-ui.Offset? _evaluateTarget(final World world, final CameraTarget target) =>
+ui.Offset? _evaluateTarget(World world, CameraTarget target) =>
     switch (target) {
       FollowTarget(:final entity, :final offset) => () {
         final (ext, valid) = world.getEntity(entity);
@@ -92,7 +92,7 @@ ui.Offset? _evaluateTarget(final World world, final CameraTarget target) =>
       FreeTarget() => null, // Free target has no position
     };
 
-void _removeTargetComponent(final WorldEntity entity) {
+void _removeTargetComponent(WorldEntity entity) {
   entity.remove<FollowTarget>();
   entity.remove<FollowGroupTarget>();
   entity.remove<FixedTarget>();

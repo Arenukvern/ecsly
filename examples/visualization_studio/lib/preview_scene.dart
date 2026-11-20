@@ -6,7 +6,7 @@ import 'dart:async';
 import 'package:ecsly_flutter/ecsly_flutter.dart';
 import 'package:ecsly_flutter_scene/ecsly_flutter_scene.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
 import 'preview_model.dart';

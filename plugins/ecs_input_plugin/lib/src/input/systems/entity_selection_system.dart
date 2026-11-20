@@ -21,7 +21,7 @@ import '../utils/hit_testing_utils.dart';
 ///
 /// @ai Hit testing sorts entities by InteractiveElement.priority before selection.
 /// SelectionManager provides O(1) lookup without archetype fragmentation.
-void entitySelectionSystem(final World world) {
+void entitySelectionSystem(World world) {
   final tapReader = world.events.reader<TapEvent>();
 
   final worldSpace = world.resources.has<InputWorldSpaceResource>()
@@ -125,10 +125,10 @@ void entitySelectionSystem(final World world) {
 
 /// Find selectable entity at (worldX, worldY).
 Entity? _findSelectableEntityAtPosition(
-  final World world,
-  final double worldX,
-  final double worldY,
-  final double currentZoom,
+  World world,
+  double worldX,
+  double worldY,
+  double currentZoom,
 ) {
   final candidates = <(Entity, int)>[];
   for (final (entity, interactive) in world.query<InteractiveElement>()) {

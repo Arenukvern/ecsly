@@ -35,7 +35,7 @@ void main() {
     configureInputSchedule(
       world,
       additionalSystems: [
-        (final w) {
+        (w) {
           seen.add('consumer');
           if (w.events.reader<TapEvent>().isNotEmpty) seen.add('tapVisible');
         },
@@ -46,7 +46,7 @@ void main() {
     world
         .schedule(const ScheduleId('Input'))
         .add(
-          (final w) {
+          (w) {
             seen.add('lateHost');
             if (w.events.reader<TapEvent>().isNotEmpty)
               seen.add('tapVisibleLate');
@@ -83,7 +83,7 @@ void main() {
     world
         .schedule(const ScheduleId('Input'))
         .add(
-          (final w) => tapsSeen += w.events.reader<TapEvent>().iter().length,
+          (w) => tapsSeen += w.events.reader<TapEvent>().iter().length,
           name: 'tapCounter',
           runAfter: ['gestureClassificationSystem'],
           runBefore: ['eventInputClearSystem'],

@@ -9,7 +9,7 @@ import '../gesture_events.dart';
 import '../raw_input_events.dart';
 import '../resources/gesture_consumption_tracker.dart';
 
-void eventInputClearSystem(final World world) {
+void eventInputClearSystem(World world) {
   // Consume any remaining events to prevent them from persisting
   world.events.reader<TapEvent>().iter();
   world.events.reader<DoubleTapEvent>().iter();

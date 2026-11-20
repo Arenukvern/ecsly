@@ -27,10 +27,10 @@ class EcsResourceBuilder<T extends Resource> extends StatelessWidget {
   final Widget? whenAbsent;
 
   @override
-  Widget build(final BuildContext context) => EcsResourceSelector<T, T>(
+  Widget build(BuildContext context) => EcsResourceSelector<T, T>(
     world: world,
     controller: controller,
-    select: (final resource) => resource,
+    select: (resource) => resource,
     builder: builder,
     whenAbsent: whenAbsent,
   );
@@ -82,14 +82,14 @@ class _EcsResourceSelectorState<T extends Resource, R>
   bool _hasValue = false;
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     if (!_hasValue) {
       return widget.whenAbsent ?? const SizedBox.shrink();
     }
     // Cache the selected value's widget, but let its own BuildContext track
     // Flutter dependencies (Theme, MediaQuery, localization) independently.
     return _lastChild ??= Builder(
-      builder: (final context) => widget.builder(context, _lastValue as R),
+      builder: (context) => widget.builder(context, _lastValue as R),
     );
   }
 
@@ -104,7 +104,7 @@ class _EcsResourceSelectorState<T extends Resource, R>
   }
 
   @override
-  void didUpdateWidget(covariant final EcsResourceSelector<T, R> oldWidget) {
+  void didUpdateWidget(covariant EcsResourceSelector<T, R> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller ||
         oldWidget.world != widget.world) {
@@ -140,7 +140,7 @@ class _EcsResourceSelectorState<T extends Resource, R>
           ? null
           : EcsScope.maybeOf(context, listen: false)?.controller);
 
-  bool _equals(final R previous, final R next) =>
+  bool _equals(R previous, R next) =>
       widget.equals?.call(previous, next) ?? previous == next;
 
   void _onChanged() {
@@ -148,7 +148,7 @@ class _EcsResourceSelectorState<T extends Resource, R>
     _refresh();
   }
 
-  void _refresh({final bool notify = true}) {
+  void _refresh({bool notify = true}) {
     if (!mounted) return;
     final world = _world;
     final resource = world.maybeGetResource<T>();

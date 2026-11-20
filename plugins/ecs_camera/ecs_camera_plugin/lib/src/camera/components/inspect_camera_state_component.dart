@@ -4,8 +4,8 @@ import 'package:ecsly/ecsly.dart';
 class InspectCameraStateColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => FloatColumn(initialCapacity: initialCapacity, stride: 6);
 }
 
@@ -21,11 +21,11 @@ class InspectCameraStateFacadeFactory
   late FloatColumn _column;
 
   @override
-  InspectCameraState create(final int index) =>
+  InspectCameraState create(int index) =>
       InspectCameraState((index, _column));
 
   @override
-  void initialize(covariant final FloatColumn column) {
+  void initialize(covariant FloatColumn column) {
     _column = column;
   }
 }
@@ -34,30 +34,30 @@ class InspectCameraStateFacadeFactory
 extension type const InspectCameraState((int index, FloatColumn column) data) {
   /// Orbit target X coordinate.
   double get targetX => data.$2.getValue(data.$1, 0);
-  set targetX(final double value) => data.$2.setValue(data.$1, 0, value);
+  set targetX(double value) => data.$2.setValue(data.$1, 0, value);
 
   /// Orbit target Y coordinate.
   double get targetY => data.$2.getValue(data.$1, 1);
-  set targetY(final double value) => data.$2.setValue(data.$1, 1, value);
+  set targetY(double value) => data.$2.setValue(data.$1, 1, value);
 
   /// Orbit target Z coordinate.
   double get targetZ => data.$2.getValue(data.$1, 2);
-  set targetZ(final double value) => data.$2.setValue(data.$1, 2, value);
+  set targetZ(double value) => data.$2.setValue(data.$1, 2, value);
 
   /// Orbit yaw in degrees.
   double get yawDeg => data.$2.getValue(data.$1, 3);
-  set yawDeg(final double value) => data.$2.setValue(data.$1, 3, value);
+  set yawDeg(double value) => data.$2.setValue(data.$1, 3, value);
 
   /// Orbit pitch in degrees.
   double get pitchDeg => data.$2.getValue(data.$1, 4);
-  set pitchDeg(final double value) => data.$2.setValue(data.$1, 4, value);
+  set pitchDeg(double value) => data.$2.setValue(data.$1, 4, value);
 
   /// Orbit distance from target.
   double get distance => data.$2.getValue(data.$1, 5);
-  set distance(final double value) => data.$2.setValue(data.$1, 5, value);
+  set distance(double value) => data.$2.setValue(data.$1, 5, value);
 
   /// Updates orbit target coordinates.
-  void setTarget(final double x, final double y, final double z) {
+  void setTarget(double x, double y, double z) {
     targetX = x;
     targetY = y;
     targetZ = z;
@@ -65,9 +65,9 @@ extension type const InspectCameraState((int index, FloatColumn column) data) {
 
   /// Updates yaw/pitch/distance in one call.
   void setPose({
-    required final double yawDeg,
-    required final double pitchDeg,
-    required final double distance,
+    required double yawDeg,
+    required double pitchDeg,
+    required double distance,
   }) {
     this.yawDeg = yawDeg;
     this.pitchDeg = pitchDeg;

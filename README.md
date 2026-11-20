@@ -82,7 +82,7 @@ void main() {
 }
 ```
 
-Requires Dart SDK `>=3.12.0`. To run the examples from source:
+Requires Dart SDK `>=3.14.0`. To run the examples from source:
 
 ```sh
 git clone https://github.com/Arenukvern/ecsly && cd ecsly

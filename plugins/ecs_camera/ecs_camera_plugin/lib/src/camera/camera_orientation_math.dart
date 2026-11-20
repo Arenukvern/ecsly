@@ -2,10 +2,10 @@ import 'dart:math' as math;
 
 /// Converts a quaternion to yaw/pitch degrees for camera orbit controls.
 ({double yawDeg, double pitchDeg}) quaternionToYawPitchDegrees({
-  required final double x,
-  required final double y,
-  required final double z,
-  required final double w,
+  required double x,
+  required double y,
+  required double z,
+  required double w,
 }) {
   final normalized = normalizeQuaternion(x: x, y: y, z: z, w: w);
   final forward = _rotateVectorByQuaternion(
@@ -24,8 +24,8 @@ import 'dart:math' as math;
 
 /// Converts yaw/pitch degrees to a normalized quaternion.
 ({double x, double y, double z, double w}) yawPitchDegreesToQuaternion({
-  required final double yawDeg,
-  required final double pitchDeg,
+  required double yawDeg,
+  required double pitchDeg,
 }) {
   final yaw = yawDeg * (math.pi / 180.0);
   final pitch = pitchDeg * (math.pi / 180.0);
@@ -45,10 +45,10 @@ import 'dart:math' as math;
 
 /// Returns a safe normalized quaternion, or identity when input is invalid.
 ({double x, double y, double z, double w}) normalizeQuaternion({
-  required final double x,
-  required final double y,
-  required final double z,
-  required final double w,
+  required double x,
+  required double y,
+  required double z,
+  required double w,
 }) {
   if (!x.isFinite || !y.isFinite || !z.isFinite || !w.isFinite) {
     return (x: 0.0, y: 0.0, z: 0.0, w: 1.0);
@@ -70,13 +70,13 @@ import 'dart:math' as math;
 }
 
 ({double x, double y, double z}) _rotateVectorByQuaternion({
-  required final double x,
-  required final double y,
-  required final double z,
-  required final double qx,
-  required final double qy,
-  required final double qz,
-  required final double qw,
+  required double x,
+  required double y,
+  required double z,
+  required double qx,
+  required double qy,
+  required double qz,
+  required double qw,
 }) {
   final tx = 2.0 * ((qy * z) - (qz * y));
   final ty = 2.0 * ((qz * x) - (qx * z));

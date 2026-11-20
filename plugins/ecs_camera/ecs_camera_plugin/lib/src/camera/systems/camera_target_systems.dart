@@ -7,7 +7,7 @@ import '../components/camera_components.dart';
 // Systems gracefully skip entities without PositionComponent.
 
 /// Updates camera target for FixedTarget.
-void cameraFixedTargetSystem(final World world) {
+void cameraFixedTargetSystem(World world) {
   for (final (_, pos, fixedTarget)
       in world
           .queryExt2<
@@ -21,7 +21,7 @@ void cameraFixedTargetSystem(final World world) {
 }
 
 /// Updates camera target for FollowGroupTarget.
-void cameraFollowGroupTargetSystem(final World world) {
+void cameraFollowGroupTargetSystem(World world) {
   for (final (_, pos, groupTarget)
       in world
           .queryExt2<
@@ -47,7 +47,7 @@ void cameraFollowGroupTargetSystem(final World world) {
 }
 
 /// Updates camera target position based on FollowTarget component.
-void cameraFollowTargetSystem(final World world) {
+void cameraFollowTargetSystem(World world) {
   for (final (_, pos, followTarget)
       in world
           .queryExt2<
@@ -85,9 +85,9 @@ void cameraFollowTargetSystem(final World world) {
 // FreeTarget has no system - position controlled manually by input systems
 
 void _updateAveragePosition(
-  final World world,
-  final CameraPosition pos,
-  final List<Entity> entities,
+  World world,
+  CameraPosition pos,
+  List<Entity> entities,
 ) {
   final averagePos = CameraPositionUtils.calculateAveragePosition(
     world,
@@ -99,10 +99,10 @@ void _updateAveragePosition(
 }
 
 void _updateBoundsPosition(
-  final World world,
-  final CameraPosition pos,
-  final List<Entity> entities,
-  final double padding,
+  World world,
+  CameraPosition pos,
+  List<Entity> entities,
+  double padding,
 ) {
   final boundsCenter = CameraPositionUtils.calculateBoundsCenter(
     world,

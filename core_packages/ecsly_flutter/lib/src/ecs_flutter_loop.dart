@@ -85,7 +85,7 @@ class _EcsFlutterLoopState extends State<EcsFlutterLoop>
   Duration _lastElapsed = Duration.zero;
 
   @override
-  Widget build(final BuildContext context) => widget.child;
+  Widget build(BuildContext context) => widget.child;
 
   @override
   void dispose() {
@@ -103,7 +103,7 @@ class _EcsFlutterLoopState extends State<EcsFlutterLoop>
   }
 
   @override
-  void didUpdateWidget(covariant final EcsFlutterLoop oldWidget) {
+  void didUpdateWidget(covariant EcsFlutterLoop oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.paused, widget.paused)) {
       oldWidget.paused?.removeListener(_applyPaused);
@@ -123,7 +123,7 @@ class _EcsFlutterLoopState extends State<EcsFlutterLoop>
     }
   }
 
-  void _onTick(final Duration elapsed) {
+  void _onTick(Duration elapsed) {
     final frameTime = _lastElapsed == Duration.zero
         ? 0.0
         : (elapsed - _lastElapsed).inMicroseconds / 1000000.0;
@@ -131,7 +131,7 @@ class _EcsFlutterLoopState extends State<EcsFlutterLoop>
     _runSchedules(frameTime.clamp(0.0, 0.1));
   }
 
-  void _runSchedules(final double dt) {
+  void _runSchedules(double dt) {
     _updateTimeResources(widget.world, dt);
     var invalidation = _timeResourceInvalidation();
     final ordered =
@@ -164,7 +164,7 @@ class _EcsFixedStepLoopState extends State<EcsFixedStepLoop>
   double _accumulator = 0;
 
   @override
-  Widget build(final BuildContext context) => widget.child;
+  Widget build(BuildContext context) => widget.child;
 
   @override
   void dispose() {
@@ -182,7 +182,7 @@ class _EcsFixedStepLoopState extends State<EcsFixedStepLoop>
   }
 
   @override
-  void didUpdateWidget(covariant final EcsFixedStepLoop oldWidget) {
+  void didUpdateWidget(covariant EcsFixedStepLoop oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.paused, widget.paused)) {
       oldWidget.paused?.removeListener(_applyPaused);
@@ -203,7 +203,7 @@ class _EcsFixedStepLoopState extends State<EcsFixedStepLoop>
     }
   }
 
-  void _onTick(final Duration elapsed) {
+  void _onTick(Duration elapsed) {
     final frameTime = _lastElapsed == Duration.zero
         ? 0.0
         : (elapsed - _lastElapsed).inMicroseconds / 1000000.0;
@@ -263,10 +263,10 @@ class _EcsFixedStepLoopState extends State<EcsFixedStepLoop>
 }
 
 void _runSchedule(
-  final World world,
-  final String scheduleName, {
-  required final EcsFlutterScheduleReason reason,
-  required final EcsScheduleRunObserver? onScheduleRun,
+  World world,
+  String scheduleName, {
+  required EcsFlutterScheduleReason reason,
+  required EcsScheduleRunObserver? onScheduleRun,
 }) {
   final stopwatch = Stopwatch()..start();
   try {
@@ -295,10 +295,10 @@ void _runSchedule(
 }
 
 void _flushAndNotify(
-  final World world,
-  final EcsController? controller, {
-  required final bool flush,
-  required final EcsInvalidationBatch invalidation,
+  World world,
+  EcsController? controller, {
+  required bool flush,
+  required EcsInvalidationBatch invalidation,
 }) {
   if (controller != null) {
     controller.notifyWorldChanged(flush: flush, invalidation: invalidation);
@@ -310,8 +310,8 @@ void _flushAndNotify(
 }
 
 EcsInvalidationBatch _scheduleInvalidationFor(
-  final String scheduleName,
-  final EcsScheduleInvalidation? scheduleInvalidation,
+  String scheduleName,
+  EcsScheduleInvalidation? scheduleInvalidation,
 ) =>
     scheduleInvalidation?.call(scheduleName) ??
     const EcsInvalidationBatch.broad();
@@ -322,7 +322,7 @@ EcsInvalidationBatch _timeResourceInvalidation() =>
       ScheduleTimeResource,
     ]);
 
-void _updateTimeResources(final World world, final double dt) {
+void _updateTimeResources(World world, double dt) {
   if (!world.resources.has<DeltaTimeResource>()) {
     world.upsertResource(DeltaTimeResource(dt));
   } else {

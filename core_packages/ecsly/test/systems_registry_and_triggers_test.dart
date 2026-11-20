@@ -38,8 +38,8 @@ void main() {
   group('ScheduleTrigger variants', () {
     test('ConditionTrigger/EveryFrame/ManualTrigger', () {
       final world = World();
-      expect(ConditionTrigger((final _) => true).shouldRun(world), isTrue);
-      expect(ConditionTrigger((final _) => false).shouldRun(world), isFalse);
+      expect(ConditionTrigger((_) => true).shouldRun(world), isTrue);
+      expect(ConditionTrigger((_) => false).shouldRun(world), isFalse);
       expect(const EveryFrame().shouldRun(world), isTrue);
       expect(const ManualTrigger().shouldRun(world), isTrue);
     });

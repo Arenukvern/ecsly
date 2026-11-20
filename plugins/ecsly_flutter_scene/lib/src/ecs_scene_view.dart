@@ -15,9 +15,9 @@ import 'dart:async';
 
 import 'package:ecsly/ecsly.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_scene/scene.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:vector_math/vector_math.dart' as vm;
 
 import 'ecs_scene_binder.dart';

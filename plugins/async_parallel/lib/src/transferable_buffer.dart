@@ -14,7 +14,7 @@ class TransferableBuffer {
   ///
   /// The buffer takes ownership of the data - the caller should not
   /// modify it after creation.
-  TransferableBuffer.fromTypedData(final TypedData data)
+  TransferableBuffer.fromTypedData(TypedData data)
     : byteLength = data.lengthInBytes,
       _data = Uint8List.fromList(
         data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes),
@@ -34,7 +34,7 @@ class TransferableBuffer {
   /// Receives ownership from a transfer.
   ///
   /// Call this when receiving a TransferableTypedData to regain access.
-  void receive(final TransferableTypedData transferable) {
+  void receive(TransferableTypedData transferable) {
     final materialized = transferable.materialize();
     // The ByteBuffer should contain our original data
     // Since we transferred a single Uint8List, we can view the entire buffer

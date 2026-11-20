@@ -6,7 +6,7 @@ part of 'data_column.dart';
 /// Trade-off: Iterating ObjectColumn will trigger Cache Misses and GC.
 /// Rule: Only use this for "Cold" data that isn't processed 60 times per second.
 class ObjectColumn<T extends Object> implements DataColumn {
-  ObjectColumn({final int initialCapacity = 8})
+  ObjectColumn({int initialCapacity = 8})
     : _data = List<T?>.filled(initialCapacity, null),
       _length = 0;
 
@@ -38,9 +38,9 @@ class ObjectColumn<T extends Object> implements DataColumn {
 
   @override
   void copyTo(
-    final int sourceIndex,
-    final DataColumn destination,
-    final int destIndex,
+    int sourceIndex,
+    DataColumn destination,
+    int destIndex,
   ) {
     assert(sourceIndex < _length, 'Source index out of bounds');
     if (destination is! ObjectColumn<T>) {
@@ -53,30 +53,30 @@ class ObjectColumn<T extends Object> implements DataColumn {
   /// Fill a range of indices with a value.
   ///
   /// Useful for batch operations like clearing ranges efficiently.
-  void fillRange(final int start, final int end, final T? value) {
+  void fillRange(int start, int end, T? value) {
     for (int i = start; i < end; i++) {
       _data[i] = value;
     }
   }
 
   /// Get object at index.
-  T? getValue(final int index) {
+  T? getValue(int index) {
     assert(index < _length, 'Index out of bounds');
     return _data[index];
   }
 
   @override
   void moveTo(
-    final int sourceIndex,
-    final DataColumn destination,
-    final int destIndex,
+    int sourceIndex,
+    DataColumn destination,
+    int destIndex,
   ) {
     copyTo(sourceIndex, destination, destIndex);
     _data[sourceIndex] = null;
   }
 
   @override
-  void resize(final int newCapacity) {
+  void resize(int newCapacity) {
     if (newCapacity <= capacity) return;
     final newData = List<T?>.filled(newCapacity, null);
     for (int i = 0; i < _length; i++) {
@@ -86,13 +86,13 @@ class ObjectColumn<T extends Object> implements DataColumn {
   }
 
   /// Set object at index.
-  void setValue(final int index, final T? value) {
+  void setValue(int index, T? value) {
     assert(index < _length, 'Index out of bounds');
     _data[index] = value;
   }
 
   @override
-  void swap(final int indexA, final int indexB) {
+  void swap(int indexA, int indexB) {
     assert(indexA < _length && indexB < _length, 'Indices out of bounds');
     if (indexA == indexB) return;
     final temp = _data[indexA];
@@ -101,7 +101,7 @@ class ObjectColumn<T extends Object> implements DataColumn {
   }
 
   @override
-  void swapRemove(final int index) {
+  void swapRemove(int index) {
     assert(index < _length, 'Index out of bounds');
     if (index != _length - 1) {
       _data[index] = _data[_length - 1];

@@ -55,7 +55,7 @@ void main() {
       // facades are auto-generated, so no StateError is thrown.
       final filtered = q
           .iterExt1Where<NameComponent, NameComponent>(
-            (final n) => n.value == 'n',
+            (n) => n.value == 'n',
           )
           .toList();
       expect(filtered, isNotEmpty);

@@ -2,7 +2,7 @@ import 'package:ecsly_flutter/ecsly_flutter.dart';
 import 'package:ecsly_visualization_studio/preview_canvas.dart';
 import 'package:ecsly_visualization_studio/preview_model.dart';
 import 'package:ecsly_visualization_studio/startup_trace.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

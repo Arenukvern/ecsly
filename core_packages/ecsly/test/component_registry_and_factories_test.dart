@@ -18,8 +18,8 @@ class TagOnlyComponent extends Component {
 final class _SoAIntColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => IntColumn(initialCapacity: initialCapacity);
 }
 

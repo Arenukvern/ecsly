@@ -25,7 +25,7 @@ import 'dart:io';
 
 import 'package:ecsly/ecsly.dart';
 
-void main(final List<String> args) {
+void main(List<String> args) {
   final json = args.contains('--json');
   final out = _argValue(args, '--out=');
   final sizes = _parseSizes(_argValue(args, '--sizes='));
@@ -45,14 +45,14 @@ void main(final List<String> args) {
   file.writeAsStringSync(text);
 }
 
-String? _argValue(final List<String> args, final String prefix) {
+String? _argValue(List<String> args, String prefix) {
   for (final arg in args) {
     if (arg.startsWith(prefix)) return arg.substring(prefix.length);
   }
   return null;
 }
 
-int _parseSamples(final String? raw) {
+int _parseSamples(String? raw) {
   if (raw == null) return 1;
   final samples = int.tryParse(raw);
   if (samples == null || samples < 1) {
@@ -65,9 +65,9 @@ int _parseSamples(final String? raw) {
 /// Runs the whole battery [samples] times and keeps the MEDIAN of every
 /// metric (the repo's sampling convention from `benchmark/run.dart`).
 Map<String, Object?> _runSampledReport(
-  final List<String> args,
-  final List<int> sizes,
-  final int samples,
+  List<String> args,
+  List<int> sizes,
+  int samples,
 ) {
   final reports = <Map<String, Object?>>[
     for (var i = 0; i < samples; i++) _runReport(args, sizes),
@@ -81,9 +81,9 @@ Map<String, Object?> _runSampledReport(
   final median = <Map<String, Object?>>[];
   for (final entry in byName.entries) {
     final runs = entry.value;
-    Map<String, Object?> pick(final String key) {
+    Map<String, Object?> pick(String key) {
       final sorted = [...runs]..sort(
-          (final a, final b) =>
+          (a, b) =>
               (a[key]! as num).compareTo(b[key]! as num),
         );
       return sorted[sorted.length ~/ 2];
@@ -103,7 +103,7 @@ Map<String, Object?> _runSampledReport(
   };
 }
 
-List<int> _parseSizes(final String? raw) {
+List<int> _parseSizes(String? raw) {
   if (raw == null) return const [1000, 100000, 1000000];
   return raw.split(',').map(int.parse).toList();
 }
@@ -111,7 +111,7 @@ List<int> _parseSizes(final String? raw) {
 /// The verbatim payload of one ingested row. Fixed shape (~80 chars) so
 /// the object-column legs measure the storage path, not a payload-size
 /// difference: a data plane's whole job is keeping text like this intact.
-String labelOf(final int i) =>
+String labelOf(int i) =>
     'record $i with a verbatim text payload used for scan legs and kept '
     'whole, never truncated';
 
@@ -126,7 +126,7 @@ final class _Record {
   final String label;
 }
 
-({int micros, int rssDelta, int sink}) _benchMapIngest(final int n) {
+({int micros, int rssDelta, int sink}) _benchMapIngest(int n) {
   final rssBefore = ProcessInfo.currentRss;
   final sw = Stopwatch()..start();
   final map = <int, _Record>{};
@@ -158,7 +158,7 @@ final class _CqLabel extends Component {
   final String label;
 }
 
-({int micros, int rssDelta, int sink}) _benchCommandQueueIngest(final int n) {
+({int micros, int rssDelta, int sink}) _benchCommandQueueIngest(int n) {
   final world = World();
   world.components
     ..registerObjectComponent<_CqValue>()
@@ -188,7 +188,7 @@ final class _CqLabel extends Component {
   );
 }
 
-({int micros, int rssDelta, int sink}) _benchAppendRowsObjects(final int n) {
+({int micros, int rssDelta, int sink}) _benchAppendRowsObjects(int n) {
   final world = World();
   world.components
     ..registerObjectComponent<_CqValue>()
@@ -249,16 +249,16 @@ final class _SoaLabel extends Component {
 final class _IntColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => IntColumn(initialCapacity: initialCapacity);
 }
 
 final class _Uint8ColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => Uint8Column(initialCapacity: initialCapacity);
 }
 
@@ -285,7 +285,7 @@ _ColumnWorld _buildColumnWorld() {
 }
 
 ({int micros, int rssDelta, int sink, _ColumnWorld holder})
-_benchAppendRowsColumns(final int n) {
+_benchAppendRowsColumns(int n) {
   final holder = _buildColumnWorld();
   final rssBefore = ProcessInfo.currentRss;
   final sw = Stopwatch()..start();
@@ -318,7 +318,7 @@ _benchAppendRowsColumns(final int n) {
   );
 }
 
-({int micros, int rssDelta, int sink}) _benchMapFlagScan(final int n) {
+({int micros, int rssDelta, int sink}) _benchMapFlagScan(int n) {
   final map = <int, _Record>{};
   for (var i = 1; i <= n; i++) {
     map[i] = _Record(i, i % 7 == 0 ? 3 : 1, labelOf(i));
@@ -340,8 +340,8 @@ _benchAppendRowsColumns(final int n) {
 }
 
 ({int micros, int rssDelta, int sink}) _benchColumnFlagScan(
-  final _ColumnWorld holder,
-  final int n,
+  _ColumnWorld holder,
+  int n,
 ) {
   final archetypeId = holder.world.archetypes.getOrCreateArchetype(
     holder.signature,
@@ -371,7 +371,7 @@ _benchAppendRowsColumns(final int n) {
   );
 }
 
-({int micros, int rssDelta, int sink}) _benchMapLabelScan(final int n) {
+({int micros, int rssDelta, int sink}) _benchMapLabelScan(int n) {
   final map = <int, _Record>{};
   for (var i = 1; i <= n; i++) {
     map[i] = _Record(i, i % 7 == 0 ? 3 : 1, labelOf(i));
@@ -391,8 +391,8 @@ _benchAppendRowsColumns(final int n) {
 }
 
 ({int micros, int rssDelta, int sink}) _benchColumnLabelScan(
-  final _ColumnWorld holder,
-  final int n,
+  _ColumnWorld holder,
+  int n,
 ) {
   final archetypeId = holder.world.archetypes.getOrCreateArchetype(
     holder.signature,
@@ -421,7 +421,7 @@ _benchAppendRowsColumns(final int n) {
 // Report.
 // ---------------------------------------------------------------------------
 
-Map<String, Object?> _runReport(final List<String> args, final List<int> sizes) {
+Map<String, Object?> _runReport(List<String> args, List<int> sizes) {
   final metrics = <Map<String, Object?>>[];
   for (final n in sizes) {
     final mapIngest = _benchMapIngest(n);
@@ -497,10 +497,10 @@ Map<String, Object?> _runReport(final List<String> args, final List<int> sizes) 
 }
 
 Map<String, Object?> _metric(
-  final String name,
-  final int n,
-  final int micros,
-  final int rssDelta,
+  String name,
+  int n,
+  int micros,
+  int rssDelta,
 ) => <String, Object?>{
   'name': '$name${_sizeSuffix(n)}',
   'entities': n,
@@ -509,13 +509,13 @@ Map<String, Object?> _metric(
   'rssDeltaBytes': rssDelta,
 };
 
-String _sizeSuffix(final int n) => switch (n) {
+String _sizeSuffix(int n) => switch (n) {
   >= 1000000 => '_1m',
   >= 100000 => '_100k',
   _ => '_$n',
 };
 
-String _toText(final Map<String, Object?> report) {
+String _toText(Map<String, Object?> report) {
   final buffer = StringBuffer()
     ..writeln('ecsly append-only ingest benchmark (ADR 0006)')
     ..writeln('generatedAt: ${report['generatedAt']}')
@@ -531,7 +531,7 @@ String _toText(final Map<String, Object?> report) {
   return buffer.toString();
 }
 
-String _commandLine(final String script, final List<String> args) {
+String _commandLine(String script, List<String> args) {
   final suffix = args.isEmpty ? '' : ' ${args.join(' ')}';
   return 'dart run $script$suffix';
 }
@@ -583,7 +583,7 @@ final class _Environment {
   };
 }
 
-String _sysctl(final String key) {
+String _sysctl(String key) {
   if (!Platform.isMacOS) return '';
   final result = Process.runSync('sysctl', ['-n', key]);
   if (result.exitCode != 0) return '';
@@ -610,7 +610,7 @@ final class _GitInfo {
   };
 }
 
-String? _gitOutput(final List<String> args) {
+String? _gitOutput(List<String> args) {
   try {
     final result = Process.runSync('git', args);
     if (result.exitCode != 0) return null;

@@ -10,7 +10,7 @@ void main() {
 
       expect(
         () => world.events.register<_PlainEvent>(
-          fromDoubleFieldsFactory: (final f) => _PlainEvent(f[0]),
+          fromDoubleFieldsFactory: (f) => _PlainEvent(f[0]),
           stride: 0,
         ),
         throwsA(isA<EventRegistrationException>()),
@@ -18,14 +18,14 @@ void main() {
 
       expect(
         () => world.events.register<_PlainEvent>(
-          fromDoubleFieldsFactory: (final f) => _PlainEvent(f[0]),
+          fromDoubleFieldsFactory: (f) => _PlainEvent(f[0]),
         ),
         throwsA(isA<EventRegistrationException>()),
       );
 
       expect(
         () => world.events.register<_PlainEvent>(
-          fromDoubleFieldsFactory: (final f) => _PlainEvent(f[0]),
+          fromDoubleFieldsFactory: (f) => _PlainEvent(f[0]),
           sampleEvent: const _PlainEvent(1),
         ),
         throwsA(isA<EventRegistrationException>()),
@@ -33,7 +33,7 @@ void main() {
 
       expect(
         () => world.events.register<_BaseMaybeTypedEvent>(
-          fromDoubleFieldsFactory: (final _) => throw StateError('boom'),
+          fromDoubleFieldsFactory: (_) => throw StateError('boom'),
           sampleEvent: const _TypedVariant(1, 2),
         ),
         throwsA(isA<EventFactoryValidationError>()),
@@ -41,7 +41,7 @@ void main() {
 
       expect(
         () => world.events.register<_BaseMaybeTypedEvent>(
-          fromDoubleFieldsFactory: (final f) => _UntypedVariant(f[0]),
+          fromDoubleFieldsFactory: (f) => _UntypedVariant(f[0]),
           sampleEvent: const _TypedVariant(1, 2),
         ),
         throwsA(isA<EventRegistrationException>()),
@@ -49,7 +49,7 @@ void main() {
 
       expect(
         () => world.events.register<_BaseMaybeTypedEvent>(
-          fromDoubleFieldsFactory: (final f) => _TypedVariant3(f[0], f[1], 0),
+          fromDoubleFieldsFactory: (f) => _TypedVariant3(f[0], f[1], 0),
           sampleEvent: const _TypedVariant(1, 2),
         ),
         throwsA(isA<EventFactoryValidationError>()),
@@ -73,7 +73,7 @@ void main() {
         world.flush();
 
         final extWhere = world
-            .queryExtWhere<PositionComponent, Position>((final p) => p.x == 0)
+            .queryExtWhere<PositionComponent, Position>((p) => p.x == 0)
             .toList();
         expect(extWhere.length, 1);
 

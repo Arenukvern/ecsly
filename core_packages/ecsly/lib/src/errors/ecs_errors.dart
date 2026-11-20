@@ -80,7 +80,7 @@ class ComponentNotRegisteredError extends EcsStateError {
 /// This can occur during plugin loading or dynamic component registration.
 /// Can be caught and handled gracefully.
 class ComponentRegistrationException extends EcsException {
-  ComponentRegistrationException(this.componentType, [final String? reason])
+  ComponentRegistrationException(this.componentType, [String? reason])
     : super(
         reason != null
             ? 'Failed to register component type $componentType: $reason'
@@ -216,7 +216,7 @@ class EventNotRegisteredException<T> extends EcsException {
 /// This can occur during plugin loading or dynamic event registration.
 /// Can be caught and handled gracefully.
 class EventRegistrationException extends EcsException {
-  EventRegistrationException(this.eventType, [final String? reason])
+  EventRegistrationException(this.eventType, [String? reason])
     : super(
         reason != null
             ? 'Failed to register event type $eventType: $reason'
@@ -344,7 +344,7 @@ class ExtensionTypeNotRegisteredError<TExtension> extends EcsStateError {
 ///
 /// This is a programming error - iterators should be used correctly.
 class IteratorNotReadyError extends EcsStateError {
-  IteratorNotReadyError([final String? context])
+  IteratorNotReadyError([String? context])
     : super(
         context != null
             ? 'Iterator not initialized or exhausted: $context'
@@ -357,7 +357,7 @@ class IteratorNotReadyError extends EcsStateError {
 /// This can occur during plugin loading or initialization.
 /// Can be caught and handled gracefully.
 class PluginInstallationException extends EcsException {
-  PluginInstallationException(this.pluginName, [final String? reason])
+  PluginInstallationException(this.pluginName, [String? reason])
     : super(
         reason != null
             ? 'Failed to install plugin "$pluginName": $reason'

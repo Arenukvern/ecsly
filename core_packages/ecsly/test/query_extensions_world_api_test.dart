@@ -84,7 +84,7 @@ void main() {
 
       final rows = prepared.iter2<C1, C2>().toList();
       expect(rows.length, 2);
-      expect(rows.map((final row) => row.$2.value), containsAll(<int>[1, 7]));
+      expect(rows.map((row) => row.$2.value), containsAll(<int>[1, 7]));
     });
 
     test('spawnComponents creates one entity from a component bundle', () {
@@ -118,13 +118,13 @@ void main() {
 
     test('queryExtWhere/queryExt2Where filter typed extension rows', () {
       final ext1 = world
-          .queryExtWhere<PositionComponent, Position>((final p) => p.x == 0)
+          .queryExtWhere<PositionComponent, Position>((p) => p.x == 0)
           .toList();
       expect(ext1.length, 1);
 
       final ext2 = world
           .queryExt2Where<PositionComponent, Position, HealthComponent, Health>(
-            (final p) => p.y == 0,
+            (p) => p.y == 0,
           )
           .toList();
       expect(ext2.length, 1);
@@ -148,7 +148,7 @@ void main() {
           .single;
       expect(raw.rowCount, 1);
 
-      raw.forEachRow((final row, final entity, final pos, final hp) {
+      raw.forEachRow((row, entity, pos, hp) {
         expect(row, 0);
         expect(world.entities.isAlive(entity), isTrue);
         pos.x = 12;
@@ -167,7 +167,7 @@ void main() {
     test('queryRaw2/queryRaw3/queryRaw4 expose chunked hot-path views', () {
       final raw2 = world.queryRaw2<C1, C1, C2, C2>().single;
       expect(raw2.rowCount, 1);
-      raw2.forEachRow((final row, final entity, final c1, final c2) {
+      raw2.forEachRow((row, entity, c1, c2) {
         expect(row, 0);
         expect(world.entities.isAlive(entity), isTrue);
         c1.value = 21;
@@ -176,7 +176,7 @@ void main() {
 
       final raw3 = world.queryRaw3<C1, C1, C2, C2, C3, C3>().single;
       expect(raw3.rowCount, 1);
-      raw3.forEachRow((final _, final _, final c1, final c2, final c3) {
+      raw3.forEachRow((_, _, c1, c2, c3) {
         c1.value = 31;
         c2.value = 32;
         c3.value = 33;
@@ -185,12 +185,12 @@ void main() {
       final raw4 = world.queryRaw4<C1, C1, C2, C2, C3, C3, C4, C4>().single;
       expect(raw4.rowCount, 1);
       raw4.forEachRow((
-        final _,
-        final _,
-        final c1,
-        final c2,
-        final c3,
-        final c4,
+        _,
+        _,
+        c1,
+        c2,
+        c3,
+        c4,
       ) {
         c1.value = 41;
         c2.value = 42;
@@ -261,7 +261,7 @@ void main() {
       world.enforceSoAForHotSchedules = true;
       final schedule = Schedule('hot-guard')
         ..hotPath()
-        ..add((final w) {
+        ..add((w) {
           // C1 is ObjectColumn-backed and should be rejected in hot mode.
           w.query<C1>().length;
         });

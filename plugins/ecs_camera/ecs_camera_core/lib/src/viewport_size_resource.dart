@@ -9,7 +9,7 @@ class ViewportSizeResource extends Resource {
 
   double get aspectRatio => height != 0 ? width / height : 1.0;
 
-  void updateSize(final double w, final double h) {
+  void updateSize(double w, double h) {
     width = w;
     height = h;
   }

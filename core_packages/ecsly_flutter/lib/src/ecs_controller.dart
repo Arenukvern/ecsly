@@ -13,7 +13,7 @@ import 'ecs_selector_dependencies.dart';
 class EcsController extends ChangeNotifier {
   EcsController({
     required this.world,
-    final EcsActionServices? services,
+    EcsActionServices? services,
     this.afterActionSchedule,
     this.afterActionScheduleSpec,
     this.onScheduleRun,
@@ -43,15 +43,15 @@ class EcsController extends ChangeNotifier {
 
   /// Flushes pending ECS changes, then notifies Flutter listeners.
   void notifyWorldChanged({
-    final bool flush = true,
-    final EcsInvalidationBatch? invalidation,
+    bool flush = true,
+    EcsInvalidationBatch? invalidation,
   }) {
     _notifyWorldChanged(flush: flush, invalidation: invalidation);
   }
 
   void _notifyWorldChanged({
-    required final bool flush,
-    final EcsInvalidationBatch? invalidation,
+    required bool flush,
+    EcsInvalidationBatch? invalidation,
   }) {
     if (_disposed) return;
     if (flush) {
@@ -64,9 +64,9 @@ class EcsController extends ChangeNotifier {
 
   /// Runs a synchronous ECS transaction and notifies listeners once.
   T runTransaction<T>(
-    final T Function(World world) transaction, {
-    final bool flush = true,
-    final EcsInvalidationBatch? invalidation,
+    T Function(World world) transaction, {
+    bool flush = true,
+    EcsInvalidationBatch? invalidation,
   }) {
     final result = transaction(world);
     _notifyWorldChanged(flush: flush, invalidation: invalidation);
@@ -75,9 +75,9 @@ class EcsController extends ChangeNotifier {
 
   /// Runs an asynchronous ECS transaction and notifies listeners once.
   Future<T> runAsyncTransaction<T>(
-    final FutureOr<T> Function(World world) transaction, {
-    final bool flush = true,
-    final EcsInvalidationBatch? invalidation,
+    FutureOr<T> Function(World world) transaction, {
+    bool flush = true,
+    EcsInvalidationBatch? invalidation,
   }) async {
     final result = await transaction(world);
     _notifyWorldChanged(flush: flush, invalidation: invalidation);
@@ -86,14 +86,14 @@ class EcsController extends ChangeNotifier {
 
   /// Runs a reusable app action and exposes its status through ECS resources.
   Future<T> runAction<T>(
-    final EcsAction<T> action, {
-    final bool flush = true,
-    final String? afterActionSchedule,
-    final EcsHostSchedule? afterActionScheduleSpec,
+    EcsAction<T> action, {
+    bool flush = true,
+    String? afterActionSchedule,
+    EcsHostSchedule? afterActionScheduleSpec,
   }) => _actionRunner.run<T>(
     action,
     flush: flush,
-    afterRun: (final actionInvalidation) {
+    afterRun: (actionInvalidation) {
       final schedule =
           afterActionScheduleSpec ??
           _hostScheduleFrom(afterActionSchedule) ??
@@ -110,7 +110,7 @@ class EcsController extends ChangeNotifier {
         reason: EcsFlutterScheduleReason.afterAction,
       );
     },
-    onChanged: ({final flush = true, final invalidation}) =>
+    onChanged: ({flush = true, invalidation}) =>
         _notifyWorldChanged(
           flush: flush,
           invalidation:
@@ -120,11 +120,11 @@ class EcsController extends ChangeNotifier {
   );
 
   EcsInvalidationBatch runSchedule(
-    final String scheduleName, {
-    final bool flush = true,
-    final bool notify = true,
-    final EcsInvalidationBatch? invalidation,
-    final EcsFlutterScheduleReason reason = EcsFlutterScheduleReason.onMount,
+    String scheduleName, {
+    bool flush = true,
+    bool notify = true,
+    EcsInvalidationBatch? invalidation,
+    EcsFlutterScheduleReason reason = EcsFlutterScheduleReason.onMount,
   }) {
     final stopwatch = Stopwatch()..start();
     final effectiveInvalidation =
@@ -161,16 +161,16 @@ class EcsController extends ChangeNotifier {
   }
 
   /// Returns the latest status for [key].
-  EcsActionStatus actionStatusOf(final Object key) =>
+  EcsActionStatus actionStatusOf(Object key) =>
       _actionRunner.actionStatusOf(key);
 
   bool shouldRefreshResource<T extends Resource>() =>
       _lastInvalidation.matchesResourceType(T);
 
-  bool shouldRefreshComponent<T extends Component>({final Entity? entity}) =>
+  bool shouldRefreshComponent<T extends Component>({Entity? entity}) =>
       _lastInvalidation.matchesComponentType(T, entity: entity);
 
-  bool shouldRefreshWorld(final EcsWorldSelectorDependencies? dependencies) {
+  bool shouldRefreshWorld(EcsWorldSelectorDependencies? dependencies) {
     if (dependencies == null) return true;
     if (dependencies.structural && _lastInvalidation.matchesStructural()) {
       return true;
@@ -191,5 +191,5 @@ class EcsController extends ChangeNotifier {
   }
 }
 
-EcsHostSchedule? _hostScheduleFrom(final String? name) =>
+EcsHostSchedule? _hostScheduleFrom(String? name) =>
     name == null ? null : EcsHostSchedule(name);

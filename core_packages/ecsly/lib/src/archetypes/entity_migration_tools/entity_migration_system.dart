@@ -17,9 +17,9 @@ class EntityMigrationSystem {
 
   /// Migrate entity to new archetype (add component)
   void migrateAddComponent(
-    final Entity entity,
-    final ComponentId newComponentId,
-    final dynamic componentData,
+    Entity entity,
+    ComponentId newComponentId,
+    dynamic componentData,
   ) {
     // 1. Resolve current archetype
     final currentArchetype = ArchetypeResolver.resolveArchetype(
@@ -55,8 +55,8 @@ class EntityMigrationSystem {
 
   /// Migrate entity to new archetype (remove component)
   void migrateRemoveComponent(
-    final Entity entity,
-    final ComponentId componentId,
+    Entity entity,
+    ComponentId componentId,
   ) {
     // 1. Resolve current archetype
     final currentArchetype = ArchetypeResolver.resolveArchetype(

@@ -86,8 +86,8 @@ void main() {
       final q = ComponentQuery.fromWorld(world);
 
       final filtered = q
-          .iter1Where<NameComponent>((final name) => name.value != 'b')
-          .map((final item) => item.$2.value)
+          .iter1Where<NameComponent>((name) => name.value != 'b')
+          .map((item) => item.$2.value)
           .toList();
 
       expect(filtered, containsAll(['a', 'c']));
@@ -100,7 +100,7 @@ void main() {
       ).withType<NameComponent>().withoutType<HealthComponent>();
 
       final names = q.entities
-          .map((final e) => world.getComponent<NameComponent>(e).value)
+          .map((e) => world.getComponent<NameComponent>(e).value)
           .toList();
       expect(names, ['a']);
     });

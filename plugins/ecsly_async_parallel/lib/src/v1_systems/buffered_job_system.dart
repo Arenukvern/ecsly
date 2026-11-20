@@ -71,15 +71,15 @@ abstract class BufferedScheduleJobSystem<
   void Function(SendPort replyTo, TransferableTypedData chunk) get workerEntry;
 
   /// Extracts a single [TypedData] buffer of per-frame input from the world.
-  TypedData extractTyped(final World world);
+  TypedData extractTyped(World world);
 
   /// Slices [buffer] into per-chunk views.
   ///
   /// Default: split evenly by [chunkStrideBytes], yielding views over the
   /// original buffer (no copy). Override to customize chunk boundaries.
   List<ScheduleJobChunk<TChunk>> partitionTyped(
-    final TypedData buffer,
-    final ScheduleExecutionPolicyResource policy,
+    TypedData buffer,
+    ScheduleExecutionPolicyResource policy,
   ) {
     final stride = chunkStrideBytes;
     if (stride <= 0 || buffer.lengthInBytes <= stride) {
@@ -108,27 +108,27 @@ abstract class BufferedScheduleJobSystem<
   /// Runs a single chunk and returns its result buffer.
   ///
   /// Instance-side mirror of [workerEntry], used by [runSerial].
-  TResult executeChunk(final TChunk chunk);
+  TResult executeChunk(TChunk chunk);
 
   /// Merges ordered chunk results back into the world.
   void mergeTyped(
-    final World world,
-    final List<ScheduleJobChunkResult<TResult>> orderedResults,
+    World world,
+    List<ScheduleJobChunkResult<TResult>> orderedResults,
   );
 
   /// Wraps a chunk view so it can be sent across an isolate boundary.
-  TransferableBuffer wrapChunk(final TChunk chunk) =>
+  TransferableBuffer wrapChunk(TChunk chunk) =>
       TransferableBuffer.fromTypedData(chunk);
 
   /// Reconstructs a chunk view from a transferred buffer.
-  TChunk unwrapChunk(final TransferableBuffer buffer) => buffer.data as TChunk;
+  TChunk unwrapChunk(TransferableBuffer buffer) => buffer.data as TChunk;
 
   /// Reconstructs a result view from a transferred buffer.
   ///
   /// [TransferableBuffer.receive] materializes data as [Uint8List]; this method
   /// reinterprets the underlying buffer as [TResult]. Override if your result
   /// type needs custom reconstruction.
-  TResult unwrapResult(final TransferableBuffer buffer) {
+  TResult unwrapResult(TransferableBuffer buffer) {
     final data = buffer.data;
     if (TResult == Float32List) {
       return Float32List.view(
@@ -177,8 +177,8 @@ abstract class BufferedScheduleJobSystem<
   /// The [payload] is a [TransferableTypedData] containing the chunk buffer.
   /// The returned future completes with `[bool ok, TransferableTypedData result]`.
   Future<List<Object?>> dispatchChunk(
-    final TransferableTypedData payload,
-    final void Function(SendPort replyTo, TransferableTypedData chunk) worker,
+    TransferableTypedData payload,
+    void Function(SendPort replyTo, TransferableTypedData chunk) worker,
   ) async {
     final replyPort = ReceivePort();
     final isolate = await Isolate.spawn(_bufferedWorkerBridge, [
@@ -193,7 +193,7 @@ abstract class BufferedScheduleJobSystem<
   }
 
   @override
-  void runSerial(final World world) {
+  void runSerial(World world) {
     final policy = resolveScheduleExecutionPolicy(world);
     final buffer = extractTyped(world);
     final chunks = partitionTyped(buffer, policy);
@@ -211,15 +211,15 @@ abstract class BufferedScheduleJobSystem<
         ),
       );
     }
-    results.sort((final a, final b) => a.chunkKey.compareTo(b.chunkKey));
+    results.sort((a, b) => a.chunkKey.compareTo(b.chunkKey));
     mergeTyped(world, results);
   }
 
   @override
   Future<void> runDeterministic(
-    final World world, {
-    required final ScheduleExecutionPolicyResource policy,
-    required final ScheduleJobResultQueueResource queue,
+    World world, {
+    required ScheduleExecutionPolicyResource policy,
+    required ScheduleJobResultQueueResource queue,
   }) async {
     if (policy.workerCount <= 1) {
       runSerial(world);
@@ -239,15 +239,15 @@ abstract class BufferedScheduleJobSystem<
     }
 
     final results = await Future.wait(futures);
-    results.sort((final a, final b) => a.chunkKey.compareTo(b.chunkKey));
+    results.sort((a, b) => a.chunkKey.compareTo(b.chunkKey));
     mergeTyped(world, results);
   }
 
   @override
   Future<void> runBestEffort(
-    final World world, {
-    required final ScheduleExecutionPolicyResource policy,
-    required final ScheduleJobResultQueueResource queue,
+    World world, {
+    required ScheduleExecutionPolicyResource policy,
+    required ScheduleJobResultQueueResource queue,
   }) async {
     final frameId = currentScheduleExecutionFrame(world);
     var mergedCompletedFrame = false;
@@ -289,13 +289,13 @@ abstract class BufferedScheduleJobSystem<
     unawaited(
       Future.wait(
             chunks.map(
-              (final chunk) =>
+              (chunk) =>
                   _runChunkInIsolate(wrapChunk(chunk.payload), chunk.chunkKey),
             ),
           )
-          .then((final results) {
+          .then((results) {
             results.sort(
-              (final a, final b) => a.chunkKey.compareTo(b.chunkKey),
+              (a, b) => a.chunkKey.compareTo(b.chunkKey),
             );
             queue.completeInFlight(
               ScheduleJobResultEnvelope<TResult>(
@@ -305,7 +305,7 @@ abstract class BufferedScheduleJobSystem<
               ),
             );
           })
-          .catchError((final _) {
+          .catchError((_) {
             queue.cancelInFlight(jobKey: jobKey, frameId: frameId);
           }),
     );
@@ -317,8 +317,8 @@ abstract class BufferedScheduleJobSystem<
   /// isolate runs [workerEntry] on the received view and returns the result
   /// buffer through its result channel.
   Future<ScheduleJobChunkResult<TResult>> _runChunkInIsolate(
-    final TransferableBuffer chunkBuffer,
-    final int chunkKey,
+    TransferableBuffer chunkBuffer,
+    int chunkKey,
   ) async {
     final transferred = chunkBuffer.transfer();
     final result = await dispatchChunk(transferred, workerEntry);
@@ -338,7 +338,7 @@ abstract class BufferedScheduleJobSystem<
 
 /// Top-level bridge that turns an [Isolate.spawn] message into a single
 /// [workerEntry] call and replies with `[bool ok, TransferableTypedData]`.
-void _bufferedWorkerBridge(final List<Object?> message) {
+void _bufferedWorkerBridge(List<Object?> message) {
   final replyTo = message[0]! as SendPort;
   final worker = message[1]! as void Function(SendPort, TransferableTypedData);
   final chunk = message[2]! as TransferableTypedData;
@@ -378,9 +378,9 @@ class BufferSliceView {
 
 /// Creates a typed view over a sub-region of [buffer], preserving the type.
 T _sublistView<T extends TypedData>(
-  final TypedData buffer,
-  final int start,
-  final int end,
+  TypedData buffer,
+  int start,
+  int end,
 ) {
   final byteOffset = buffer.offsetInBytes + start;
   final byteLength = end - start;

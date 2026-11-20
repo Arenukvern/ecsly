@@ -5,7 +5,7 @@ import '../../../ecs_camera_plugin.dart';
 ///
 /// Searches for the first active camera with CameraPositionComponent.
 /// Used by systems that need to scale movements based on current zoom level.
-double getCameraZoom(final World world) {
+double getCameraZoom(World world) {
   try {
     for (final (entity, pos)
         in world.queryExt<CameraPositionComponent, CameraPosition>()) {
@@ -29,8 +29,8 @@ double getCameraZoom(final World world) {
 /// Returns (minZoom, maxZoom) tuple with fallback defaults if no constraints exist.
 /// This centralizes the zoom constraint extraction logic used across multiple camera systems.
 (double, double) getCameraZoomConstraints(
-  final World world,
-  final Entity cameraEntity,
+  World world,
+  Entity cameraEntity,
 ) {
   final (worldEntity, valid) = world.getEntity(cameraEntity);
   if (!valid) return (0.1, 10.0); // Fallback defaults

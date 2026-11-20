@@ -22,24 +22,24 @@ sealed class DataColumn {
 
   /// Copy element from this column to another column.
   void copyTo(
-    final int sourceIndex,
-    final DataColumn destination,
-    final int destIndex,
+    int sourceIndex,
+    DataColumn destination,
+    int destIndex,
   );
 
   /// Move element from this column to another column (clears source).
   void moveTo(
-    final int sourceIndex,
-    final DataColumn destination,
-    final int destIndex,
+    int sourceIndex,
+    DataColumn destination,
+    int destIndex,
   );
 
   /// Resize column to new capacity.
-  void resize(final int newCapacity);
+  void resize(int newCapacity);
 
   /// Swap two elements at given indices (O(1)).
-  void swap(final int indexA, final int indexB);
+  void swap(int indexA, int indexB);
 
   /// Remove element at index by swapping with last (O(1)).
-  void swapRemove(final int index);
+  void swapRemove(int index);
 }

@@ -64,7 +64,7 @@ class CameraControlPlugin extends Plugin {
   String get name => 'CameraControl';
 
   @override
-  void install(final World world) {
+  void install(World world) {
     // Verify dependencies
     if (!world.hasPlugin('Input')) {
       throw StateError(

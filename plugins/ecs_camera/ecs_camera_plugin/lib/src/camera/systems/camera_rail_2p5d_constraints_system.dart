@@ -4,7 +4,7 @@ import '../camera_orientation_math.dart';
 import '../components/camera_components.dart';
 
 /// Applies deterministic 2.5D rail clamps for cinematic side-view cameras.
-void cameraRail2p5DConstraintsSystem(final World world) {
+void cameraRail2p5DConstraintsSystem(World world) {
   for (final (_, pos, pose, constraints)
       in world
           .queryExt3<

@@ -9,7 +9,7 @@ import '../utils/gesture_types.dart';
 ///
 /// Replaces logic previously in UnifiedInputWidget.
 /// Processes raw events and emits classified gesture events (tap, drag, long-press, etc.).
-void gestureClassificationSystem(final World world) {
+void gestureClassificationSystem(World world) {
   final state = world.getResource<GestureClassificationState>();
   final now = DateTime.now();
 
@@ -94,7 +94,7 @@ void gestureClassificationSystem(final World world) {
   }
 
   // Handle long-press detection
-  state.checkLongPress(now, (final pointerState) {
+  state.checkLongPress(now, (pointerState) {
     world.events.writer<LongPressEvent>().send(
       LongPressEvent(
         position: pointerState.currentPosition,

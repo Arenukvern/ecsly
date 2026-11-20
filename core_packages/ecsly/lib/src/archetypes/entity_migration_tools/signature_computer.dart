@@ -15,16 +15,16 @@ class SignatureComputer {
   ///
   /// Returns a new signature with the component added.
   static ArchetypeSignature computeAddSignature(
-    final Archetype archetype,
-    final ComponentId componentId,
+    Archetype archetype,
+    ComponentId componentId,
   ) => archetype.signature.add(componentId);
 
   /// Computes a new signature by adding multiple components to an archetype's signature.
   ///
   /// Returns a new signature with all components added.
   static ArchetypeSignature computeAddSignatureMultiple(
-    final Archetype archetype,
-    final List<ComponentId> componentIds,
+    Archetype archetype,
+    List<ComponentId> componentIds,
   ) {
     if (componentIds.isEmpty) {
       return archetype.signature;
@@ -43,8 +43,8 @@ class SignatureComputer {
   ///
   /// Uses pooled temporary masks to avoid allocating a remove-mask each call.
   static ArchetypeSignature computeRemoveSignatureMultiple(
-    final Archetype archetype,
-    final List<ComponentId> componentIds,
+    Archetype archetype,
+    List<ComponentId> componentIds,
   ) {
     if (componentIds.isEmpty) {
       return archetype.signature;
@@ -67,15 +67,15 @@ class SignatureComputer {
   ///
   /// Returns a new signature with the component removed.
   static ArchetypeSignature computeRemoveSignature(
-    final Archetype archetype,
-    final ComponentId componentId,
+    Archetype archetype,
+    ComponentId componentId,
   ) => archetype.signature.remove(componentId);
 }
 
 final class _SignatureMaskBufferPool {
   final Map<int, List<ComponentMask>> _freeByLength = {};
 
-  ComponentMask acquireLike(final ComponentMask source) {
+  ComponentMask acquireLike(ComponentMask source) {
     final length = source.length;
     final bucket = _freeByLength[length];
     if (bucket != null && bucket.isNotEmpty) {
@@ -86,12 +86,12 @@ final class _SignatureMaskBufferPool {
     return fresh;
   }
 
-  void release(final ComponentMask mask) {
+  void release(ComponentMask mask) {
     _clearWords(mask);
     _freeByLength.putIfAbsent(mask.length, () => []).add(mask);
   }
 
-  void _clearWords(final ComponentMask mask) {
+  void _clearWords(ComponentMask mask) {
     for (var i = 0; i < mask.length; i++) {
       mask.setWord(i, 0);
     }

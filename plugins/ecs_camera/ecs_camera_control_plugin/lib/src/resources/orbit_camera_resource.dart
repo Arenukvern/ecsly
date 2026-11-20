@@ -142,7 +142,7 @@ class OrbitCameraResource extends Resource {
   }
 
   /// Grab-the-world orbit: [dx] spins yaw, [dy] tilts pitch (clamped).
-  void orbit(final double dx, final double dy) {
+  void orbit(double dx, double dy) {
     yaw += dx * orbitSensitivity;
     pitch = math.max(
       minPitch,
@@ -153,7 +153,7 @@ class OrbitCameraResource extends Resource {
   /// Grab-the-world pan: slide the target across the ground plane (XZ),
   /// camera-relative, scaled by [distance]. Sign-derived from flutter_scene's
   /// left-handed screen axes (see class doc).
-  void pan(final double dx, final double dy) {
+  void pan(double dx, double dy) {
     final s = distance * panScale;
     final sinYaw = math.sin(yaw);
     final cosYaw = math.cos(yaw);
@@ -162,7 +162,7 @@ class OrbitCameraResource extends Resource {
   }
 
   /// Scales [distance] by [factor] (clamped). factor < 1 zooms in.
-  void zoom(final double factor) {
+  void zoom(double factor) {
     distance = math.max(minDistance, math.min(maxDistance, distance * factor));
   }
 
@@ -171,10 +171,10 @@ class OrbitCameraResource extends Resource {
   /// screen. The renderer bridge computes the world point (it owns the
   /// projection); this stays renderer-agnostic. factor < 1 zooms in.
   void zoomAt(
-    final double factor,
-    final double wx,
-    final double wy,
-    final double wz,
+    double factor,
+    double wx,
+    double wy,
+    double wz,
   ) {
     final before = distance;
     zoom(factor);
@@ -186,7 +186,7 @@ class OrbitCameraResource extends Resource {
   }
 
   /// Points the camera at a world position (agent close-up / focus actions).
-  void focus(final double x, final double y, final double z) {
+  void focus(double x, double y, double z) {
     targetX = x;
     targetY = y;
     targetZ = z;

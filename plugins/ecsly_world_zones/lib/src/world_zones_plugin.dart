@@ -31,12 +31,12 @@ class WorldZonesPlugin extends Plugin {
   String get name => 'ecsly_world_zones';
 
   @override
-  void install(final World world) {
+  void install(World world) {
     registerMeshPulseSchedule(world, pulse, trigger: trigger);
   }
 
   @override
-  void uninstall(final World world) {
+  void uninstall(World world) {
     world.systems.removeSchedule(meshPulseScheduleId);
   }
 }

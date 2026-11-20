@@ -77,7 +77,7 @@ class SharedMemory {
   /// Creates shared memory with the specified size.
   ///
   /// Returns null if malloc is not available on this platform.
-  static SharedMemory? create(final int byteLength) {
+  static SharedMemory? create(int byteLength) {
     try {
       final pointer = _malloc(byteLength).cast<Uint8>();
       return SharedMemory._(pointer, byteLength);
@@ -89,7 +89,7 @@ class SharedMemory {
   /// Reconstructs shared memory from an address.
   ///
   /// Use this in another isolate to access the same memory.
-  static SharedMemory? fromAddress(final int address, final int byteLength) {
+  static SharedMemory? fromAddress(int address, int byteLength) {
     try {
       final pointer = Pointer<Uint8>.fromAddress(address);
       return SharedMemory._(pointer, byteLength);

@@ -64,10 +64,10 @@ class SparseTypeList {
   int get length => _length;
 
   /// Check if a Type is registered (O(1))
-  bool contains(final Type type) => get(type) != null;
+  bool contains(Type type) => get(type) != null;
 
   /// Get the ComponentId for a given Type (O(1) expected).
-  ComponentId? get(final Type type) {
+  ComponentId? get(Type type) {
     var index = _getIndex(type);
     for (var probes = 0; probes < _arraySize; probes++) {
       final key = _keys[index];
@@ -79,7 +79,7 @@ class SparseTypeList {
   }
 
   /// Set the ComponentId for a given Type (O(1) expected).
-  void set(final Type type, final ComponentId componentId) {
+  void set(Type type, ComponentId componentId) {
     var index = _getIndex(type);
     int firstTombstone = -1;
 
@@ -110,7 +110,7 @@ class SparseTypeList {
   }
 
   /// Remove a Type-ComponentId mapping
-  void remove(final Type type) {
+  void remove(Type type) {
     var index = _getIndex(type);
     for (var probes = 0; probes < _arraySize; probes++) {
       final key = _keys[index];
@@ -127,5 +127,5 @@ class SparseTypeList {
 
   /// Calculate array index using fast modulo: hashCode & (size - 1)
   /// This is equivalent to hashCode.abs() % _arraySize but much faster
-  int _getIndex(final Type type) => type.hashCode.abs() & (_arraySize - 1);
+  int _getIndex(Type type) => type.hashCode.abs() & (_arraySize - 1);
 }

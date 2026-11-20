@@ -20,7 +20,7 @@ class PluginRegistry {
   /// Add a plugin to the world.
   ///
   /// Throws [PluginInstallationException] if a plugin with the same name is already installed.
-  void add(final Plugin plugin, final World world) {
+  void add(Plugin plugin, World world) {
     if (_plugins.containsKey(plugin.name)) {
       throw PluginInstallationException(
         plugin.name,
@@ -40,16 +40,16 @@ class PluginRegistry {
   /// Get a plugin by name.
   ///
   /// Returns null if the plugin is not installed.
-  Plugin? get(final String name) => _plugins[name];
+  Plugin? get(String name) => _plugins[name];
 
   /// Check if a plugin is installed.
-  bool has(final String name) => _plugins.containsKey(name);
+  bool has(String name) => _plugins.containsKey(name);
 
   /// Remove a plugin from the world.
   ///
   /// Calls the plugin's uninstall method if it exists.
   /// Returns true if a plugin was removed, false otherwise.
-  bool remove(final String name, final World world) {
+  bool remove(String name, World world) {
     final plugin = _plugins.remove(name);
     if (plugin != null) {
       plugin.uninstall(world);

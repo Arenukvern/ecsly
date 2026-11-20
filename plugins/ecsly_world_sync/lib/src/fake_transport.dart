@@ -9,14 +9,14 @@ final class FakeTransport {
   final Map<String, List<OpRecord>> _inboxes = {};
 
   /// Registers an inbox for [actorId]. Idempotent.
-  void register(final String actorId) =>
+  void register(String actorId) =>
       _inboxes.putIfAbsent(actorId, () => []);
 
   /// Sends a JSON-encoded copy of [ops] from [from] to [to]'s inbox.
   void send(
-    final String from,
-    final String to,
-    final Iterable<OpRecord> ops,
+    String from,
+    String to,
+    Iterable<OpRecord> ops,
   ) {
     final inbox = _inboxes[to];
     if (inbox == null) {
@@ -31,7 +31,7 @@ final class FakeTransport {
   }
 
   /// Removes and returns everything queued for [actorId].
-  List<OpRecord> drain(final String actorId) {
+  List<OpRecord> drain(String actorId) {
     final inbox = _inboxes[actorId];
     if (inbox == null) {
       throw ArgumentError.value(actorId, 'actorId', 'Unregistered replica');

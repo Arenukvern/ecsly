@@ -9,7 +9,7 @@ class PerformanceResource extends Resource {
     required this.fps,
     required this.frameTime,
     required this.entityCount,
-    final List<double>? frameTimeSamples,
+    List<double>? frameTimeSamples,
   }) : frameTimeSamples = frameTimeSamples ?? [];
 
   static const int maxSamples = 60; // Rolling average over 60 frames
@@ -19,7 +19,7 @@ class PerformanceResource extends Resource {
 
   final List<double> frameTimeSamples;
 
-  void update(final double dt, final int currentEntityCount) {
+  void update(double dt, int currentEntityCount) {
     final newFrameTime = dt * 1000; // Convert to milliseconds
     frameTimeSamples.add(newFrameTime);
 
@@ -30,7 +30,7 @@ class PerformanceResource extends Resource {
 
     // Calculate rolling average FPS
     final avgFrameTime = frameTimeSamples.isNotEmpty
-        ? frameTimeSamples.reduce((final a, final b) => a + b) /
+        ? frameTimeSamples.reduce((a, b) => a + b) /
               frameTimeSamples.length
         : newFrameTime;
 

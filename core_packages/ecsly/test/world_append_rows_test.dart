@@ -10,8 +10,8 @@ final class IngestValueComponent extends Component {
 final class _IngestValueColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => IntColumn(initialCapacity: initialCapacity);
 }
 
@@ -32,7 +32,7 @@ World buildWorld() {
   return world;
 }
 
-ArchetypeSignature ingestSignature(final World world) => ArchetypeSignature.fromIds([
+ArchetypeSignature ingestSignature(World world) => ArchetypeSignature.fromIds([
   world.components.getComponentId<IngestValueComponent>(),
   world.components.getComponentId<IngestLabelComponent>(),
 ]);

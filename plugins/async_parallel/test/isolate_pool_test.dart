@@ -7,9 +7,9 @@ void main() {
       final pool = IsolateExecutorPool(examplePoolWorkerEntry);
       try {
         final results = await Future.wait(
-          List.generate(10, (final i) => pool.execute<int>(i)),
+          List.generate(10, (i) => pool.execute<int>(i)),
         );
-        expect(results, equals(List.generate(10, (final i) => i * 2)));
+        expect(results, equals(List.generate(10, (i) => i * 2)));
       } finally {
         await pool.shutdown();
       }
@@ -20,11 +20,11 @@ void main() {
       final pool = IsolateExecutorPool(examplePoolWorkerEntry, size: 1);
       try {
         final results = await Future.wait(
-          List.generate(50, (final i) => pool.execute<int>(i)),
+          List.generate(50, (i) => pool.execute<int>(i)),
         );
         expect(results, hasLength(50));
         // The worker doubles its input, so every result is even and in order.
-        expect(results, equals(List.generate(50, (final i) => i * 2)));
+        expect(results, equals(List.generate(50, (i) => i * 2)));
       } finally {
         await pool.shutdown();
       }
@@ -35,7 +35,7 @@ void main() {
       try {
         final stopwatch = Stopwatch()..start();
         final results = await Future.wait(
-          List.generate(8, (final i) => pool.execute<int>(i)),
+          List.generate(8, (i) => pool.execute<int>(i)),
         );
         stopwatch.stop();
         expect(results, hasLength(8));
@@ -56,16 +56,16 @@ void main() {
 
   group('IsolateExecutorPoolAdapter', () {
     test('adapts a pool to the IsolateExecutor interface', () async {
-      final pool = IsolateExecutorPool(examplePoolWorkerEntry, size: 2);
+      final pool = IsolateExecutorPool(examplePoolWorkerEntry);
       final executor = IsolateExecutorPoolAdapter(pool);
       try {
         final results = await Future.wait(
           List.generate(
             6,
-            (final i) => executor.compute<int, int>((_) => 0, i),
+            (i) => executor.compute<int, int>((_) => 0, i),
           ),
         );
-        expect(results, equals(List.generate(6, (final i) => i * 2)));
+        expect(results, equals(List.generate(6, (i) => i * 2)));
       } finally {
         await pool.shutdown();
       }

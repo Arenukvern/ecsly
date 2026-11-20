@@ -42,7 +42,7 @@ class CameraConstraints extends Component {
 
   /// Constrain position and zoom to bounds.
   /// Clamps both current and target values to ensure consistency.
-  void constrainPosition(final CameraPosition pos) {
+  void constrainPosition(CameraPosition pos) {
     // Clamp target position
     if (minX != null || maxX != null) {
       pos.targetX = pos.targetX.clamp(

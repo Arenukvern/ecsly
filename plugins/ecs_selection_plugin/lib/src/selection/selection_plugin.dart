@@ -14,7 +14,7 @@ class SelectionPlugin extends Plugin {
   String get name => 'Selection';
 
   @override
-  void install(final World world) {
+  void install(World world) {
     world.upsertResource(SelectionStateResource());
   }
 }

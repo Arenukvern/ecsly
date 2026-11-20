@@ -3,14 +3,14 @@ import 'dart:ui' as ui;
 import 'package:ecsly/ecsly.dart';
 import 'package:ecs_input_plugin/ecs_input_plugin.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets(
     'UnifiedInputWidget forwards scale update delta, rotation, and pointer count',
-    (final tester) async {
+    (tester) async {
       final world = World()..addPlugin(InputPlugin());
 
       await tester.pumpWidget(
@@ -26,12 +26,12 @@ void main() {
       );
 
       final stackFinder = find.byWidgetPredicate(
-        (final widget) => widget is Stack && widget.fit == StackFit.expand,
+        (widget) => widget is Stack && widget.fit == StackFit.expand,
       );
       expect(stackFinder, findsOneWidget);
 
       final gestureFinder = find.byWidgetPredicate(
-        (final widget) =>
+        (widget) =>
             widget is GestureDetector &&
             widget.onScaleStart != null &&
             widget.onScaleUpdate != null &&
@@ -68,7 +68,7 @@ void main() {
 
   testWidgets(
     'Listener skips pan-zoom callbacks so trackpad gestures are not doubled',
-    (final tester) async {
+    (tester) async {
       // Regression pin: macOS routes trackpad pan/zoom to BOTH
       // Listener.onPointerPanZoom* AND the scale recognizer (Flutter feeds
       // PointerPanZoom events to ScaleGestureRecognizer too). Wiring both
@@ -92,7 +92,7 @@ void main() {
 
       final listener = tester.widget<Listener>(
         find.byWidgetPredicate(
-          (final widget) =>
+          (widget) =>
               widget is Listener && widget.onPointerSignal != null,
         ),
       );
@@ -103,7 +103,7 @@ void main() {
       // The scale path (single source for touch + trackpad) stays wired.
       final gestureDetector = tester.widget<GestureDetector>(
         find.byWidgetPredicate(
-          (final widget) =>
+          (widget) =>
               widget is GestureDetector && widget.onScaleUpdate != null,
         ),
       );
@@ -115,7 +115,7 @@ void main() {
 
   testWidgets(
     'UnifiedInputWidget forwards pointer hover as a raw hover event',
-    (final tester) async {
+    (tester) async {
       // Hover (mouse move with NO buttons) never reaches onPointerMove —
       // hosts that track the cursor without a press (placement ghosts,
       // hover picking) rely on this dedicated event.
@@ -127,7 +127,7 @@ void main() {
           child: SizedBox.expand(
             child: UnifiedInputWidget(
               world: world,
-              toWorldCoords: (final p, final size) =>
+              toWorldCoords: (p, size) =>
                   ui.Offset(p.dx * 2, p.dy * 2),
               child: const SizedBox.expand(),
             ),
@@ -137,7 +137,7 @@ void main() {
 
       final listener = tester.widget<Listener>(
         find.byWidgetPredicate(
-          (final widget) => widget is Listener && widget.onPointerHover != null,
+          (widget) => widget is Listener && widget.onPointerHover != null,
         ),
       );
       listener.onPointerHover!(
@@ -161,7 +161,7 @@ void main() {
 
   testWidgets(
     'Scale updates carry the host world focal point into PinchEvent',
-    (final tester) async {
+    (tester) async {
       final world = World()..addPlugin(InputPlugin());
 
       await tester.pumpWidget(
@@ -170,7 +170,7 @@ void main() {
           child: SizedBox.expand(
             child: UnifiedInputWidget(
               world: world,
-              toWorldCoords: (final p, final size) =>
+              toWorldCoords: (p, size) =>
                   ui.Offset(p.dx * 2, p.dy * 2),
               child: const SizedBox.expand(),
             ),
@@ -179,7 +179,7 @@ void main() {
       );
 
       final gestureFinder = find.byWidgetPredicate(
-        (final widget) =>
+        (widget) =>
             widget is GestureDetector && widget.onScaleUpdate != null,
       );
       final gestureDetector = tester.widget<GestureDetector>(gestureFinder);
@@ -208,7 +208,7 @@ void main() {
 
   testWidgets(
     'UnifiedInputWidget can convert trackpad scroll into raw scale pan updates',
-    (final tester) async {
+    (tester) async {
       final world = World()..addPlugin(InputPlugin());
 
       await tester.pumpWidget(
@@ -225,7 +225,7 @@ void main() {
       );
 
       final listenerFinder = find.byWidgetPredicate(
-        (final widget) => widget is Listener && widget.onPointerSignal != null,
+        (widget) => widget is Listener && widget.onPointerSignal != null,
       );
       expect(listenerFinder, findsOneWidget);
       final listener = tester.widget<Listener>(listenerFinder);
@@ -257,7 +257,7 @@ void main() {
 
   testWidgets(
     'UnifiedInputWidget keeps shift+trackpad scroll as ScrollEvent for pan bindings',
-    (final tester) async {
+    (tester) async {
       final world = World()..addPlugin(InputPlugin());
 
       await tester.pumpWidget(
@@ -276,7 +276,7 @@ void main() {
       await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
 
       final listenerFinder = find.byWidgetPredicate(
-        (final widget) => widget is Listener && widget.onPointerSignal != null,
+        (widget) => widget is Listener && widget.onPointerSignal != null,
       );
       expect(listenerFinder, findsOneWidget);
       final listener = tester.widget<Listener>(listenerFinder);
@@ -310,7 +310,7 @@ void main() {
 
   testWidgets(
     'UnifiedInputWidget forwards pointer scroll kind into scroll events',
-    (final tester) async {
+    (tester) async {
       final world = World()..addPlugin(InputPlugin());
 
       await tester.pumpWidget(
@@ -326,7 +326,7 @@ void main() {
       );
 
       final listenerFinder = find.byWidgetPredicate(
-        (final widget) => widget is Listener && widget.onPointerSignal != null,
+        (widget) => widget is Listener && widget.onPointerSignal != null,
       );
       expect(listenerFinder, findsOneWidget);
       final listener = tester.widget<Listener>(listenerFinder);

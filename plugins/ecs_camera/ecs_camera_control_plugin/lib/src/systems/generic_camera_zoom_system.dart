@@ -11,7 +11,7 @@ import '../resources/camera_interaction_mode_resource.dart';
 ///
 /// Uses frame-rate independent calculations with deltaTime for consistent zoom speed
 /// regardless of FPS. Supports both linear and exponential zoom modes.
-void genericCameraZoomSystem(final World world) {
+void genericCameraZoomSystem(World world) {
   // Graceful exit if InputPlugin not installed
   if (!world.resources.has<InputStateTracker>()) {
     return;

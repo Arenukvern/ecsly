@@ -10,12 +10,12 @@ class CountingPlugin extends Plugin {
   final List<String> uninstalls;
 
   @override
-  void install(final World world) {
+  void install(World world) {
     installs.add(name);
   }
 
   @override
-  void uninstall(final World world) {
+  void uninstall(World world) {
     uninstalls.add(name);
   }
 }
@@ -27,10 +27,10 @@ void main() {
       final calls = <String>[];
 
       final schedule = Schedule('Order')
-        ..add((final _) => calls.add('a'), name: 'a')
-        ..then((final _) => calls.add('b'), name: 'b')
-        ..add((final _) => calls.add('c'), name: 'c', runAfter: const ['b'])
-        ..add((final _) => calls.add('d'), name: 'd', runBefore: const ['c']);
+        ..add((_) => calls.add('a'), name: 'a')
+        ..then((_) => calls.add('b'), name: 'b')
+        ..add((_) => calls.add('c'), name: 'c', runAfter: const ['b'])
+        ..add((_) => calls.add('d'), name: 'd', runBefore: const ['c']);
 
       schedule.run(world);
 
@@ -41,15 +41,15 @@ void main() {
 
     test('cycle detection throws CircularDependencyError with cycle info', () {
       final schedule = Schedule('Cycle')
-        ..add((final _) {}, name: 'a', runAfter: const ['c'])
-        ..add((final _) {}, name: 'b', runAfter: const ['a'])
-        ..add((final _) {}, name: 'c', runAfter: const ['b']);
+        ..add((_) {}, name: 'a', runAfter: const ['c'])
+        ..add((_) {}, name: 'b', runAfter: const ['a'])
+        ..add((_) {}, name: 'c', runAfter: const ['b']);
 
       expect(
         () => schedule.run(World()),
         throwsA(
           isA<CircularDependencyError>().having(
-            (final e) => e.cycle,
+            (e) => e.cycle,
             'cycle',
             isNotEmpty,
           ),
@@ -61,19 +61,19 @@ void main() {
       final world = World();
       final calls = <String>[];
 
-      void p1(final World _) {
+      void p1(World _) {
         calls.add('p1');
       }
 
-      void p2(final World _) {
+      void p2(World _) {
         calls.add('p2');
       }
 
       final schedule = Schedule('Parallel')
-        ..add((final _) => calls.add('start'), name: 'start')
+        ..add((_) => calls.add('start'), name: 'start')
         ..parallel([p1, p2], mode: ExecutionMode.sync)
         ..add(
-          (final _) => calls.add('end'),
+          (_) => calls.add('end'),
           name: 'end',
           runAfter: const ['start'],
         );
@@ -103,7 +103,7 @@ void main() {
 
       expect(world.removePlugin('test.plugin'), isTrue);
       expect(world.removePlugin('test.plugin'), isFalse);
-      expect(uninstalls.where((final p) => p == 'test.plugin').length, 1);
+      expect(uninstalls.where((p) => p == 'test.plugin').length, 1);
     });
 
     test('addPluginIfAbsent installs once without replacing', () {

@@ -109,7 +109,7 @@ mixin TypedDataEventMixin on EcsEvent {
   /// Writes numeric fields into a preallocated float buffer.
   ///
   /// Override this in hot events to avoid allocating [numericFields] on send.
-  void writeNumericFieldsTo(final Float32List target) {
+  void writeNumericFieldsTo(Float32List target) {
     final fields = numericFields;
     for (var i = 0; i < fields.length; i++) {
       target[i] = fields[i];
@@ -119,7 +119,7 @@ mixin TypedDataEventMixin on EcsEvent {
   /// Writes numeric fields into a preallocated int buffer.
   ///
   /// Override this in int-only events to avoid allocation and conversion.
-  void writeNumericIntFieldsTo(final Int32List target) {
+  void writeNumericIntFieldsTo(Int32List target) {
     final fields = numericFields;
     for (var i = 0; i < fields.length; i++) {
       target[i] = fields[i].toInt();

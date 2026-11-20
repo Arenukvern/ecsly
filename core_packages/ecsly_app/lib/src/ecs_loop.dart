@@ -8,7 +8,7 @@ import '../ecsly_app.dart';
 class EcsLoop {
   final worlds = <WorldId, World>{};
 
-  void attachWorld(final World world) => worlds[world.id] = world;
+  void attachWorld(World world) => worlds[world.id] = world;
 
   void dispose() {
     for (final world in worlds.values) {
@@ -59,7 +59,7 @@ class EcsFixedLoop extends EcsLoop {
   Timer? timer;
   bool get isLoopActive => timer != null && timer?.isActive == true;
 
-  void start(final EcsFixedLoopConfig? config) {
+  void start(EcsFixedLoopConfig? config) {
     if (config != null) this.config = config;
     timer = Timer(this.config.fixedDtDuration, _handleTick);
   }
@@ -76,7 +76,7 @@ class EcsFixedLoop extends EcsLoop {
     timer = null;
   }
 
-  void tickWorld(final World world, final Duration elapsed) {
+  void tickWorld(World world, Duration elapsed) {
     final frameTime = _lastElapsed == Duration.zero
         ? 0.0
         : (elapsed - _lastElapsed).inMicroseconds / 1000000.0;
@@ -111,7 +111,7 @@ class EcsFixedLoop extends EcsLoop {
     }
   }
 
-  void _runFixedStep(final World world) {
+  void _runFixedStep(World world) {
     _updateTimeResources(world, config.fixedDt);
     // Advance the schedule execution frame so that best-effort job systems
     // (ScheduleJobResultQueueResource) can pipeline across frames.
@@ -126,7 +126,7 @@ class EcsFixedLoop extends EcsLoop {
   }
 }
 
-void _updateTimeResources(final World world, final double dt) {
+void _updateTimeResources(World world, double dt) {
   if (!world.resources.has<DeltaTimeResource>()) {
     world.upsertResource(DeltaTimeResource(dt));
   } else {

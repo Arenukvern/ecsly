@@ -16,7 +16,7 @@ const int inputModifierAltMask = 1 << 2;
 const int inputModifierMetaMask = 1 << 3;
 
 int modifierMaskFromPressedKeys(
-  final Iterable<LogicalKeyboardKey> pressedKeys,
+  Iterable<LogicalKeyboardKey> pressedKeys,
 ) {
   final keys = pressedKeys is Set<LogicalKeyboardKey>
       ? pressedKeys
@@ -41,14 +41,14 @@ int modifierMaskFromPressedKeys(
   return mask;
 }
 
-int _intField(final List<double> fields, final int index) =>
+int _intField(List<double> fields, int index) =>
     index < fields.length ? fields[index].toInt() : 0;
 
 /// Raw key down event (key pressed).
 class RawKeyDownEvent extends RawKeyEvent {
   const RawKeyDownEvent({required super.key, required super.timestamp});
 
-  static RawKeyDownEvent fromDoubleFields(final List<double> fields) =>
+  static RawKeyDownEvent fromDoubleFields(List<double> fields) =>
       RawKeyDownEvent(
         key: LogicalKeyboardKey(fields[0].toInt()),
         timestamp: fields[1].toInt(),
@@ -75,7 +75,7 @@ sealed class RawKeyEvent extends EcsEvent
 class RawKeyRepeatEvent extends RawKeyEvent {
   const RawKeyRepeatEvent({required super.key, required super.timestamp});
 
-  static RawKeyRepeatEvent fromDoubleFields(final List<double> fields) =>
+  static RawKeyRepeatEvent fromDoubleFields(List<double> fields) =>
       RawKeyRepeatEvent(
         key: LogicalKeyboardKey(fields[0].toInt()),
         timestamp: fields[1].toInt(),
@@ -86,7 +86,7 @@ class RawKeyRepeatEvent extends RawKeyEvent {
 class RawKeyUpEvent extends RawKeyEvent {
   const RawKeyUpEvent({required super.key, required super.timestamp});
 
-  static RawKeyUpEvent fromDoubleFields(final List<double> fields) =>
+  static RawKeyUpEvent fromDoubleFields(List<double> fields) =>
       RawKeyUpEvent(
         key: LogicalKeyboardKey(fields[0].toInt()),
         timestamp: fields[1].toInt(),
@@ -102,7 +102,7 @@ class RawPointerCancelEvent extends RawPointerEvent {
     super.modifierMask,
   }) : super(position: ui.Offset.zero, worldPosition: ui.Offset.zero);
 
-  static RawPointerCancelEvent fromDoubleFields(final List<double> fields) =>
+  static RawPointerCancelEvent fromDoubleFields(List<double> fields) =>
       RawPointerCancelEvent(
         timestamp: fields[4].toInt(),
         pointer: fields[5].toInt(),
@@ -122,7 +122,7 @@ class RawPointerDownEvent extends RawPointerEvent {
     super.modifierMask,
   });
 
-  static RawPointerDownEvent fromDoubleFields(final List<double> fields) =>
+  static RawPointerDownEvent fromDoubleFields(List<double> fields) =>
       RawPointerDownEvent(
         position: ui.Offset(fields[0], fields[1]),
         worldPosition: ui.Offset(fields[2], fields[3]),
@@ -181,7 +181,7 @@ class RawPointerHoverEvent extends RawPointerEvent {
     super.modifierMask,
   });
 
-  static RawPointerHoverEvent fromDoubleFields(final List<double> fields) =>
+  static RawPointerHoverEvent fromDoubleFields(List<double> fields) =>
       RawPointerHoverEvent(
         position: ui.Offset(fields[0], fields[1]),
         worldPosition: ui.Offset(fields[2], fields[3]),
@@ -220,7 +220,7 @@ class RawPointerMoveEvent extends RawPointerEvent {
     modifierMask.toDouble(),
   ];
 
-  static RawPointerMoveEvent fromDoubleFields(final List<double> fields) =>
+  static RawPointerMoveEvent fromDoubleFields(List<double> fields) =>
       RawPointerMoveEvent(
         position: ui.Offset(fields[0], fields[1]),
         worldPosition: ui.Offset(fields[2], fields[3]),
@@ -243,7 +243,7 @@ class RawPointerUpEvent extends RawPointerEvent {
     super.modifierMask,
   });
 
-  static RawPointerUpEvent fromDoubleFields(final List<double> fields) =>
+  static RawPointerUpEvent fromDoubleFields(List<double> fields) =>
       RawPointerUpEvent(
         position: ui.Offset(fields[0], fields[1]),
         worldPosition: ui.Offset(fields[2], fields[3]),
@@ -265,7 +265,7 @@ class RawScaleEndEvent extends EcsEvent
   @override
   List<double> get numericFields => [timestamp.toDouble()];
 
-  static RawScaleEndEvent fromDoubleFields(final List<double> fields) =>
+  static RawScaleEndEvent fromDoubleFields(List<double> fields) =>
       RawScaleEndEvent(timestamp: fields[0].toInt());
 }
 
@@ -285,7 +285,7 @@ class RawScaleStartEvent extends EcsEvent
     timestamp.toDouble(),
   ];
 
-  static RawScaleStartEvent fromDoubleFields(final List<double> fields) =>
+  static RawScaleStartEvent fromDoubleFields(List<double> fields) =>
       RawScaleStartEvent(
         focalPoint: ui.Offset(fields[0], fields[1]),
         timestamp: fields[2].toInt(),
@@ -320,7 +320,7 @@ class RawScaleUpdateEvent extends EcsEvent
     this.rotation = 0.0,
     this.pointerCount = 0,
     required this.timestamp,
-    final ui.Offset? worldFocalPoint,
+    ui.Offset? worldFocalPoint,
   }) : worldFocalPoint = worldFocalPoint ?? focalPoint;
 
   @override
@@ -337,7 +337,7 @@ class RawScaleUpdateEvent extends EcsEvent
     worldFocalPoint.dy,
   ];
 
-  static RawScaleUpdateEvent fromDoubleFields(final List<double> fields) =>
+  static RawScaleUpdateEvent fromDoubleFields(List<double> fields) =>
       RawScaleUpdateEvent(
         focalPoint: ui.Offset(fields[0], fields[1]),
         scale: fields[2],

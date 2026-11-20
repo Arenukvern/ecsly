@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-void main(final List<String> args) {
+void main(List<String> args) {
   final path = args.isEmpty
       ? 'build/reports/selector_invalidation_profile.v1.json'
       : args.single;
@@ -99,14 +99,14 @@ void main(final List<String> args) {
   }
 }
 
-String _requireString(final Map<String, Object?> object, final String key) {
+String _requireString(Map<String, Object?> object, String key) {
   final value = object[key];
   if (value is String && value.isNotEmpty) return value;
   stderr.writeln('Scenario field `$key` must be a non-empty string.');
   exit(65);
 }
 
-int _requireInt(final Map<String, Object?> object, final String key) {
+int _requireInt(Map<String, Object?> object, String key) {
   final value = object[key];
   if (value is int && value >= 0) return value;
   stderr.writeln('Scenario field `$key` must be a non-negative integer.');
@@ -114,12 +114,12 @@ int _requireInt(final Map<String, Object?> object, final String key) {
 }
 
 int _requireIntWithFallback(
-  final Map<String, Object?> object,
-  final String preferredKey,
-  final String fallbackKey,
+  Map<String, Object?> object,
+  String preferredKey,
+  String fallbackKey,
 ) => _optionalInt(object, preferredKey) ?? _requireInt(object, fallbackKey);
 
-int? _optionalInt(final Map<String, Object?> object, final String key) {
+int? _optionalInt(Map<String, Object?> object, String key) {
   final value = object[key];
   if (value == null) return null;
   if (value is int && value >= 0) return value;
@@ -127,7 +127,7 @@ int? _optionalInt(final Map<String, Object?> object, final String key) {
   exit(65);
 }
 
-bool _requireBool(final Map<String, Object?> object, final String key) {
+bool _requireBool(Map<String, Object?> object, String key) {
   final value = object[key];
   if (value is bool) return value;
   stderr.writeln('Scenario field `$key` must be a boolean.');
@@ -135,8 +135,8 @@ bool _requireBool(final Map<String, Object?> object, final String key) {
 }
 
 Map<String, Object?> _requireMap(
-  final Map<String, Object?> object,
-  final String key,
+  Map<String, Object?> object,
+  String key,
 ) {
   final value = object[key];
   if (value is Map<String, Object?>) return value;

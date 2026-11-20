@@ -33,13 +33,13 @@ void main() {
 
     final snap = WorldDebugView(world).snapshot();
     expect(
-      snap.schedules.any((final s) => s.name == ScheduleId.update.value),
+      snap.schedules.any((s) => s.name == ScheduleId.update.value),
       isTrue,
     );
     expect(snap.archetypeCount, isNonNegative);
     expect(
       snap.resources.any(
-        (final r) =>
+        (r) =>
             r.type == LevelStateResource && (r.exists || r.isPendingPush),
       ),
       isTrue,
@@ -54,36 +54,36 @@ class _RecordingObserver extends EcsExecutionObserverBase {
   int systemEnds = 0;
 
   @override
-  void onScheduleEnd(final World world, final String scheduleName) {
+  void onScheduleEnd(World world, String scheduleName) {
     scheduleEnds += 1;
   }
 
   @override
   void onScheduleStart(
-    final World world,
-    final String scheduleName, {
-    required final int systemCount,
+    World world,
+    String scheduleName, {
+    required int systemCount,
   }) {
     scheduleStarts += 1;
   }
 
   @override
   void onSystemEnd(
-    final World world,
-    final String scheduleName,
-    final SystemDescriptor system, {
-    required final int elapsedMicroseconds,
-    final Object? error,
-    final StackTrace? stackTrace,
+    World world,
+    String scheduleName,
+    SystemDescriptor system, {
+    required int elapsedMicroseconds,
+    Object? error,
+    StackTrace? stackTrace,
   }) {
     systemEnds += 1;
   }
 
   @override
   void onSystemStart(
-    final World world,
-    final String scheduleName,
-    final SystemDescriptor system,
+    World world,
+    String scheduleName,
+    SystemDescriptor system,
   ) {
     systemStarts += 1;
   }

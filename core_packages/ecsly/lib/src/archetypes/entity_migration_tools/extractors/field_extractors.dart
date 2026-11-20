@@ -12,19 +12,19 @@ class ValueFieldExtractor<T> implements ComponentDataExtractor<T> {
   final num Function(T) getValue;
 
   @override
-  List<double> extractFloats(final T component) {
+  List<double> extractFloats(T component) {
     final value = getValue(component);
     return [value.toDouble()];
   }
 
   @override
-  int? extractInt(final T component) {
+  int? extractInt(T component) {
     final value = getValue(component);
     return value.toInt();
   }
 
   @override
-  Object? extractObject(final T component) => null;
+  Object? extractObject(T component) => null;
 }
 
 /// Extractor for components with x and y fields (Position, Transform, Velocity).
@@ -40,14 +40,14 @@ class XYFieldExtractor<T> implements ComponentDataExtractor<T> {
   final double Function(T) getY;
 
   @override
-  List<double> extractFloats(final T component) => [
+  List<double> extractFloats(T component) => [
     getX(component),
     getY(component),
   ];
 
   @override
-  int? extractInt(final T component) => null;
+  int? extractInt(T component) => null;
 
   @override
-  Object? extractObject(final T component) => null;
+  Object? extractObject(T component) => null;
 }

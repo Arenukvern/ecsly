@@ -21,11 +21,11 @@ extension type const Entity._(int value) {
   /// {@macro entity}
   /// Create Entity from index and generation parts
   factory Entity({
-    final EntityIndex index = EntityIndex.zero,
-    final EntityGeneration generation = EntityGeneration.zero,
+    EntityIndex index = EntityIndex.zero,
+    EntityGeneration generation = EntityGeneration.zero,
   }) => Entity._(generation.value * _indexBase + index.value);
 
-  factory Entity.create([final int index = 0, final int generation = 0]) =>
+  factory Entity.create([int index = 0, int generation = 0]) =>
       Entity._(generation * _indexBase + (index % _indexBase));
 
   static const nullEntity = Entity._(0);
@@ -48,7 +48,7 @@ extension type const Entity._(int value) {
 
   String toJson() => '$indexValue-$generation';
 
-  Entity whenNullUse(final Entity other) => isNull ? other : this;
+  Entity whenNullUse(Entity other) => isNull ? other : this;
 }
 
 /// {@template entity_generation}
@@ -72,7 +72,7 @@ extension type const EntityGeneration._(int value) implements int {
 /// for example:
 /// components[T][entityIndex]
 extension type const EntityIndex(int value) implements int {
-  factory EntityIndex.fromJson(final int json) =>
+  factory EntityIndex.fromJson(int json) =>
       EntityIndex(jsonDecodeInt(json));
   static const zero = EntityIndex(0);
   bool get isNotZero => value > 0;

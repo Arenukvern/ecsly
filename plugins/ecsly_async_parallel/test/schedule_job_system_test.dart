@@ -11,22 +11,22 @@ class _AliveFilteringQueueJobSystem extends ScheduleParallelTaskSystem {
   String get jobKey => 'test.alive_filter';
 
   @override
-  void runSerial(final World world) {}
+  void runSerial(World world) {}
 
   @override
   Future<void> runDeterministic(
-    final World world, {
-    required final ScheduleExecutionPolicyResource policy,
-    required final ScheduleJobResultQueueResource queue,
+    World world, {
+    required ScheduleExecutionPolicyResource policy,
+    required ScheduleJobResultQueueResource queue,
   }) async {
     runSerial(world);
   }
 
   @override
   Future<void> runBestEffort(
-    final World world, {
-    required final ScheduleExecutionPolicyResource policy,
-    required final ScheduleJobResultQueueResource queue,
+    World world, {
+    required ScheduleExecutionPolicyResource policy,
+    required ScheduleJobResultQueueResource queue,
   }) async {
     final mergeFrameId = policy.frameId - 1;
     if (mergeFrameId < 0) {
@@ -63,23 +63,23 @@ class _QueueBackedPartitionedJobSystem
   String get jobKey => 'test.partitioned.queue_backed';
 
   @override
-  List<int> extract(final World world) => const <int>[];
+  List<int> extract(World world) => const <int>[];
 
   @override
-  int executeChunk(final int chunk) => chunk;
+  int executeChunk(int chunk) => chunk;
 
   @override
   void merge(
-    final World world,
-    final List<ScheduleJobChunkResult<int>> orderedResults,
+    World world,
+    List<ScheduleJobChunkResult<int>> orderedResults,
   ) {
-    mergedValues.addAll(orderedResults.map((final result) => result.value));
+    mergedValues.addAll(orderedResults.map((result) => result.value));
   }
 
   @override
   List<ScheduleJobChunk<int>> partition(
-    final List<int> extracted,
-    final ScheduleExecutionPolicyResource policy,
+    List<int> extracted,
+    ScheduleExecutionPolicyResource policy,
   ) => const <ScheduleJobChunk<int>>[];
 }
 
@@ -96,9 +96,9 @@ void main() {
 
         final calls = <String>[];
         final schedule = Schedule('AsyncOrder')
-          ..add((final _) => calls.add('a'), name: 'a')
-          ..then((final _) => calls.add('b'), name: 'b')
-          ..then((final _) => calls.add('c'), name: 'c');
+          ..add((_) => calls.add('a'), name: 'a')
+          ..then((_) => calls.add('b'), name: 'b')
+          ..then((_) => calls.add('c'), name: 'c');
 
         await schedule.runAsync(world);
 
@@ -138,7 +138,7 @@ void main() {
           jobKey: 'queue.test',
           frameId: 5,
         );
-        expect(matches.map((final result) => result.value).toList(), [22]);
+        expect(matches.map((result) => result.value).toList(), [22]);
       },
     );
 

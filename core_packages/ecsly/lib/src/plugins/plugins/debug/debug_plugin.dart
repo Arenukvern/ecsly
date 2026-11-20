@@ -29,7 +29,7 @@ class DebugPlugin extends Plugin {
   String get name => 'debug';
 
   @override
-  void install(final World world) {
+  void install(World world) {
     // Register performance resources with default values
     world.resources.push(
       PerformanceResource(fps: 0, frameTime: 0, entityCount: 0),
@@ -54,7 +54,7 @@ class DebugPlugin extends Plugin {
   }
 
   @override
-  void uninstall(final World world) {
+  void uninstall(World world) {
     // Remove performance system from schedule (try HighFrequency first, then Update)
     if (world.hasSchedule(_scheduleId)) {
       final schedule = world.schedule(_scheduleId);

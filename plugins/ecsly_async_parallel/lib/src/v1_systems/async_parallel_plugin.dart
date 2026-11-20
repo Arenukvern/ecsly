@@ -26,7 +26,7 @@ class AsyncParallelPlugin extends Plugin {
   String get name => 'ecsly_async_parallel';
 
   @override
-  void install(final World world) {
+  void install(World world) {
     if (!world.resources.has<ScheduleJobResultQueueResource>()) {
       world.upsertResource(ScheduleJobResultQueueResource());
     }

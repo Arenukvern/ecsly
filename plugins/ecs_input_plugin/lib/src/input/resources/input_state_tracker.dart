@@ -18,60 +18,60 @@ class InputStateTracker extends Resource {
 extension InputStateTrackerOps on InputStateTracker {
   void advance() => inputStateTrackerAdvance(this);
 
-  double getAxis(final InputAction action) =>
+  double getAxis(InputAction action) =>
       inputStateTrackerGetAxis(this, action);
 
   (double, double) getAxis2D(
-    final InputAction up,
-    final InputAction down,
-    final InputAction left,
-    final InputAction right,
+    InputAction up,
+    InputAction down,
+    InputAction left,
+    InputAction right,
   ) => inputStateTrackerGetAxis2D(this, up, down, left, right);
 
-  InputState? getState(final InputAction action) =>
+  InputState? getState(InputAction action) =>
       inputStateTrackerGetState(this, action);
 
-  bool isHeld(final InputAction action) =>
+  bool isHeld(InputAction action) =>
       inputStateTrackerIsHeld(this, action);
 
-  bool justPressed(final InputAction action) =>
+  bool justPressed(InputAction action) =>
       inputStateTrackerJustPressed(this, action);
 
-  bool justReleased(final InputAction action) =>
+  bool justReleased(InputAction action) =>
       inputStateTrackerJustReleased(this, action);
 
-  void updateState(final InputAction action, final InputState state) =>
+  void updateState(InputAction action, InputState state) =>
       inputStateTrackerUpdateState(this, action, state);
 }
 
-void inputStateTrackerAdvance(final InputStateTracker tracker) {
+void inputStateTrackerAdvance(InputStateTracker tracker) {
   developer.log('InputStateTracker.advance: ${tracker._currentStates}');
   tracker._previousStates
     ..clear()
     ..addAll(tracker._currentStates);
 
-  tracker._currentStates.updateAll((final _, final state) {
+  tracker._currentStates.updateAll((_, state) {
     if (state == InputState.pressed) return InputState.held;
     if (state == InputState.released) return InputState.released;
     return state;
   });
 
   tracker._currentStates.removeWhere(
-    (_, final state) => state == InputState.released,
+    (_, state) => state == InputState.released,
   );
 }
 
 double inputStateTrackerGetAxis(
-  final InputStateTracker tracker,
-  final InputAction action,
+  InputStateTracker tracker,
+  InputAction action,
 ) => inputStateTrackerIsHeld(tracker, action) ? 1.0 : 0.0;
 
 (double, double) inputStateTrackerGetAxis2D(
-  final InputStateTracker tracker,
-  final InputAction up,
-  final InputAction down,
-  final InputAction left,
-  final InputAction right,
+  InputStateTracker tracker,
+  InputAction up,
+  InputAction down,
+  InputAction left,
+  InputAction right,
 ) {
   var x = 0.0;
   var y = 0.0;
@@ -91,32 +91,32 @@ double inputStateTrackerGetAxis(
 }
 
 InputState? inputStateTrackerGetState(
-  final InputStateTracker tracker,
-  final InputAction action,
+  InputStateTracker tracker,
+  InputAction action,
 ) => tracker._currentStates[action];
 
 bool inputStateTrackerIsHeld(
-  final InputStateTracker tracker,
-  final InputAction action,
+  InputStateTracker tracker,
+  InputAction action,
 ) {
   final state = tracker._currentStates[action];
   return state == InputState.pressed || state == InputState.held;
 }
 
 bool inputStateTrackerJustPressed(
-  final InputStateTracker tracker,
-  final InputAction action,
+  InputStateTracker tracker,
+  InputAction action,
 ) => tracker._currentStates[action] == InputState.pressed;
 
 bool inputStateTrackerJustReleased(
-  final InputStateTracker tracker,
-  final InputAction action,
+  InputStateTracker tracker,
+  InputAction action,
 ) => tracker._currentStates[action] == InputState.released;
 
 void inputStateTrackerUpdateState(
-  final InputStateTracker tracker,
-  final InputAction action,
-  final InputState state,
+  InputStateTracker tracker,
+  InputAction action,
+  InputState state,
 ) {
   final currentState = tracker._currentStates[action];
   if (currentState == state) return;

@@ -10,7 +10,7 @@ topics:
   - serialization
 
 environment:
-  sdk: ">=3.12.0 <4.0.0"
+  sdk: ">=3.14.0 <4.0.0"
 
 resolution: workspace
 

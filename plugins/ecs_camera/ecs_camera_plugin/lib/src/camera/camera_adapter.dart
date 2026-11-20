@@ -4,7 +4,7 @@ part of 'camera.dart';
 /// Integrates ECS camera component system with Camera interface for rendering.
 class EcsCamera extends Camera {
   /// Creates an ECS-backed camera adapter.
-  EcsCamera({required this.world, final Entity? cameraEntity})
+  EcsCamera({required this.world, Entity? cameraEntity})
     : _cachedCamera = cameraEntity;
 
   /// The world instance to read from.
@@ -25,7 +25,7 @@ class EcsCamera extends Camera {
   }
 
   @override
-  ui.Rect getViewBounds(final ui.Size viewport) {
+  ui.Rect getViewBounds(ui.Size viewport) {
     final maybePos = _getCameraPosition();
     if (maybePos == null) return ui.Rect.zero;
     final (entity, pos) = maybePos;
@@ -59,7 +59,7 @@ class EcsCamera extends Camera {
 
   @override
   @Deprecated('Use SceneCamera + GPU pipeline instead of Canvas rendering.')
-  void transformCanvas(final ui.Canvas canvas, final ui.Size viewport) {
+  void transformCanvas(ui.Canvas canvas, ui.Size viewport) {
     final maybePos = _getCameraPosition();
     if (maybePos == null) return;
     final (entity, pos) = maybePos;
@@ -98,7 +98,7 @@ class EcsCamera extends Camera {
     // Query for active camera if cache is invalid
     _cachedCamera ??= world
         .query<CameraComponent>()
-        .where((final r) => r.$2.isActive)
+        .where((r) => r.$2.isActive)
         .firstOrNull
         ?.$1
         .entity;

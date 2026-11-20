@@ -12,7 +12,7 @@ class IsolatesTestHarness {
   /// Creates collision bounds data for broad phase testing.
   ///
   /// Returns Float32List with AABB bounds (minX, minY, maxX, maxY) per entity.
-  static Float32List createCollisionBounds(final int entityCount) {
+  static Float32List createCollisionBounds(int entityCount) {
     final bounds = Float32List(entityCount * 4);
     for (int i = 0; i < entityCount; i++) {
       final x = i * 20.0;
@@ -29,7 +29,7 @@ class IsolatesTestHarness {
   ///
   /// Returns maps with constraint parameters and current state.
   static Map<String, TypedData> createConstraintData(
-    final int constraintCount,
+    int constraintCount,
   ) {
     final entityPairs = Int32List(constraintCount * 2);
     final constraintParams = Float32List(
@@ -70,10 +70,10 @@ class IsolatesTestHarness {
   ///
   /// Returns a map with pre-filled TypedData buffers simulating ECS component data.
   static Map<String, TypedData> createTestBuffers({
-    final int entityCount = 100,
-    final bool includePositions = true,
-    final bool includeVelocities = true,
-    final bool includeMasses = false,
+    int entityCount = 100,
+    bool includePositions = true,
+    bool includeVelocities = true,
+    bool includeMasses = false,
   }) {
     final buffers = <String, TypedData>{};
 
@@ -113,7 +113,7 @@ class IsolatesTestHarness {
   ///
   /// Useful for isolate communication performance testing.
   static Future<Duration> measureAsyncExecutionTime(
-    final Future<void> Function() operation,
+    Future<void> Function() operation,
   ) async {
     final stopwatch = Stopwatch()..start();
     await operation();
@@ -124,7 +124,7 @@ class IsolatesTestHarness {
   /// Measures execution time of a synchronous operation.
   ///
   /// Useful for performance regression testing.
-  static Duration measureExecutionTime(final void Function() operation) {
+  static Duration measureExecutionTime(void Function() operation) {
     final stopwatch = Stopwatch()..start();
     operation();
     stopwatch.stop();
@@ -135,8 +135,8 @@ class IsolatesTestHarness {
   ///
   /// Checks alignment and stride requirements for vectorization.
   static void validateSimdCompatibility(
-    final TypedData buffer,
-    final int expectedStride,
+    TypedData buffer,
+    int expectedStride,
   ) {
     expect(
       buffer.lengthInBytes % (expectedStride * 4),

@@ -24,7 +24,7 @@ class EcsContext {
 
   T? maybeGetResource<T extends Resource>() => maybeReadResource<T>();
 
-  R selectResource<T extends Resource, R>(final R Function(T resource) select) {
+  R selectResource<T extends Resource, R>(R Function(T resource) select) {
     EcsScope.dependOnResource<T>(_context);
     final listenedWorld = EcsScope.worldOf(_context);
     final resource = listenedWorld.maybeGetResource<T>();
@@ -41,7 +41,7 @@ class EcsContext {
   }
 
   R? maybeSelectResource<T extends Resource, R>(
-    final R Function(T resource) select,
+    R Function(T resource) select,
   ) {
     EcsScope.dependOnResource<T>(_context);
     final listenedWorld = EcsScope.worldOf(_context);
@@ -51,38 +51,38 @@ class EcsContext {
   }
 
   Entity findEntityWithComponent<C extends Component>({
-    required final EcsComponentWhere<C> where,
+    required EcsComponentWhere<C> where,
   }) => world.findEcsEntityWithComponent<C>(where: where);
 
   Entity? maybeFindEntityWithComponent<C extends Component>({
-    required final EcsComponentWhere<C> where,
+    required EcsComponentWhere<C> where,
   }) => world.maybeFindEcsEntityWithComponent<C>(where: where);
 
   C getComponent<C extends Component>({
-    required final Entity entity,
-    final EcsComponentWhere<C>? where,
+    required Entity entity,
+    EcsComponentWhere<C>? where,
   }) => world.getEcsComponent<C>(entity: entity, where: where);
 
   C? maybeGetComponent<C extends Component>({
-    required final Entity entity,
-    final EcsComponentWhere<C>? where,
+    required Entity entity,
+    EcsComponentWhere<C>? where,
   }) => world.maybeGetEcsComponent<C>(entity: entity, where: where);
 
   C readComponent<C extends Component>({
-    required final Entity entity,
-    final EcsComponentWhere<C>? where,
+    required Entity entity,
+    EcsComponentWhere<C>? where,
   }) => getComponent<C>(entity: entity, where: where);
 
   C? maybeReadComponent<C extends Component>({
-    required final Entity entity,
-    final EcsComponentWhere<C>? where,
+    required Entity entity,
+    EcsComponentWhere<C>? where,
   }) => maybeGetComponent<C>(entity: entity, where: where);
 
   R selectComponent<C extends Component, R>(
-    final R Function(C component) select, {
-    final Entity? entity,
-    final EcsComponentWhere<C>? where,
-    final R Function(Entity entity, C component)? selectWithEntity,
+    R Function(C component) select, {
+    Entity? entity,
+    EcsComponentWhere<C>? where,
+    R Function(Entity entity, C component)? selectWithEntity,
   }) {
     EcsScope.dependOnComponent<C>(_context, entity: entity);
     final listenedWorld = EcsScope.worldOf(_context);
@@ -119,10 +119,10 @@ class EcsContext {
   }
 
   R? maybeSelectComponent<C extends Component, R>(
-    final R Function(C component) select, {
-    final Entity? entity,
-    final EcsComponentWhere<C>? where,
-    final R Function(Entity entity, C component)? selectWithEntity,
+    R Function(C component) select, {
+    Entity? entity,
+    EcsComponentWhere<C>? where,
+    R Function(Entity entity, C component)? selectWithEntity,
   }) {
     EcsScope.dependOnComponent<C>(_context, entity: entity);
     final listenedWorld = EcsScope.worldOf(_context);
@@ -141,10 +141,10 @@ class EcsContext {
         select(component);
   }
 
-  Future<T> runAction<T>(final EcsAction<T> action) =>
+  Future<T> runAction<T>(EcsAction<T> action) =>
       controller.runAction(action);
 
-  EcsActionStatus actionStatusOf(final Object key) =>
+  EcsActionStatus actionStatusOf(Object key) =>
       controller.actionStatusOf(key);
 }
 
@@ -167,46 +167,46 @@ extension EcsBuildContextX on BuildContext {
   T? maybeGetEcsResource<T extends Resource>() => ecs.maybeGetResource<T>();
 
   R selectEcsResource<T extends Resource, R>(
-    final R Function(T resource) select,
+    R Function(T resource) select,
   ) => ecs.selectResource<T, R>(select);
 
   R? maybeSelectEcsResource<T extends Resource, R>(
-    final R Function(T resource) select,
+    R Function(T resource) select,
   ) => ecs.maybeSelectResource<T, R>(select);
 
   Entity findEcsEntityWithComponent<C extends Component>({
-    required final EcsComponentWhere<C> where,
+    required EcsComponentWhere<C> where,
   }) => ecs.findEntityWithComponent<C>(where: where);
 
   Entity? maybeFindEcsEntityWithComponent<C extends Component>({
-    required final EcsComponentWhere<C> where,
+    required EcsComponentWhere<C> where,
   }) => ecs.maybeFindEntityWithComponent<C>(where: where);
 
   C getEcsComponent<C extends Component>({
-    required final Entity entity,
-    final EcsComponentWhere<C>? where,
+    required Entity entity,
+    EcsComponentWhere<C>? where,
   }) => ecs.getComponent<C>(entity: entity, where: where);
 
   C? maybeGetEcsComponent<C extends Component>({
-    required final Entity entity,
-    final EcsComponentWhere<C>? where,
+    required Entity entity,
+    EcsComponentWhere<C>? where,
   }) => ecs.maybeGetComponent<C>(entity: entity, where: where);
 
   C readEcsComponent<C extends Component>({
-    required final Entity entity,
-    final EcsComponentWhere<C>? where,
+    required Entity entity,
+    EcsComponentWhere<C>? where,
   }) => ecs.readComponent<C>(entity: entity, where: where);
 
   C? maybeReadEcsComponent<C extends Component>({
-    required final Entity entity,
-    final EcsComponentWhere<C>? where,
+    required Entity entity,
+    EcsComponentWhere<C>? where,
   }) => ecs.maybeReadComponent<C>(entity: entity, where: where);
 
   R selectEcsComponent<C extends Component, R>(
-    final R Function(C component) select, {
-    final Entity? entity,
-    final EcsComponentWhere<C>? where,
-    final R Function(Entity entity, C component)? selectWithEntity,
+    R Function(C component) select, {
+    Entity? entity,
+    EcsComponentWhere<C>? where,
+    R Function(Entity entity, C component)? selectWithEntity,
   }) => ecs.selectComponent<C, R>(
     select,
     entity: entity,
@@ -215,10 +215,10 @@ extension EcsBuildContextX on BuildContext {
   );
 
   R? maybeSelectEcsComponent<C extends Component, R>(
-    final R Function(C component) select, {
-    final Entity? entity,
-    final EcsComponentWhere<C>? where,
-    final R Function(Entity entity, C component)? selectWithEntity,
+    R Function(C component) select, {
+    Entity? entity,
+    EcsComponentWhere<C>? where,
+    R Function(Entity entity, C component)? selectWithEntity,
   }) => ecs.maybeSelectComponent<C, R>(
     select,
     entity: entity,
@@ -226,8 +226,8 @@ extension EcsBuildContextX on BuildContext {
     selectWithEntity: selectWithEntity,
   );
 
-  Future<T> runEcsAction<T>(final EcsAction<T> action) => ecs.runAction(action);
+  Future<T> runEcsAction<T>(EcsAction<T> action) => ecs.runAction(action);
 
-  EcsActionStatus ecsActionStatusOf(final Object key) =>
+  EcsActionStatus ecsActionStatusOf(Object key) =>
       ecs.actionStatusOf(key);
 }

@@ -11,7 +11,7 @@ class ComponentBundle {
 
   /// Create a bundle from a list of extension components.
   factory ComponentBundle.fromExtensionList(
-    final List<(Type, Type)> extensionComponents,
+    List<(Type, Type)> extensionComponents,
   ) => ComponentBundle(
     const ComponentsBatchList([]),
     ComponentsBatchListExt(extensionComponents),
@@ -19,10 +19,10 @@ class ComponentBundle {
 
   /// Create a bundle from a list of components.
   factory ComponentBundle.fromLists(
-    final List<Component> components, [
-    final List<(Type, Type)> extensionComponents = const [],
+    List<Component> components, [
+    List<(Type, Type)> extensionComponents = const [],
   ]) {
-    final items = components.map((final c) => (c.runtimeType, c)).toList();
+    final items = components.map((c) => (c.runtimeType, c)).toList();
     return ComponentBundle(
       ComponentsBatchList(items),
       ComponentsBatchListExt(extensionComponents),
@@ -33,7 +33,7 @@ class ComponentBundle {
   final ComponentsBatchListExt extensionComponents;
 
   /// Add a component to the bundle.
-  ComponentBundle add<T extends Component>(final T component) {
+  ComponentBundle add<T extends Component>(T component) {
     components.items.add((T, component));
     return this;
   }
@@ -51,8 +51,8 @@ extension type const ComponentsBatchList2<
 >._(List<(Type, Component)> components)
     implements ComponentsBatchList {
   factory ComponentsBatchList2({
-    required final T component1,
-    required final T2 component2,
+    required T component1,
+    required T2 component2,
   }) => ComponentsBatchList2<T, T2>._([(T, component1), (T2, component2)]);
 
   T get component1 => components[0] as T;
@@ -68,9 +68,9 @@ extension type const ComponentsBatchList3<
 >._(List<(Type, Component)> components)
     implements ComponentsBatchList {
   factory ComponentsBatchList3({
-    required final T component1,
-    required final T2 component2,
-    required final T3 component3,
+    required T component1,
+    required T2 component2,
+    required T3 component3,
   }) => ComponentsBatchList3<T, T2, T3>._([
     (T, component1),
     (T2, component2),

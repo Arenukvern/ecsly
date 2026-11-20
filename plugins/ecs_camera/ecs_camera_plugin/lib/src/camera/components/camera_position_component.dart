@@ -5,8 +5,8 @@ import 'package:ecsly/ecsly.dart';
 class CameraPositionColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => FloatColumn(initialCapacity: initialCapacity, stride: 6);
 }
 
@@ -22,10 +22,10 @@ class CameraPositionFacadeFactory
   late FloatColumn _column;
 
   @override
-  CameraPosition create(final int index) => CameraPosition((index, _column));
+  CameraPosition create(int index) => CameraPosition((index, _column));
 
   @override
-  void initialize(covariant final FloatColumn column) {
+  void initialize(covariant FloatColumn column) {
     _column = column;
   }
 }
@@ -35,31 +35,31 @@ class CameraPositionFacadeFactory
 extension type const CameraPosition((int index, FloatColumn column) data) {
   /// Target X position (for lerp smoothing)
   double get targetX => data.$2.getValue(data.$1, 2);
-  set targetX(final double value) => data.$2.setValue(data.$1, 2, value);
+  set targetX(double value) => data.$2.setValue(data.$1, 2, value);
 
   /// Target Y position (for lerp smoothing)
   double get targetY => data.$2.getValue(data.$1, 3);
-  set targetY(final double value) => data.$2.setValue(data.$1, 3, value);
+  set targetY(double value) => data.$2.setValue(data.$1, 3, value);
 
   /// Target zoom level (for smooth zoom interpolation)
   double get targetZoom => data.$2.getValue(data.$1, 5);
-  set targetZoom(final double value) => data.$2.setValue(data.$1, 5, value);
+  set targetZoom(double value) => data.$2.setValue(data.$1, 5, value);
 
   /// Current X position (world coordinates of camera center)
   double get x => data.$2.getValue(data.$1, 0);
-  set x(final double value) => data.$2.setValue(data.$1, 0, value);
+  set x(double value) => data.$2.setValue(data.$1, 0, value);
 
   /// Current Y position (world coordinates of camera center)
   double get y => data.$2.getValue(data.$1, 1);
-  set y(final double value) => data.$2.setValue(data.$1, 1, value);
+  set y(double value) => data.$2.setValue(data.$1, 1, value);
 
   /// Current zoom level (1.0 = normal, >1.0 = zoomed in, <1.0 = zoomed out)
   double get zoom => data.$2.getValue(data.$1, 4);
-  set zoom(final double value) => data.$2.setValue(data.$1, 4, value);
+  set zoom(double value) => data.$2.setValue(data.$1, 4, value);
 
   /// Set the target position for camera movement.
   /// The camera will smoothly interpolate to this position over time.
-  void setTarget(final double x, final double y) {
+  void setTarget(double x, double y) {
     targetX = x;
     targetY = y;
   }
@@ -67,7 +67,7 @@ extension type const CameraPosition((int index, FloatColumn column) data) {
   /// Set the target zoom level.
   /// Values should be clamped externally (typically 0.1 to 5.0).
   // ignore: use_setters_to_change_properties
-  void setZoom(final double newZoom) {
+  void setZoom(double newZoom) {
     targetZoom = newZoom;
   }
 }

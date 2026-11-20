@@ -9,15 +9,15 @@ import 'package:test/test.dart';
 import 'package:universal_storage_convergence_session/universal_storage_convergence_session.dart';
 import 'package:universal_storage_mesh_transport/universal_storage_mesh_transport.dart';
 
-MeshPeerRecord _recordOf(final String id) =>
+MeshPeerRecord _recordOf(String id) =>
     MeshPeerRecord(peerId: id, displayName: id);
 
 /// One Position-column delta; the component tier is fixed so tests only
 /// name the piece of state they exercise.
 ComponentDelta _delta(
-  final String entity,
-  final String field,
-  final Object? value,
+  String entity,
+  String field,
+  Object? value,
 ) => ComponentDelta(
   entityKey: entity,
   component: 'Position',
@@ -38,7 +38,7 @@ final class _ManualClock {
 
   DateTime now() => _now;
 
-  void advanceBy(final Duration duration) {
+  void advanceBy(Duration duration) {
     _now = _now.add(duration);
   }
 }
@@ -57,7 +57,7 @@ class _SpyTransport implements MeshTransport {
   /// stop/restart cycle can re-listen (a raw fake's single-subscription
   /// controller allows one listener ever).
   late final Stream<MeshSession> _incoming = inner.incoming.map((
-    final session,
+    session,
   ) {
     final spy = _SpySession(session, true);
     sessions.add(spy);
@@ -68,7 +68,7 @@ class _SpyTransport implements MeshTransport {
   Stream<MeshSession> get incoming => _incoming;
 
   @override
-  Future<MeshSession> connect(final MeshPeerRecord peer) async {
+  Future<MeshSession> connect(MeshPeerRecord peer) async {
     final spy = _SpySession(await inner.connect(peer), false);
     sessions.add(spy);
     return spy;
@@ -101,7 +101,7 @@ class _SpySession implements MeshSession {
   Stream<Uint8List> get inbound => _inner.inbound;
 
   @override
-  Future<void> send(final Uint8List payload) {
+  Future<void> send(Uint8List payload) {
     sentFrames.add(MeshSyncProtocol.decode(payload));
     return _inner.send(payload);
   }
@@ -117,7 +117,7 @@ final class _Fixture {
   _Fixture({
     this.maxLogOps,
     this.minInterval,
-    final DateTime Function()? clock,
+    DateTime Function()? clock,
   }) : _clock = clock {
     final pair = FakeMeshPair.paired(a: 'a', b: 'b');
     spyA = _SpyTransport(pair.a);
@@ -157,7 +157,7 @@ final class _Fixture {
   final DateTime Function()? _clock;
 
   /// Deterministic write time for [WorldSync] local ops.
-  DateTime writeTime([final int step = 0]) {
+  DateTime writeTime([int step = 0]) {
     final next = _clock ?? _StepClock().next;
     var t = next();
     for (var i = 0; i < step; i++) {
@@ -175,7 +175,7 @@ final class _Fixture {
   }
 
   /// The most recent delta frame [spy] sent (any of its sessions).
-  Map<String, Object?>? lastDeltaFrameOf(final _SpyTransport spy) {
+  Map<String, Object?>? lastDeltaFrameOf(_SpyTransport spy) {
     for (final frame in spy.sentFrames.reversed) {
       if (frame['type'] == MeshSyncProtocol.deltaType) {
         return frame;
@@ -191,7 +191,7 @@ Future<void> _settle() async {
   }
 }
 
-void _expectConverged(final WorldSync a, final WorldSync b) {
+void _expectConverged(WorldSync a, WorldSync b) {
   expect(b.projection.values, a.projection.values);
   expect(b.vv.toJson(), a.vv.toJson());
 }
@@ -208,8 +208,8 @@ void main() {
     await f.driverA.tick();
     await _settle();
 
-    final initiator = f.spyA.sessions.singleWhere((final s) => !s.accepted);
-    final responder = f.spyB.sessions.singleWhere((final s) => s.accepted);
+    final initiator = f.spyA.sessions.singleWhere((s) => !s.accepted);
+    final responder = f.spyB.sessions.singleWhere((s) => s.accepted);
 
     final initiatorTypes = [
       for (final frame in initiator.sentFrames) frame['type'],
@@ -307,7 +307,7 @@ void main() {
     final frames = [...f.spyA.sentFrames, ...f.spyB.sentFrames];
     expect(frames, isNotEmpty);
     for (final frame in frames.where(
-      (final candidate) => candidate['type'] == MeshSyncProtocol.deltaType,
+      (candidate) => candidate['type'] == MeshSyncProtocol.deltaType,
     )) {
       expect(frame['ops'], isEmpty);
       expect(frame['states'], isEmpty);

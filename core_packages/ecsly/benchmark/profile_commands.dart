@@ -5,7 +5,7 @@ import 'dart:io';
 
 import 'package:ecsly/ecsly.dart';
 
-void main(final List<String> args) {
+void main(List<String> args) {
   final jsonOut = _argValue(args, '--json-out=');
   final samples = _parseSamples(args);
   final report = _CommandProfileReport(
@@ -30,14 +30,14 @@ void main(final List<String> args) {
   file.writeAsStringSync(text);
 }
 
-String? _argValue(final List<String> args, final String prefix) {
+String? _argValue(List<String> args, String prefix) {
   for (final arg in args) {
     if (arg.startsWith(prefix)) return arg.substring(prefix.length);
   }
   return null;
 }
 
-int _parseSamples(final List<String> args) {
+int _parseSamples(List<String> args) {
   final raw = _argValue(args, '--samples=') ?? '5';
   final samples = int.tryParse(raw);
   if (samples == null || samples < 1) {
@@ -47,12 +47,12 @@ int _parseSamples(final List<String> args) {
   return samples;
 }
 
-String _commandLine(final String script, final List<String> args) {
+String _commandLine(String script, List<String> args) {
   final suffix = args.isEmpty ? '' : ' ${args.join(' ')}';
   return 'dart run $script$suffix';
 }
 
-_ScenarioProfile _profileCommandFlush({required final int samples}) {
+_ScenarioProfile _profileCommandFlush({required int samples}) {
   const entityCount = 20000;
   final enqueue = <int>[];
   final flush = <int>[];
@@ -102,7 +102,7 @@ _ScenarioProfile _profileCommandFlush({required final int samples}) {
   );
 }
 
-_ScenarioProfile _profileMigration({required final int samples}) {
+_ScenarioProfile _profileMigration({required int samples}) {
   const entityCount = 15000;
   final addCommand = <int>[];
   final addFlush = <int>[];
@@ -190,7 +190,7 @@ World _buildWorld() {
   return world;
 }
 
-List<Entity> _seed(final World world, {required final int count}) {
+List<Entity> _seed(World world, {required int count}) {
   final entities = world.reserveEmptyEntities(count);
   final baseBundle = ComponentBundle.fromLists(const [], const [
     (_BenchAComponent, _BenchA),
@@ -282,7 +282,7 @@ final class _PhaseStats {
     required this.samples,
   });
 
-  factory _PhaseStats.fromSamples(final List<int> samples) {
+  factory _PhaseStats.fromSamples(List<int> samples) {
     final sorted = [...samples]..sort();
     final middle = sorted.length ~/ 2;
     final median = sorted.length.isOdd
@@ -384,7 +384,7 @@ class _BenchTagComponent extends Component {
 extension type _BenchA._(int index) {
   static late IntColumn _column;
 
-  static void _init(final IntColumn column) {
+  static void _init(IntColumn column) {
     _column = column;
   }
 }
@@ -392,7 +392,7 @@ extension type _BenchA._(int index) {
 extension type _BenchB._(int index) {
   static late IntColumn _column;
 
-  static void _init(final IntColumn column) {
+  static void _init(IntColumn column) {
     _column = column;
   }
 }
@@ -400,7 +400,7 @@ extension type _BenchB._(int index) {
 extension type _BenchC._(int index) {
   static late IntColumn _column;
 
-  static void _init(final IntColumn column) {
+  static void _init(IntColumn column) {
     _column = column;
   }
 }
@@ -408,7 +408,7 @@ extension type _BenchC._(int index) {
 extension type _BenchTag._(int index) {
   static late Uint8Column _column;
 
-  static void _init(final Uint8Column column) {
+  static void _init(Uint8Column column) {
     _column = column;
   }
 }
@@ -416,72 +416,72 @@ extension type _BenchTag._(int index) {
 final class _BenchScalarColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => IntColumn(initialCapacity: initialCapacity);
 }
 
 final class _BenchTagColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => Uint8Column(initialCapacity: initialCapacity);
 }
 
 final class _BenchAFacadeFactory extends ComponentFacadeFactory<_BenchA> {
   @override
-  _BenchA create(final int index) => _BenchA._(index);
+  _BenchA create(int index) => _BenchA._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     _BenchA._init(column as IntColumn);
   }
 }
 
 final class _BenchBFacadeFactory extends ComponentFacadeFactory<_BenchB> {
   @override
-  _BenchB create(final int index) => _BenchB._(index);
+  _BenchB create(int index) => _BenchB._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     _BenchB._init(column as IntColumn);
   }
 }
 
 final class _BenchCFacadeFactory extends ComponentFacadeFactory<_BenchC> {
   @override
-  _BenchC create(final int index) => _BenchC._(index);
+  _BenchC create(int index) => _BenchC._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     _BenchC._init(column as IntColumn);
   }
 }
 
 final class _BenchTagFacadeFactory extends ComponentFacadeFactory<_BenchTag> {
   @override
-  _BenchTag create(final int index) => _BenchTag._(index);
+  _BenchTag create(int index) => _BenchTag._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     _BenchTag._init(column as Uint8Column);
   }
 }
 
-String _sysctl(final String key) {
+String _sysctl(String key) {
   if (!Platform.isMacOS) return '';
   final result = Process.runSync('sysctl', ['-n', key]);
   if (result.exitCode != 0) return '';
   return result.stdout.toString().trim();
 }
 
-String _friendlyMachineName(final String model) => switch (model) {
+String _friendlyMachineName(String model) => switch (model) {
   'Mac14,2' => 'MacBook Air (M2, 2022)',
   _ => model,
 };
 
-String _formatMemoryGiB(final int bytes) {
+String _formatMemoryGiB(int bytes) {
   if (bytes <= 0) return '0.0';
   return (bytes / (1024 * 1024 * 1024)).toStringAsFixed(1);
 }
@@ -510,7 +510,7 @@ final class _GitInfo {
   };
 }
 
-String? _gitOutput(final List<String> args) {
+String? _gitOutput(List<String> args) {
   try {
     final result = Process.runSync('git', args);
     if (result.exitCode != 0) return null;

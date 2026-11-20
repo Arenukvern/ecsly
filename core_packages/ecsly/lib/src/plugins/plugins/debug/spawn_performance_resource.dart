@@ -22,12 +22,12 @@ class SpawnPerformanceResource extends Resource {
   int entitiesDespawned;
 
   void update({
-    required final double spawnTimeMs,
-    required final double despawnTimeMs,
-    required final double flushTimeMs,
-    required final int commandsQueued,
-    required final int entitiesSpawned,
-    required final int entitiesDespawned,
+    required double spawnTimeMs,
+    required double despawnTimeMs,
+    required double flushTimeMs,
+    required int commandsQueued,
+    required int entitiesSpawned,
+    required int entitiesDespawned,
   }) {
     this.spawnTimeMs = spawnTimeMs;
     this.despawnTimeMs = despawnTimeMs;

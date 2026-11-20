@@ -12,18 +12,18 @@ class FrameClockResource extends Resource {
 }
 
 void installFrameClock(
-  final World world, {
-  required final double deltaSeconds,
+  World world, {
+  required double deltaSeconds,
 }) {
   world.upsertResource(FrameClockResource(deltaSeconds: deltaSeconds));
 }
 
-void tickFrameClockSystem(final World world) {
+void tickFrameClockSystem(World world) {
   final clock = world.getResource<FrameClockResource>();
   clock.frame += 1;
 }
 
-void queueCounterChangesSystem(final World world) {
+void queueCounterChangesSystem(World world) {
   for (final (entity, counter) in world.query<CounterComponent>()) {
     if (counter.value >= 2) {
       // Structural changes are queued so iteration can finish safely.
@@ -34,7 +34,7 @@ void queueCounterChangesSystem(final World world) {
   }
 }
 
-void addUpdateSystems(final World world) {
+void addUpdateSystems(World world) {
   world.createSchedule(ScheduleId.update)
     ..add(tickFrameClockSystem)
     ..add(queueCounterChangesSystem);

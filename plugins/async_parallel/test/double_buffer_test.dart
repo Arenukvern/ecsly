@@ -83,21 +83,21 @@ void main() {
       }
 
       final originalReadSum = doubleBuffer.readBuffer.data.reduce(
-        (final a, final b) => a + b,
+        (a, b) => a + b,
       );
       final originalWriteSum = doubleBuffer.writeBuffer.data.reduce(
-        (final a, final b) => a + b,
+        (a, b) => a + b,
       );
 
       doubleBuffer.swap();
 
       // After swap, the sums should be exchanged
       expect(
-        doubleBuffer.readBuffer.data.reduce((final a, final b) => a + b),
+        doubleBuffer.readBuffer.data.reduce((a, b) => a + b),
         equals(originalWriteSum),
       );
       expect(
-        doubleBuffer.writeBuffer.data.reduce((final a, final b) => a + b),
+        doubleBuffer.writeBuffer.data.reduce((a, b) => a + b),
         equals(originalReadSum),
       );
     });

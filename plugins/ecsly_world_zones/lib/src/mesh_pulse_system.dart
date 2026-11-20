@@ -16,8 +16,8 @@ import 'package:universal_storage_world/universal_storage_world.dart';
 /// final session = MeshWorldSession(storage: storage, selfId: peerId);
 /// registerMeshPulseSchedule(world, session, trigger: EveryNSeconds(1));
 /// ```
-AsyncSystem meshPulseSystem(final Pulseable pulse) =>
-    (final World world) async {
+AsyncSystem meshPulseSystem(Pulseable pulse) =>
+    (World world) async {
       await pulse.pulse();
     };
 
@@ -32,8 +32,8 @@ const meshPulseScheduleId = ScheduleId('mesh-pulse');
 /// returns the same schedule (the second [add] is a no-op duplicate
 /// system, so prefer the once-per-world pattern of a plugin's `add`).
 Schedule registerMeshPulseSchedule(
-  final World world,
-  final Pulseable pulse, {
+  World world,
+  Pulseable pulse, {
   ScheduleTrigger? trigger,
 }) {
   final schedule = world.systems.getOrCreateSchedule(

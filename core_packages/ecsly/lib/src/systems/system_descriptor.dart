@@ -37,12 +37,12 @@ class SystemDescriptor {
 
   /// Create a copy with updated values
   SystemDescriptor copyWith({
-    final System? system,
-    final String? name,
-    final List<String>? runAfter,
-    final List<String>? runBefore,
-    final bool? canRunInParallel,
-    final ExecutionMode? mode,
+    System? system,
+    String? name,
+    List<String>? runAfter,
+    List<String>? runBefore,
+    bool? canRunInParallel,
+    ExecutionMode? mode,
   }) => SystemDescriptor(
     system: system ?? this.system,
     name: name ?? this.name,

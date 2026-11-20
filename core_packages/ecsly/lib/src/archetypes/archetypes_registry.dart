@@ -51,7 +51,7 @@ class ArchetypeRegistry {
   int get structuralVersion => _structuralVersion;
 
   /// Get archetype by index.
-  Archetype operator [](final ArchetypeIndex index) {
+  Archetype operator [](ArchetypeIndex index) {
     if (index.value >= _archetypes.length) {
       throw RangeError('ArchetypeIndex out of range: ${index.value}');
     }
@@ -78,11 +78,11 @@ class ArchetypeRegistry {
   }
 
   /// Find archetype by signature.
-  ArchetypeId? findArchetype(final ArchetypeSignature signature) =>
+  ArchetypeId? findArchetype(ArchetypeSignature signature) =>
       _signatureToArchetypeId[signature];
 
   /// Find archetype index by ID (O(1) array access).
-  ArchetypeIndex findArchetypeIndex(final ArchetypeId id) {
+  ArchetypeIndex findArchetypeIndex(ArchetypeId id) {
     if (id.value >= _archetypeIdToIndexList.length) {
       throw ArchetypeNotFoundError(id);
     }
@@ -95,7 +95,7 @@ class ArchetypeRegistry {
 
   /// Find all archetypes that match the query mask (bitmask-based).
   /// O(1) via QueryCache.getOrCompute after warmup. Falls back to O(#archetypes) scan on miss.
-  List<Archetype> findMatchingArchetypes(final ComponentMask queryMask) {
+  List<Archetype> findMatchingArchetypes(ComponentMask queryMask) {
     if (_queryCache != null) {
       final cached = _queryCache.getOrCompute(queryMask, this);
       return cached.matchingArchetypes;
@@ -104,7 +104,7 @@ class ArchetypeRegistry {
   }
 
   /// Get or create archetype for the given signature.
-  ArchetypeId getOrCreateArchetype(final ArchetypeSignature signature) =>
+  ArchetypeId getOrCreateArchetype(ArchetypeSignature signature) =>
       _getOrCreateArchetype(signature, invalidateCache: true);
 
   /// Pre-register archetypes for efficient batch spawning.
@@ -115,7 +115,7 @@ class ArchetypeRegistry {
   ///
   /// Returns the list of archetype IDs (existing or newly created).
   List<ArchetypeId> preRegisterArchetypes(
-    final List<ArchetypeSignature> signatures,
+    List<ArchetypeSignature> signatures,
   ) {
     final archetypeIds = <ArchetypeId>[];
     final missingSignatures = <ArchetypeSignature>[];
@@ -142,7 +142,7 @@ class ArchetypeRegistry {
     return archetypeIds;
   }
 
-  List<Archetype> _computeMatchingArchetypes(final ComponentMask queryMask) {
+  List<Archetype> _computeMatchingArchetypes(ComponentMask queryMask) {
     final matching = <Archetype>[];
     for (final archetype in iterable) {
       if (archetype.matches(queryMask)) {
@@ -153,7 +153,7 @@ class ArchetypeRegistry {
   }
 
   /// Ensure the archetype ID to index list has capacity for the given ID.
-  void _ensureArchetypeIdCapacity(final int minCapacity) {
+  void _ensureArchetypeIdCapacity(int minCapacity) {
     while (_archetypeIdToIndexList.length < minCapacity) {
       _archetypeIdToIndexList.add(null);
     }
@@ -161,12 +161,12 @@ class ArchetypeRegistry {
 
   /// Extract ComponentIds from ComponentMask.
   /// Optimized to iterate only set bits (O(popcount) instead of O(256)).
-  List<ComponentId> _getComponentIdsFromMask(final ComponentMask mask) =>
+  List<ComponentId> _getComponentIdsFromMask(ComponentMask mask) =>
       mask.componentIds.toList();
 
   ArchetypeId _getOrCreateArchetype(
-    final ArchetypeSignature signature, {
-    required final bool invalidateCache,
+    ArchetypeSignature signature, {
+    required bool invalidateCache,
   }) {
     // Check if archetype already exists
     final existingId = _signatureToArchetypeId[signature];

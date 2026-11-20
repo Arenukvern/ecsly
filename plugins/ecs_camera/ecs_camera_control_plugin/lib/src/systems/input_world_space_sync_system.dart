@@ -6,7 +6,7 @@ import '../resources/camera_interaction_mode_resource.dart';
 
 /// Syncs [CameraInteractionModeResource] and active camera zoom into
 /// [InputWorldSpaceResource] so input systems can run without camera imports.
-void inputWorldSpaceSyncSystem(final World world) {
+void inputWorldSpaceSyncSystem(World world) {
   final mode = world.resources.has<CameraInteractionModeResource>()
       ? world.getResource<CameraInteractionModeResource>()
       : null;

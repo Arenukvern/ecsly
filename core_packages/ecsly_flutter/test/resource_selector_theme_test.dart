@@ -1,6 +1,6 @@
 import 'package:ecsly_flutter/ecsly_flutter.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 
 class _Choice extends Resource {
   int value = 1;
@@ -11,7 +11,7 @@ class _Unrelated extends Resource {}
 void main() {
   testWidgets(
     'cached selection follows Flutter theme without ECS value change',
-    (final tester) async {
+    (tester) async {
       final world = World()
         ..upsertResource(_Choice())
         ..upsertResource(_Unrelated());
@@ -24,8 +24,8 @@ void main() {
       final selector = EcsResourceSelector<_Choice, int>(
         world: world,
         controller: controller,
-        select: (final choice) => choice.value,
-        builder: (final context, final value) {
+        select: (choice) => choice.value,
+        builder: (context, value) {
           builds++;
           return ColoredBox(
             key: const ValueKey('selected-ink'),
@@ -38,7 +38,7 @@ void main() {
         ValueListenableBuilder<bool>(
           valueListenable: dark,
           child: selector,
-          builder: (final context, final isDark, final child) => MaterialApp(
+          builder: (context, isDark, child) => MaterialApp(
             theme: isDark ? darkTheme : lightTheme,
             themeAnimationDuration: Duration.zero,
             home: child,

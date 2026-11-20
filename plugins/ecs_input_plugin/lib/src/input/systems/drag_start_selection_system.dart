@@ -25,7 +25,7 @@ import '../utils/hit_testing_utils.dart';
 /// **Implementation:** Uses GestureClassificationState to track which pointers
 /// have had drag-start selection processed. Reads [InputWorldSpaceResource] for
 /// selection allowance and zoom (when absent: selection allowed, zoom = 1).
-void dragStartSelectionSystem(final World world) {
+void dragStartSelectionSystem(World world) {
   final worldSpace = world.resources.has<InputWorldSpaceResource>()
       ? world.getResource<InputWorldSpaceResource>()
       : null;
@@ -113,10 +113,10 @@ void dragStartSelectionSystem(final World world) {
 
 /// Find selectable entity at (worldX, worldY).
 Entity? _findSelectableEntityAtPosition(
-  final World world,
-  final double worldX,
-  final double worldY,
-  final double currentZoom,
+  World world,
+  double worldX,
+  double worldY,
+  double currentZoom,
 ) {
   final candidates = <(Entity, int)>[];
   for (final (entity, interactive) in world.query<InteractiveElement>()) {

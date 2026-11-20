@@ -33,9 +33,9 @@ import 'package:async_parallel/async_parallel.dart';
 class IsolateExecutorPoolDart extends IsolateExecutor {
   /// {@macro isolate_executor_pool_dart}
   IsolateExecutorPoolDart({
-    required final void Function(SendPort ownerSendPort) workerEntry,
-    final int size = 4,
-    final Duration? idleTimeout,
+    required void Function(SendPort ownerSendPort) workerEntry,
+    int size = 4,
+    Duration? idleTimeout,
   }) : _pool = IsolateExecutorPool(
          workerEntry,
          size: size,
@@ -49,8 +49,8 @@ class IsolateExecutorPoolDart extends IsolateExecutor {
 
   @override
   Future<R> compute<Q, R>(
-    final FutureOr<R> Function(Q message) function,
-    final Q message,
+    FutureOr<R> Function(Q message) function,
+    Q message,
   ) => IsolateExecutorPoolAdapter(_pool).compute<Q, R>(function, message);
 
   /// Shuts down all worker isolates and rejects pending work.

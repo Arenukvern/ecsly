@@ -14,7 +14,7 @@ class DoubleTapEvent extends GestureEvent {
     required super.timestamp,
   });
 
-  static DoubleTapEvent fromDoubleFields(final List<double> fields) =>
+  static DoubleTapEvent fromDoubleFields(List<double> fields) =>
       DoubleTapEvent(
         position: ui.Offset(fields[0], fields[1]),
         worldPosition: ui.Offset(fields[2], fields[3]),
@@ -54,7 +54,7 @@ class DragEvent extends GestureEvent {
     modifierMask.toDouble(),
   ];
 
-  static DragEvent fromDoubleFields(final List<double> fields) => DragEvent(
+  static DragEvent fromDoubleFields(List<double> fields) => DragEvent(
     position: ui.Offset(fields[0], fields[1]),
     worldPosition: ui.Offset(fields[2], fields[3]),
     timestamp: fields[4].toInt(),
@@ -88,7 +88,7 @@ class EntityDragEvent extends GestureEvent {
     delta.dy,
   ];
 
-  static EntityDragEvent fromDoubleFields(final List<double> fields) =>
+  static EntityDragEvent fromDoubleFields(List<double> fields) =>
       EntityDragEvent(
         entity: Entity.create(fields[0].toInt(), fields[1].toInt()),
         position: ui.Offset(fields[2], fields[3]),
@@ -116,7 +116,7 @@ class EntityLongPressEvent extends GestureEvent {
     ...super.numericFields,
   ];
 
-  static EntityLongPressEvent fromDoubleFields(final List<double> fields) =>
+  static EntityLongPressEvent fromDoubleFields(List<double> fields) =>
       EntityLongPressEvent(
         entity: Entity.create(fields[0].toInt(), fields[1].toInt()),
         position: ui.Offset(fields[2], fields[3]),
@@ -143,7 +143,7 @@ class EntitySecondaryTapEvent extends GestureEvent {
     ...super.numericFields,
   ];
 
-  static EntitySecondaryTapEvent fromDoubleFields(final List<double> fields) =>
+  static EntitySecondaryTapEvent fromDoubleFields(List<double> fields) =>
       EntitySecondaryTapEvent(
         entity: Entity.create(fields[0].toInt(), fields[1].toInt()),
         position: ui.Offset(fields[2], fields[3]),
@@ -170,7 +170,7 @@ class EntityTapEvent extends GestureEvent {
     ...super.numericFields,
   ];
 
-  static EntityTapEvent fromDoubleFields(final List<double> fields) =>
+  static EntityTapEvent fromDoubleFields(List<double> fields) =>
       EntityTapEvent(
         entity: Entity.create(fields[0].toInt(), fields[1].toInt()),
         position: ui.Offset(fields[2], fields[3]),
@@ -195,7 +195,7 @@ class EntitySelectedEvent extends EcsEvent
     timestamp.millisecondsSinceEpoch.toDouble(),
   ];
 
-  static EntitySelectedEvent fromDoubleFields(final List<double> fields) =>
+  static EntitySelectedEvent fromDoubleFields(List<double> fields) =>
       EntitySelectedEvent(
         entity: Entity.create(fields[0].toInt(), fields[1].toInt()),
         timestamp: DateTime.fromMillisecondsSinceEpoch(fields[2].toInt()),
@@ -218,7 +218,7 @@ class EntityDeselectedEvent extends EcsEvent
     timestamp.millisecondsSinceEpoch.toDouble(),
   ];
 
-  static EntityDeselectedEvent fromDoubleFields(final List<double> fields) =>
+  static EntityDeselectedEvent fromDoubleFields(List<double> fields) =>
       EntityDeselectedEvent(
         entity: Entity.create(fields[0].toInt(), fields[1].toInt()),
         timestamp: DateTime.fromMillisecondsSinceEpoch(fields[2].toInt()),
@@ -256,7 +256,7 @@ class LongPressEvent extends GestureEvent {
     required super.timestamp,
   });
 
-  static LongPressEvent fromDoubleFields(final List<double> fields) =>
+  static LongPressEvent fromDoubleFields(List<double> fields) =>
       LongPressEvent(
         position: ui.Offset(fields[0], fields[1]),
         worldPosition: ui.Offset(fields[2], fields[3]),
@@ -296,7 +296,7 @@ class PinchEvent extends GestureEvent {
     pointerCount.toDouble(),
   ];
 
-  static PinchEvent fromDoubleFields(final List<double> fields) => PinchEvent(
+  static PinchEvent fromDoubleFields(List<double> fields) => PinchEvent(
     position: ui.Offset(fields[0], fields[1]),
     worldPosition: ui.Offset(fields[2], fields[3]),
     timestamp: fields[4].toInt(),
@@ -334,7 +334,7 @@ class ScrollEvent extends GestureEvent {
     modifierMask.toDouble(),
   ];
 
-  static ScrollEvent fromDoubleFields(final List<double> fields) => ScrollEvent(
+  static ScrollEvent fromDoubleFields(List<double> fields) => ScrollEvent(
     position: ui.Offset(fields[0], fields[1]),
     worldPosition: ui.Offset(fields[2], fields[3]),
     delta: ui.Offset(fields[5], fields[6]),
@@ -346,7 +346,7 @@ class ScrollEvent extends GestureEvent {
   );
 }
 
-int _pointerDeviceKindCode(final ui.PointerDeviceKind kind) => switch (kind) {
+int _pointerDeviceKindCode(ui.PointerDeviceKind kind) => switch (kind) {
   ui.PointerDeviceKind.mouse => 0,
   ui.PointerDeviceKind.touch => 1,
   ui.PointerDeviceKind.stylus => 2,
@@ -355,7 +355,7 @@ int _pointerDeviceKindCode(final ui.PointerDeviceKind kind) => switch (kind) {
   _ => 5,
 };
 
-ui.PointerDeviceKind _pointerDeviceKindFromCode(final int code) =>
+ui.PointerDeviceKind _pointerDeviceKindFromCode(int code) =>
     switch (code) {
       0 => ui.PointerDeviceKind.mouse,
       1 => ui.PointerDeviceKind.touch,
@@ -373,7 +373,7 @@ class SecondaryTapEvent extends GestureEvent {
     required super.timestamp,
   });
 
-  static SecondaryTapEvent fromDoubleFields(final List<double> fields) =>
+  static SecondaryTapEvent fromDoubleFields(List<double> fields) =>
       SecondaryTapEvent(
         position: ui.Offset(fields[0], fields[1]),
         worldPosition: ui.Offset(fields[2], fields[3]),
@@ -389,7 +389,7 @@ class TapEvent extends GestureEvent {
     required super.timestamp,
   });
 
-  static TapEvent fromDoubleFields(final List<double> fields) => TapEvent(
+  static TapEvent fromDoubleFields(List<double> fields) => TapEvent(
     position: ui.Offset(fields[0], fields[1]),
     worldPosition: ui.Offset(fields[2], fields[3]),
     timestamp: fields[4].toInt(),

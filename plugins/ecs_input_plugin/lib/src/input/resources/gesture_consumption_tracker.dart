@@ -47,65 +47,65 @@ class GestureConsumptionTracker extends Resource {
   }
 
   /// Checks if a DoubleTapEvent was consumed.
-  bool isDoubleTapConsumed(final DoubleTapEvent event) =>
+  bool isDoubleTapConsumed(DoubleTapEvent event) =>
       _consumedDoubleTapEvents.contains(event.timestamp);
 
   /// Checks if a DragEvent was consumed.
-  bool isDragConsumed(final DragEvent event) =>
+  bool isDragConsumed(DragEvent event) =>
       _consumedDragEvents.contains(event.timestamp);
 
   /// Checks if a LongPressEvent was consumed.
-  bool isLongPressConsumed(final LongPressEvent event) =>
+  bool isLongPressConsumed(LongPressEvent event) =>
       _consumedLongPressEvents.contains(event.timestamp);
 
   /// Checks if a PinchEvent was consumed.
-  bool isPinchConsumed(final PinchEvent event) =>
+  bool isPinchConsumed(PinchEvent event) =>
       _consumedPinchEvents.contains(event.timestamp);
 
   /// Checks if a ScrollEvent was consumed.
-  bool isScrollConsumed(final ScrollEvent event) =>
+  bool isScrollConsumed(ScrollEvent event) =>
       _consumedScrollEvents.contains(event.timestamp);
 
   /// Checks if a SecondaryTapEvent was consumed.
-  bool isSecondaryTapConsumed(final SecondaryTapEvent event) =>
+  bool isSecondaryTapConsumed(SecondaryTapEvent event) =>
       _consumedSecondaryTapEvents.contains(event.timestamp);
 
   /// Checks if a TapEvent was consumed.
-  bool isTapConsumed(final TapEvent event) =>
+  bool isTapConsumed(TapEvent event) =>
       _consumedTapEvents.contains(event.timestamp);
 
   /// Marks a DoubleTapEvent as consumed.
-  void markDoubleTapConsumed(final DoubleTapEvent event) {
+  void markDoubleTapConsumed(DoubleTapEvent event) {
     _consumedDoubleTapEvents.add(event.timestamp);
   }
 
   /// Marks a DragEvent as consumed.
-  void markDragConsumed(final DragEvent event) {
+  void markDragConsumed(DragEvent event) {
     _consumedDragEvents.add(event.timestamp);
   }
 
   /// Marks a LongPressEvent as consumed.
-  void markLongPressConsumed(final LongPressEvent event) {
+  void markLongPressConsumed(LongPressEvent event) {
     _consumedLongPressEvents.add(event.timestamp);
   }
 
   /// Marks a PinchEvent as consumed.
-  void markPinchConsumed(final PinchEvent event) {
+  void markPinchConsumed(PinchEvent event) {
     _consumedPinchEvents.add(event.timestamp);
   }
 
   /// Marks a ScrollEvent as consumed.
-  void markScrollConsumed(final ScrollEvent event) {
+  void markScrollConsumed(ScrollEvent event) {
     _consumedScrollEvents.add(event.timestamp);
   }
 
   /// Marks a SecondaryTapEvent as consumed.
-  void markSecondaryTapConsumed(final SecondaryTapEvent event) {
+  void markSecondaryTapConsumed(SecondaryTapEvent event) {
     _consumedSecondaryTapEvents.add(event.timestamp);
   }
 
   /// Marks a TapEvent as consumed.
-  void markTapConsumed(final TapEvent event) {
+  void markTapConsumed(TapEvent event) {
     _consumedTapEvents.add(event.timestamp);
   }
 }

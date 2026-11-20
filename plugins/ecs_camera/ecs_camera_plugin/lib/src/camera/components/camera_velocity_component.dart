@@ -5,8 +5,8 @@ import 'package:ecsly/ecsly.dart';
 class CameraVelocityColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => FloatColumn(initialCapacity: initialCapacity, stride: 3);
 }
 
@@ -22,10 +22,10 @@ class CameraVelocityFacadeFactory
   late FloatColumn _column;
 
   @override
-  CameraVelocity create(final int index) => CameraVelocity((index, _column));
+  CameraVelocity create(int index) => CameraVelocity((index, _column));
 
   @override
-  void initialize(covariant final FloatColumn column) {
+  void initialize(covariant FloatColumn column) {
     _column = column;
   }
 }
@@ -37,15 +37,15 @@ extension type const CameraVelocity((int index, FloatColumn column) data) {
   /// Lower values = more damping (slower decay).
   /// Typical values: 0.85-0.95 for smooth momentum.
   double get damping => data.$2.getValue(data.$1, 2);
-  set damping(final double value) => data.$2.setValue(data.$1, 2, value);
+  set damping(double value) => data.$2.setValue(data.$1, 2, value);
 
   /// Velocity in X direction (pixels per second)
   double get dx => data.$2.getValue(data.$1, 0);
-  set dx(final double value) => data.$2.setValue(data.$1, 0, value);
+  set dx(double value) => data.$2.setValue(data.$1, 0, value);
 
   /// Velocity in Y direction (pixels per second)
   double get dy => data.$2.getValue(data.$1, 1);
-  set dy(final double value) => data.$2.setValue(data.$1, 1, value);
+  set dy(double value) => data.$2.setValue(data.$1, 1, value);
 
   /// Check if camera has significant momentum.
   bool get hasMomentum {

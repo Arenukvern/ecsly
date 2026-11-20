@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:ecsly/ecsly.dart';
 
-void main(final List<String> args) {
+void main(List<String> args) {
   final json = args.contains('--json');
   final out = _argValue(args, '--out=');
   final report = _runReport(args);
@@ -20,14 +20,14 @@ void main(final List<String> args) {
   file.writeAsStringSync(text);
 }
 
-String? _argValue(final List<String> args, final String prefix) {
+String? _argValue(List<String> args, String prefix) {
   for (final arg in args) {
     if (arg.startsWith(prefix)) return arg.substring(prefix.length);
   }
   return null;
 }
 
-Map<String, Object?> _runReport(final List<String> args) {
+Map<String, Object?> _runReport(List<String> args) {
   const entityCount = 12000;
   const writeRuns = 20000;
   const runCount = 1;
@@ -58,8 +58,8 @@ Map<String, Object?> _runReport(final List<String> args) {
 }
 
 _WorldRevisionMetric _benchStructuralChurn({
-  required final int entityCount,
-  required final int runs,
+  required int entityCount,
+  required int runs,
 }) {
   final rssBefore = ProcessInfo.currentRss;
   final world = _buildWorld();
@@ -86,8 +86,8 @@ _WorldRevisionMetric _benchStructuralChurn({
 }
 
 _WorldRevisionMetric _benchResourceWrites({
-  required final int runs,
-  required final int samples,
+  required int runs,
+  required int samples,
 }) {
   final world = _buildWorld();
   world.upsertResource(_BenchResource(0));
@@ -114,7 +114,7 @@ World _buildWorld() {
   return world;
 }
 
-String _toText(final Map<String, Object?> report) {
+String _toText(Map<String, Object?> report) {
   final buffer = StringBuffer()
     ..writeln('ecsly world revision benchmark')
     ..writeln('generatedAt: ${report['generatedAt']}')
@@ -148,7 +148,7 @@ final class _WorldRevisionMetric {
   final int structuralRevision;
   final int samples;
 
-  Map<String, Object?> toJson(final String name) => <String, Object?>{
+  Map<String, Object?> toJson(String name) => <String, Object?>{
     'name': name,
     'samples': samples,
     'opsPerSec': opsPerSec,
@@ -220,24 +220,24 @@ final class _WorldRevisionEnvironment {
   };
 }
 
-String _sysctl(final String key) {
+String _sysctl(String key) {
   if (!Platform.isMacOS) return '';
   final result = Process.runSync('sysctl', ['-n', key]);
   if (result.exitCode != 0) return '';
   return result.stdout.toString().trim();
 }
 
-String _friendlyMachineName(final String model) => switch (model) {
+String _friendlyMachineName(String model) => switch (model) {
   'Mac14,2' => 'MacBook Air (M2, 2022)',
   _ => model,
 };
 
-String _formatMemoryGiB(final int bytes) {
+String _formatMemoryGiB(int bytes) {
   if (bytes <= 0) return '0.0';
   return (bytes / (1024 * 1024 * 1024)).toStringAsFixed(1);
 }
 
-String _commandLine(final String script, final List<String> args) {
+String _commandLine(String script, List<String> args) {
   final suffix = args.isEmpty ? '' : ' ${args.join(' ')}';
   return 'dart run $script$suffix';
 }
@@ -266,7 +266,7 @@ final class _GitInfo {
   };
 }
 
-String? _gitOutput(final List<String> args) {
+String? _gitOutput(List<String> args) {
   try {
     final result = Process.runSync('git', args);
     if (result.exitCode != 0) return null;

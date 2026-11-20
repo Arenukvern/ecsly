@@ -6,7 +6,7 @@ import '../components/camera_components.dart';
 ///
 /// **IMPORTANT**: This system must run LAST in the camera schedule.
 /// All other systems write unconstrained values, then this system clamps them.
-void cameraConstraintsSystem(final World world) {
+void cameraConstraintsSystem(World world) {
   for (final (_, pos, constraints)
       in world
           .queryExt2<

@@ -20,9 +20,9 @@ class ColumnFactoryRegistry {
   static final ColumnFactoryRegistry instance = ColumnFactoryRegistry._();
   final Map<ComponentId, ColumnFactory> _factories = {};
   DataColumn createColumn(
-    final ComponentId componentId, {
-    required final Type type,
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    required Type type,
+    int initialCapacity = 8,
   }) {
     final factory = _factories[componentId];
     if (factory == null) {
@@ -33,39 +33,39 @@ class ColumnFactoryRegistry {
     return factory.createColumn(componentId, initialCapacity: initialCapacity);
   }
 
-  bool hasFactory(final ComponentId componentId) =>
+  bool hasFactory(ComponentId componentId) =>
       _factories.containsKey(componentId);
 
   void registerFactory(
-    final ComponentId componentId,
-    final ColumnFactory factory,
+    ComponentId componentId,
+    ColumnFactory factory,
   ) {
     _factories[componentId] = factory;
   }
 
   /// Unregister column factory for component type.
-  void unregisterFactory(final ComponentId componentId) {
+  void unregisterFactory(ComponentId componentId) {
     _factories.remove(componentId);
   }
 
   /// Create FloatColumn with specified stride.
   static FloatColumn createFloatColumn({
-    required final int stride,
-    final int initialCapacity = 8,
+    required int stride,
+    int initialCapacity = 8,
   }) => FloatColumn(initialCapacity: initialCapacity, stride: stride);
 
   /// Create IntColumn.
   static IntColumn createIntColumn({
-    final int initialCapacity = 8,
-    final int stride = 1,
+    int initialCapacity = 8,
+    int stride = 1,
   }) => IntColumn(initialCapacity: initialCapacity, stride: stride);
 
   /// Create ObjectColumn for a specific type.
   static ObjectColumn<T> createObjectColumn<T extends Object>({
-    final int initialCapacity = 8,
+    int initialCapacity = 8,
   }) => ObjectColumn<T>(initialCapacity: initialCapacity);
 
   /// Create Uint8Column for small integers (0-255 range).
-  static Uint8Column createUint8Column({final int initialCapacity = 8}) =>
+  static Uint8Column createUint8Column({int initialCapacity = 8}) =>
       Uint8Column(initialCapacity: initialCapacity);
 }

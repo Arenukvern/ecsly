@@ -28,7 +28,7 @@ void main() {
         ),
       );
       expect(output, contains('late FloatColumn _column;'));
-      expect(output, contains('Position create(final int index)'));
+      expect(output, contains('Position create(int index)'));
     });
 
     test('generates int32 column and facade factories', () {
@@ -89,7 +89,7 @@ void main() {
       expect(
         output,
         contains(
-          'static ComponentId register(final World world) => '
+          'static ComponentId register(World world) => '
           'world.components.registerExtension<PositionComponent, Position>(',
         ),
       );
@@ -178,8 +178,8 @@ const _goldenExamplePositionFactories = r'''
 class ExamplePositionColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => FloatColumn(initialCapacity: initialCapacity, stride: 2);
 }
 
@@ -187,10 +187,10 @@ class ExamplePositionFacadeFactory extends ComponentFacadeFactory<ExamplePositio
   late FloatColumn _column;
 
   @override
-  ExamplePosition create(final int index) => ExamplePosition((index, _column));
+  ExamplePosition create(int index) => ExamplePosition((index, _column));
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     if (column case final FloatColumn column) {
       _column = column;
       return;
@@ -211,7 +211,7 @@ final class ExamplePositionRegistration {
   ///   facadeFactory: ExamplePositionFacadeFactory(),
   /// );
   /// ```
-  static ComponentId register(final World world) => world.components.registerExtension<ExamplePositionComponent, ExamplePosition>(
+  static ComponentId register(World world) => world.components.registerExtension<ExamplePositionComponent, ExamplePosition>(
     columnFactory: ExamplePositionColumnFactory(),
     facadeFactory: ExamplePositionFacadeFactory(),
   );

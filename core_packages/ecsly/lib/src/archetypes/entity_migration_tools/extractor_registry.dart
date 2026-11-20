@@ -21,7 +21,7 @@ class ExtractorRegistry {
   void clear() => _extractors.clear();
 
   /// Get extractor for a component type, with fallback to default extractors.
-  ComponentDataExtractor<Object> getExtractor(final Type componentType) {
+  ComponentDataExtractor<Object> getExtractor(Type componentType) {
     // Check registered extractors first
     final extractor = _extractors[componentType];
     if (extractor != null) {
@@ -40,15 +40,15 @@ class ExtractorRegistry {
   }
 
   /// Get extractor for a component instance, using runtime type.
-  ComponentDataExtractor<Object> getExtractorFor(final Object data) =>
+  ComponentDataExtractor<Object> getExtractorFor(Object data) =>
       getExtractor(data.runtimeType);
 
   /// Register an extractor for a specific component type.
-  void register<T>(final ComponentDataExtractor<T> extractor) {
+  void register<T>(ComponentDataExtractor<T> extractor) {
     _extractors[T] = extractor as ComponentDataExtractor<Object>;
   }
 
   /// Check if a type is num/int.
-  bool _isPrimitiveType(final Type type) =>
+  bool _isPrimitiveType(Type type) =>
       type == num || type == int || type == double;
 }

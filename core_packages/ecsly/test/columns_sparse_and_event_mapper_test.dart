@@ -104,17 +104,17 @@ void main() {
       f4.simdMultiply(0, Float32x4.splat(2));
       expect(f4.getValue(0, 0), closeTo(4, 0.001));
 
-      f4.batchSimdUpdate((final _) => Float32x4(9, 9, 9, 9));
+      f4.batchSimdUpdate((_) => Float32x4(9, 9, 9, 9));
       expect(f4.getValue(0, 2), 9);
 
-      f4.simdProcess((final v) => v + Float32x4.splat(1));
+      f4.simdProcess((v) => v + Float32x4.splat(1));
       expect(f4.getValue(0, 3), 10);
 
       // scalar fallback path
       final f2 = FloatColumn(stride: 2)
         ..addBlank()
         ..set(0, Float32List.fromList([2, 3]));
-      f2.simdProcess((final v) => v + Float32x4.splat(2));
+      f2.simdProcess((v) => v + Float32x4.splat(2));
       expect(f2.getValue(0, 0), 4);
     });
 
@@ -173,7 +173,7 @@ void main() {
         expect(
           () => EventColumnMapper.mapEventType<PairTypedEvent>(
             capacity: 4,
-            fromDoubleFieldsFactory: (final fields) =>
+            fromDoubleFieldsFactory: (fields) =>
                 PairTypedEvent(fields[0], fields[1]),
             stride: 0,
           ),
@@ -183,7 +183,7 @@ void main() {
         expect(
           () => EventColumnMapper.mapEventType<PairTypedEvent>(
             capacity: 4,
-            fromDoubleFieldsFactory: (final fields) =>
+            fromDoubleFieldsFactory: (fields) =>
                 PairTypedEvent(fields[0], fields[1]),
           ),
           throwsA(isA<EventRegistrationException>()),
@@ -192,7 +192,7 @@ void main() {
         expect(
           () => EventColumnMapper.mapEventType<EmptyTypedEvent>(
             capacity: 4,
-            fromDoubleFieldsFactory: (final _) => EmptyTypedEvent(),
+            fromDoubleFieldsFactory: (_) => EmptyTypedEvent(),
             sampleEvent: EmptyTypedEvent(),
           ),
           throwsA(isA<EventRegistrationException>()),
@@ -203,7 +203,7 @@ void main() {
     test('typed event config creates float/int/object columns correctly', () {
       final typed = EventColumnMapper.mapEventType<PairTypedEvent>(
         capacity: 8,
-        fromDoubleFieldsFactory: (final f) => PairTypedEvent(f[0], f[1]),
+        fromDoubleFieldsFactory: (f) => PairTypedEvent(f[0], f[1]),
         sampleEvent: PairTypedEvent(1, 2),
       );
       expect(typed.columnType, ColumnType.float);
@@ -250,7 +250,7 @@ void main() {
         float.storeEvent<PairTypedEvent>(0, PairTypedEvent(1.5, 2.5));
         final loadedFloat = float.loadEvent<PairTypedEvent>(
           0,
-          fromDoubleFieldsFactory: (final f) => PairTypedEvent(f[0], f[1]),
+          fromDoubleFieldsFactory: (f) => PairTypedEvent(f[0], f[1]),
         );
         expect(loadedFloat.a, closeTo(1.5, 0.001));
         expect(loadedFloat.b, closeTo(2.5, 0.001));
@@ -272,7 +272,7 @@ void main() {
         intCol.storeEvent<PairTypedEvent>(0, PairTypedEvent(7, 9));
         final loadedInt = intCol.loadEvent<PairTypedEvent>(
           0,
-          fromDoubleFieldsFactory: (final f) => PairTypedEvent(f[0], f[1]),
+          fromDoubleFieldsFactory: (f) => PairTypedEvent(f[0], f[1]),
         );
         expect(loadedInt.a, 7);
         expect(loadedInt.b, 9);

@@ -14,8 +14,8 @@ import 'system_executor.dart';
 class SystemsRegistry {
   /// {@macro systems_registry}
   SystemsRegistry({
-    final PluginRegistry? plugins,
-    final SystemExecutor? executor,
+    PluginRegistry? plugins,
+    SystemExecutor? executor,
   }) : plugins = plugins ?? PluginRegistry(),
        executor = executor ?? const SystemExecutor();
 
@@ -44,8 +44,8 @@ class SystemsRegistry {
   ///
   /// Throws [EcsStateError] if a schedule with the same id already exists.
   Schedule createSchedule(
-    final ScheduleId id, {
-    final ScheduleTrigger? trigger,
+    ScheduleId id, {
+    ScheduleTrigger? trigger,
   }) {
     final name = id.value;
     if (_schedules.containsKey(name)) {
@@ -66,8 +66,8 @@ class SystemsRegistry {
   ///
   /// If the schedule exists, returns it. Otherwise, creates a new one.
   Schedule getOrCreateSchedule(
-    final ScheduleId id, {
-    final ScheduleTrigger? trigger,
+    ScheduleId id, {
+    ScheduleTrigger? trigger,
   }) {
     final existing = _schedules[id.value];
     if (existing != null) {
@@ -79,7 +79,7 @@ class SystemsRegistry {
   /// Get a schedule by id.
   ///
   /// Throws [EcsStateError] if the schedule doesn't exist.
-  Schedule getSchedule(final ScheduleId id) {
+  Schedule getSchedule(ScheduleId id) {
     final schedule = _schedules[id.value];
     if (schedule == null) {
       throw EcsStateError('Schedule "${id.value}" not found');
@@ -88,17 +88,17 @@ class SystemsRegistry {
   }
 
   /// Check if a schedule exists.
-  bool hasSchedule(final ScheduleId id) => _schedules.containsKey(id.value);
+  bool hasSchedule(ScheduleId id) => _schedules.containsKey(id.value);
 
   /// Remove a schedule by id.
   ///
   /// Returns true if a schedule was removed, false otherwise.
-  bool removeSchedule(final ScheduleId id) {
+  bool removeSchedule(ScheduleId id) {
     final removed = _schedules.remove(id.value);
     _schedulesNames = null;
     return removed != null;
   }
 
   /// Get a schedule by id, or null if it doesn't exist.
-  Schedule? tryGetSchedule(final ScheduleId id) => _schedules[id.value];
+  Schedule? tryGetSchedule(ScheduleId id) => _schedules[id.value];
 }

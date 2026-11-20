@@ -5,7 +5,7 @@ import 'package:ecs_input_plugin/ecs_input_plugin.dart';
 ///
 /// Converts ScrollEvent delta directions into zoom actions for camera control.
 /// Alternative to direct scrollZoomSystem for applications using InputActionEvent pipeline.
-void scrollToZoomActionSystem(final World world) {
+void scrollToZoomActionSystem(World world) {
   final stateTracker = world.getResource<InputStateTracker>();
   final writer = world.events.writer<InputActionEvent>();
 

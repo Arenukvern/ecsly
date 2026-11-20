@@ -47,13 +47,13 @@ import 'systems/scroll_zoom_system.dart';
 /// [enableScrollToZoomAction] Whether to enable scroll-to-zoom via InputActionEvent
 /// [enableEntityDragging] Whether to enable entity dragging (requires InputPlugin)
 void configureCameraControlSchedule(
-  final World world, {
-  final bool enablePan = true,
-  final bool enableZoom = true,
-  final bool enableScrollZoom = true,
-  final bool enablePinchZoom = true,
-  final bool enableScrollToZoomAction = false,
-  final bool enableEntityDragging = false,
+  World world, {
+  bool enablePan = true,
+  bool enableZoom = true,
+  bool enableScrollZoom = true,
+  bool enablePinchZoom = true,
+  bool enableScrollToZoomAction = false,
+  bool enableEntityDragging = false,
 }) {
   if (!world.hasSchedule(const ScheduleId('Input'))) {
     throw StateError(

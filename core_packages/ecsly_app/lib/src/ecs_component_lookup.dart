@@ -11,8 +11,8 @@ typedef EcsComponentWhere<T extends Component> =
 extension EcsComponentLookupX on World {
   /// Direct entity lookup wrapper for core [World.maybeGetComponent].
   T? maybeGetEcsComponent<T extends Component>({
-    required final Entity entity,
-    final EcsComponentWhere<T>? where,
+    required Entity entity,
+    EcsComponentWhere<T>? where,
   }) {
     final component = maybeGetComponent<T>(entity);
     if (component == null) return null;
@@ -22,8 +22,8 @@ extension EcsComponentLookupX on World {
 
   /// Direct entity lookup wrapper that throws when [entity] has no [T].
   T getEcsComponent<T extends Component>({
-    required final Entity entity,
-    final EcsComponentWhere<T>? where,
+    required Entity entity,
+    EcsComponentWhere<T>? where,
   }) {
     final component = maybeGetEcsComponent<T>(entity: entity, where: where);
     if (component != null) return component;
@@ -32,7 +32,7 @@ extension EcsComponentLookupX on World {
 
   /// Cold app/domain lookup for Flutter/app code.
   Entity? maybeFindEcsEntityWithComponent<T extends Component>({
-    required final EcsComponentWhere<T> where,
+    required EcsComponentWhere<T> where,
   }) {
     final componentId = components.getComponentId<T>();
     final componentQuery = ComponentQuery(world: this, required: [componentId]);
@@ -55,7 +55,7 @@ extension EcsComponentLookupX on World {
 
   /// Cold app/domain lookup that throws when no entity matches.
   Entity findEcsEntityWithComponent<T extends Component>({
-    required final EcsComponentWhere<T> where,
+    required EcsComponentWhere<T> where,
   }) {
     final entity = maybeFindEcsEntityWithComponent<T>(where: where);
     if (entity != null) return entity;
@@ -66,10 +66,10 @@ extension EcsComponentLookupX on World {
 }
 
 bool _isCurrentEntityRow(
-  final World world,
-  final Entity entity,
-  final ArchetypeId archetypeId,
-  final int row,
+  World world,
+  Entity entity,
+  ArchetypeId archetypeId,
+  int row,
 ) {
   if (!world.entities.isAlive(entity)) return false;
   final location = world.entities.getLocation(entity);

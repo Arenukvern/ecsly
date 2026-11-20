@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:ecsly_flutter/ecsly_flutter.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'preview_checkpoint.dart';
 

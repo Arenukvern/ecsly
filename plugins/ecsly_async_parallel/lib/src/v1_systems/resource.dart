@@ -17,21 +17,21 @@ class ScheduleJobResultQueueResource extends Resource {
 
   /// Marks a job's work for a frame as in-flight.
   bool beginInFlight({
-    required final String jobKey,
-    required final int frameId,
+    required String jobKey,
+    required int frameId,
   }) => _inFlight.add(_composeInFlightKey(jobKey, frameId));
 
   /// Cancels the in-flight marker for a frame (e.g. on error).
   void cancelInFlight({
-    required final String jobKey,
-    required final int frameId,
+    required String jobKey,
+    required int frameId,
   }) {
     _inFlight.remove(_composeInFlightKey(jobKey, frameId));
   }
 
   /// Records a completed frame's results and clears its in-flight marker.
   void completeInFlight<T extends Object>(
-    final ScheduleJobResultEnvelope<T> envelope,
+    ScheduleJobResultEnvelope<T> envelope,
   ) {
     _inFlight.remove(_composeInFlightKey(envelope.jobKey, envelope.frameId));
     _completed.add(_eraseEnvelope(envelope));
@@ -40,18 +40,18 @@ class ScheduleJobResultQueueResource extends Resource {
   /// Drops results and in-flight markers older than [minFrameId].
   ///
   /// If [jobKey] is provided, only that job's entries are dropped.
-  int dropStaleResults({required final int minFrameId, final String? jobKey}) {
+  int dropStaleResults({required int minFrameId, String? jobKey}) {
     final before = _completed.length;
     _completed.removeWhere(
-      (final envelope) =>
+      (envelope) =>
           envelope.frameId < minFrameId &&
           (jobKey == null || envelope.jobKey == jobKey),
     );
     if (jobKey == null) {
-      _inFlight.removeWhere((final key) => _decodeFrameId(key) < minFrameId);
+      _inFlight.removeWhere((key) => _decodeFrameId(key) < minFrameId);
     } else {
       _inFlight.removeWhere(
-        (final key) =>
+        (key) =>
             key.startsWith('$jobKey#') && _decodeFrameId(key) < minFrameId,
       );
     }
@@ -59,16 +59,16 @@ class ScheduleJobResultQueueResource extends Resource {
   }
 
   /// Whether any work for [jobKey] is currently in flight.
-  bool hasInFlightJob(final String jobKey) =>
-      _inFlight.any((final key) => key.startsWith('$jobKey#'));
+  bool hasInFlightJob(String jobKey) =>
+      _inFlight.any((key) => key.startsWith('$jobKey#'));
 
   /// Returns and removes the completed results for a frame.
   List<ScheduleJobChunkResult<T>> takeForFrame<T extends Object>({
-    required final String jobKey,
-    required final int frameId,
+    required String jobKey,
+    required int frameId,
   }) {
     final matches = <ScheduleJobChunkResult<T>>[];
-    _completed.removeWhere((final envelope) {
+    _completed.removeWhere((envelope) {
       if (envelope.jobKey != jobKey || envelope.frameId != frameId) {
         return false;
       }
@@ -82,27 +82,27 @@ class ScheduleJobResultQueueResource extends Resource {
       }
       return true;
     });
-    matches.sort((final a, final b) => a.chunkKey.compareTo(b.chunkKey));
+    matches.sort((a, b) => a.chunkKey.compareTo(b.chunkKey));
     return matches;
   }
 
-  String _composeInFlightKey(final String jobKey, final int frameId) =>
+  String _composeInFlightKey(String jobKey, int frameId) =>
       '$jobKey#$frameId';
 
-  int _decodeFrameId(final String key) {
+  int _decodeFrameId(String key) {
     final separator = key.lastIndexOf('#');
     if (separator < 0 || separator + 1 >= key.length) return 0;
     return int.tryParse(key.substring(separator + 1)) ?? 0;
   }
 
   ScheduleJobResultEnvelope<Object> _eraseEnvelope<T extends Object>(
-    final ScheduleJobResultEnvelope<T> envelope,
+    ScheduleJobResultEnvelope<T> envelope,
   ) => ScheduleJobResultEnvelope<Object>(
     jobKey: envelope.jobKey,
     frameId: envelope.frameId,
     results: envelope.results
         .map(
-          (final result) => ScheduleJobChunkResult<Object>(
+          (result) => ScheduleJobChunkResult<Object>(
             chunkKey: result.chunkKey,
             value: result.value,
           ),

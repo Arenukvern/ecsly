@@ -11,7 +11,7 @@ import '../resources/camera_interaction_mode_resource.dart';
 /// Bypasses InputActionEvent system for immediate scroll-to-zoom response.
 /// Applies zoom delta directly to camera position based on scroll direction.
 /// Zooms towards the cursor position (scroll focal point).
-void scrollZoomSystem(final World world) {
+void scrollZoomSystem(World world) {
   // Check if camera zooming is allowed in current interaction mode
   final modeResource = world.resources.has<CameraInteractionModeResource>()
       ? world.getResource<CameraInteractionModeResource>()

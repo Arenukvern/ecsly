@@ -8,7 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('Input System Performance', () {
     test('RuntimeInputMap lookup scales O(1)', () {
-      RuntimeInputMap buildMap(final int size) {
+      RuntimeInputMap buildMap(int size) {
         final map = RuntimeInputMap();
         for (var i = 0; i < size; i++) {
           map.bindSingle(
@@ -20,9 +20,9 @@ void main() {
       }
 
       int measureLookupMicros(
-        final RuntimeInputMap map,
-        final KeyboardSource source,
-        final int iterations,
+        RuntimeInputMap map,
+        KeyboardSource source,
+        int iterations,
       ) {
         var checksum = 0;
         final stopwatch = Stopwatch()..start();

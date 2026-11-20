@@ -8,7 +8,7 @@ import '../resources/interactive_entities_cache.dart';
 import '../utils/gesture_types.dart';
 import '../utils/hit_testing.dart';
 
-void doubleTapInputSystem(final World world) {
+void doubleTapInputSystem(World world) {
   final doubleTapReader = world.events.reader<DoubleTapEvent>();
   final entityWriter = world.events.writer<EntityTapEvent>();
   final cache = world.getResource<InteractiveEntitiesCache>();

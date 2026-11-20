@@ -59,7 +59,7 @@ class DraggableComponent extends Component {
   /// [deltaX] Raw X movement delta
   /// [deltaY] Raw Y movement delta
   /// Returns constrained (x, y) deltas
-  (double, double) constrainDelta(final double deltaX, final double deltaY) {
+  (double, double) constrainDelta(double deltaX, double deltaY) {
     final constrainedX = switch (constraint) {
       DragConstraint.vertical => 0.0,
       _ => deltaX * dragSpeed,

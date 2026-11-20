@@ -96,13 +96,13 @@ void main() {
         expect(listExtractor.extractObject([1, 2]), [1, 2]);
 
         final xy = XYFieldExtractor<XYData>(
-          getX: (final d) => d.x,
-          getY: (final d) => d.y,
+          getX: (d) => d.x,
+          getY: (d) => d.y,
         );
         expect(xy.extractFloats(const XYData(1.5, 2.5)), [1.5, 2.5]);
 
         final value = ValueFieldExtractor<ValueData>(
-          getValue: (final d) => d.value,
+          getValue: (d) => d.value,
         );
         expect(value.extractFloats(const ValueData(3)), [3.0]);
         expect(value.extractInt(const ValueData(3.9)), 3);
@@ -136,7 +136,7 @@ class BarePlugin extends Plugin {
   String get name => 'bare';
 
   @override
-  void install(final World world) {}
+  void install(World world) {}
 }
 
 class MutableMetric extends Component {

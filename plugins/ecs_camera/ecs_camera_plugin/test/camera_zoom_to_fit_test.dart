@@ -95,10 +95,10 @@ void main() {
 }
 
 double _calculateRequiredZoom(
-  final ui.Rect bounds,
-  final ui.Size viewportSize,
-  final double padding,
-  final bool maintainAspectRatio,
+  ui.Rect bounds,
+  ui.Size viewportSize,
+  double padding,
+  bool maintainAspectRatio,
 ) {
   // Add padding to bounds
   final paddedBounds = ui.Rect.fromLTRB(

@@ -51,8 +51,8 @@ class CommandQueue {
   /// Groups entities by current archetype and processes them efficiently.
   /// Extension components are initialized to zero values.
   void batchAddExtensionComponents(
-    final List<Entity> entities,
-    final List<(Type, Type)> extensionComponents,
+    List<Entity> entities,
+    List<(Type, Type)> extensionComponents,
   ) {
     if (entities.isEmpty || extensionComponents.isEmpty) return;
 
@@ -140,7 +140,7 @@ class CommandQueue {
   }
 
   /// Pushes a command onto the queue for deferred execution.
-  void push(final EcsCommand command) => _pendingCommands.addLast(command);
+  void push(EcsCommand command) => _pendingCommands.addLast(command);
 
   /// Unified method for adding components to entities (single or batch).
   ///
@@ -153,10 +153,10 @@ class CommandQueue {
   /// [extensionComponentIds] - Extension component IDs (subset of componentIds)
   /// [bundle] - Optional bundle for class component data (null for extension-only)
   void _addComponentsToEntities({
-    required final List<Entity> entities,
-    required final List<ComponentId> componentIds,
-    required final List<ComponentId> extensionComponentIds,
-    final ComponentBundle? bundle,
+    required List<Entity> entities,
+    required List<ComponentId> componentIds,
+    required List<ComponentId> extensionComponentIds,
+    ComponentBundle? bundle,
   }) {
     if (entities.isEmpty || componentIds.isEmpty) return;
 
@@ -178,11 +178,11 @@ class CommandQueue {
     // Handle class components if bundle provided
     if (bundle != null) {
       final classComponentIds = componentIds
-          .where((final id) => !extensionComponentIds.contains(id))
+          .where((id) => !extensionComponentIds.contains(id))
           .toList();
       final rowIndices = List<int>.generate(
         entities.length,
-        (final i) => startRow + i,
+        (i) => startRow + i,
         growable: false,
       );
       _batchWriteClassComponents(
@@ -209,8 +209,8 @@ class CommandQueue {
   /// Always initializes extension component facades after archetype operations.
   /// Used as the foundation for all component addition operations.
   void _addComponentsToEntitiesUnified({
-    required final List<Entity> entities,
-    required final ComponentBundle bundle,
+    required List<Entity> entities,
+    required ComponentBundle bundle,
   }) {
     if (entities.isEmpty) return;
     _assertNoAliasingBatchClassWrite(
@@ -285,13 +285,13 @@ class CommandQueue {
   /// Used when entities already have components and need to be migrated to a new archetype
   /// that includes the additional components.
   void _addComponentsToEntitiesViaMigration({
-    required final List<Entity> entities,
-    required final List<ComponentId> componentIds,
-    required final List<ComponentId> extensionComponentIds,
-    required final ComponentBundle bundle,
+    required List<Entity> entities,
+    required List<ComponentId> componentIds,
+    required List<ComponentId> extensionComponentIds,
+    required ComponentBundle bundle,
   }) {
     final classComponentIds = componentIds
-        .where((final id) => !extensionComponentIds.contains(id))
+        .where((id) => !extensionComponentIds.contains(id))
         .toList();
 
     final migrationBatches = <_MigrationBatchKey, List<Entity>>{};
@@ -367,8 +367,8 @@ class CommandQueue {
   ///
   /// Processes entities in groups and writes component data efficiently.
   void _batchAddClassComponents(
-    final List<Entity> entities,
-    final List<Component> components,
+    List<Entity> entities,
+    List<Component> components,
   ) {
     if (entities.isEmpty || components.isEmpty) return;
 
@@ -389,8 +389,8 @@ class CommandQueue {
   /// Groups entities by current archetype signature and processes removals
   /// in batch within each archetype group for maximum efficiency.
   void _batchRemoveComponents(
-    final List<Entity> entities,
-    final List<ComponentId> componentIds,
+    List<Entity> entities,
+    List<ComponentId> componentIds,
   ) {
     if (entities.isEmpty || componentIds.isEmpty) return;
 
@@ -429,9 +429,9 @@ class CommandQueue {
   /// Computes the new signature once for the archetype group and migrates
   /// all entities in the group together for maximum efficiency.
   void _batchRemoveComponentsFromArchetype(
-    final Archetype oldArchetype,
-    final List<Entity> entities,
-    final List<ComponentId> componentIds,
+    Archetype oldArchetype,
+    List<Entity> entities,
+    List<ComponentId> componentIds,
   ) {
     // Filter component IDs that actually exist in this archetype
     final existingComponentIds = componentIds
@@ -465,7 +465,7 @@ class CommandQueue {
   ///
   /// Uses the unified bundle-first component addition method for consistent,
   /// optimized component addition and proper extension component initialization.
-  void _batchSpawnEntities(final ComponentBundle bundle, final int count) {
+  void _batchSpawnEntities(ComponentBundle bundle, int count) {
     if (count <= 0) return;
     _assertNoAliasingBatchClassWrite(
       operation: '_batchSpawnEntities',
@@ -496,10 +496,10 @@ class CommandQueue {
   ///
   /// Class components require heap allocation and data copying for each entity.
   void _batchWriteClassComponents(
-    final Archetype archetype,
-    final ComponentBundle bundle,
-    final List<ComponentId> classComponentIds,
-    final List<int> rowIndices,
+    Archetype archetype,
+    ComponentBundle bundle,
+    List<ComponentId> classComponentIds,
+    List<int> rowIndices,
   ) {
     if (rowIndices.length > 1 && bundle.components.items.isNotEmpty) {
       throw EcsStateError(
@@ -524,8 +524,8 @@ class CommandQueue {
   }
 
   void _executeHomogeneousUpserts(
-    final Entity firstEntity,
-    final Component firstComponent,
+    Entity firstEntity,
+    Component firstComponent,
   ) {
     final componentType = firstComponent.runtimeType;
     final componentId = world.components.getComponentIdByType(componentType);
@@ -577,10 +577,10 @@ class CommandQueue {
   }
 
   void _writeComponent(
-    final Archetype archetype,
-    final Entity entity,
-    final ComponentId componentId,
-    final Component component,
+    Archetype archetype,
+    Entity entity,
+    ComponentId componentId,
+    Component component,
   ) {
     final rowIndex = archetype.getRowIndex(entity, world.entities);
     if (rowIndex == null) return;
@@ -591,9 +591,9 @@ class CommandQueue {
   }
 
   void _restoreUpsertCommands(
-    final List<Entity> entities,
-    final List<Component> components, {
-    required final int start,
+    List<Entity> entities,
+    List<Component> components, {
+    required int start,
   }) {
     for (var i = entities.length - 1; i >= start; i--) {
       _pendingCommands.addFirst(
@@ -603,9 +603,9 @@ class CommandQueue {
   }
 
   void _upsertHomogeneousComponents(
-    final List<Entity> entities,
-    final ComponentId componentId,
-    final List<Component> components,
+    List<Entity> entities,
+    ComponentId componentId,
+    List<Component> components,
   ) {
     final freshEntities = <Entity>[];
     final freshComponents = <Component>[];
@@ -727,7 +727,7 @@ class CommandQueue {
   ///
   /// Returns the archetype instance.
   Archetype _createArchetypeForComponents(
-    final List<ComponentId> componentIds,
+    List<ComponentId> componentIds,
   ) {
     final signature = ArchetypeSignature.fromIds(componentIds);
     final archetypeId = world.archetypes.getOrCreateArchetype(signature);
@@ -736,7 +736,7 @@ class CommandQueue {
   }
 
   /// Destroys an entity and removes it from its archetype.
-  void _executeDestroyEntities(final Entity firstEntity) {
+  void _executeDestroyEntities(Entity firstEntity) {
     var changed = _destroyEntity(firstEntity);
     while (_pendingCommands.isNotEmpty) {
       final next = _pendingCommands.first;
@@ -749,7 +749,7 @@ class CommandQueue {
     }
   }
 
-  void _destroyEntities(final List<Entity> entities) {
+  void _destroyEntities(List<Entity> entities) {
     var changed = false;
     for (final entity in entities) {
       changed = _destroyEntity(entity) || changed;
@@ -759,7 +759,7 @@ class CommandQueue {
     }
   }
 
-  bool _destroyEntity(final Entity entity) {
+  bool _destroyEntity(Entity entity) {
     if (!world.entities.isAlive(entity)) return false;
 
     // Get location and archetype
@@ -785,7 +785,7 @@ class CommandQueue {
     List<ComponentId> classIds,
     List<ComponentId> extensionIds,
   })
-  _extractComponentIdsFromBundle(final ComponentBundle bundle) {
+  _extractComponentIdsFromBundle(ComponentBundle bundle) {
     final allComponentIds = <ComponentId>[];
     final classComponentIds = <ComponentId>[];
     final extensionComponentIds = <ComponentId>[];
@@ -823,8 +823,8 @@ class CommandQueue {
   /// with proper error handling and validation. Used by the unified
   /// component addition system.
   void _initializeExtensionColumns(
-    final Archetype archetype,
-    final List<ComponentId> extensionComponentIds,
+    Archetype archetype,
+    List<ComponentId> extensionComponentIds,
   ) {
     if (extensionComponentIds.isEmpty) return;
 
@@ -849,7 +849,7 @@ class CommandQueue {
   ///
   /// Migrates entity to new archetype without the component.
   /// If removing last component, entity migrates to empty archetype.
-  void _removeComponent(final Entity entity, final ComponentId componentId) {
+  void _removeComponent(Entity entity, ComponentId componentId) {
     if (!world.entities.isAlive(entity)) return;
 
     // Resolve current archetype
@@ -898,8 +898,8 @@ class CommandQueue {
   /// Uses the unified bundle-first component addition method for consistent,
   /// optimized component addition and proper extension component initialization.
   void _spawnEntityWithComponents(
-    final Entity entity,
-    final ComponentBundle bundle,
+    Entity entity,
+    ComponentBundle bundle,
   ) {
     // Validate entity is alive
     if (!world.entities.isAlive(entity)) {
@@ -911,16 +911,16 @@ class CommandQueue {
   }
 
   void _assertNoAliasingBatchClassWrite({
-    required final String operation,
-    required final ComponentBundle bundle,
-    required final int entityCount,
+    required String operation,
+    required ComponentBundle bundle,
+    required int entityCount,
   }) {
     if (entityCount <= 1 || bundle.components.items.isEmpty) {
       return;
     }
 
     final componentTypes = bundle.components.items
-        .map((final item) => item.$1.toString())
+        .map((item) => item.$1.toString())
         .join(', ');
     throw EcsStateError(
       '$operation does not support class component batch writes because the '
@@ -943,7 +943,7 @@ final class _MigrationBatchKey {
   int get hashCode => Object.hash(source.archetypeId, target);
 
   @override
-  bool operator ==(final Object other) =>
+  bool operator ==(Object other) =>
       other is _MigrationBatchKey &&
       source.archetypeId == other.source.archetypeId &&
       target == other.target;

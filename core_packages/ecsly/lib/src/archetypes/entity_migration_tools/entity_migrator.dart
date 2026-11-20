@@ -24,13 +24,13 @@ class EntityMigrator {
   ///
   /// Returns the new row index in the destination archetype, or null if migration failed.
   static int? migrateEntity(
-    final Entity entity,
-    final Archetype sourceArchetype,
-    final Archetype destArchetype,
-    final ComponentId? excludeComponentId,
-    final ComponentId? newComponentId,
-    final dynamic newComponentData,
-    final Entities? entities,
+    Entity entity,
+    Archetype sourceArchetype,
+    Archetype destArchetype,
+    ComponentId? excludeComponentId,
+    ComponentId? newComponentId,
+    dynamic newComponentData,
+    Entities? entities,
   ) {
     // Entities manager is required for migration (needed for location tracking)
     if (entities == null) return null;
@@ -90,11 +90,11 @@ class EntityMigrator {
   /// to [entities] by index (`firstRow + i`). Source removals still use
   /// [Archetype.removeEntity], preserving the existing swap-pop location logic.
   static int? migrateEntities(
-    final List<Entity> entities,
-    final Archetype sourceArchetype,
-    final Archetype destArchetype,
-    final List<ComponentId> excludeComponentIds,
-    final Entities entitiesManager,
+    List<Entity> entities,
+    Archetype sourceArchetype,
+    Archetype destArchetype,
+    List<ComponentId> excludeComponentIds,
+    Entities entitiesManager,
   ) {
     if (entities.isEmpty) return null;
     if (identical(sourceArchetype, destArchetype)) {
@@ -145,8 +145,8 @@ class EntityMigrator {
 }
 
 bool _containsComponentId(
-  final List<ComponentId> componentIds,
-  final ComponentId componentId,
+  List<ComponentId> componentIds,
+  ComponentId componentId,
 ) {
   for (final id in componentIds) {
     if (id == componentId) return true;

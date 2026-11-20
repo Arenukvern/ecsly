@@ -22,8 +22,8 @@ extension WorldCommandsX on WorldCommands {
   /// [entities] - List of entities to add components to
   /// [components] - List of component instances with data
   void batchAddClassComponents(
-    final List<Entity> entities,
-    final List<Component> components,
+    List<Entity> entities,
+    List<Component> components,
   ) {
     if (entities.isEmpty || components.isEmpty) return;
     queue.push(BatchAddClassComponentsCommand(entities, components));
@@ -37,8 +37,8 @@ extension WorldCommandsX on WorldCommands {
   /// [entities] - List of entities to add components to
   /// [componentSpecs] - List of (ComponentType, ExtensionType) pairs
   void batchAddExtensionComponents(
-    final List<Entity> entities,
-    final List<(Type, Type)> componentSpecs,
+    List<Entity> entities,
+    List<(Type, Type)> componentSpecs,
   ) {
     if (entities.isEmpty || componentSpecs.isEmpty) return;
     queue.push(BatchAddExtensionComponentsCommand(entities, componentSpecs));
@@ -52,8 +52,8 @@ extension WorldCommandsX on WorldCommands {
   /// [entities] - List of entities to remove components from
   /// [componentIds] - List of component IDs to remove
   void batchRemoveComponents(
-    final List<Entity> entities,
-    final List<ComponentId> componentIds,
+    List<Entity> entities,
+    List<ComponentId> componentIds,
   ) {
     if (entities.isEmpty || componentIds.isEmpty) return;
     queue.push(BatchRemoveComponentsCommand(entities, componentIds));
@@ -74,25 +74,25 @@ extension WorldCommandsX on WorldCommands {
   /// // Use:
   /// world.commands.batchSpawn(bundle, 10000);
   /// ```
-  void batchSpawn(final ComponentBundle bundle, final int count) {
+  void batchSpawn(ComponentBundle bundle, int count) {
     if (count <= 0) return;
     queue.push(BatchSpawnCommand(bundle, count));
   }
 
-  void despawn(final Entity entity) => queue.push(DestroyEntityCommand(entity));
+  void despawn(Entity entity) => queue.push(DestroyEntityCommand(entity));
 
   /// Destroy multiple entities in one deferred structural batch.
-  void batchDespawn(final List<Entity> entities) {
+  void batchDespawn(List<Entity> entities) {
     if (entities.isEmpty) return;
     queue.push(BatchDestroyEntitiesCommand(entities));
   }
 
-  void remove<T extends Component>(final Entity entity) {
+  void remove<T extends Component>(Entity entity) {
     final componentId = queue.world.components.getComponentId<T>();
     queue.push(RemoveComponentCommand<T>(entity, componentId));
   }
 
-  void removeResource<T extends Resource>(final T resource) =>
+  void removeResource<T extends Resource>(T resource) =>
       queue.push(DeleteResourceCommand<T>(resource));
 
   /// Spawn an entity with a bundle of components atomically.
@@ -100,8 +100,8 @@ extension WorldCommandsX on WorldCommands {
   /// This is more efficient than multiple upsert calls as it allows
   /// the component registry to process all components together.
   EntityCommands spawnBundle(
-    final Entity entity,
-    final ComponentBundle bundle,
+    Entity entity,
+    ComponentBundle bundle,
   ) {
     queue.push(SpawnEntityComponentsCommand(bundle, entity));
     return EntityCommands(queue: queue, entity: entity);
@@ -111,12 +111,12 @@ extension WorldCommandsX on WorldCommands {
   ///
   /// [entity] - The entity to upsert the component on
   /// [component] - The component to upsert
-  void upsert<T extends Component>(final Entity entity, final T component) =>
+  void upsert<T extends Component>(Entity entity, T component) =>
       queue.push(UpsertComponentCommand(entity, component));
 
   /// Upsert a resource on the world.
   ///
   /// [resource] - The resource to upsert
-  void upsertResource<T extends Resource>(final T resource) =>
+  void upsertResource<T extends Resource>(T resource) =>
       queue.push(UpsertResourceCommand(resource));
 }

@@ -36,7 +36,7 @@ class InputActionEvent extends TypedDataEvent with TypedDataEventMixin {
     value,
   ];
 
-  static InputActionEvent fromDoubleFields(final List<double> fields) {
+  static InputActionEvent fromDoubleFields(List<double> fields) {
     final actionIndex = fields[0].toInt();
     final stateIndex = fields[1].toInt();
 

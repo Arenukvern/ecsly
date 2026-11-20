@@ -18,7 +18,7 @@ void main() {
       expect(sources.length, greaterThan(0));
       expect(
         sources.any(
-          (final s) => s is KeyboardSource && s.key == LogicalKeyboardKey.keyW,
+          (s) => s is KeyboardSource && s.key == LogicalKeyboardKey.keyW,
         ),
         isTrue,
       );

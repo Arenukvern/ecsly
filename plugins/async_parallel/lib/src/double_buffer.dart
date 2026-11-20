@@ -10,14 +10,14 @@ import 'transferable_buffer.dart';
 /// This eliminates GC pressure and enables SIMD operations across isolate boundaries.
 class DoubleBuffer {
   /// Creates a double buffer with the specified size.
-  DoubleBuffer(final int byteLength) {
+  DoubleBuffer(int byteLength) {
     _buffers = [TransferableBuffer(byteLength), TransferableBuffer(byteLength)];
     _readIndex = 0;
     _writeIndex = 1;
   }
 
   /// Creates a double buffer from existing TypedData buffers.
-  DoubleBuffer.fromBuffers(final TypedData bufferA, final TypedData bufferB) {
+  DoubleBuffer.fromBuffers(TypedData bufferA, TypedData bufferB) {
     _buffers = [
       TransferableBuffer.fromTypedData(bufferA),
       TransferableBuffer.fromTypedData(bufferB),

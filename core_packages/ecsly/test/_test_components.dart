@@ -12,31 +12,31 @@ extension type Position._(int index) {
   static late FloatColumn _column;
 
   // ignore: use_setters_to_change_properties - internal column bootstrap helper
-  static void _setTypedColumn(final FloatColumn column) {
+  static void _setTypedColumn(FloatColumn column) {
     _column = column;
   }
 
   double get x => _column.getValueUnsafe(index, 0);
   double get y => _column.getValueUnsafe(index, 1);
 
-  set x(final double value) => _column.setValue(index, 0, value);
-  set y(final double value) => _column.setValue(index, 1, value);
+  set x(double value) => _column.setValue(index, 0, value);
+  set y(double value) => _column.setValue(index, 1, value);
 }
 
 final class _PositionColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => FloatColumn(stride: 2, initialCapacity: initialCapacity);
 }
 
 final class _PositionFacadeFactory extends ComponentFacadeFactory<Position> {
   @override
-  Position create(final int index) => Position._(index);
+  Position create(int index) => Position._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     Position._setTypedColumn(column as FloatColumn);
   }
 }
@@ -49,29 +49,29 @@ extension type Health._(int index) {
   static late Uint8Column _column;
 
   // ignore: use_setters_to_change_properties - internal column bootstrap helper
-  static void _setTypedColumn(final Uint8Column column) {
+  static void _setTypedColumn(Uint8Column column) {
     _column = column;
   }
 
   int get value => _column.getValue(index);
 
-  set value(final int v) => _column.setValue(index, v);
+  set value(int v) => _column.setValue(index, v);
 }
 
 final class _HealthColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => Uint8Column(initialCapacity: initialCapacity);
 }
 
 final class _HealthFacadeFactory extends ComponentFacadeFactory<Health> {
   @override
-  Health create(final int index) => Health._(index);
+  Health create(int index) => Health._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     Health._setTypedColumn(column as Uint8Column);
   }
 }
@@ -96,7 +96,7 @@ class ValueData {
   final num value;
 }
 
-Float32List f2(final double a, final double b) => Float32List.fromList([a, b]);
+Float32List f2(double a, double b) => Float32List.fromList([a, b]);
 
 World buildTestWorld() {
   final world = World();

@@ -259,8 +259,8 @@ enum _DialDiscipline { aFirst, bFirst, concurrent }
 /// concurrent writes; despawn; convergence under the given dial discipline;
 /// redelivery idempotence.
 Future<void> _twoWorldScenario(
-  final String label,
-  final _DialDiscipline discipline,
+  String label,
+  _DialDiscipline discipline,
 ) async {
   final clock = TestClock();
   final worldA = buildTestWorld();
@@ -279,7 +279,7 @@ Future<void> _twoWorldScenario(
   );
 
   final pair = FakeMeshPair.paired(a: 'world_a', b: 'world_b');
-  MeshPeerRecord recordOf(final String id) =>
+  MeshPeerRecord recordOf(String id) =>
       MeshPeerRecord(peerId: id, displayName: id);
   // Compaction triggers are off: this scenario proves convergence and
   // idempotence, not the (session-core-owned) compaction policy.
@@ -371,9 +371,9 @@ Future<void> _twoWorldScenario(
 /// One anti-entropy round under [discipline], then the event loop settles
 /// (responder halves finish in microtasks after sending their deltas).
 Future<void> _drive(
-  final WorldSyncSession driverA,
-  final WorldSyncSession driverB,
-  final _DialDiscipline discipline,
+  WorldSyncSession driverA,
+  WorldSyncSession driverB,
+  _DialDiscipline discipline,
 ) async {
   switch (discipline) {
     case _DialDiscipline.aFirst:
@@ -396,17 +396,17 @@ class _RecordingObserver implements WorldFlushObserver {
 
   @override
   void onFlushEnd(
-    final World world, {
-    required final int elapsedMicroseconds,
-    required final int commandsExecuted,
-    required final int resourcesPushed,
-    required final int resourcesRemoved,
+    World world, {
+    required int elapsedMicroseconds,
+    required int commandsExecuted,
+    required int resourcesPushed,
+    required int resourcesRemoved,
   }) {
     ended++;
   }
 
   @override
-  void onFlushStart(final World world) {
+  void onFlushStart(World world) {
     started++;
   }
 }

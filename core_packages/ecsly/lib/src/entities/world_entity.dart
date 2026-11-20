@@ -84,7 +84,7 @@ class WorldEntity {
 
   /// Insert/update component for this entity
   /// Returns WorldEntity for method chaining
-  WorldEntity insert<T extends Component>(final T component) {
+  WorldEntity insert<T extends Component>(T component) {
     EntityCommands(
       queue: world.commandQueue,
       entity: entity,

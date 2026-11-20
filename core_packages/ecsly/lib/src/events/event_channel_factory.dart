@@ -18,13 +18,13 @@ class EventChannelFactory {
   ///
   /// Throws [EventRegistrationException] if capacity is not positive.
   static EventChannel<T> create<T extends EcsEvent>({
-    required final int capacity,
-    final EventCapacityPolicy capacityPolicy = EventCapacityPolicy.dropNew,
-    final void Function(EventCapacityOverflow)? metricsHook,
-    final T Function(List<double>)? fromDoubleFieldsFactory,
-    final T? sampleEvent,
-    final int? stride,
-    final TypedDataEventRegistry? registry,
+    required int capacity,
+    EventCapacityPolicy capacityPolicy = EventCapacityPolicy.dropNew,
+    void Function(EventCapacityOverflow)? metricsHook,
+    T Function(List<double>)? fromDoubleFieldsFactory,
+    T? sampleEvent,
+    int? stride,
+    TypedDataEventRegistry? registry,
   }) {
     // Validate capacity
     if (capacity <= 0) {

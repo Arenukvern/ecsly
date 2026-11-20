@@ -18,7 +18,7 @@ typedef EcsActionAfterRun =
 /// notification system. Flutter uses this to notify widgets; headless tests or
 /// CLI tools may omit it and inspect [EcsActionStatusResource] directly.
 class EcsActionRunner {
-  EcsActionRunner({required this.world, final EcsActionServices? services})
+  EcsActionRunner({required this.world, EcsActionServices? services})
     : services = services ?? EcsActionServices();
 
   final World world;
@@ -27,10 +27,10 @@ class EcsActionRunner {
   int _nextActionRunId = 0;
 
   Future<T> run<T>(
-    final EcsAction<T> action, {
-    final bool flush = true,
-    final EcsActionChanged? onChanged,
-    final EcsActionAfterRun? afterRun,
+    EcsAction<T> action, {
+    bool flush = true,
+    EcsActionChanged? onChanged,
+    EcsActionAfterRun? afterRun,
   }) async {
     final key = action.statusKey;
     final runId = ++_nextActionRunId;
@@ -54,7 +54,7 @@ class EcsActionRunner {
       statusKey: key,
       runId: runId,
       cancellationToken: token,
-      setProgress: (final progress) {
+      setProgress: (progress) {
         final current = actionStatusOf(key);
         if (current.runId != runId || !current.isRunning) return;
         _setActionStatus(
@@ -63,7 +63,7 @@ class EcsActionRunner {
           onChanged: onChanged,
         );
       },
-      runAction: <TNested>(final nestedAction) =>
+      runAction: <TNested>(nestedAction) =>
           run<TNested>(nestedAction, flush: flush, onChanged: onChanged),
     );
 
@@ -147,7 +147,7 @@ class EcsActionRunner {
   }
 
   /// Returns the latest status for [key].
-  EcsActionStatus actionStatusOf(final Object key) {
+  EcsActionStatus actionStatusOf(Object key) {
     final statusResource = _ensureActionStatusResource();
     return statusResource.statusOf(key);
   }
@@ -161,11 +161,11 @@ class EcsActionRunner {
   }
 
   void _setActionStatus(
-    final Object key,
-    final EcsActionStatus status, {
-    final bool flush = true,
-    final EcsActionChanged? onChanged,
-    final EcsInvalidationBatch invalidation =
+    Object key,
+    EcsActionStatus status, {
+    bool flush = true,
+    EcsActionChanged? onChanged,
+    EcsInvalidationBatch invalidation =
         const EcsInvalidationBatch.empty(),
   }) {
     _ensureActionStatusResource().setStatus(key, status);
@@ -177,6 +177,6 @@ class EcsActionRunner {
     );
   }
 
-  bool _isCurrentActionRun(final Object key, final int runId) =>
+  bool _isCurrentActionRun(Object key, int runId) =>
       actionStatusOf(key).runId == runId;
 }

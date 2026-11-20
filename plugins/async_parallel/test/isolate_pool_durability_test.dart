@@ -4,10 +4,10 @@ import 'package:async_parallel/async_parallel.dart';
 import 'package:test/test.dart';
 
 /// A worker that doubles ints — the happy-path echo of the wire protocol.
-void doublingWorker(final SendPort ownerSendPort) {
+void doublingWorker(SendPort ownerSendPort) {
   final port = ReceivePort();
   ownerSendPort.send(port.sendPort);
-  port.listen((final message) {
+  port.listen((message) {
     if (message is List<Object?>) {
       final pair = message;
       final replyTo = pair[0]! as SendPort;
@@ -21,11 +21,11 @@ void doublingWorker(final SendPort ownerSendPort) {
 /// next event-loop turn, so a dispatch that races the death may still get
 /// answered — callers must tolerate either the farewell reply or a
 /// StateError.
-void suicidalAfterFirstWorker(final SendPort ownerSendPort) {
+void suicidalAfterFirstWorker(SendPort ownerSendPort) {
   final port = ReceivePort();
   ownerSendPort.send(port.sendPort);
   var first = true;
-  port.listen((final message) {
+  port.listen((message) {
     if (message is List<Object?>) {
       final pair = message;
       final replyTo = pair[0]! as SendPort;
@@ -43,14 +43,14 @@ void suicidalAfterFirstWorker(final SendPort ownerSendPort) {
 
 /// Announces a port and NEVER replies, staying alive — shutdown must fail
 /// its in-flight caller.
-void silentButAliveWorker(final SendPort ownerSendPort) {
+void silentButAliveWorker(SendPort ownerSendPort) {
   final port = ReceivePort();
   ownerSendPort.send(port.sendPort);
-  port.listen((final _) {});
+  port.listen((_) {});
 }
 
 /// Announces NOTHING and never exits — the spawn-announce timeout path.
-void neverAnnouncingWorker(final SendPort ownerSendPort) {
+void neverAnnouncingWorker(SendPort ownerSendPort) {
   ReceivePort(); // held open so the isolate never exits on its own
 }
 

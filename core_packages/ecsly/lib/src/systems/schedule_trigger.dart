@@ -3,7 +3,7 @@ import '../events/events.dart';
 import '../resources/resources.dart';
 import '../world/world.dart';
 
-double _resolveCurrentSeconds(final World world) {
+double _resolveCurrentSeconds(World world) {
   if (world.resources.has<ScheduleTimeResource>()) {
     return world.getResource<ScheduleTimeResource>().elapsedSeconds;
   }
@@ -15,7 +15,7 @@ double _resolveCurrentSeconds(final World world) {
   throw ScheduleTimeSourceMissingError();
 }
 
-double _resolveDeltaSeconds(final World world) {
+double _resolveDeltaSeconds(World world) {
   if (world.resources.has<ScheduleTimeResource>()) {
     return world.getResource<ScheduleTimeResource>().deltaSeconds;
   }
@@ -49,7 +49,7 @@ class ConditionTrigger extends ScheduleTrigger {
   final bool Function(World world) condition;
 
   @override
-  bool shouldRun(final World world) => condition(world);
+  bool shouldRun(World world) => condition(world);
 }
 
 /// {@template event_trigger}
@@ -90,7 +90,7 @@ class EventTrigger<T extends EcsEvent> extends ScheduleTrigger {
   const EventTrigger();
 
   @override
-  bool shouldRun(final World world) {
+  bool shouldRun(World world) {
     try {
       return world.events.reader<T>().isNotEmpty;
     } on EventNotRegisteredException {
@@ -108,7 +108,7 @@ class EveryFrame extends ScheduleTrigger {
   const EveryFrame();
 
   @override
-  bool shouldRun(final World world) => true;
+  bool shouldRun(World world) => true;
 }
 
 /// {@template every_n_frames}
@@ -124,7 +124,7 @@ class EveryNFrames extends ScheduleTrigger {
   int _counter;
 
   @override
-  bool shouldRun(final World world) {
+  bool shouldRun(World world) {
     _counter++;
     if (_counter >= n) {
       _counter = 0;
@@ -157,7 +157,7 @@ class EveryNSeconds extends ScheduleTrigger {
   double _accumulatedTime;
 
   @override
-  bool shouldRun(final World world) {
+  bool shouldRun(World world) {
     final deltaSeconds = _resolveDeltaSeconds(world);
     _accumulatedTime += deltaSeconds;
     if (_accumulatedTime >= intervalSeconds) {
@@ -178,7 +178,7 @@ class ManualTrigger extends ScheduleTrigger {
   const ManualTrigger();
 
   @override
-  bool shouldRun(final World world) => true;
+  bool shouldRun(World world) => true;
 }
 
 /// {@template schedule_trigger}
@@ -192,7 +192,7 @@ sealed class ScheduleTrigger {
   const ScheduleTrigger();
 
   /// Check if the schedule should run
-  bool shouldRun(final World world);
+  bool shouldRun(World world);
 }
 
 /// {@template throttled_trigger}
@@ -224,7 +224,7 @@ class ThrottledTrigger extends ScheduleTrigger {
   double _lastExecutionTime;
 
   @override
-  bool shouldRun(final World world) {
+  bool shouldRun(World world) {
     final currentTime = _resolveCurrentSeconds(world);
 
     if (currentTime - _lastExecutionTime < minIntervalSeconds) {

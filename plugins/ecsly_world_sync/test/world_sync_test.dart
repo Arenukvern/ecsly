@@ -5,10 +5,10 @@ import 'package:test/test.dart';
 import 'package:universal_storage_convergence/universal_storage_convergence.dart';
 
 ComponentDelta _delta(
-  final String entity,
-  final String component,
-  final String field,
-  final Object? value,
+  String entity,
+  String component,
+  String field,
+  Object? value,
 ) => ComponentDelta(
   entityKey: entity,
   component: component,
@@ -44,10 +44,10 @@ ComponentDelta _delta(
 /// One anti-entropy exchange over [transport]: each side ships what the
 /// peer has not observed; inboxes are drained in [seed]-shuffled order.
 void _exchange(
-  final WorldSync a,
-  final WorldSync b,
-  final FakeTransport transport,
-  final int seed,
+  WorldSync a,
+  WorldSync b,
+  FakeTransport transport,
+  int seed,
 ) {
   transport.send('replica_a', 'replica_b', a.opsFor(b.vv));
   transport.send('replica_b', 'replica_a', b.opsFor(a.vv));
@@ -57,7 +57,7 @@ void _exchange(
   b.applyRemote(forB);
 }
 
-void _expectConverged(final WorldSync a, final WorldSync b) {
+void _expectConverged(WorldSync a, WorldSync b) {
   expect(b.projection.values, a.projection.values);
   expect(a.opsFor(b.vv), isEmpty, reason: 'a must have nothing b lacks');
   expect(b.opsFor(a.vv), isEmpty, reason: 'b must have nothing a lacks');

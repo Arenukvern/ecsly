@@ -33,15 +33,15 @@ class InteractiveEntitiesCache extends Resource {
 }
 
 extension InteractiveEntitiesCacheOps on InteractiveEntitiesCache {
-  List<(Entity, InteractiveElement)> getEntities(final World world) =>
+  List<(Entity, InteractiveElement)> getEntities(World world) =>
       interactiveEntitiesCacheGetEntities(this, world);
 
   void invalidate() => interactiveEntitiesCacheInvalidate(this);
 }
 
 List<(Entity, InteractiveElement)> interactiveEntitiesCacheGetEntities(
-  final InteractiveEntitiesCache cache,
-  final World world,
+  InteractiveEntitiesCache cache,
+  World world,
 ) {
   cache._componentId ??= world.components.getComponentId<InteractiveElement>();
 
@@ -51,22 +51,22 @@ List<(Entity, InteractiveElement)> interactiveEntitiesCacheGetEntities(
   if (cache._cachedEntities == null || currentHash != cache._lastHash) {
     cache._cachedEntities =
         currentEntities
-            .map((final result) => (result.$1.entity, result.$2))
+            .map((result) => (result.$1.entity, result.$2))
             .toList()
-          ..sort((final a, final b) => b.$2.priority.compareTo(a.$2.priority));
+          ..sort((a, b) => b.$2.priority.compareTo(a.$2.priority));
     cache._lastHash = currentHash;
   }
 
   return cache._cachedEntities!;
 }
 
-void interactiveEntitiesCacheInvalidate(final InteractiveEntitiesCache cache) {
+void interactiveEntitiesCacheInvalidate(InteractiveEntitiesCache cache) {
   cache._cachedEntities = null;
   cache._lastHash = null;
 }
 
 int interactiveEntitiesCacheComputeHash(
-  final List<(WorldEntity, InteractiveElement)> entities,
+  List<(WorldEntity, InteractiveElement)> entities,
 ) {
   var hash = 0;
   for (final (entity, interactive) in entities) {

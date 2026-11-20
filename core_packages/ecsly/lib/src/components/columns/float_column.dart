@@ -5,7 +5,7 @@ part of 'data_column.dart';
 /// Uses stride-based packing: [x0, y0, x1, y1, x2, y2, ...]
 /// where stride is the number of floats per component (e.g., 2 for Position x,y).
 final class FloatColumn extends DataColumn {
-  FloatColumn({required this.stride, final int initialCapacity = 8})
+  FloatColumn({required this.stride, int initialCapacity = 8})
     : _data = Float32List(initialCapacity * stride),
       _length = 0;
   static final FloatColumn zero = FloatColumn(stride: 0);
@@ -46,9 +46,9 @@ final class FloatColumn extends DataColumn {
 
   @override
   void copyTo(
-    final int sourceIndex,
-    final DataColumn destination,
-    final int destIndex,
+    int sourceIndex,
+    DataColumn destination,
+    int destIndex,
   ) {
     assert(sourceIndex < _length, 'Source index out of bounds');
     if (destination is! FloatColumn) {
@@ -71,7 +71,7 @@ final class FloatColumn extends DataColumn {
 
   /// Get single float value at (index, componentIndex).
   /// Performs bounds checking for safety.
-  double getValue(final int index, final int componentIndex) {
+  double getValue(int index, int componentIndex) {
     final isNotStale = index < _length && componentIndex < stride;
     if (!isNotStale) return 0;
     assert(isNotStale, 'Index out of bounds');
@@ -81,14 +81,14 @@ final class FloatColumn extends DataColumn {
   /// Get single float value at (index, componentIndex) without bounds checking.
   /// Use only when index and componentIndex are guaranteed to be valid.
   /// This is optimized for hot paths like query iterators where bounds are already validated.
-  double getValueUnsafe(final int index, final int componentIndex) =>
+  double getValueUnsafe(int index, int componentIndex) =>
       _data[index * stride + componentIndex];
 
   @override
   void moveTo(
-    final int sourceIndex,
-    final DataColumn destination,
-    final int destIndex,
+    int sourceIndex,
+    DataColumn destination,
+    int destIndex,
   ) {
     copyTo(sourceIndex, destination, destIndex);
     // Clear source (set to zero)
@@ -99,7 +99,7 @@ final class FloatColumn extends DataColumn {
   }
 
   @override
-  void resize(final int newCapacity) {
+  void resize(int newCapacity) {
     if (newCapacity <= capacity) return;
 
     final newData = Float32List(newCapacity * stride);
@@ -108,7 +108,7 @@ final class FloatColumn extends DataColumn {
   }
 
   /// Set element at index from Float32List.
-  void set(final int index, final Float32List values) {
+  void set(int index, Float32List values) {
     assert(index < _length, 'Index out of bounds');
     assert(values.length == stride, 'Value length mismatch');
     final offset = index * stride;
@@ -116,13 +116,13 @@ final class FloatColumn extends DataColumn {
   }
 
   /// Set single float value at (index, componentIndex).
-  void setValue(final int index, final int componentIndex, final double value) {
+  void setValue(int index, int componentIndex, double value) {
     assert(index < _length && componentIndex < stride, 'Index out of bounds');
     _data[index * stride + componentIndex] = value;
   }
 
   @override
-  void swap(final int indexA, final int indexB) {
+  void swap(int indexA, int indexB) {
     assert(indexA < _length && indexB < _length, 'Indices out of bounds');
     if (indexA == indexB) return;
 
@@ -138,7 +138,7 @@ final class FloatColumn extends DataColumn {
   }
 
   @override
-  void swapRemove(final int index) {
+  void swapRemove(int index) {
     assert(index < _length, 'Index out of bounds');
     if (index != _length - 1) {
       swap(index, _length - 1);
@@ -147,7 +147,7 @@ final class FloatColumn extends DataColumn {
   }
 
   /// Get element at index as Float32List view.
-  Float32List view(final int index) {
+  Float32List view(int index) {
     assert(index < _length, 'Index out of bounds: $index >= $_length');
     final offset = index * stride;
     return _data.sublist(offset, offset + stride);
@@ -157,7 +157,7 @@ final class FloatColumn extends DataColumn {
 /// SIMD-optimized operations for FloatColumn.
 extension FloatColumnSimd on FloatColumn {
   /// Batch update using SIMD (processes 4 elements at a time).
-  void batchSimdUpdate(final Float32x4 Function(int index) updateFn) {
+  void batchSimdUpdate(Float32x4 Function(int index) updateFn) {
     if (stride < 4) return;
     final simdData = _data.buffer.asFloat32x4List();
     final simdLength = (_length * stride) ~/ 4;
@@ -170,7 +170,7 @@ extension FloatColumnSimd on FloatColumn {
   /// Get SIMD view for specific row range.
   /// Returns view starting at row index, with length elements.
   /// Returns null if stride is not multiple of 4 or range is invalid.
-  Float32x4List? getSimdViewForRows(final int startRow, final int length) {
+  Float32x4List? getSimdViewForRows(int startRow, int length) {
     if (stride % 4 != 0) return null;
     final startOffset = startRow * stride;
     final endOffset = startOffset + (length * stride);
@@ -187,7 +187,7 @@ extension FloatColumnSimd on FloatColumn {
 
   /// Vectorized add operation (4 components at once).
   /// Requires stride >= 4 and aligned access.
-  void simdAdd(final int index, final Float32x4 delta) {
+  void simdAdd(int index, Float32x4 delta) {
     if (stride < 4) return;
     final offset = index * stride;
     final simdData = _data.buffer.asFloat32x4List();
@@ -196,7 +196,7 @@ extension FloatColumnSimd on FloatColumn {
   }
 
   /// Vectorized multiply operation.
-  void simdMultiply(final int index, final Float32x4 factor) {
+  void simdMultiply(int index, Float32x4 factor) {
     if (stride < 4) return;
     final offset = index * stride;
     final simdData = _data.buffer.asFloat32x4List();
@@ -206,7 +206,7 @@ extension FloatColumnSimd on FloatColumn {
 
   /// Process column using SIMD (if available).
   /// Falls back to scalar processing if SIMD unavailable.
-  void simdProcess(final Float32x4 Function(Float32x4) processor) {
+  void simdProcess(Float32x4 Function(Float32x4) processor) {
     final simd = simdView;
     if (simd != null) {
       // Process all elements as SIMD vectors
@@ -220,7 +220,7 @@ extension FloatColumnSimd on FloatColumn {
   }
 
   /// Scalar fallback for simdProcess.
-  void _scalarProcess(final Float32x4 Function(Float32x4) processor) {
+  void _scalarProcess(Float32x4 Function(Float32x4) processor) {
     for (int i = 0; i < _length; i++) {
       for (int j = 0; j < stride; j++) {
         final value = getValue(i, j);

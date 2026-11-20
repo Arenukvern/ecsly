@@ -124,7 +124,7 @@ extension CameraPresetFactory on CameraPreset {
   };
 
   /// Configures input mappings for this preset in the given map.
-  void configureInputMap(final RuntimeInputMap map) {
+  void configureInputMap(RuntimeInputMap map) {
     // Clear existing bindings first
     InputAction.values.forEach(map.clearAction);
 
@@ -140,12 +140,12 @@ extension CameraPresetFactory on CameraPreset {
   /// [minZoom] - Minimum zoom level
   /// [maxZoom] - Maximum zoom level
   ComponentBundle createBundle({
-    final Entity? followTarget,
-    final vm.Vector2? position,
-    final ui.Rect? constraints,
-    final double? moveSpeed,
-    final double? minZoom,
-    final double? maxZoom,
+    Entity? followTarget,
+    vm.Vector2? position,
+    ui.Rect? constraints,
+    double? moveSpeed,
+    double? minZoom,
+    double? maxZoom,
   }) {
     final components = <Component>[];
 
@@ -161,7 +161,7 @@ extension CameraPresetFactory on CameraPreset {
     return ComponentBundle.fromLists(components, []);
   }
 
-  void _configureInputBindings(final RuntimeInputMap map) {
+  void _configureInputBindings(RuntimeInputMap map) {
     // Movement keys (shared across most presets)
     map.bindSingle(
       const KeyboardSource(LogicalKeyboardKey.keyW),
@@ -361,9 +361,9 @@ extension CameraPresetFactory on CameraPreset {
   };
 
   List<Component> _createControlComponents(
-    final double? moveSpeed,
-    final double? minZoom,
-    final double? maxZoom,
+    double? moveSpeed,
+    double? minZoom,
+    double? maxZoom,
   ) {
     final components = <Component>[];
 
@@ -393,9 +393,9 @@ extension CameraPresetFactory on CameraPreset {
   }
 
   Component _createTargetComponent(
-    final Entity? followTarget,
-    final vm.Vector2? position,
-    final ui.Rect? constraints,
+    Entity? followTarget,
+    vm.Vector2? position,
+    ui.Rect? constraints,
   ) => switch (this) {
     CameraPreset.platformer || CameraPreset.rpg =>
       followTarget != null

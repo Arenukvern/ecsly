@@ -8,7 +8,7 @@ import '../components/camera_components.dart';
 /// Requires CameraPosition and CameraVelocity components.
 /// For FreeTarget cameras, syncs target position to current position
 /// to prevent smoothing systems from pulling camera back.
-void cameraPhysicsSystem(final World world) {
+void cameraPhysicsSystem(World world) {
   final dt = world.getResource<DeltaTimeResource>().deltaTime;
 
   for (final (entity, pos, vel)

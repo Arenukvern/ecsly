@@ -15,9 +15,9 @@ import 'package:ecs_camera_core/ecs_camera_core.dart';
   'Canvas rendering is removed in the scene description architecture.',
 )
 void applyCameraTransform(
-  final ui.Canvas canvas,
-  final ui.Size viewport,
-  final EcsCamera2D camera,
+  ui.Canvas canvas,
+  ui.Size viewport,
+  EcsCamera2D camera,
 ) {
   canvas.scale(camera.zoom);
   canvas.translate(

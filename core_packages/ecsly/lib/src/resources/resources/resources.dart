@@ -27,7 +27,7 @@ class LevelStateResource extends Resource {
   LevelStateResource completeTransition() =>
       LevelStateResource(currentLevel: nextLevel!);
 
-  LevelStateResource transitionTo(final String levelId) => LevelStateResource(
+  LevelStateResource transitionTo(String levelId) => LevelStateResource(
     currentLevel: currentLevel,
     isTransitioning: true,
     nextLevel: levelId,
@@ -115,7 +115,7 @@ class RenderSubmitMetricsResource extends Resource {
     this.submitMicros = 0,
     this.drawCount = 0,
     this.transformCount = 0,
-    final List<int>? submitMicrosSamples,
+    List<int>? submitMicrosSamples,
   }) : submitMicrosSamples = submitMicrosSamples ?? <int>[];
 
   static const int maxSamples = 120;
@@ -127,9 +127,9 @@ class RenderSubmitMetricsResource extends Resource {
   final List<int> submitMicrosSamples;
 
   void update({
-    required final int submitMicros,
-    required final int drawCount,
-    required final int transformCount,
+    required int submitMicros,
+    required int drawCount,
+    required int transformCount,
   }) {
     this.submitMicros = submitMicros;
     this.drawCount = drawCount;
@@ -177,10 +177,10 @@ class RenderProfileStatsResource extends Resource {
 
 /// Convenience helper for updating [RenderSubmitMetricsResource].
 void reportRenderSubmitMetrics(
-  final World world, {
-  required final int submitMicros,
-  required final int drawCount,
-  required final int transformCount,
+  World world, {
+  required int submitMicros,
+  required int drawCount,
+  required int transformCount,
 }) {
   if (!world.resources.has<RenderSubmitMetricsResource>()) {
     world.upsertResource(RenderSubmitMetricsResource());
@@ -195,8 +195,8 @@ void reportRenderSubmitMetrics(
 
 /// Applies a quality preset to [PerformanceBudgetResource] runtime controls.
 void applyQualityPreset(
-  final PerformanceBudgetResource budget,
-  final QualityPreset preset,
+  PerformanceBudgetResource budget,
+  QualityPreset preset,
 ) {
   budget.preset = preset;
   budget.frameBudgetMs = 16.67;
@@ -232,7 +232,7 @@ void applyQualityPreset(
   }
 }
 
-QualityPreset nextHigherQualityPreset(final QualityPreset preset) =>
+QualityPreset nextHigherQualityPreset(QualityPreset preset) =>
     switch (preset) {
       QualityPreset.low => QualityPreset.medium,
       QualityPreset.medium => QualityPreset.high,
@@ -240,7 +240,7 @@ QualityPreset nextHigherQualityPreset(final QualityPreset preset) =>
       QualityPreset.ultra => QualityPreset.ultra,
     };
 
-QualityPreset nextLowerQualityPreset(final QualityPreset preset) =>
+QualityPreset nextLowerQualityPreset(QualityPreset preset) =>
     switch (preset) {
       QualityPreset.ultra => QualityPreset.high,
       QualityPreset.high => QualityPreset.medium,
@@ -272,7 +272,7 @@ class WorldDeterminismResource extends Resource {
     this.worldHash64 = 0,
     this.packetHash64 = 0,
     this.orderViolationCount = 0,
-    final List<int>? sectionHashes64,
+    List<int>? sectionHashes64,
   }) : sectionHashes64 = sectionHashes64 ?? <int>[];
 
   int frameId;
@@ -300,14 +300,14 @@ class ScheduleExecutionPolicyResource extends Resource {
   }
 
   // ignore: use_setters_to_change_properties
-  void markFrame(final int frameId) {
+  void markFrame(int frameId) {
     this.frameId = frameId;
   }
 }
 
 void syncScheduleExecutionFrame(
-  final World world, {
-  final int? explicitFrameId,
+  World world, {
+  int? explicitFrameId,
 }) {
   if (!world.resources.has<ScheduleExecutionPolicyResource>()) {
     return;

@@ -151,7 +151,7 @@ class ResourceRegistry {
   ///
   /// Returns null if ResourceId is invalid or resource not found.
   @internal
-  T? getById<T extends Resource>(final ResourceId id) {
+  T? getById<T extends Resource>(ResourceId id) {
     ensureFlushed();
 
     if (!id.isValid || id.value >= _resources.length) {
@@ -166,7 +166,7 @@ class ResourceRegistry {
   ///
   /// This is the hot path - direct array access without Type lookup.
   /// Use this when you have a pre-registered ResourceId and expect the resource to exist.
-  T getByIdOrThrow<T extends Resource>(final ResourceId id) {
+  T getByIdOrThrow<T extends Resource>(ResourceId id) {
     final resource = getById<T>(id);
     if (resource == null) {
       final type = getType(id);
@@ -185,7 +185,7 @@ class ResourceRegistry {
   /// Gets the Type for a given ResourceId.
   ///
   /// Returns null if the ResourceId is not registered.
-  Type? getType(final ResourceId id) => _idToType[id];
+  Type? getType(ResourceId id) => _idToType[id];
 
   /// Check if a resource of type [T] exists without throwing.
   ///
@@ -214,7 +214,7 @@ class ResourceRegistry {
   /// Same as [has] but accepts a runtime Type instead of a generic parameter.
   /// Useful for registry-driven snapshot/restore where types are known at
   /// runtime rather than compile time.
-  bool hasByType(final Type type) {
+  bool hasByType(Type type) {
     ensureFlushed();
     final resourceId = _typeToId[type];
     if (resourceId == null) return false;
@@ -227,7 +227,7 @@ class ResourceRegistry {
   ///
   /// Returns null if the type is not registered or the resource is absent.
   /// Same as [get] but accepts a runtime Type instead of a generic parameter.
-  Resource? getByType(final Type type) {
+  Resource? getByType(Type type) {
     ensureFlushed();
     final resourceId = _typeToId[type];
     if (resourceId == null) return null;
@@ -258,14 +258,14 @@ class ResourceRegistry {
     }
   }
 
-  void push<T extends Resource>(final T resource) =>
+  void push<T extends Resource>(T resource) =>
       pendingPush.addLast((T, resource));
 
   /// Push a resource using a runtime [Type] instead of a generic parameter.
   ///
   /// Used by registry-driven snapshot/restore where the concrete type is
   /// known at runtime rather than compile time.
-  void pushByType(final Type type, final Resource resource) =>
+  void pushByType(Type type, Resource resource) =>
       pendingPush.addLast((type, resource));
 
   /// Registers a resource type and returns its ResourceId for O(1) access.
@@ -291,7 +291,7 @@ class ResourceRegistry {
   ///
   /// Prefer to use [world.upsertResource] instead.
   @internal
-  ResourceId registerResourceByType(final Type type) {
+  ResourceId registerResourceByType(Type type) {
     if (_typeToId.containsKey(type)) {
       return _typeToId[type]!;
     }
@@ -306,10 +306,10 @@ class ResourceRegistry {
   void remove<T extends Resource>() => pendingRemove.addLast(T);
 
   /// Remove resource by runtime type (for use in command execution)
-  void removeByType(final Type type) => pendingRemove.addLast(type);
+  void removeByType(Type type) => pendingRemove.addLast(type);
 
   /// Ensures the dense array has capacity for the given index.
-  void _ensureCapacity(final int minCapacity) {
+  void _ensureCapacity(int minCapacity) {
     if (_resources.length < minCapacity) {
       final newCapacity = minCapacity > _resources.length * 2
           ? minCapacity
@@ -330,7 +330,7 @@ class ResourceRegistry {
     return ResourceId(_nextId++);
   }
 
-  void _addPresentResourceId(final int resourceIdValue) {
+  void _addPresentResourceId(int resourceIdValue) {
     _ensurePresentDenseIndexCapacity(resourceIdValue + 1);
     if (_presentDenseIndexById[resourceIdValue] != -1) {
       return;
@@ -339,7 +339,7 @@ class ResourceRegistry {
     _presentResourceIds.add(resourceIdValue);
   }
 
-  void _removePresentResourceId(final int resourceIdValue) {
+  void _removePresentResourceId(int resourceIdValue) {
     if (resourceIdValue >= _presentDenseIndexById.length) {
       return;
     }
@@ -356,7 +356,7 @@ class ResourceRegistry {
     _presentDenseIndexById[resourceIdValue] = -1;
   }
 
-  void _ensurePresentDenseIndexCapacity(final int minCapacity) {
+  void _ensurePresentDenseIndexCapacity(int minCapacity) {
     while (_presentDenseIndexById.length < minCapacity) {
       _presentDenseIndexById.add(-1);
     }

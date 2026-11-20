@@ -16,9 +16,9 @@ class ArchetypeResolver {
   /// Performs the common pattern: getLocation → findArchetypeIndex → get archetype.
   /// Returns null if the entity's archetype cannot be found.
   static Archetype? resolveArchetype(
-    final Entities entities,
-    final ArchetypeRegistry registry,
-    final Entity entity,
+    Entities entities,
+    ArchetypeRegistry registry,
+    Entity entity,
   ) {
     final location = entities.getLocation(entity);
     try {
@@ -42,8 +42,8 @@ class ArchetypeResolver {
   /// Performs the common pattern: getOrCreateArchetype → findArchetypeIndex → get archetype.
   /// Always returns a valid archetype (creates if needed).
   static Archetype resolveDestinationArchetype(
-    final ArchetypeRegistry registry,
-    final ArchetypeSignature signature,
+    ArchetypeRegistry registry,
+    ArchetypeSignature signature,
   ) {
     final archetypeId = registry.getOrCreateArchetype(signature);
     final archetypeIndex = registry.findArchetypeIndex(archetypeId);

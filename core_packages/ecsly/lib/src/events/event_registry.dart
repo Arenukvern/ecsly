@@ -134,12 +134,12 @@ class EventRegistry {
   /// - Sample event doesn't implement TypedDataEventMixin
   ///
   void register<T extends EcsEvent>({
-    final int capacity = 64,
-    final EventCapacityPolicy capacityPolicy = EventCapacityPolicy.dropNew,
-    final void Function(EventCapacityOverflow)? metricsHook,
-    final T Function(List<double>)? fromDoubleFieldsFactory,
-    final T? sampleEvent,
-    final int? stride, // Required for TypedDataEvent without sampleEvent
+    int capacity = 64,
+    EventCapacityPolicy capacityPolicy = EventCapacityPolicy.dropNew,
+    void Function(EventCapacityOverflow)? metricsHook,
+    T Function(List<double>)? fromDoubleFieldsFactory,
+    T? sampleEvent,
+    int? stride, // Required for TypedDataEvent without sampleEvent
   }) {
     // Detect TypedDataEvent and register if factory is provided
     if (fromDoubleFieldsFactory != null) {
@@ -203,8 +203,8 @@ class EventRegistry {
   /// Calculates stride from a sample event and registers the type.
   /// Requires sampleEvent to be provided (validation happens at registration time).
   void _registerTypedDataEvent<T extends EcsEvent>(
-    final T Function(List<double>) factory,
-    final T sampleEvent,
+    T Function(List<double>) factory,
+    T sampleEvent,
   ) {
     // Validate that sampleEvent implements the mixin
     if (sampleEvent is! TypedDataEventMixin) {

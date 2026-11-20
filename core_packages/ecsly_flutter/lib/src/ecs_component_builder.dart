@@ -33,12 +33,12 @@ class EcsComponentBuilder<T extends Component> extends StatelessWidget {
   final Widget? whenAbsent;
 
   @override
-  Widget build(final BuildContext context) => EcsComponentSelector<T, T>(
+  Widget build(BuildContext context) => EcsComponentSelector<T, T>(
     entity: entity,
     where: where,
     world: world,
     controller: controller,
-    select: (final component) => component,
+    select: (component) => component,
     builder: builder,
     whenAbsent: whenAbsent,
   );
@@ -90,7 +90,7 @@ class _EcsComponentSelectorState<T extends Component, R>
   bool _hasValue = false;
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     if (!_hasValue) {
       return widget.whenAbsent ?? const SizedBox.shrink();
     }
@@ -108,7 +108,7 @@ class _EcsComponentSelectorState<T extends Component, R>
   }
 
   @override
-  void didUpdateWidget(covariant final EcsComponentSelector<T, R> oldWidget) {
+  void didUpdateWidget(covariant EcsComponentSelector<T, R> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller ||
         oldWidget.world != widget.world ||
@@ -146,7 +146,7 @@ class _EcsComponentSelectorState<T extends Component, R>
           ? null
           : EcsScope.maybeOf(context, listen: false)?.controller);
 
-  bool _equals(final R previous, final R next) =>
+  bool _equals(R previous, R next) =>
       widget.equals?.call(previous, next) ?? previous == next;
 
   void _onChanged() {
@@ -157,7 +157,7 @@ class _EcsComponentSelectorState<T extends Component, R>
     _refresh();
   }
 
-  void _refresh({final bool notify = true}) {
+  void _refresh({bool notify = true}) {
     if (!mounted) return;
     final world = _world;
     final resolvedEntity =
@@ -198,7 +198,7 @@ class _EcsComponentSelectorState<T extends Component, R>
     _hasValue = true;
   }
 
-  void _setAbsent({required final bool notify}) {
+  void _setAbsent({required bool notify}) {
     if (!_hasValue) return;
     if (notify) {
       setState(() {

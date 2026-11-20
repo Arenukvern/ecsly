@@ -30,9 +30,9 @@ class ComponentFacadeRegistry {
   /// [index] - The index of the entity in the column.
   /// [column] - The column to create a facade for.
   T createFacade<T>(
-    final ComponentId componentId,
-    final int index,
-    final DataColumn column,
+    ComponentId componentId,
+    int index,
+    DataColumn column,
   ) {
     if (!componentId.isValid) {
       throw ArgumentError('Invalid ComponentId: $componentId');
@@ -79,9 +79,9 @@ class ComponentFacadeRegistry {
   /// [index] - The index of the entity in the column.
   /// [componentClass] - The Component class type (used for ObjectColumn components).
   dynamic createFacadeForQuery(
-    final ComponentId componentId,
-    final int index,
-    final Type componentClass,
+    ComponentId componentId,
+    int index,
+    Type componentClass,
   ) {
     if (!componentId.isValid) {
       throw ArgumentError('Invalid ComponentId: $componentId');
@@ -118,7 +118,7 @@ class ComponentFacadeRegistry {
   ///
   /// [componentId] - The ID of the component to create a facade for.
   /// [index] - The index of the entity in the column.
-  T createFacadeWithoutInit<T>(final ComponentId componentId, final int index) {
+  T createFacadeWithoutInit<T>(ComponentId componentId, int index) {
     if (!componentId.isValid) {
       throw ArgumentError('Invalid ComponentId: $componentId');
     }
@@ -134,20 +134,20 @@ class ComponentFacadeRegistry {
 
   /// Get extension type for a component ID.
   /// Returns null if no factory is registered for the component.
-  Type? getExtensionType(final ComponentId componentId) {
+  Type? getExtensionType(ComponentId componentId) {
     if (!componentId.isValid) return null;
     return _componentIdToExtensionType[componentId.value];
   }
 
   /// Get factory for component ID (for query iterator optimization).
   /// Returns null if no factory is registered.
-  ComponentFacadeFactory? getFactory(final ComponentId componentId) {
+  ComponentFacadeFactory? getFactory(ComponentId componentId) {
     if (!componentId.isValid) return null;
     return _factories[componentId.value];
   }
 
   /// Check if a factory is registered for the given component ID.
-  bool hasFactory(final ComponentId componentId) {
+  bool hasFactory(ComponentId componentId) {
     if (!componentId.isValid) return false;
     return _factories[componentId.value] != null;
   }
@@ -161,8 +161,8 @@ class ComponentFacadeRegistry {
   /// [componentId] - The ID of the component.
   /// [column] - The column to initialize.
   ComponentFacadeFactory initializeColumn(
-    final ComponentId componentId,
-    final DataColumn column,
+    ComponentId componentId,
+    DataColumn column,
   ) {
     if (!componentId.isValid) {
       throw ArgumentError('Invalid ComponentId: $componentId');
@@ -199,8 +199,8 @@ class ComponentFacadeRegistry {
 
   /// Register facade factory for component type.
   void registerFactory<TExtension>(
-    final ComponentId componentId,
-    final ComponentFacadeFactory<TExtension> factory,
+    ComponentId componentId,
+    ComponentFacadeFactory<TExtension> factory,
   ) {
     if (!componentId.isValid) {
       throw ArgumentError('Invalid ComponentId: $componentId');
@@ -210,7 +210,7 @@ class ComponentFacadeRegistry {
   }
 
   /// Unregister facade factory for component type.
-  void unregisterFactory(final ComponentId componentId) {
+  void unregisterFactory(ComponentId componentId) {
     if (!componentId.isValid) return;
     _factories[componentId.value] = null;
     _componentIdToExtensionType[componentId.value] = null;
@@ -224,8 +224,8 @@ class ComponentFacadeRegistry {
   /// Note: This uses a type-erased factory since we can't extract T from [ObjectColumn<T>]
   /// at runtime. The returned object is cast to T when used.
   ComponentFacadeFactory _createAutoFacadeFactoryForObjectColumn(
-    final ComponentId componentId,
-    final DataColumn column,
+    ComponentId componentId,
+    DataColumn column,
   ) {
     if (column is! ObjectColumn) {
       throw ArgumentError('Expected ObjectColumn, got ${column.runtimeType}');
@@ -243,7 +243,7 @@ class ComponentFacadeRegistry {
     return factory;
   }
 
-  String _describeColumnKind(final DataColumn column) => switch (column) {
+  String _describeColumnKind(DataColumn column) => switch (column) {
     FloatColumn() => 'typed float column',
     IntColumn() => 'typed int column',
     Uint8Column() => 'typed uint8 column',
@@ -262,10 +262,10 @@ class _ObjectColumnFacadeFactoryErased extends ComponentFacadeFactory {
 
   @override
   // For ObjectColumn, return the object directly
-  Object create(final int index) => _column.getValue(index)!;
+  Object create(int index) => _column.getValue(index)!;
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     if (column case final ObjectColumn c) {
       _column = c;
       return;

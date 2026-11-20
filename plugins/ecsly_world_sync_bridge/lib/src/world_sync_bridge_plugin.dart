@@ -70,7 +70,7 @@ class WorldSyncBridgePlugin extends Plugin {
   String get name => 'ecsly_world_sync_bridge';
 
   @override
-  void install(final World world) {
+  void install(World world) {
     final bridge = WorldSyncBridge(
       world: world,
       sync: sync,
@@ -86,7 +86,7 @@ class WorldSyncBridgePlugin extends Plugin {
   }
 
   @override
-  void uninstall(final World world) {
+  void uninstall(World world) {
     final state = world.maybeGetResource<WorldSyncBridgeResource>();
     state?.session?.stop();
     state?.bridge.detach();

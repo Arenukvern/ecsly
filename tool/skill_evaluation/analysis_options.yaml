@@ -1,0 +1,6 @@
+# Frozen evaluation snapshots under output/ are byte-exact historical
+# evidence (see output/frozen-guidance-*/manifest.json). Never analyze,
+# format, or dart-fix them.
+analyzer:
+  exclude:
+    - output/**

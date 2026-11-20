@@ -197,12 +197,12 @@ class WorldDebugView {
         resultCacheHitRate: queryStats.resultCacheHitRate,
         structurallyTouchedComponents:
             world.queryCache.debugStructurallyTouchedComponents.toList()
-              ..sort((final a, final b) => a.value.compareTo(b.value)),
+              ..sort((a, b) => a.value.compareTo(b.value)),
       ),
     );
   }
 
-  ArchetypeDebugInfo _archetypeInfo(final Archetype archetype) {
+  ArchetypeDebugInfo _archetypeInfo(Archetype archetype) {
     final columns = <ColumnDebugInfo>[];
     for (final componentId in archetype.componentIds) {
       final column = archetype.getColumn(componentId);
@@ -227,7 +227,7 @@ class WorldDebugView {
     );
   }
 
-  ScheduleDebugInfo _scheduleInfo(final Schedule schedule) {
+  ScheduleDebugInfo _scheduleInfo(Schedule schedule) {
     final systems = <SystemDebugInfo>[];
     for (final desc in schedule.systems) {
       systems.add(
@@ -248,14 +248,14 @@ class WorldDebugView {
     );
   }
 
-  static ColumnKind _columnKind(final DataColumn column) => switch (column) {
+  static ColumnKind _columnKind(DataColumn column) => switch (column) {
     FloatColumn() => ColumnKind.float32,
     IntColumn() => ColumnKind.int32,
     Uint8Column() => ColumnKind.uint8,
     ObjectColumn() => ColumnKind.object,
   };
 
-  static int _columnStride(final DataColumn column) => switch (column) {
+  static int _columnStride(DataColumn column) => switch (column) {
     FloatColumn(:final stride) => stride,
     IntColumn(:final stride) => stride,
     Uint8Column() => 1,

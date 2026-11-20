@@ -62,7 +62,7 @@ class Archetype {
   bool get isEmpty => _entities.isEmpty;
 
   /// Add a column to this archetype
-  void addColumn(final ComponentId componentId, final DataColumn column) {
+  void addColumn(ComponentId componentId, DataColumn column) {
     if (_columns.contains(componentId)) {
       return; // Column already exists
     }
@@ -79,7 +79,7 @@ class Archetype {
   /// Adds a new entity to the archetype and allocates space for its components.
   /// The actual component data must be set separately.
   /// Returns the row index for the new entity.
-  int addEntity(final Entity entity) {
+  int addEntity(Entity entity) {
     _assertColumnSynchronization();
 
     final rowIndex = _entities.length;
@@ -99,7 +99,7 @@ class Archetype {
   /// This is an internal bulk primitive for command flush/migration paths. It
   /// preserves the same dense-row invariant as [addEntity] while avoiding
   /// repeated synchronization checks and row-index list allocation.
-  int addEntities(final List<Entity> entities) {
+  int addEntities(List<Entity> entities) {
     if (entities.isEmpty) return _entities.length;
     _assertColumnSynchronization();
 
@@ -118,22 +118,22 @@ class Archetype {
   /// Check if entity is in this archetype
   ///
   /// Uses global Entities location tracking for O(1) lookup.
-  bool contains(final Entity entity, final Entities entities) {
+  bool contains(Entity entity, Entities entities) {
     if (!entities.isAlive(entity)) return false;
     final location = entities.getLocation(entity);
     return location.archetypeId == archetypeId;
   }
 
   /// Get column for a component ID
-  DataColumn? getColumn(final ComponentId componentId) =>
+  DataColumn? getColumn(ComponentId componentId) =>
       _columns.getColumn(componentId);
 
   /// Get component of type T for the given entity.
   /// Requires ComponentRegistry to resolve ComponentId from Type.
   T? getComponentByEntity<T extends Component>(
-    final Entity entity,
-    final ComponentRegistry registry,
-    final Entities entities,
+    Entity entity,
+    ComponentRegistry registry,
+    Entities entities,
   ) {
     final rowIndex = getRowIndex(entity, entities);
     if (rowIndex == null) return null;
@@ -143,9 +143,9 @@ class Archetype {
   /// Get two components at the given entity.
   /// Requires ComponentRegistry to resolve ComponentId from Type.
   (T1, T2)? getComponentByEntity2<T1 extends Component, T2 extends Component>(
-    final Entity entity,
-    final ComponentRegistry registry,
-    final Entities entities,
+    Entity entity,
+    ComponentRegistry registry,
+    Entities entities,
   ) {
     final rowIndex = getRowIndex(entity, entities);
     if (rowIndex == null) return null;
@@ -159,9 +159,9 @@ class Archetype {
     T2 extends Component,
     T3 extends Component
   >(
-    final Entity entity,
-    final ComponentRegistry registry,
-    final Entities entities,
+    Entity entity,
+    ComponentRegistry registry,
+    Entities entities,
   ) {
     final rowIndex = getRowIndex(entity, entities);
     if (rowIndex == null) return null;
@@ -171,8 +171,8 @@ class Archetype {
   /// Get component of type T at the given row index.
   /// Requires ComponentRegistry to resolve ComponentId from Type.
   T? getComponentByIndex<T extends Component>(
-    final int rowIndex,
-    final ComponentRegistry registry,
+    int rowIndex,
+    ComponentRegistry registry,
   ) {
     final componentId = registry.getComponentId<T>();
     final column = getColumn(componentId);
@@ -184,8 +184,8 @@ class Archetype {
   /// Get two components at the given row index.
   /// Requires ComponentRegistry to resolve ComponentId from Type.
   (T1, T2)? getComponentByIndex2<T1 extends Component, T2 extends Component>(
-    final int rowIndex,
-    final ComponentRegistry registry,
+    int rowIndex,
+    ComponentRegistry registry,
   ) {
     final componentId1 = registry.getComponentId<T1>();
     final componentId2 = registry.getComponentId<T2>();
@@ -217,7 +217,7 @@ class Archetype {
     T1 extends Component,
     T2 extends Component,
     T3 extends Component
-  >(final int rowIndex, final ComponentRegistry registry) {
+  >(int rowIndex, ComponentRegistry registry) {
     final componentId1 = registry.getComponentId<T1>();
     final componentId2 = registry.getComponentId<T2>();
     final componentId3 = registry.getComponentId<T3>();
@@ -253,14 +253,14 @@ class Archetype {
   /// Get row index for entity
   ///
   /// Uses global Entities location tracking for O(1) lookup.
-  int? getRowIndex(final Entity entity, final Entities entities) {
+  int? getRowIndex(Entity entity, Entities entities) {
     if (!entities.isAlive(entity)) return null;
     final location = entities.getLocation(entity);
     return location.archetypeId == archetypeId ? location.archetypeRow : null;
   }
 
   /// Check if this archetype matches a bitmask query
-  bool matches(final ComponentMask queryMask) => signature.matches(queryMask);
+  bool matches(ComponentMask queryMask) => signature.matches(queryMask);
 
   /// Moves an entity from this archetype to a destination archetype.
   ///
@@ -271,9 +271,9 @@ class Archetype {
   ///
   /// This method is kept for advanced use cases where fine-grained control is needed.
   void moveEntity(
-    final Entity entity,
-    final Archetype destination,
-    final Entities entities,
+    Entity entity,
+    Archetype destination,
+    Entities entities,
   ) {
     final sourceRowIndex = getRowIndex(entity, entities);
     if (sourceRowIndex == null) return;
@@ -307,10 +307,10 @@ class Archetype {
   ///
   /// This method is kept for advanced use cases where fine-grained control is needed.
   void moveEntityExcluding(
-    final Entity entity,
-    final Archetype destination,
-    final ComponentId excludeComponentId,
-    final Entities entities,
+    Entity entity,
+    Archetype destination,
+    ComponentId excludeComponentId,
+    Entities entities,
   ) {
     final sourceRowIndex = getRowIndex(entity, entities);
     if (sourceRowIndex == null) return;
@@ -345,7 +345,7 @@ class Archetype {
   /// - `swapRemove` must be called BEFORE `removeLast()` to maintain valid length
   /// - Columns and entities must stay synchronized (same length)
   /// - Global Entities location tracking is updated to maintain consistency
-  void removeEntity(final Entity entity, final Entities entities) {
+  void removeEntity(Entity entity, Entities entities) {
     _assertColumnSynchronization();
 
     final rowIndex = getRowIndex(entity, entities);
@@ -417,10 +417,10 @@ class Archetype {
   /// Helper method to get component from column.
   /// All columns now use the unified facade system (ObjectColumn facades are auto-generated).
   T _getComponentFromColumn<T extends Component>(
-    final ComponentId componentId,
-    final int rowIndex,
-    final DataColumn column,
-    final ComponentRegistry registry,
+    ComponentId componentId,
+    int rowIndex,
+    DataColumn column,
+    ComponentRegistry registry,
     // All columns use facade system - no special cases!
     // ObjectColumn facades are auto-generated if not registered
   ) => registry.componentFacadeRegistry.createFacade<T>(
@@ -447,7 +447,7 @@ extension ArchetypeBulkOps on Archetype {
   ///
   /// **Note:** This method does NOT update entity locations in Entities manager.
   /// Callers must update entity locations separately after calling this method.
-  void addEntities(final List<Entity> entities) {
+  void addEntities(List<Entity> entities) {
     _entities.addAll(entities);
 
     // Add blanks to all columns
@@ -460,8 +460,8 @@ extension ArchetypeBulkOps on Archetype {
 
   /// Batch remove entities
   void removeEntities(
-    final List<Entity> entities,
-    final Entities entitiesManager,
+    List<Entity> entities,
+    Entities entitiesManager,
   ) {
     for (final entity in entities) {
       removeEntity(entity, entitiesManager);

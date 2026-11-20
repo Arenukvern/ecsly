@@ -9,7 +9,7 @@ import '../components/camera_components.dart';
 /// Uses exponential interpolation for natural movement.
 /// Smoothly interpolates camera position and zoom towards their target values.
 /// Requires CameraPosition and CameraSmoothing components.
-void cameraSmoothingSystem(final World world) {
+void cameraSmoothingSystem(World world) {
   final dt = world.getResource<DeltaTimeResource>().deltaTime;
 
   // Query all active cameras with smoothing

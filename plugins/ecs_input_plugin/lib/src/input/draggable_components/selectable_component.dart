@@ -23,7 +23,7 @@ class SelectableComponent extends Component {
   /// Whether this entity can currently be selected based on current state.
   ///
   /// [currentZoom] Current camera zoom level
-  bool canBeSelected(final double currentZoom) => switch (constraint) {
+  bool canBeSelected(double currentZoom) => switch (constraint) {
     SelectionConstraint.disabled => false,
     SelectionConstraint.normal => true,
     SelectionConstraint.zoomDependent => currentZoom >= minZoomForSelection,

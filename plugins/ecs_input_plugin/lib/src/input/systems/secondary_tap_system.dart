@@ -11,7 +11,7 @@ import '../resources/interactive_entities_cache.dart';
 import '../utils/gesture_types.dart';
 import '../utils/hit_testing.dart';
 
-void secondaryTapInputSystem(final World world) {
+void secondaryTapInputSystem(World world) {
   final secondaryTapReader = world.events.reader<SecondaryTapEvent>();
   final entityWriter = world.events.writer<EntitySecondaryTapEvent>();
   final cache = world.getResource<InteractiveEntitiesCache>();

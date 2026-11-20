@@ -61,7 +61,7 @@ class IsolateManager {
   /// Returns `true` if the frame was dispatched immediately, or `false` if it
   /// was queued because the isolate was not yet ready. Queued frames are
   /// dispatched in submission order once the isolate becomes ready.
-  bool computeFrame(final Object inputData) {
+  bool computeFrame(Object inputData) {
     if (_shuttingDown) return false;
 
     if (_started && _sendPort != null && _doubleBuffer != null) {
@@ -124,7 +124,7 @@ class IsolateManager {
   /// Starts the compute isolate and initializes double buffering.
   ///
   /// Throws a [StateError] if called while already started.
-  Future<void> start(final int bufferSizeBytes) async {
+  Future<void> start(int bufferSizeBytes) async {
     if (_started) {
       throw StateError('IsolateManager already started');
     }
@@ -142,11 +142,11 @@ class IsolateManager {
     );
 
     _exitSubscription = exitPort.listen(
-      (final _) {
+      (_) {
         _exitCompleter?.complete(true);
         exitPort.close();
       },
-      onError: (final _) {
+      onError: (_) {
         _exitCompleter?.complete(true);
         exitPort.close();
       },
@@ -173,7 +173,7 @@ class IsolateManager {
     }
   }
 
-  void _handleMessage(final Object? message) {
+  void _handleMessage(Object? message) {
     if (message is IsolateMessage) {
       switch (message.type) {
         case IsolateMessageType.bufferTransfer:
@@ -199,7 +199,7 @@ class IsolateManager {
     }
   }
 
-  void _sendToCompute(final IsolateMessage message) {
+  void _sendToCompute(IsolateMessage message) {
     final port = _sendPort;
     if (port == null) return;
     try {

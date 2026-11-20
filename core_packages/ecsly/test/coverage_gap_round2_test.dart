@@ -53,8 +53,8 @@ void main() {
       expect(reg.getExtractor(double), isNotNull);
 
       final xyExtractor = XYFieldExtractor<_XY>(
-        getX: (final v) => v.x,
-        getY: (final v) => v.y,
+        getX: (v) => v.x,
+        getY: (v) => v.y,
       );
       reg.register<_XY>(xyExtractor);
       final resolved = reg.getExtractorFor(const _XY(1, 2));
@@ -70,10 +70,10 @@ void main() {
     test('ComponentDataWriter writes Float/Int/Uint8/Object columns', () {
       final reg = ExtractorRegistry.instance;
       reg.register<_XY>(
-        XYFieldExtractor<_XY>(getX: (final v) => v.x, getY: (final v) => v.y),
+        XYFieldExtractor<_XY>(getX: (v) => v.x, getY: (v) => v.y),
       );
       reg.register<_Val>(
-        ValueFieldExtractor<_Val>(getValue: (final v) => v.value),
+        ValueFieldExtractor<_Val>(getValue: (v) => v.value),
       );
 
       final floatCol = FloatColumn(stride: 2, initialCapacity: 1)..addBlank();
@@ -124,7 +124,7 @@ void main() {
       expect(uni.has(const ComponentId(1)), isTrue);
       expect(uni.has(const ComponentId(65)), isTrue);
       expect(
-        uni.componentIds.map((final id) => id.value),
+        uni.componentIds.map((id) => id.value),
         containsAll([1, 3, 65]),
       );
 
@@ -159,7 +159,7 @@ void main() {
       final channel = EventChannelFactory.create<_Vec4Event>(
         capacity: 2,
         metricsHook: overflows.add,
-        fromDoubleFieldsFactory: (final fields) =>
+        fromDoubleFieldsFactory: (fields) =>
             _Vec4Event(fields[0], fields[1], fields[2], fields[3]),
         sampleEvent: const _Vec4Event(0, 0, 0, 0),
       );
@@ -177,12 +177,12 @@ void main() {
       expect(overflows.single.dropped, isTrue);
 
       final batch = reader.drain();
-      expect(batch.map((final e) => e.a), [1, 2]);
+      expect(batch.map((e) => e.a), [1, 2]);
 
       // drain() consumes events — channel should be empty now
       expect(reader.isEmpty, isTrue);
       final iterValues = <double>[];
-      reader.forEach((final e) => iterValues.add(e.a));
+      reader.forEach((e) => iterValues.add(e.a));
       expect(iterValues, isEmpty);
 
       channel.clear();
@@ -196,7 +196,7 @@ void main() {
         ]),
         2,
       );
-      expect(channel.readBatch(10).map((final e) => e.a), [1, 2]);
+      expect(channel.readBatch(10).map((e) => e.a), [1, 2]);
       channel.clear();
       expect(reader.isNotEmpty, isFalse);
     });
@@ -205,7 +205,7 @@ void main() {
       final dropOld = EventChannelFactory.create<_Vec4Event>(
         capacity: 2,
         capacityPolicy: EventCapacityPolicy.dropOld,
-        fromDoubleFieldsFactory: (final fields) =>
+        fromDoubleFieldsFactory: (fields) =>
             _Vec4Event(fields[0], fields[1], fields[2], fields[3]),
         sampleEvent: const _Vec4Event(0, 0, 0, 0),
       );
@@ -213,12 +213,12 @@ void main() {
         ..send(const _Vec4Event(1, 0, 0, 0))
         ..send(const _Vec4Event(2, 0, 0, 0))
         ..send(const _Vec4Event(3, 0, 0, 0));
-      expect(dropOld.readBatch(2).map((final e) => e.a), [2, 3]);
+      expect(dropOld.readBatch(2).map((e) => e.a), [2, 3]);
 
       final throws = EventChannelFactory.create<_Vec4Event>(
         capacity: 1,
         capacityPolicy: EventCapacityPolicy.throwOnOverflow,
-        fromDoubleFieldsFactory: (final fields) =>
+        fromDoubleFieldsFactory: (fields) =>
             _Vec4Event(fields[0], fields[1], fields[2], fields[3]),
         sampleEvent: const _Vec4Event(0, 0, 0, 0),
       );
@@ -230,7 +230,7 @@ void main() {
 
       final typed = EventChannelFactory.create<_Vec4Event>(
         capacity: 4,
-        fromDoubleFieldsFactory: (final fields) =>
+        fromDoubleFieldsFactory: (fields) =>
             _Vec4Event(fields[0], fields[1], fields[2], fields[3]),
         sampleEvent: const _Vec4Event(0, 0, 0, 0),
       );
@@ -261,7 +261,7 @@ void main() {
     test('cursor/index APIs expose stable snapshots and bounds checks', () {
       final channel = EventChannelFactory.create<_Vec4Event>(
         capacity: 4,
-        fromDoubleFieldsFactory: (final fields) =>
+        fromDoubleFieldsFactory: (fields) =>
             _Vec4Event(fields[0], fields[1], fields[2], fields[3]),
         sampleEvent: const _Vec4Event(0, 0, 0, 0),
       );
@@ -293,7 +293,7 @@ void main() {
         final channel = EventChannelFactory.create<_Vec4Event>(
           capacity: 2,
           capacityPolicy: EventCapacityPolicy.dropOld,
-          fromDoubleFieldsFactory: (final fields) =>
+          fromDoubleFieldsFactory: (fields) =>
               _Vec4Event(fields[0], fields[1], fields[2], fields[3]),
           sampleEvent: const _Vec4Event(0, 0, 0, 0),
         );
@@ -373,8 +373,8 @@ void main() {
         final world = World();
         final ran = <String>[];
         final schedule = Schedule('r', maxExecutionRate: 0.0001)
-          ..addSystems([(final w) => ran.add('a'), (final w) => ran.add('b')])
-          ..add((final w) => ran.add('c'), name: 'c');
+          ..addSystems([(w) => ran.add('a'), (w) => ran.add('b')])
+          ..add((w) => ran.add('c'), name: 'c');
 
         expect(schedule.removeSystem('missing'), isFalse);
         expect(schedule.removeSystem('c'), isTrue);
@@ -388,7 +388,7 @@ void main() {
 
         schedule.clear();
         expect(schedule.systems, isEmpty);
-        schedule.then((final w) => ran.add('after-clear'));
+        schedule.then((w) => ran.add('after-clear'));
         schedule.run(world);
         expect(ran, contains('after-clear'));
       },

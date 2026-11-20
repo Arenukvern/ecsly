@@ -13,9 +13,9 @@ final _dartIdentifier = RegExp(r'^[A-Za-z_][A-Za-z0-9_]*$');
 class EcsComponentGenerator extends GeneratorForAnnotation<EcsComponent> {
   @override
   String generateForAnnotatedElement(
-    final Element element,
-    final ConstantReader annotation,
-    final BuildStep buildStep,
+    Element element,
+    ConstantReader annotation,
+    BuildStep buildStep,
   ) {
     if (element is! ClassElement) {
       throw InvalidGenerationSourceError(
@@ -59,14 +59,14 @@ class EcsComponentGenerator extends GeneratorForAnnotation<EcsComponent> {
   }
 }
 
-bool _extendsComponent(final ClassElement element) =>
-    element.allSupertypes.any((final type) => type.element.name == 'Component');
+bool _extendsComponent(ClassElement element) =>
+    element.allSupertypes.any((type) => type.element.name == 'Component');
 
 /// Returns a validation error message, or `null` when valid.
 String? ecsComponentAnnotationError({
-  required final String facade,
-  required final EcsColumnType columnType,
-  required final int stride,
+  required String facade,
+  required EcsColumnType columnType,
+  required int stride,
 }) {
   if (!_dartIdentifier.hasMatch(facade)) {
     return "facade must be a valid Dart identifier, got '$facade'.";
@@ -81,9 +81,9 @@ String? ecsComponentAnnotationError({
 
 /// Validates annotation fields shared by analyzer and unit tests.
 void validateEcsComponentAnnotation({
-  required final String facade,
-  required final EcsColumnType columnType,
-  required final int stride,
+  required String facade,
+  required EcsColumnType columnType,
+  required int stride,
 }) {
   final error = ecsComponentAnnotationError(
     facade: facade,
@@ -100,10 +100,10 @@ void validateEcsComponentAnnotation({
 /// Kept separate from analyzer/source_gen plumbing so release tests can cover
 /// the emitted API shape without relying on an in-memory package resolver.
 String generateEcsComponentFactories({
-  required final String className,
-  required final String facade,
-  required final EcsColumnType columnType,
-  required final int stride,
+  required String className,
+  required String facade,
+  required EcsColumnType columnType,
+  required int stride,
 }) {
   validateEcsComponentAnnotation(
     facade: facade,
@@ -124,8 +124,8 @@ String generateEcsComponentFactories({
   buf.writeln('class ${baseName}ColumnFactory extends ColumnFactory {');
   buf.writeln('  @override');
   buf.writeln('  DataColumn createColumn(');
-  buf.writeln('    final ComponentId componentId, {');
-  buf.writeln('    final int initialCapacity = 8,');
+  buf.writeln('    ComponentId componentId, {');
+  buf.writeln('    int initialCapacity = 8,');
   buf.writeln('  }) => $columnConstructor;');
   buf.writeln('}');
   buf.writeln();
@@ -138,11 +138,11 @@ String generateEcsComponentFactories({
   buf.writeln();
   buf.writeln('  @override');
   buf.writeln(
-    '  $facade create(final int index) => $facade((index, _column));',
+    '  $facade create(int index) => $facade((index, _column));',
   );
   buf.writeln();
   buf.writeln('  @override');
-  buf.writeln('  void initialize(final DataColumn column) {');
+  buf.writeln('  void initialize(DataColumn column) {');
   buf.writeln('    if (column case final $columnClassName column) {');
   buf.writeln('      _column = column;');
   buf.writeln('      return;');
@@ -171,7 +171,7 @@ String generateEcsComponentFactories({
   buf.writeln('  /// );');
   buf.writeln('  /// ```');
   buf.writeln(
-    '  static ComponentId register(final World world) => '
+    '  static ComponentId register(World world) => '
     'world.components.registerExtension<$className, $facade>(',
   );
   buf.writeln('    columnFactory: ${baseName}ColumnFactory(),');
@@ -182,13 +182,13 @@ String generateEcsComponentFactories({
   return buf.toString();
 }
 
-String _columnClassName(final EcsColumnType type) => switch (type) {
+String _columnClassName(EcsColumnType type) => switch (type) {
   EcsColumnType.float32 => 'FloatColumn',
   EcsColumnType.int32 => 'IntColumn',
   EcsColumnType.uint8 => 'Uint8Column',
 };
 
-String _columnConstructor(final EcsColumnType type, final int stride) =>
+String _columnConstructor(EcsColumnType type, int stride) =>
     switch (type) {
       EcsColumnType.float32 =>
         'FloatColumn(initialCapacity: initialCapacity, stride: $stride)',

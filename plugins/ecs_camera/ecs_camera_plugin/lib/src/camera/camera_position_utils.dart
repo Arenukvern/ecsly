@@ -25,8 +25,8 @@ class CameraPositionUtils {
   ///
   /// Returns null if no valid positions found.
   static ui.Offset? calculateAveragePosition(
-    final World world,
-    final List<Entity> entities,
+    World world,
+    List<Entity> entities,
   ) {
     double sumX = 0;
     double sumY = 0;
@@ -50,8 +50,8 @@ class CameraPositionUtils {
   ///
   /// Returns null if no valid positions found.
   static ui.Offset? calculateBoundsCenter(
-    final World world,
-    final List<Entity> entities,
+    World world,
+    List<Entity> entities,
   ) {
     double minX = double.infinity;
     double minY = double.infinity;
@@ -76,7 +76,7 @@ class CameraPositionUtils {
   /// Extracts position as Offset from an entity via [PositionConfigResource]
   /// (data-only, renderer/game agnostic). Returns null if no position config
   /// is registered or the entity has no position column.
-  static ui.Offset? getPositionComponent(final WorldEntityExtension ext) {
+  static ui.Offset? getPositionComponent(WorldEntityExtension ext) {
     final world = ext.base.world;
     final entity = ext.base.entity;
 

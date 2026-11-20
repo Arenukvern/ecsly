@@ -51,10 +51,10 @@ void main() {
       const ScheduleId('tick'),
       trigger: const ManualTrigger(),
     );
-    schedule.add((final world) => ran.add('ai'), name: 'ai');
+    schedule.add((world) => ran.add('ai'), name: 'ai');
     schedule.add(meshPulseSystem(_CountingPulse(() => pulses++)),
         name: 'mesh-pulse', runAfter: ['ai']);
-    schedule.add((final world) => ran.add('render'), name: 'render',
+    schedule.add((world) => ran.add('render'), name: 'render',
         runAfter: ['mesh-pulse']);
 
     await schedule.runAsync(world);

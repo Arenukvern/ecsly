@@ -17,9 +17,9 @@ class ComponentDataIntegrator {
   ///
   /// If [data] is null, skips writing (column is already zero-initialized by addBlank()).
   static void writeComponentData(
-    final DataColumn column,
-    final int rowIndex,
-    final dynamic data,
+    DataColumn column,
+    int rowIndex,
+    dynamic data,
   ) {
     // Skip writing if data is null - column is already zero-initialized
     if (data == null) {

@@ -10,8 +10,8 @@ class IncrementAction extends EcsAction<int> {
   const IncrementAction();
 
   @override
-  int run(final EcsActionContext context) {
-    context.mutateResource<CounterResource>((final counter) {
+  int run(EcsActionContext context) {
+    context.mutateResource<CounterResource>((counter) {
       counter.value += 1;
     });
     return context.getResource<CounterResource>().value;
@@ -25,7 +25,7 @@ Future<void> main() async {
 
   final result = await runner.run(
     const IncrementAction(),
-    onChanged: ({final flush = true, final invalidation}) {
+    onChanged: ({flush = true, invalidation}) {
       invalidations.add(invalidation ?? const EcsInvalidationBatch.broad());
       if (flush) world.flush();
     },

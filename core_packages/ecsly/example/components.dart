@@ -15,7 +15,7 @@ class CounterComponent extends Component {
 ///
 /// This helper keeps the minimal example focused on world/entity/query flow
 /// while still showing that component storage must be declared before use.
-void registerCounterComponents(final World world) {
+void registerCounterComponents(World world) {
   // Registration gives ecsly a compact ComponentId and tells the world to store
   // CounterComponent values in an ObjectColumn.
   world.components.registerObjectComponent<CounterComponent>();
@@ -43,7 +43,7 @@ extension type Energy._(int index) {
   /// Application code should not call this directly. ecsly calls the facade
   /// factory when a query or entity extension needs typed access to a column.
   // ignore: avoid_setters_without_getters
-  static set column(final FloatColumn column) {
+  static set column(FloatColumn column) {
     _column = column;
   }
 
@@ -57,13 +57,13 @@ extension type Energy._(int index) {
   double get regenPerTick => _column.getValueUnsafe(index, 2);
 
   /// Updates the current energy value in column slot `0`.
-  set current(final double value) => _column.setValue(index, 0, value);
+  set current(double value) => _column.setValue(index, 0, value);
 
   /// Updates the maximum energy value in column slot `1`.
-  set max(final double value) => _column.setValue(index, 1, value);
+  set max(double value) => _column.setValue(index, 1, value);
 
   /// Updates the regeneration value in column slot `2`.
-  set regenPerTick(final double value) => _column.setValue(index, 2, value);
+  set regenPerTick(double value) => _column.setValue(index, 2, value);
 }
 
 /// Creates the typed column used to store [EnergyComponent] data.
@@ -75,8 +75,8 @@ extension type Energy._(int index) {
 final class _EnergyColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => FloatColumn(stride: 3, initialCapacity: initialCapacity);
 }
 
@@ -88,7 +88,7 @@ final class _EnergyColumnFactory extends ColumnFactory {
 /// `queryExt<EnergyComponent, Energy>()` and receive named getters/setters.
 final class _EnergyFacadeFactory extends ComponentFacadeFactory<Energy> {
   @override
-  Energy create(final int index) => Energy._(index);
+  Energy create(int index) => Energy._(index);
 
   @override
   /// Gives [Energy] facades access to the concrete [FloatColumn].
@@ -96,7 +96,7 @@ final class _EnergyFacadeFactory extends ComponentFacadeFactory<Energy> {
   /// ecsly calls this before creating facades for a column. The covariant
   /// parameter keeps this example compact because [_EnergyColumnFactory] always
   /// creates [FloatColumn] storage for [EnergyComponent].
-  void initialize(covariant final FloatColumn column) {
+  void initialize(covariant FloatColumn column) {
     Energy.column = column;
   }
 }
@@ -116,7 +116,7 @@ class DebugNoteComponent extends Component {
 /// [DebugNoteComponent] uses object storage because it is cold readable
 /// metadata. [EnergyComponent] uses extension storage because it represents
 /// compact numeric data that a system may update frequently.
-void registerEnergyExampleComponents(final World world) {
+void registerEnergyExampleComponents(World world) {
   // The debug note is cold, readable metadata, so object storage is clearer.
   world.components.registerObjectComponent<DebugNoteComponent>();
 

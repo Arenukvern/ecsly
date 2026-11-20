@@ -7,10 +7,10 @@ import 'package:ecsly_async_parallel/ecsly_async_parallel.dart';
 import 'package:test/test.dart';
 
 /// Worker entry for pooled isolate: receives [SendPort replyTo, TransferableTypedData chunk].
-void _pooledDoubleFloatsWorker(final SendPort ownerSendPort) {
+void _pooledDoubleFloatsWorker(SendPort ownerSendPort) {
   final port = ReceivePort();
   ownerSendPort.send(port.sendPort);
-  port.listen((final message) {
+  port.listen((message) {
     if (message is List<Object?>) {
       final pair = message;
       final replyTo = pair[0]! as SendPort;
@@ -29,8 +29,8 @@ void _pooledDoubleFloatsWorker(final SendPort ownerSendPort) {
 
 /// Doubles each float in the chunk. Top-level so it can run in an isolate.
 void _doubleFloatsWorker(
-  final SendPort replyTo,
-  final TransferableTypedData chunk,
+  SendPort replyTo,
+  TransferableTypedData chunk,
 ) {
   final received = TransferableBuffer(0)..receive(chunk);
   final input = received.data.buffer.asFloat32List();
@@ -60,10 +60,10 @@ class _DoubleFloatsJobSystem
   int get chunkStrideBytes => 16; // 4 floats per chunk
 
   @override
-  Float32List extractTyped(final World world) => input;
+  Float32List extractTyped(World world) => input;
 
   @override
-  Float32List executeChunk(final Float32List chunk) {
+  Float32List executeChunk(Float32List chunk) {
     final output = Float32List(chunk.length);
     for (var i = 0; i < chunk.length; i++) {
       output[i] = chunk[i] * 2;
@@ -73,12 +73,12 @@ class _DoubleFloatsJobSystem
 
   @override
   void mergeTyped(
-    final World world,
-    final List<ScheduleJobChunkResult<Float32List>> orderedResults,
+    World world,
+    List<ScheduleJobChunkResult<Float32List>> orderedResults,
   ) {
     final total = orderedResults.fold<int>(
       0,
-      (final sum, final r) => sum + r.value.length,
+      (sum, r) => sum + r.value.length,
     );
     final merged = Float32List(total);
     var offset = 0;
@@ -141,7 +141,7 @@ void main() {
         }
         expect(
           results,
-          equals(List.generate(10, (final i) => (i * 2).toDouble())),
+          equals(List.generate(10, (i) => (i * 2).toDouble())),
         );
       } finally {
         await pool.shutdown();

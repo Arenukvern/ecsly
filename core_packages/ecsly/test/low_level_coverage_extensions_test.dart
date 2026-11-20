@@ -126,7 +126,7 @@ void main() {
         final ran = <String>[];
         world
             .createSchedule(const ScheduleId('A'))
-            .add((final w) => ran.add('A'));
+            .add((w) => ran.add('A'));
         expect(world.hasSchedule(const ScheduleId('A')), isTrue);
         expect(world.schedule(const ScheduleId('A')).name, 'A');
         world.runSchedule(const ScheduleId('A'));
@@ -135,8 +135,8 @@ void main() {
         await world.runScheduleAsync(const ScheduleId('A'));
         expect(ran, ['A', 'A']);
 
-        world.runSystem((final w) => ran.add('sys'));
-        await world.runSystemAsync((final w) async => ran.add('asyncSys'));
+        world.runSystem((w) => ran.add('sys'));
+        await world.runSystemAsync((w) async => ran.add('asyncSys'));
         expect(ran, containsAllInOrder(['sys', 'asyncSys']));
 
         final b = world.getOrCreateSchedule(
@@ -151,8 +151,8 @@ void main() {
         var uninstalls = 0;
         final plugin = _TestPlugin(
           'p',
-          (final w) => installs++,
-          (final w) => uninstalls++,
+          (w) => installs++,
+          (w) => uninstalls++,
         );
         world.addPlugin(plugin);
         expect(world.hasPlugin('p'), isTrue);
@@ -207,7 +207,7 @@ void main() {
 
       final entries = list.entries.toList();
       expect(entries, hasLength(2));
-      expect(entries.map((final e) => e.$1), containsAll([_C1, _C2]));
+      expect(entries.map((e) => e.$1), containsAll([_C1, _C2]));
 
       list.remove(_C2);
       list.remove(_C3); // remove missing path
@@ -321,10 +321,10 @@ final class _C1FacadeFactory extends ComponentFacadeFactory<_C1> {
   static late ObjectColumn<_C1> _column;
 
   @override
-  _C1 create(final int index) => _column.getValue(index)!;
+  _C1 create(int index) => _column.getValue(index)!;
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     _column = column as ObjectColumn<_C1>;
   }
 }
@@ -332,8 +332,8 @@ final class _C1FacadeFactory extends ComponentFacadeFactory<_C1> {
 final class _C1Factory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => ObjectColumn<_C1>(initialCapacity: initialCapacity);
 }
 
@@ -362,8 +362,8 @@ class _TestPlugin extends Plugin {
   final void Function(World world) onUninstall;
 
   @override
-  void install(final World world) => onInstall(world);
+  void install(World world) => onInstall(world);
 
   @override
-  void uninstall(final World world) => onUninstall(world);
+  void uninstall(World world) => onUninstall(world);
 }

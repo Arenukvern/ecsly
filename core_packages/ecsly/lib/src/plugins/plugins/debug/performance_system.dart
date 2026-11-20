@@ -8,7 +8,7 @@ import 'performance_resource.dart';
 ///
 /// Updates [PerformanceResource] each frame with current FPS
 /// (rolling average over 60 frames) and entity count.
-void performanceSystem(final World world) {
+void performanceSystem(World world) {
   final dt = world.getResource<DeltaTimeResource>().deltaTime;
   final entityCount = world.entities.count;
   final performance = world.getResource<PerformanceResource>();

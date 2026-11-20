@@ -42,8 +42,8 @@ import 'selection_cleanup_system.dart';
 /// system. They are chained in list order after the built-in pipeline.
 /// Note: Camera control systems should be added via CameraControlPlugin, not here.
 void configureInputSchedule(
-  final World world, {
-  final List<void Function(World)>? additionalSystems,
+  World world, {
+  List<void Function(World)>? additionalSystems,
 }) {
   world.getOrCreateSchedule(
       const ScheduleId('KeyboardInput'),
@@ -63,7 +63,7 @@ void configureInputSchedule(
       world.getOrCreateSchedule(
           const ScheduleId('Input'),
           trigger: ConditionTrigger(
-            (final w) =>
+            (w) =>
                 // Check for raw events (from widget)
                 w.events.reader<RawPointerDownEvent>().isNotEmpty ||
                 w.events.reader<RawPointerMoveEvent>().isNotEmpty ||
@@ -148,7 +148,7 @@ void configureInputSchedule(
 /// systems in the same frame, while still advancing the tracker and performing
 /// cleanup before the next frame.
 Iterable<String> inputCleanupLastScheduleOrdering(
-  final Iterable<String> scheduleNames,
+  Iterable<String> scheduleNames,
 ) {
   const inputCleanupName = 'InputCleanup';
   String? runLast;

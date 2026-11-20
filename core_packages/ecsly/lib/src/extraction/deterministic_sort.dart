@@ -16,8 +16,8 @@ typedef DeterministicOrderKey = (
 
 /// Compares two deterministic extraction keys.
 int compareDeterministicOrderKey(
-  final DeterministicOrderKey a,
-  final DeterministicOrderKey b,
+  DeterministicOrderKey a,
+  DeterministicOrderKey b,
 ) {
   final primary = a.$1.compareTo(b.$1);
   if (primary != 0) return primary;
@@ -33,22 +33,22 @@ int compareDeterministicOrderKey(
 
 /// Returns row indices sorted using deterministic integer keys.
 List<int> deterministicSortedIndices(
-  final int count, {
-  required final int Function(int row) primary,
-  required final int Function(int row) secondary,
-  required final int Function(int row) tertiary,
-  required final int Function(int row) tieBreaker,
+  int count, {
+  required int Function(int row) primary,
+  required int Function(int row) secondary,
+  required int Function(int row) tertiary,
+  required int Function(int row) tieBreaker,
 }) {
   final indices = Int32List(count);
   for (var i = 0; i < count; i++) {
     indices[i] = i;
   }
 
-  indices.sort((final a, final b) {
+  indices.sort((a, b) {
     final ka = (primary(a), secondary(a), tertiary(a), tieBreaker(a));
     final kb = (primary(b), secondary(b), tertiary(b), tieBreaker(b));
     return compareDeterministicOrderKey(ka, kb);
   });
 
-  return List<int>.generate(count, (final i) => indices[i], growable: false);
+  return List<int>.generate(count, (i) => indices[i], growable: false);
 }

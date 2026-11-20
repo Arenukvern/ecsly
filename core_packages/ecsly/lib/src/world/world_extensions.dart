@@ -33,7 +33,7 @@ extension WorldBatchSpawnX on World {
   /// ], [(LifetimeComponent, Lifetime)]);
   /// world.batchSpawn(bundle, 10000);
   /// ```
-  void batchSpawn(final ComponentBundle bundle, final int count) =>
+  void batchSpawn(ComponentBundle bundle, int count) =>
       commands.batchSpawn(bundle, count);
 
   /// Pre-register archetypes for efficient batch spawning.
@@ -54,7 +54,7 @@ extension WorldBatchSpawnX on World {
   /// world.commands.batchSpawn(bundle1, 5000);
   /// world.commands.batchSpawn(bundle2, 5000);
   /// ```
-  void preRegisterArchetypesForBundles(final List<ComponentBundle> bundles) {
+  void preRegisterArchetypesForBundles(List<ComponentBundle> bundles) {
     final signatures = <ArchetypeSignature>[];
     for (final bundle in bundles) {
       final componentIds = <ComponentId>[];
@@ -130,8 +130,8 @@ extension WorldBulkAppendX on World {
   /// Not legal during a flush or a hot schedule (structural changes there
   /// belong to the command queue); asserts refuse both.
   AppendedRows appendRows(
-    final ArchetypeSignature signature,
-    final int count,
+    ArchetypeSignature signature,
+    int count,
   ) {
     RangeError.checkNotNegative(count, 'count');
     assert(
@@ -180,7 +180,7 @@ extension WorldComponentX on World {
   /// if entity is not alive or [ComponentNotFoundError] if component is not found.
   ///
   /// Automatically flushes pending changes before access to ensure data consistency.
-  T getComponent<T extends Component>(final Entity entity) {
+  T getComponent<T extends Component>(Entity entity) {
     ensureFlushed();
     if (!entities.isAlive(entity)) {
       throw EntityNotFoundError(entity);
@@ -204,7 +204,7 @@ extension WorldComponentX on World {
   /// This is a direct entity lookup. It does not scan archetypes and does not
   /// allocate an entity/component pair. Domain ids should be modeled as normal
   /// components; any app-level id lookup belongs in host/plugin infrastructure.
-  T? maybeGetComponent<T extends Component>(final Entity entity) {
+  T? maybeGetComponent<T extends Component>(Entity entity) {
     ensureFlushed();
 
     if (!entities.isAlive(entity)) return null;
@@ -224,7 +224,7 @@ extension WorldComponentX on World {
   ///
   /// Returns [EntityCommands] for method chaining. The removal is deferred
   /// via the command queue and will be processed on the next flush.
-  EntityCommands removeComponent<T extends Component>(final Entity entity) {
+  EntityCommands removeComponent<T extends Component>(Entity entity) {
     final commands = EntityCommands(queue: commandQueue, entity: entity);
     commands.remove<T>();
     return commands;
@@ -238,8 +238,8 @@ extension WorldComponentX on World {
   /// The entity must already exist (use [reserveEmptyEntity] first).
   /// Component addition is deferred via the command queue.
   EntityCommands spawnBundle(
-    final Entity entity,
-    final ComponentBundle bundle,
+    Entity entity,
+    ComponentBundle bundle,
   ) => commands.spawnBundle(entity, bundle);
 
   /// Upsert (insert or update) a component of type T for the given entity.
@@ -250,8 +250,8 @@ extension WorldComponentX on World {
   /// Returns [EntityCommands] for method chaining. The change is deferred
   /// via the command queue and will be processed on the next flush.
   EntityCommands upsertComponent<T extends Component>(
-    final Entity entity,
-    final T component,
+    Entity entity,
+    T component,
   ) {
     final commands = EntityCommands(queue: commandQueue, entity: entity);
     commands.upsert<T>(component);
@@ -267,7 +267,7 @@ extension WorldEntityX on World {
   ///
   /// This is a cold-path convenience around [reserveEmptyEntity] and
   /// [spawnBundle]. The structural write is still deferred until flush.
-  Entity spawnComponentBundle(final ComponentBundle bundle) {
+  Entity spawnComponentBundle(ComponentBundle bundle) {
     final entity = reserveEmptyEntity().entity;
     spawnBundle(entity, bundle);
     return entity;
@@ -275,8 +275,8 @@ extension WorldEntityX on World {
 
   /// Reserve an entity and spawn it with one component bundle built from lists.
   Entity spawnComponents(
-    final List<Component> components, [
-    final List<(Type, Type)> extensionComponents = const [],
+    List<Component> components, [
+    List<(Type, Type)> extensionComponents = const [],
   ]) => spawnComponentBundle(
     ComponentBundle.fromLists(components, extensionComponents),
   );
@@ -286,7 +286,7 @@ extension WorldEntityX on World {
   /// Uses the command queue to defer the despawn operation, ensuring
   /// safe removal during iteration. The entity and all its components
   /// will be removed on the next flush.
-  void despawnEntity(final Entity entity) {
+  void despawnEntity(Entity entity) {
     EntityCommands(queue: commandQueue, entity: entity).despawn();
   }
 
@@ -298,7 +298,7 @@ extension WorldEntityX on World {
   /// Returns isValid=false if entity is not found (does not throw).
   ///
   /// The bool isValid is true if the entity is still valid, false otherwise
-  (WorldEntity, bool isValid) getEntity(final Entity entity) {
+  (WorldEntity, bool isValid) getEntity(Entity entity) {
     ensureFlushed();
     return getEntityFast(entity);
   }
@@ -310,7 +310,7 @@ extension WorldEntityX on World {
   /// or inside query iterators that flush once before iteration).
   ///
   /// Returns isValid=false if entity is not found (does not throw).
-  (WorldEntity, bool isValid) getEntityFast(final Entity entity) {
+  (WorldEntity, bool isValid) getEntityFast(Entity entity) {
     final location = entities.getLocation(entity);
     final isValid = entities.isAlive(entity);
 
@@ -326,7 +326,7 @@ extension WorldEntityX on World {
   /// This wrapper is a convenience/cold-path API; prefer raw query chunk APIs
   /// for hot simulation loops.
   /// Returns isValid=false if entity is not found (does not throw).
-  (WorldEntityExtension, bool isValid) getEntityExtension(final Entity entity) {
+  (WorldEntityExtension, bool isValid) getEntityExtension(Entity entity) {
     ensureFlushed();
     return getEntityExtensionFast(entity);
   }
@@ -335,7 +335,7 @@ extension WorldEntityX on World {
   ///
   /// Hot-path variant for callers that already ensured flush consistency.
   (WorldEntityExtension, bool isValid) getEntityExtensionFast(
-    final Entity entity,
+    Entity entity,
   ) {
     final (baseEntity, isValid) = getEntityFast(entity);
     return (baseEntity.toExtension(), isValid);
@@ -353,7 +353,7 @@ extension WorldEntityX on World {
   /// - **WorldEntity**: For structural changes (spawn/despawn/insert/remove components) - changes archetype
   ///
   /// Returns isValid=false if entity is not found (does not throw).
-  (WorldEntityMut, bool isValid) getEntityMut(final Entity entity) {
+  (WorldEntityMut, bool isValid) getEntityMut(Entity entity) {
     ensureFlushed();
     return getEntityMutFast(entity);
   }
@@ -361,7 +361,7 @@ extension WorldEntityX on World {
   /// Get a [WorldEntityMut] wrapper without triggering auto-flush.
   ///
   /// Hot-path variant for callers that already ensured flush consistency.
-  (WorldEntityMut, bool isValid) getEntityMutFast(final Entity entity) {
+  (WorldEntityMut, bool isValid) getEntityMutFast(Entity entity) {
     final location = entities.getLocation(entity);
     final isValid = entities.isAlive(entity);
     final baseEntity = WorldEntity(
@@ -382,7 +382,7 @@ extension WorldEntityX on World {
   /// Use this when a caller needs many entity ids before scheduling structural
   /// commands. Returning raw [Entity] values avoids allocating one
   /// [EntityCommands] wrapper per reserved entity.
-  List<Entity> reserveEmptyEntities(final int count) {
+  List<Entity> reserveEmptyEntities(int count) {
     RangeError.checkNotNegative(count, 'count');
     return List<Entity>.generate(count, (_) => entities.create());
   }
@@ -535,7 +535,7 @@ extension WorldPluginX on World {
   /// Add a plugin to this world.
   ///
   /// Throws [PluginInstallationException] if a plugin with the same name is already installed.
-  void addPlugin(final Plugin plugin) {
+  void addPlugin(Plugin plugin) {
     flush();
     systems.plugins.add(plugin, this);
   }
@@ -545,22 +545,22 @@ extension WorldPluginX on World {
   /// Returns true when the plugin was installed, false when it was already
   /// present. This does not replace existing plugins; use [removePlugin]
   /// followed by [addPlugin] when replacement/uninstall semantics are needed.
-  bool addPluginIfAbsent(final Plugin plugin) {
+  bool addPluginIfAbsent(Plugin plugin) {
     if (hasPlugin(plugin.name)) return false;
     addPlugin(plugin);
     return true;
   }
 
   /// Get a plugin by name.
-  Plugin? getPlugin(final String name) => systems.plugins.get(name);
+  Plugin? getPlugin(String name) => systems.plugins.get(name);
 
   /// Check if a plugin is installed.
-  bool hasPlugin(final String name) => systems.plugins.has(name);
+  bool hasPlugin(String name) => systems.plugins.has(name);
 
   /// Remove a plugin from this world.
   ///
   /// Returns true if a plugin was removed, false otherwise.
-  bool removePlugin(final String name) {
+  bool removePlugin(String name) {
     flush();
     return systems.plugins.remove(name, this);
   }
@@ -571,7 +571,7 @@ extension WorldResourceX on World {
   T? maybeGetResource<T extends Resource>() =>
       resources.has<T>() ? resources.get<T>() : null;
 
-  T? getResourceById<T extends Resource>(final ResourceId id) =>
+  T? getResourceById<T extends Resource>(ResourceId id) =>
       resources.getById<T>(id);
 
   /// Remove a resource of type T from the world.
@@ -588,7 +588,7 @@ extension WorldResourceX on World {
   /// Resources are global singletons. Only one instance of each type can exist.
   /// The change is deferred via the resource registry's pending queue
   /// and will be processed on the next flush.
-  void upsertResource<T extends Resource>(final T resource) {
+  void upsertResource<T extends Resource>(T resource) {
     flushResourcesOnly();
     resources.push(resource);
   }
@@ -598,7 +598,7 @@ extension WorldResourceX on World {
   /// Returns the existing resource when present, otherwise creates, stores, and
   /// returns a new resource. This is a cold-path setup helper; app/UI
   /// invalidation should remain in app-layer action APIs.
-  T addResourceIfAbsent<T extends Resource>(final T Function() create) {
+  T addResourceIfAbsent<T extends Resource>(T Function() create) {
     if (resources.has<T>()) return resources.get<T>();
     final resource = create();
     upsertResource(resource);
@@ -611,40 +611,40 @@ extension WorldScheduleX on World {
   ///
   /// Throws [EcsStateError] if a schedule with the same id already exists.
   Schedule createSchedule(
-    final ScheduleId id, {
-    final ScheduleTrigger? trigger,
+    ScheduleId id, {
+    ScheduleTrigger? trigger,
   }) => systems.createSchedule(id, trigger: trigger);
 
   /// Get or create a schedule.
   Schedule getOrCreateSchedule(
-    final ScheduleId id, {
-    final ScheduleTrigger? trigger,
+    ScheduleId id, {
+    ScheduleTrigger? trigger,
   }) => systems.getOrCreateSchedule(id, trigger: trigger);
 
   /// Check if a schedule exists.
-  bool hasSchedule(final ScheduleId id) => systems.hasSchedule(id);
+  bool hasSchedule(ScheduleId id) => systems.hasSchedule(id);
 
   /// Remove a schedule by id.
-  bool removeSchedule(final ScheduleId id) => systems.removeSchedule(id);
+  bool removeSchedule(ScheduleId id) => systems.removeSchedule(id);
 
   /// Run a schedule by id (synchronously).
   ///
   /// If the schedule has a trigger, it will only execute if the trigger
   /// condition is met.
-  void runSchedule(final ScheduleId id) => schedule(id).run(this);
+  void runSchedule(ScheduleId id) => schedule(id).run(this);
 
   /// Run a schedule by id (asynchronously).
-  Future<void> runScheduleAsync(final ScheduleId id) =>
+  Future<void> runScheduleAsync(ScheduleId id) =>
       schedule(id).runAsync(this);
 
   /// Run a system directly (for input layer or one-off execution).
-  void runSystem(final System system) => system(this);
+  void runSystem(System system) => system(this);
 
   /// Run an async system directly.
-  Future<void> runSystemAsync(final AsyncSystem system) => system(this);
+  Future<void> runSystemAsync(AsyncSystem system) => system(this);
 
   /// Get a schedule by id.
   ///
   /// Throws [EcsStateError] if the schedule doesn't exist.
-  Schedule schedule(final ScheduleId id) => systems.getSchedule(id);
+  Schedule schedule(ScheduleId id) => systems.getSchedule(id);
 }

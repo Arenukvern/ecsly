@@ -15,10 +15,10 @@ void main() {
 
         final order = deterministicSortedIndices(
           primary.length,
-          primary: (final i) => primary[i],
-          secondary: (final i) => secondary[i],
-          tertiary: (final i) => tertiary[i],
-          tieBreaker: (final i) => tie[i],
+          primary: (i) => primary[i],
+          secondary: (i) => secondary[i],
+          tertiary: (i) => tertiary[i],
+          tieBreaker: (i) => tie[i],
         );
 
         expect(order, equals([2, 4, 1, 3, 0]));

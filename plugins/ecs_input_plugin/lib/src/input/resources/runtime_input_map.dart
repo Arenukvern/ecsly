@@ -28,47 +28,47 @@ class RuntimeInputMap extends Resource {
   final Map<InputAction, Set<InputSource>> _actionToSources = {};
 
   /// Backward-compatible wrapper.
-  static LoadResult fromJsonWithErrors(final Map<String, dynamic> json) =>
+  static LoadResult fromJsonWithErrors(Map<String, dynamic> json) =>
       runtimeInputMapFromJsonWithErrors(json);
 }
 
 extension RuntimeInputMapOps on RuntimeInputMap {
-  void bind(final InputSource source, final Set<InputAction> actions) =>
+  void bind(InputSource source, Set<InputAction> actions) =>
       runtimeInputMapBind(this, source, actions);
 
-  void bindSingle(final InputSource source, final InputAction action) =>
+  void bindSingle(InputSource source, InputAction action) =>
       runtimeInputMapBindSingle(this, source, action);
 
-  void clearAction(final InputAction action) =>
+  void clearAction(InputAction action) =>
       runtimeInputMapClearAction(this, action);
 
   List<InputSource> findConflicts() => runtimeInputMapFindConflicts(this);
 
-  Set<InputAction> getActions(final InputSource source) =>
+  Set<InputAction> getActions(InputSource source) =>
       runtimeInputMapGetActions(this, source);
 
   Iterable<KeyboardSource> getMatchingKeyboardSources(
-    final LogicalKeyboardKey key,
-    final Set<LogicalKeyboardKey> pressed,
+    LogicalKeyboardKey key,
+    Set<LogicalKeyboardKey> pressed,
   ) => runtimeInputMapGetMatchingKeyboardSources(this, key, pressed);
 
-  Set<InputSource> getSources(final InputAction action) =>
+  Set<InputSource> getSources(InputAction action) =>
       runtimeInputMapGetSources(this, action);
 
-  bool hasConflict(final InputSource source) =>
+  bool hasConflict(InputSource source) =>
       runtimeInputMapHasConflict(this, source);
 
   void initializeDefaults() => runtimeInputMapInitializeDefaults(this);
 
   Map<String, dynamic> toJson() => runtimeInputMapToJson(this);
 
-  void unbind(final InputSource source) => runtimeInputMapUnbind(this, source);
+  void unbind(InputSource source) => runtimeInputMapUnbind(this, source);
 }
 
 void runtimeInputMapBind(
-  final RuntimeInputMap map,
-  final InputSource source,
-  final Set<InputAction> actions,
+  RuntimeInputMap map,
+  InputSource source,
+  Set<InputAction> actions,
 ) {
   runtimeInputMapUnbind(map, source);
 
@@ -79,16 +79,16 @@ void runtimeInputMapBind(
 }
 
 void runtimeInputMapBindSingle(
-  final RuntimeInputMap map,
-  final InputSource source,
-  final InputAction action,
+  RuntimeInputMap map,
+  InputSource source,
+  InputAction action,
 ) {
   runtimeInputMapBind(map, source, {action});
 }
 
 void runtimeInputMapClearAction(
-  final RuntimeInputMap map,
-  final InputAction action,
+  RuntimeInputMap map,
+  InputAction action,
 ) {
   final sources = map._actionToSources.remove(action);
   if (sources == null) return;
@@ -104,7 +104,7 @@ void runtimeInputMapClearAction(
   }
 }
 
-List<InputSource> runtimeInputMapFindConflicts(final RuntimeInputMap map) {
+List<InputSource> runtimeInputMapFindConflicts(RuntimeInputMap map) {
   final conflicts = <InputSource>[];
   for (final entry in map._bindings.values) {
     if (entry.value.length > 1) {
@@ -115,33 +115,33 @@ List<InputSource> runtimeInputMapFindConflicts(final RuntimeInputMap map) {
 }
 
 Set<InputAction> runtimeInputMapGetActions(
-  final RuntimeInputMap map,
-  final InputSource source,
+  RuntimeInputMap map,
+  InputSource source,
 ) => map._bindings[source.uniqueId]?.value ?? {};
 
 Iterable<KeyboardSource> runtimeInputMapGetMatchingKeyboardSources(
-  final RuntimeInputMap map,
-  final LogicalKeyboardKey key,
-  final Set<LogicalKeyboardKey> pressed,
+  RuntimeInputMap map,
+  LogicalKeyboardKey key,
+  Set<LogicalKeyboardKey> pressed,
 ) => map._bindings.values
-    .where((final entry) => entry.key is KeyboardSource)
-    .map((final entry) => entry.key as KeyboardSource)
-    .where((final source) => source.matches(key, pressed));
+    .where((entry) => entry.key is KeyboardSource)
+    .map((entry) => entry.key as KeyboardSource)
+    .where((source) => source.matches(key, pressed));
 
 Set<InputSource> runtimeInputMapGetSources(
-  final RuntimeInputMap map,
-  final InputAction action,
+  RuntimeInputMap map,
+  InputAction action,
 ) => map._actionToSources[action] ?? {};
 
 bool runtimeInputMapHasConflict(
-  final RuntimeInputMap map,
-  final InputSource source,
+  RuntimeInputMap map,
+  InputSource source,
 ) {
   final entry = map._bindings[source.uniqueId];
   return entry != null && entry.value.length > 1;
 }
 
-void runtimeInputMapInitializeDefaults(final RuntimeInputMap map) {
+void runtimeInputMapInitializeDefaults(RuntimeInputMap map) {
   runtimeInputMapBindSingle(
     map,
     const KeyboardSource(LogicalKeyboardKey.keyW),
@@ -237,20 +237,20 @@ void runtimeInputMapInitializeDefaults(final RuntimeInputMap map) {
   );
 }
 
-Map<String, dynamic> runtimeInputMapToJson(final RuntimeInputMap map) => {
+Map<String, dynamic> runtimeInputMapToJson(RuntimeInputMap map) => {
   'bindings': map._bindings.entries
       .map(
-        (final e) => {
+        (e) => {
           'source': e.value.key.uniqueId,
-          'actions': e.value.value.map((final a) => a.name).toList(),
+          'actions': e.value.value.map((a) => a.name).toList(),
         },
       )
       .toList(),
 };
 
 void runtimeInputMapUnbind(
-  final RuntimeInputMap map,
-  final InputSource source,
+  RuntimeInputMap map,
+  InputSource source,
 ) {
   final entry = map._bindings.remove(source.uniqueId);
   if (entry == null) return;
@@ -260,7 +260,7 @@ void runtimeInputMapUnbind(
   }
 }
 
-LoadResult runtimeInputMapFromJsonWithErrors(final Map<String, dynamic> json) {
+LoadResult runtimeInputMapFromJsonWithErrors(Map<String, dynamic> json) {
   final map = RuntimeInputMap();
   final errors = <String>[];
 
@@ -320,7 +320,7 @@ LoadResult runtimeInputMapFromJsonWithErrors(final Map<String, dynamic> json) {
 
           try {
             final action = InputAction.values.firstWhere(
-              (final action) => action.name == name,
+              (action) => action.name == name,
               orElse: () => throw ArgumentError('Unknown action: $name'),
             );
             actions.add(action);
@@ -346,7 +346,7 @@ LoadResult runtimeInputMapFromJsonWithErrors(final Map<String, dynamic> json) {
   return LoadResult(map, errors);
 }
 
-InputSource? _runtimeInputMapParseSource(final Object sourceRaw) {
+InputSource? _runtimeInputMapParseSource(Object sourceRaw) {
   if (sourceRaw is String) {
     return _runtimeInputMapParseSourceId(sourceRaw);
   }
@@ -361,7 +361,7 @@ InputSource? _runtimeInputMapParseSource(final Object sourceRaw) {
   return null;
 }
 
-InputSource? _runtimeInputMapParseSourceId(final String sourceId) {
+InputSource? _runtimeInputMapParseSourceId(String sourceId) {
   final parsed = InputSource.fromUniqueId(sourceId);
   if (parsed != null) return parsed;
 
@@ -379,7 +379,7 @@ InputSource? _runtimeInputMapParseSourceId(final String sourceId) {
   return KeyboardSource(key, modifiers: modifiers);
 }
 
-LogicalKeyboardKey? _runtimeInputMapFindLegacyKeyboardKey(final int keyCode) {
+LogicalKeyboardKey? _runtimeInputMapFindLegacyKeyboardKey(int keyCode) {
   if (keyCode < 0 || keyCode > 0xFFFF) return null;
 
   if (keyCode <= 255) {
@@ -398,7 +398,7 @@ LogicalKeyboardKey? _runtimeInputMapFindLegacyKeyboardKey(final int keyCode) {
 }
 
 KeyModifiers? _runtimeInputMapParseModifiers(
-  final Iterable<String> modifierNames,
+  Iterable<String> modifierNames,
 ) {
   final names = modifierNames.toSet();
   if (names.isEmpty) return null;

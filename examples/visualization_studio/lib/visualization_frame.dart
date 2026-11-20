@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Reusable Flutter shell with no ECS domain, renderer or checkpoint dependency.
 class VisualizationFrame extends StatelessWidget {

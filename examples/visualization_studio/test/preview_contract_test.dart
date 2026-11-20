@@ -6,7 +6,7 @@ import 'package:vector_math/vector_math.dart' as vm;
 
 import 'package:ecsly_flutter/ecsly_flutter.dart';
 import 'package:ecsly_flutter_scene/ecsly_flutter_scene.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ecsly_visualization_studio/main.dart';
 import 'package:ecsly_visualization_studio/preview_model.dart';

@@ -19,7 +19,7 @@ import '../raw_input_events.dart';
 /// knowing the projection; without a converter it equals the screen focal.
 /// scale/rotation stay CUMULATIVE (Flutter semantics) — consumers track
 /// their own per-gesture deltas.
-void scaleClassificationSystem(final World world) {
+void scaleClassificationSystem(World world) {
   // Process RawScaleUpdateEvent → PinchEvent conversion
   final updateReader = world.events.reader<RawScaleUpdateEvent>();
   for (final event in updateReader.iter()) {

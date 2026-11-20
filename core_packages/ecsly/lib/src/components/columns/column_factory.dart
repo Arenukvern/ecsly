@@ -15,15 +15,15 @@ import 'data_column.dart';
 // ignore: one_member_abstracts
 abstract class ColumnFactory {
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   });
 }
 
 class ObjectColumnFactory<T extends Object> extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => ObjectColumn<T>(initialCapacity: initialCapacity);
 }

@@ -7,9 +7,9 @@ import '../columns/data_column.dart';
 
 /// Calculate distances between positions (SIMD-optimized).
 void calculateDistancesSimd(
-  final FloatColumn positionColumn,
-  final Float32x4 target,
-  final FloatColumn outputColumn,
+  FloatColumn positionColumn,
+  Float32x4 target,
+  FloatColumn outputColumn,
 ) {
   assert(positionColumn.stride == 2, '(x, y) Column stride must be 2');
   assert(outputColumn.stride == 1, '(Distance) Output column stride must be 1');
@@ -55,7 +55,7 @@ void calculateDistancesSimd(
 }
 
 /// Normalize a batch of vectors (SIMD-optimized).
-void normalizeVectorsSimd(final FloatColumn vectorColumn) {
+void normalizeVectorsSimd(FloatColumn vectorColumn) {
   assert(vectorColumn.stride == 2, '(x, y) Column stride must be 2');
 
   final simd = vectorColumn.simdView;
@@ -99,7 +99,7 @@ void normalizeVectorsSimd(final FloatColumn vectorColumn) {
 }
 
 /// Scale all Position components by a factor.
-void scalePositionsSimd(final FloatColumn positionColumn, final double scale) {
+void scalePositionsSimd(FloatColumn positionColumn, double scale) {
   final simd = positionColumn.simdView;
   final scaleVec = Float32x4.splat(scale);
 
@@ -120,9 +120,9 @@ void scalePositionsSimd(final FloatColumn positionColumn, final double scale) {
 
 /// Update Position components using Velocity (SIMD-optimized).
 void updatePositionSimd(
-  final FloatColumn positionColumn,
-  final FloatColumn velocityColumn,
-  final double dt,
+  FloatColumn positionColumn,
+  FloatColumn velocityColumn,
+  double dt,
 ) {
   assert(positionColumn.stride == 2, '(x, y) Column stride must be 2');
   assert(velocityColumn.stride == 2, '(dx, dy) Column stride must be 2');

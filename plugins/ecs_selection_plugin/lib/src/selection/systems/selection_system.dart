@@ -8,7 +8,7 @@ import '../resources/selection_state_resource.dart';
 /// When a new picking hit is available, updates the selected key and
 /// stores the hit position / normal. Clears [hasNewHit] after processing.
 /// Schedule in Sim after the picking backend.
-void selectionSystem(final World world) {
+void selectionSystem(World world) {
   final picking = world.getResource<PickingResultResource>();
   if (!picking.hasNewHit) {
     return;

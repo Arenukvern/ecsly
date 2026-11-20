@@ -49,40 +49,40 @@ class SelectionManager extends Resource {
 }
 
 extension SelectionManagerOps on SelectionManager {
-  bool addToSelection(final Entity entity) =>
+  bool addToSelection(Entity entity) =>
       selectionManagerAddToSelection(this, entity);
 
   void clearSelection() => selectionManagerClearSelection(this);
 
-  void endDrag(final Entity entity) => selectionManagerEndDrag(this, entity);
+  void endDrag(Entity entity) => selectionManagerEndDrag(this, entity);
 
-  bool isDragging(final Entity entity) =>
+  bool isDragging(Entity entity) =>
       selectionManagerIsDragging(this, entity);
 
-  bool isSelected(final Entity entity) =>
+  bool isSelected(Entity entity) =>
       selectionManagerIsSelected(this, entity);
 
-  bool removeFromSelection(final Entity entity) =>
+  bool removeFromSelection(Entity entity) =>
       selectionManagerRemoveFromSelection(this, entity);
 
-  void removeInvalidEntities(final World world) =>
+  void removeInvalidEntities(World world) =>
       selectionManagerRemoveInvalidEntities(this, world);
 
-  void select(final Entity? entity) => selectionManagerSelect(this, entity);
+  void select(Entity? entity) => selectionManagerSelect(this, entity);
 
-  void selectMultiple(final List<Entity> entities) =>
+  void selectMultiple(List<Entity> entities) =>
       selectionManagerSelectMultiple(this, entities);
 
-  void startDrag(final Entity entity) =>
+  void startDrag(Entity entity) =>
       selectionManagerStartDrag(this, entity);
 
-  bool toggleSelection(final Entity entity) =>
+  bool toggleSelection(Entity entity) =>
       selectionManagerToggleSelection(this, entity);
 }
 
 bool selectionManagerAddToSelection(
-  final SelectionManager state,
-  final Entity entity,
+  SelectionManager state,
+  Entity entity,
 ) {
   if (state.mode == SelectionMode.single) {
     if (state._selected.isEmpty || !state._selected.contains(entity)) {
@@ -94,13 +94,13 @@ bool selectionManagerAddToSelection(
   return state._selected.add(entity);
 }
 
-void selectionManagerClearSelection(final SelectionManager state) {
+void selectionManagerClearSelection(SelectionManager state) {
   state._selected.clear();
 }
 
 void selectionManagerEndDrag(
-  final SelectionManager state,
-  final Entity entity,
+  SelectionManager state,
+  Entity entity,
 ) {
   state._dragging.remove(entity);
   state.activeDragPointers = state.activeDragPointers > 0
@@ -109,35 +109,35 @@ void selectionManagerEndDrag(
 }
 
 bool selectionManagerIsDragging(
-  final SelectionManager state,
-  final Entity entity,
+  SelectionManager state,
+  Entity entity,
 ) => state._dragging.contains(entity);
 
 bool selectionManagerIsSelected(
-  final SelectionManager state,
-  final Entity entity,
+  SelectionManager state,
+  Entity entity,
 ) => state._selected.contains(entity);
 
 bool selectionManagerRemoveFromSelection(
-  final SelectionManager state,
-  final Entity entity,
+  SelectionManager state,
+  Entity entity,
 ) => state._selected.remove(entity);
 
 void selectionManagerRemoveInvalidEntities(
-  final SelectionManager state,
-  final World world,
+  SelectionManager state,
+  World world,
 ) {
   state._selected.removeWhere(
-    (final entity) => !world.entities.isAlive(entity),
+    (entity) => !world.entities.isAlive(entity),
   );
   state._dragging.removeWhere(
-    (final entity) => !world.entities.isAlive(entity),
+    (entity) => !world.entities.isAlive(entity),
   );
 }
 
 void selectionManagerSelect(
-  final SelectionManager state,
-  final Entity? entity,
+  SelectionManager state,
+  Entity? entity,
 ) {
   state._selected.clear();
   if (entity != null) {
@@ -146,8 +146,8 @@ void selectionManagerSelect(
 }
 
 void selectionManagerSelectMultiple(
-  final SelectionManager state,
-  final List<Entity> entities,
+  SelectionManager state,
+  List<Entity> entities,
 ) {
   if (state.mode == SelectionMode.single) {
     selectionManagerSelect(state, entities.first);
@@ -159,8 +159,8 @@ void selectionManagerSelectMultiple(
 }
 
 void selectionManagerStartDrag(
-  final SelectionManager state,
-  final Entity entity,
+  SelectionManager state,
+  Entity entity,
 ) {
   if (!state._selected.contains(entity)) return;
   state._dragging.add(entity);
@@ -168,8 +168,8 @@ void selectionManagerStartDrag(
 }
 
 bool selectionManagerToggleSelection(
-  final SelectionManager state,
-  final Entity entity,
+  SelectionManager state,
+  Entity entity,
 ) {
   if (state._selected.contains(entity)) {
     state._selected.remove(entity);

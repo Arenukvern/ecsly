@@ -8,11 +8,11 @@ import 'entity_world_position.dart';
 class HitTestingUtils {
   /// Find entity at the given world position (worldX, worldY).
   static Entity? findEntityAt(
-    final World world,
-    final double worldX,
-    final double worldY, {
-    final double? zoomLevel,
-    final bool Function(Entity entity, WorldEntity ext)? filter,
+    World world,
+    double worldX,
+    double worldY, {
+    double? zoomLevel,
+    bool Function(Entity entity, WorldEntity ext)? filter,
   }) {
     for (final (entity, interactive) in world.query<InteractiveElement>()) {
       if (filter != null) {
@@ -29,11 +29,11 @@ class HitTestingUtils {
 
   /// Test if (worldX, worldY) hits an interactive element.
   static bool testHit(
-    final Entity entity,
-    final InteractiveElement interactive,
-    final double worldX,
-    final double worldY,
-    final World world,
+    Entity entity,
+    InteractiveElement interactive,
+    double worldX,
+    double worldY,
+    World world,
   ) {
     final position = extractEntityWorldPosition(entity, world);
     if (position == null) return false;
@@ -59,11 +59,11 @@ class HitTestingUtils {
   }
 
   static bool _testCircle(
-    final double centerX,
-    final double centerY,
-    final double pointX,
-    final double pointY,
-    final double radius,
+    double centerX,
+    double centerY,
+    double pointX,
+    double pointY,
+    double radius,
   ) {
     final dx = pointX - centerX;
     final dy = pointY - centerY;
@@ -71,12 +71,12 @@ class HitTestingUtils {
   }
 
   static bool _testRectangle(
-    final double centerX,
-    final double centerY,
-    final double pointX,
-    final double pointY,
-    final double width,
-    final double height,
+    double centerX,
+    double centerY,
+    double pointX,
+    double pointY,
+    double width,
+    double height,
   ) {
     final halfW = width / 2;
     final halfH = height / 2;

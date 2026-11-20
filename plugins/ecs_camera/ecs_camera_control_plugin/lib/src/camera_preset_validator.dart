@@ -32,8 +32,8 @@ class CameraPresetValidator {
   /// [inputMap] Input map to check for bindings
   /// Returns validation result with missing bindings if any
   CameraPresetValidationResult validatePreset(
-    final CameraPreset preset,
-    final RuntimeInputMap inputMap,
+    CameraPreset preset,
+    RuntimeInputMap inputMap,
   ) {
     final requiredActions = _getRequiredActions(preset);
     final missingBindings = <InputAction>[];
@@ -55,7 +55,7 @@ class CameraPresetValidator {
   /// This includes actions used by CameraPanAction, CameraZoomAction,
   /// and CameraSelectAction components created by the preset.
   List<InputAction> _getRequiredActions(
-    final CameraPreset preset,
+    CameraPreset preset,
   ) => switch (preset) {
     CameraPreset.rts => [
       InputAction.cameraPan, // For panning

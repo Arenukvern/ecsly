@@ -22,8 +22,8 @@ class EcsScope extends StatefulWidget {
 
   /// Returns the nearest scope, or null when no scope is available.
   static EcsScope? maybeOf(
-    final BuildContext context, {
-    final bool listen = true,
+    BuildContext context, {
+    bool listen = true,
   }) {
     if (listen) {
       return context
@@ -36,7 +36,7 @@ class EcsScope extends StatefulWidget {
   }
 
   /// Returns the nearest scope.
-  static EcsScope of(final BuildContext context) {
+  static EcsScope of(BuildContext context) {
     final scope = maybeOf(context);
     if (scope == null) {
       throw FlutterError.fromParts(<DiagnosticsNode>[
@@ -52,18 +52,18 @@ class EcsScope extends StatefulWidget {
 
   /// Returns the nearest world.
   static World worldOf(
-    final BuildContext context, {
-    final bool listen = true,
+    BuildContext context, {
+    bool listen = true,
   }) => maybeOf(context, listen: listen)?.world ?? of(context).world;
 
   /// Returns the nearest controller, or null when the scope is read-only.
   static EcsController? controllerOf(
-    final BuildContext context, {
-    final bool listen = false,
+    BuildContext context, {
+    bool listen = false,
   }) => maybeOf(context, listen: listen)?.controller;
 
   /// Returns the nearest controller or throws a helpful Flutter error.
-  static EcsController requireControllerOf(final BuildContext context) {
+  static EcsController requireControllerOf(BuildContext context) {
     final controller = controllerOf(context);
     if (controller != null) return controller;
     throw FlutterError.fromParts(<DiagnosticsNode>[
@@ -75,24 +75,24 @@ class EcsScope extends StatefulWidget {
     ]);
   }
 
-  static bool hasAspectModel(final BuildContext context) =>
+  static bool hasAspectModel(BuildContext context) =>
       context.getElementForInheritedWidgetOfExactType<_EcsAspectModel>() !=
       null;
 
-  static void dependOnResource<T extends Resource>(final BuildContext context) {
+  static void dependOnResource<T extends Resource>(BuildContext context) {
     _dependOnAspect(context, _EcsResourceAspect(T));
   }
 
   static void dependOnComponent<T extends Component>(
-    final BuildContext context, {
-    final Entity? entity,
+    BuildContext context, {
+    Entity? entity,
   }) {
     _dependOnAspect(context, _EcsComponentAspect(T, entity));
   }
 
   static void dependOnWorld(
-    final BuildContext context,
-    final EcsWorldSelectorDependencies? dependencies,
+    BuildContext context,
+    EcsWorldSelectorDependencies? dependencies,
   ) {
     if (dependencies == null || dependencies.isEmpty) {
       _dependOnAspect(context, const _EcsBroadAspect());
@@ -110,8 +110,8 @@ class EcsScope extends StatefulWidget {
   }
 
   static void _dependOnAspect(
-    final BuildContext context,
-    final _EcsAspect aspect,
+    BuildContext context,
+    _EcsAspect aspect,
   ) {
     InheritedModel.inheritFrom<_EcsAspectModel>(context, aspect: aspect);
   }
@@ -129,7 +129,7 @@ class _EcsScopeState extends State<EcsScope> {
   }
 
   @override
-  void didUpdateWidget(covariant final EcsScope oldWidget) {
+  void didUpdateWidget(covariant EcsScope oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!identical(oldWidget.controller, widget.controller)) {
       _syncController();
@@ -143,7 +143,7 @@ class _EcsScopeState extends State<EcsScope> {
   }
 
   @override
-  Widget build(final BuildContext context) => _EcsIdentityScope(
+  Widget build(BuildContext context) => _EcsIdentityScope(
     scope: widget,
     child: _EcsAspectModel(
       revision: _revision,
@@ -176,7 +176,7 @@ class _EcsIdentityScope extends InheritedWidget {
   final EcsScope scope;
 
   @override
-  bool updateShouldNotify(covariant final _EcsIdentityScope oldWidget) =>
+  bool updateShouldNotify(covariant _EcsIdentityScope oldWidget) =>
       scope.world != oldWidget.scope.world ||
       scope.controller != oldWidget.scope.controller;
 }
@@ -192,13 +192,13 @@ class _EcsAspectModel extends InheritedModel<_EcsAspect> {
   final EcsInvalidationBatch invalidation;
 
   @override
-  bool updateShouldNotify(covariant final _EcsAspectModel oldWidget) =>
+  bool updateShouldNotify(covariant _EcsAspectModel oldWidget) =>
       revision != oldWidget.revision || invalidation != oldWidget.invalidation;
 
   @override
   bool updateShouldNotifyDependent(
-    covariant final _EcsAspectModel oldWidget,
-    final Set<_EcsAspect> dependencies,
+    covariant _EcsAspectModel oldWidget,
+    Set<_EcsAspect> dependencies,
   ) {
     if (revision == oldWidget.revision &&
         invalidation == oldWidget.invalidation) {
@@ -215,7 +215,7 @@ class _EcsAspectModel extends InheritedModel<_EcsAspect> {
 sealed class _EcsAspect {
   const _EcsAspect();
 
-  bool matches(final EcsInvalidationBatch invalidation);
+  bool matches(EcsInvalidationBatch invalidation);
 }
 
 @immutable
@@ -223,13 +223,13 @@ final class _EcsBroadAspect extends _EcsAspect {
   const _EcsBroadAspect();
 
   @override
-  bool matches(final EcsInvalidationBatch invalidation) => true;
+  bool matches(EcsInvalidationBatch invalidation) => true;
 
   @override
   int get hashCode => Object.hash(_EcsBroadAspect, null);
 
   @override
-  bool operator ==(final Object other) => other is _EcsBroadAspect;
+  bool operator ==(Object other) => other is _EcsBroadAspect;
 }
 
 @immutable
@@ -237,14 +237,14 @@ final class _EcsStructuralAspect extends _EcsAspect {
   const _EcsStructuralAspect();
 
   @override
-  bool matches(final EcsInvalidationBatch invalidation) =>
+  bool matches(EcsInvalidationBatch invalidation) =>
       invalidation.matchesStructural();
 
   @override
   int get hashCode => Object.hash(_EcsStructuralAspect, null);
 
   @override
-  bool operator ==(final Object other) => other is _EcsStructuralAspect;
+  bool operator ==(Object other) => other is _EcsStructuralAspect;
 }
 
 @immutable
@@ -254,14 +254,14 @@ final class _EcsResourceAspect extends _EcsAspect {
   final Type type;
 
   @override
-  bool matches(final EcsInvalidationBatch invalidation) =>
+  bool matches(EcsInvalidationBatch invalidation) =>
       invalidation.matchesResourceType(type);
 
   @override
   int get hashCode => Object.hash(_EcsResourceAspect, type);
 
   @override
-  bool operator ==(final Object other) =>
+  bool operator ==(Object other) =>
       other is _EcsResourceAspect && other.type == type;
 }
 
@@ -273,14 +273,14 @@ final class _EcsComponentAspect extends _EcsAspect {
   final Entity? entity;
 
   @override
-  bool matches(final EcsInvalidationBatch invalidation) =>
+  bool matches(EcsInvalidationBatch invalidation) =>
       invalidation.matchesComponentType(type, entity: entity);
 
   @override
   int get hashCode => Object.hash(_EcsComponentAspect, type, entity);
 
   @override
-  bool operator ==(final Object other) =>
+  bool operator ==(Object other) =>
       other is _EcsComponentAspect &&
       other.type == type &&
       other.entity == entity;

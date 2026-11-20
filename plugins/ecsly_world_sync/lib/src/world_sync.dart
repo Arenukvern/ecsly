@@ -37,7 +37,7 @@ final class WorldSync implements DeltaReplica {
   WorldSync({
     required this.actorId,
     this.docId = defaultDocId,
-    final MergeStrategy strategy = defaultStrategy,
+    MergeStrategy strategy = defaultStrategy,
   }) : _doc = ConvergenceDoc(
          docId: docId,
          actorId: actorId,
@@ -52,7 +52,7 @@ final class WorldSync implements DeltaReplica {
   /// doc when present; older files without the key restore with a fresh
   /// watermark — they predate the ahead-clock fix, so there is nothing to
   /// restore (ecsly ADR 0004).
-  factory WorldSync.fromJson(final Map<String, dynamic> json) {
+  factory WorldSync.fromJson(Map<String, dynamic> json) {
     final doc = ConvergenceDoc.fromJson(json);
     final watermarkJson = json['receive_watermark'];
     final watermark = watermarkJson == null
@@ -63,7 +63,7 @@ final class WorldSync implements DeltaReplica {
     return WorldSync._(doc, watermark);
   }
 
-  WorldSync._(this._doc, [final ReceiveWatermark? watermark])
+  WorldSync._(this._doc, [ReceiveWatermark? watermark])
     : actorId = _doc.actorId,
       docId = _doc.docId,
       _watermark = watermark ?? ReceiveWatermark(actorId: _doc.actorId) {
@@ -114,19 +114,19 @@ final class WorldSync implements DeltaReplica {
 
   /// Ops this replica holds that [remoteVv] has not observed (anti-entropy
   /// delta, kernel ADR 0011 §3).
-  List<OpRecord> opsFor(final VersionVector remoteVv) =>
+  List<OpRecord> opsFor(VersionVector remoteVv) =>
       _doc.opsSince(remoteVv);
 
   /// Session-core spelling of [opsFor] ([DeltaReplica.opsSince]): same
   /// kernel diff seam, named the way the shared [DeltaPlanner] reads it.
   @override
-  List<OpRecord> opsSince(final VersionVector remoteVv) =>
+  List<OpRecord> opsSince(VersionVector remoteVv) =>
       opsFor(remoteVv);
 
   /// True when [remoteVv] is fully covered but the log was compacted and
   /// the peer still needs a snapshot.
   @override
-  bool needsSnapshotFor(final VersionVector remoteVv) =>
+  bool needsSnapshotFor(VersionVector remoteVv) =>
       _doc.needsSnapshotFor(remoteVv);
 
   /// Current state as a kernel [Snapshot] at our own watermark.
@@ -136,7 +136,7 @@ final class WorldSync implements DeltaReplica {
   /// Adopts a remote [snapshot] when it carries unseen events. An adopted
   /// snapshot's `createdAt` raises the receive watermark, so local writes
   /// after wholesale adoption order after the adopted content.
-  bool adoptSnapshot(final Snapshot snapshot) {
+  bool adoptSnapshot(Snapshot snapshot) {
     final adopted = _doc.adoptSnapshot(snapshot);
     if (adopted) _watermark.observeSnapshot(snapshot);
     return adopted;
@@ -148,21 +148,21 @@ final class WorldSync implements DeltaReplica {
 
   /// Converts a [ComponentDelta] into one kernel op, folds it locally, and
   /// returns it for transport by the caller.
-  OpRecord applyDelta(final ComponentDelta delta, final DateTime now) =>
+  OpRecord applyDelta(ComponentDelta delta, DateTime now) =>
       _apply(delta.syncKey, delta.value, now);
 
   /// Converts a [WorldSyncEvent] into one kernel op, folds it locally, and
   /// returns it for transport by the caller.
-  OpRecord applyEvent(final WorldSyncEvent event, final DateTime now) =>
+  OpRecord applyEvent(WorldSyncEvent event, DateTime now) =>
       _apply(event.syncKey, event.value, now);
 
   /// Emits a tombstone for [key] so the removal propagates to replicas that
   /// never saw the value. Returns the kernel op.
-  OpRecord removeDelta(final ComponentDelta delta, final DateTime now) =>
+  OpRecord removeDelta(ComponentDelta delta, DateTime now) =>
       _remove(delta.syncKey, now);
 
   /// Emits a tombstone for an event key. Returns the kernel op.
-  OpRecord removeEvent(final WorldSyncEvent event, final DateTime now) =>
+  OpRecord removeEvent(WorldSyncEvent event, DateTime now) =>
       _remove(event.syncKey, now);
 
   /// Folds remote [ops] into this replica's projection. Dedupe and ordering
@@ -172,7 +172,7 @@ final class WorldSync implements DeltaReplica {
   /// already-folded ops included (raise-only, so re-observation is a
   /// no-op): having SEEN a timestamp is what makes it a causality floor,
   /// regardless of what the fold did with it.
-  int applyRemote(final Iterable<OpRecord> ops) {
+  int applyRemote(Iterable<OpRecord> ops) {
     final applied = _doc.applyRemote(ops);
     for (final op in ops) {
       _watermark.observe(op.hlc);
@@ -191,14 +191,14 @@ final class WorldSync implements DeltaReplica {
     'receive_watermark': _watermark.toJson(),
   };
 
-  OpRecord _apply(final String key, final Object? value, final DateTime now) =>
+  OpRecord _apply(String key, Object? value, DateTime now) =>
       _doc.applyLocal(
         {'k': key, 'v': jsonEncode(value)},
         _watermark.floorNow(now),
         lastIssued: _watermark.value,
       );
 
-  OpRecord _remove(final String key, final DateTime now) =>
+  OpRecord _remove(String key, DateTime now) =>
       _doc.applyLocal(
         {'k': key, 'del': true},
         _watermark.floorNow(now),

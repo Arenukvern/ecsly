@@ -45,7 +45,7 @@ class _EcsWorldSelectorState<R> extends State<EcsWorldSelector<R>> {
   bool _hasValue = false;
 
   @override
-  Widget build(final BuildContext context) {
+  Widget build(BuildContext context) {
     if (!_hasValue) {
       _refresh(notify: false);
     }
@@ -63,7 +63,7 @@ class _EcsWorldSelectorState<R> extends State<EcsWorldSelector<R>> {
   }
 
   @override
-  void didUpdateWidget(covariant final EcsWorldSelector<R> oldWidget) {
+  void didUpdateWidget(covariant EcsWorldSelector<R> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.controller != widget.controller ||
         oldWidget.world != widget.world) {
@@ -99,7 +99,7 @@ class _EcsWorldSelectorState<R> extends State<EcsWorldSelector<R>> {
           ? null
           : EcsScope.maybeOf(context, listen: false)?.controller);
 
-  bool _equals(final R previous, final R next) =>
+  bool _equals(R previous, R next) =>
       widget.equals?.call(previous, next) ?? previous == next;
 
   void _onChanged() {
@@ -107,7 +107,7 @@ class _EcsWorldSelectorState<R> extends State<EcsWorldSelector<R>> {
     _refresh();
   }
 
-  void _refresh({final bool notify = true}) {
+  void _refresh({bool notify = true}) {
     if (!mounted) return;
     final selected = widget.select(_world);
     final changed = !_hasValue || !_equals(_lastValue as R, selected);

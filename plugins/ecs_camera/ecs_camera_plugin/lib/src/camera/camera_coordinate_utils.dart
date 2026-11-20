@@ -14,9 +14,9 @@ class CameraCoordinateUtils {
   ///
   /// New component-based API. Prefer this over the resource-based version.
   static ui.Offset screenToWorldFromComponent(
-    final ui.Offset screenPos,
-    final CameraPosition camera,
-    final ui.Size viewportSize,
+    ui.Offset screenPos,
+    CameraPosition camera,
+    ui.Size viewportSize,
   ) {
     final worldX =
         camera.x + (screenPos.dx - viewportSize.width / 2) / camera.zoom;
@@ -30,9 +30,9 @@ class CameraCoordinateUtils {
   /// New component-based API. Prefer this over the resource-based version.
   /// Matches the transformation logic in EcsCamera.transformCanvas().
   static ui.Offset worldToScreenFromComponent(
-    final ui.Offset worldPos,
-    final CameraPosition camera,
-    final ui.Size viewportSize,
+    ui.Offset worldPos,
+    CameraPosition camera,
+    ui.Size viewportSize,
   ) {
     // Transform: (world - camera) * zoom + viewportCenter
     final screenX =

@@ -1,7 +1,7 @@
 name: ecsly_visualization_dev_cohort
 publish_to: none
 environment:
-  sdk: ^3.13.4
+  sdk: ^3.14.0
 dependencies:
   oka_supervisor: ^0.6.0
   resource_composition: ^0.6.0

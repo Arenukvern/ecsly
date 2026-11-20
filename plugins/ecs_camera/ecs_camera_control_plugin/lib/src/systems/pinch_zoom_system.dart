@@ -12,7 +12,7 @@ import '../resources/camera_interaction_mode_resource.dart';
 /// Tracks pinch gesture state to calculate delta scale from cumulative scale.
 /// On RawScaleStartEvent, resets pinch state to each camera's current zoom level.
 /// Applies zoom centered on the pinch focal point using proper camera coordinate transformation.
-void pinchZoomSystem(final World world) {
+void pinchZoomSystem(World world) {
   // Check if camera zooming is allowed in current interaction mode
   final modeResource = world.resources.has<CameraInteractionModeResource>()
       ? world.getResource<CameraInteractionModeResource>()

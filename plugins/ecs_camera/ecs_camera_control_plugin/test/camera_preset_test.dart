@@ -5,8 +5,8 @@ import 'package:ecs_input_plugin/ecs_input_plugin.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  List<dynamic> _bundleComponents(final ComponentBundle bundle) =>
-      bundle.components.items.map((final c) => c.$2).toList();
+  List<dynamic> _bundleComponents(ComponentBundle bundle) =>
+      bundle.components.items.map((c) => c.$2).toList();
 
   group('CameraPreset', () {
     test('all presets create valid component bundles', () {
@@ -24,11 +24,11 @@ void main() {
       expect(list.length, greaterThanOrEqualTo(5));
 
       // Check for specific component types
-      final hasFreeTarget = list.any((final c) => c is FreeTarget);
-      final hasController = list.any((final c) => c is CameraController);
-      final hasZoom = list.any((final c) => c is CameraZoom);
-      final hasPanAction = list.any((final c) => c is CameraPanAction);
-      final hasZoomAction = list.any((final c) => c is CameraZoomAction);
+      final hasFreeTarget = list.any((c) => c is FreeTarget);
+      final hasController = list.any((c) => c is CameraController);
+      final hasZoom = list.any((c) => c is CameraZoom);
+      final hasPanAction = list.any((c) => c is CameraPanAction);
+      final hasZoomAction = list.any((c) => c is CameraZoomAction);
 
       expect(
         hasFreeTarget,
@@ -45,8 +45,8 @@ void main() {
       final bundle = CameraPreset.platformer.createBundle();
       final list = _bundleComponents(bundle);
 
-      final hasFollowTarget = list.any((final c) => c is FollowTarget);
-      final hasFreeTarget = list.any((final c) => c is FreeTarget);
+      final hasFollowTarget = list.any((c) => c is FollowTarget);
+      final hasFreeTarget = list.any((c) => c is FreeTarget);
 
       expect(
         hasFollowTarget || hasFreeTarget,
@@ -61,10 +61,10 @@ void main() {
 
       final topDownHasSmoothing = _bundleComponents(
         topDownBundle,
-      ).any((final c) => c is CameraSmoothing);
+      ).any((c) => c is CameraSmoothing);
       final rtsHasSmoothing = _bundleComponents(
         rtsBundle,
-      ).any((final c) => c is CameraSmoothing);
+      ).any((c) => c is CameraSmoothing);
 
       expect(
         topDownHasSmoothing,
@@ -120,9 +120,9 @@ void main() {
 
     test('each preset has unique default settings', () {
       const presets = CameraPreset.values;
-      final speeds = presets.map((final p) => p.defaultMoveSpeed).toSet();
-      final minZooms = presets.map((final p) => p.defaultMinZoom).toSet();
-      final maxZooms = presets.map((final p) => p.defaultMaxZoom).toSet();
+      final speeds = presets.map((p) => p.defaultMoveSpeed).toSet();
+      final minZooms = presets.map((p) => p.defaultMinZoom).toSet();
+      final maxZooms = presets.map((p) => p.defaultMaxZoom).toSet();
 
       // All presets should have different speeds (ensures they're unique)
       expect(
@@ -152,12 +152,12 @@ void main() {
       final platformerComponents = _bundleComponents(platformerBundle);
 
       expect(
-        rtsComponents.any((final c) => c is CameraSelectAction),
+        rtsComponents.any((c) => c is CameraSelectAction),
         isTrue,
         reason: 'RTS preset should include camera select',
       );
       expect(
-        platformerComponents.any((final c) => c is CameraSelectAction),
+        platformerComponents.any((c) => c is CameraSelectAction),
         isFalse,
         reason: 'Platformer preset should not include camera select',
       );

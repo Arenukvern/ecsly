@@ -2,12 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:ecsly_flutter/ecsly_flutter.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   testWidgets('writes selector invalidation profile artifact', (
-    final tester,
+    tester,
   ) async {
     final scenarios = <_SelectorProfileScenario>[];
 
@@ -46,7 +46,7 @@ void main() {
 }
 
 Future<_SelectorProfileScenario> _scopedResourceUnrelatedComponent(
-  final WidgetTester tester,
+  WidgetTester tester,
 ) async {
   final world = _profileWorld()..upsertResource(_CounterResource());
   final entity = world.entities.create();
@@ -63,11 +63,11 @@ Future<_SelectorProfileScenario> _scopedResourceUnrelatedComponent(
         world: world,
         controller: controller,
         child: EcsResourceSelector<_CounterResource, int>(
-          select: (final resource) {
+          select: (resource) {
             counters.selectorCalls += 1;
             return resource.count;
           },
-          builder: (final context, final count) {
+          builder: (context, count) {
             counters.builderCalls += 1;
             return Text('count: $count');
           },
@@ -78,7 +78,7 @@ Future<_SelectorProfileScenario> _scopedResourceUnrelatedComponent(
   final baseline = counters.snapshot();
 
   controller.runTransaction(
-    (final world) {
+    (world) {
       world.upsertComponent(entity, const _TitleComponent('saved'));
     },
     invalidation: EcsInvalidationBatch.component<_TitleComponent>(
@@ -109,7 +109,7 @@ Future<_SelectorProfileScenario> _scopedResourceUnrelatedComponent(
 }
 
 Future<_SelectorProfileScenario> _scopedResourceMatch(
-  final WidgetTester tester,
+  WidgetTester tester,
 ) async {
   final world = _profileWorld()..upsertResource(_CounterResource());
   world.flush();
@@ -124,11 +124,11 @@ Future<_SelectorProfileScenario> _scopedResourceMatch(
         world: world,
         controller: controller,
         child: EcsResourceSelector<_CounterResource, int>(
-          select: (final resource) {
+          select: (resource) {
             counters.selectorCalls += 1;
             return resource.count;
           },
-          builder: (final context, final count) {
+          builder: (context, count) {
             counters.builderCalls += 1;
             return Text('count: $count');
           },
@@ -138,7 +138,7 @@ Future<_SelectorProfileScenario> _scopedResourceMatch(
   );
   final baseline = counters.snapshot();
 
-  controller.runTransaction((final world) {
+  controller.runTransaction((world) {
     world.getResource<_CounterResource>().count = 1;
   }, invalidation: EcsInvalidationBatch.resource<_CounterResource>());
   await tester.pump();
@@ -165,7 +165,7 @@ Future<_SelectorProfileScenario> _scopedResourceMatch(
 }
 
 Future<_SelectorProfileScenario> _explicitResourceUnrelatedComponent(
-  final WidgetTester tester,
+  WidgetTester tester,
 ) async {
   final world = _profileWorld()..upsertResource(_CounterResource());
   final entity = world.entities.create();
@@ -181,11 +181,11 @@ Future<_SelectorProfileScenario> _explicitResourceUnrelatedComponent(
       EcsResourceSelector<_CounterResource, int>(
         world: world,
         controller: controller,
-        select: (final resource) {
+        select: (resource) {
           counters.selectorCalls += 1;
           return resource.count;
         },
-        builder: (final context, final count) {
+        builder: (context, count) {
           counters.builderCalls += 1;
           return Text('count: $count');
         },
@@ -195,7 +195,7 @@ Future<_SelectorProfileScenario> _explicitResourceUnrelatedComponent(
   final baseline = counters.snapshot();
 
   controller.runTransaction(
-    (final world) {
+    (world) {
       world.upsertComponent(entity, const _TitleComponent('saved'));
     },
     invalidation: EcsInvalidationBatch.component<_TitleComponent>(
@@ -226,7 +226,7 @@ Future<_SelectorProfileScenario> _explicitResourceUnrelatedComponent(
 }
 
 Future<_SelectorProfileScenario> _scopedComponentOtherEntity(
-  final WidgetTester tester,
+  WidgetTester tester,
 ) async {
   final world = _profileWorld();
   final first = world.entities.create();
@@ -246,11 +246,11 @@ Future<_SelectorProfileScenario> _scopedComponentOtherEntity(
         controller: controller,
         child: EcsComponentSelector<_TitleComponent, String>(
           entity: first,
-          select: (final component) {
+          select: (component) {
             counters.selectorCalls += 1;
             return component.value;
           },
-          builder: (final context, final title) {
+          builder: (context, title) {
             counters.builderCalls += 1;
             return Text(title);
           },
@@ -261,7 +261,7 @@ Future<_SelectorProfileScenario> _scopedComponentOtherEntity(
   final baseline = counters.snapshot();
 
   controller.runTransaction(
-    (final world) {
+    (world) {
       world.upsertComponent(second, const _TitleComponent('changed'));
     },
     invalidation: EcsInvalidationBatch.component<_TitleComponent>(
@@ -292,7 +292,7 @@ Future<_SelectorProfileScenario> _scopedComponentOtherEntity(
 }
 
 Future<_SelectorProfileScenario> _scopedComponentWhereMatch(
-  final WidgetTester tester,
+  WidgetTester tester,
 ) async {
   final world = _profileWorld();
   final first = world.entities.create();
@@ -314,12 +314,12 @@ Future<_SelectorProfileScenario> _scopedComponentWhereMatch(
         world: world,
         controller: controller,
         child: EcsComponentSelector<_RecordComponent, String>(
-          where: (final entity, final component) => component.id == 'b',
-          select: (final component) {
+          where: (entity, component) => component.id == 'b',
+          select: (component) {
             counters.selectorCalls += 1;
             return component.title;
           },
-          builder: (final context, final title) {
+          builder: (context, title) {
             counters.builderCalls += 1;
             return Text(title);
           },
@@ -330,7 +330,7 @@ Future<_SelectorProfileScenario> _scopedComponentWhereMatch(
   final baseline = counters.snapshot();
 
   controller.runTransaction(
-    (final world) {
+    (world) {
       world.upsertComponent(
         second,
         const _RecordComponent(id: 'b', title: 'saved'),
@@ -364,7 +364,7 @@ Future<_SelectorProfileScenario> _scopedComponentWhereMatch(
 }
 
 Future<_SelectorProfileScenario> _scopedWorldUnrelatedComponent(
-  final WidgetTester tester,
+  WidgetTester tester,
 ) async {
   final world = _profileWorld()..upsertResource(_CounterResource());
   final entity = world.entities.create();
@@ -384,11 +384,11 @@ Future<_SelectorProfileScenario> _scopedWorldUnrelatedComponent(
           dependencies: const EcsWorldSelectorDependencies(
             resourceTypes: [_CounterResource],
           ),
-          select: (final world) {
+          select: (world) {
             counters.selectorCalls += 1;
             return world.getResource<_CounterResource>().count;
           },
-          builder: (final context, final value) {
+          builder: (context, value) {
             counters.builderCalls += 1;
             return Text('count: $value');
           },
@@ -399,7 +399,7 @@ Future<_SelectorProfileScenario> _scopedWorldUnrelatedComponent(
   final baseline = counters.snapshot();
 
   controller.runTransaction(
-    (final world) {
+    (world) {
       world.upsertComponent(entity, const _TitleComponent('saved'));
     },
     invalidation: EcsInvalidationBatch.component<_TitleComponent>(
@@ -430,7 +430,7 @@ Future<_SelectorProfileScenario> _scopedWorldUnrelatedComponent(
 }
 
 Future<_SelectorProfileScenario> _scopedWorldResourceMatch(
-  final WidgetTester tester,
+  WidgetTester tester,
 ) async {
   final world = _profileWorld()..upsertResource(_CounterResource());
   world.flush();
@@ -448,11 +448,11 @@ Future<_SelectorProfileScenario> _scopedWorldResourceMatch(
           dependencies: const EcsWorldSelectorDependencies(
             resourceTypes: [_CounterResource],
           ),
-          select: (final world) {
+          select: (world) {
             counters.selectorCalls += 1;
             return world.getResource<_CounterResource>().count;
           },
-          builder: (final context, final value) {
+          builder: (context, value) {
             counters.builderCalls += 1;
             return Text('count: $value');
           },
@@ -462,7 +462,7 @@ Future<_SelectorProfileScenario> _scopedWorldResourceMatch(
   );
   final baseline = counters.snapshot();
 
-  controller.runTransaction((final world) {
+  controller.runTransaction((world) {
     world.getResource<_CounterResource>().count = 1;
   }, invalidation: EcsInvalidationBatch.resource<_CounterResource>());
   await tester.pump();
@@ -489,7 +489,7 @@ Future<_SelectorProfileScenario> _scopedWorldResourceMatch(
 }
 
 Future<_SelectorProfileScenario> _broadUntrackedResource(
-  final WidgetTester tester,
+  WidgetTester tester,
 ) async {
   final world = _profileWorld()..upsertResource(_CounterResource());
   world.flush();
@@ -504,11 +504,11 @@ Future<_SelectorProfileScenario> _broadUntrackedResource(
         world: world,
         controller: controller,
         child: EcsResourceSelector<_CounterResource, int>(
-          select: (final resource) {
+          select: (resource) {
             counters.selectorCalls += 1;
             return resource.count;
           },
-          builder: (final context, final count) {
+          builder: (context, count) {
             counters.builderCalls += 1;
             return Text('count: $count');
           },
@@ -518,7 +518,7 @@ Future<_SelectorProfileScenario> _broadUntrackedResource(
   );
   final baseline = counters.snapshot();
 
-  controller.runTransaction((final world) {
+  controller.runTransaction((world) {
     world.getResource<_CounterResource>().count = 1;
   });
   await tester.pump();
@@ -544,7 +544,7 @@ Future<_SelectorProfileScenario> _broadUntrackedResource(
   );
 }
 
-Widget _host(final Widget child) => MaterialApp(home: child);
+Widget _host(Widget child) => MaterialApp(home: child);
 
 World _profileWorld() {
   final world = World()
@@ -553,7 +553,7 @@ World _profileWorld() {
   return world;
 }
 
-Map<String, Object?> _invalidationJson(final EcsInvalidationBatch batch) => {
+Map<String, Object?> _invalidationJson(EcsInvalidationBatch batch) => {
   'broad': batch.broad,
   'structural': batch.structural,
   'resourceTypes': [for (final type in batch.resourceTypes) '$type'],
@@ -562,7 +562,7 @@ Map<String, Object?> _invalidationJson(final EcsInvalidationBatch batch) => {
   'entityDetailOverflow': batch.entityDetailOverflow,
 };
 
-String _gitOutput(final List<String> args) {
+String _gitOutput(List<String> args) {
   final result = Process.runSync('git', args);
   if (result.exitCode != 0) return '';
   return result.stdout.toString().trim();

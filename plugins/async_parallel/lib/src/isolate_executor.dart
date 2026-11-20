@@ -27,8 +27,8 @@ abstract class IsolateExecutor {
   /// Returns a Future that completes with the result of the function
   /// execution, or with an error if the isolate fails.
   Future<R> compute<Q, R>(
-    final FutureOr<R> Function(Q message) function,
-    final Q message,
+    FutureOr<R> Function(Q message) function,
+    Q message,
   );
 }
 
@@ -45,8 +45,8 @@ class IsolateExecutorDart extends IsolateExecutor {
 
   @override
   Future<R> compute<Q, R>(
-    final FutureOr<R> Function(Q message) function,
-    final Q message,
+    FutureOr<R> Function(Q message) function,
+    Q message,
   ) => Isolate.run(() => function(message));
 }
 

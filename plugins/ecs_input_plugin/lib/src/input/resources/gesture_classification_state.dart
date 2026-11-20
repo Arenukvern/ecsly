@@ -37,56 +37,56 @@ class GestureClassificationState extends Resource {
 }
 
 extension GestureClassificationStateOps on GestureClassificationState {
-  void checkForDoubleTap(final RawPointerUpEvent event, final DateTime now) =>
+  void checkForDoubleTap(RawPointerUpEvent event, DateTime now) =>
       gestureCheckForDoubleTap(this, event, now);
 
   void checkLongPress(
-    final DateTime now,
-    final void Function(PointerState) callback,
+    DateTime now,
+    void Function(PointerState) callback,
   ) => gestureCheckLongPress(this, now, callback);
 
-  GestureType classifyGesture(final int pointer, final DateTime now) =>
+  GestureType classifyGesture(int pointer, DateTime now) =>
       gestureClassify(pointer, now, this);
 
-  void cleanupStalePointers(final DateTime now) =>
+  void cleanupStalePointers(DateTime now) =>
       gestureCleanupStalePointers(this, now);
 
-  String getCurrentGestureDisplay(final DateTime now) =>
+  String getCurrentGestureDisplay(DateTime now) =>
       gestureCurrentGestureDisplay(this, now);
 
   Map<int, PointerState> getDraggingPointers() =>
       gestureGetDraggingPointers(this);
 
-  ui.Offset getStartPosition(final int pointer) =>
+  ui.Offset getStartPosition(int pointer) =>
       gestureStartPosition(this, pointer);
 
-  ui.Offset getStartWorldPosition(final int pointer) =>
+  ui.Offset getStartWorldPosition(int pointer) =>
       gestureStartWorldPosition(this, pointer);
 
   bool hasActiveDragging() => gestureHasActiveDragging(this);
 
-  bool isDragging(final int pointer) => gestureIsDragging(this, pointer);
+  bool isDragging(int pointer) => gestureIsDragging(this, pointer);
 
-  void onPointerCancel(final int pointer, final DateTime now) =>
+  void onPointerCancel(int pointer, DateTime now) =>
       gestureOnPointerCancel(this, pointer);
 
-  void onPointerDown(final RawPointerDownEvent event, final DateTime now) =>
+  void onPointerDown(RawPointerDownEvent event, DateTime now) =>
       gestureOnPointerDown(this, event, now);
 
-  void onPointerMove(final RawPointerMoveEvent event, final DateTime now) =>
+  void onPointerMove(RawPointerMoveEvent event, DateTime now) =>
       gestureOnPointerMove(this, event);
 
-  void onPointerUp(final RawPointerUpEvent event, final DateTime now) =>
+  void onPointerUp(RawPointerUpEvent event, DateTime now) =>
       gestureOnPointerUp(this, event);
 
-  void recordCompletedGesture(final GestureType gesture, final DateTime now) =>
+  void recordCompletedGesture(GestureType gesture, DateTime now) =>
       gestureRecordCompleted(this, gesture, now);
 }
 
 void gestureCheckForDoubleTap(
-  final GestureClassificationState state,
-  final RawPointerUpEvent event,
-  final DateTime now,
+  GestureClassificationState state,
+  RawPointerUpEvent event,
+  DateTime now,
 ) {
   final pointerState = state._pointers[event.pointer];
   if (pointerState == null) return;
@@ -117,9 +117,9 @@ void gestureCheckForDoubleTap(
 }
 
 void gestureCheckLongPress(
-  final GestureClassificationState state,
-  final DateTime now,
-  final void Function(PointerState) callback,
+  GestureClassificationState state,
+  DateTime now,
+  void Function(PointerState) callback,
 ) {
   const longPressThreshold = Duration(milliseconds: 500);
   const dragThreshold = 5.0;
@@ -135,9 +135,9 @@ void gestureCheckLongPress(
 }
 
 GestureType gestureClassify(
-  final int pointer,
-  final DateTime now,
-  final GestureClassificationState state,
+  int pointer,
+  DateTime now,
+  GestureClassificationState state,
 ) {
   final pointerState = state._pointers[pointer];
   if (pointerState == null) return GestureType.none;
@@ -162,19 +162,19 @@ GestureType gestureClassify(
 }
 
 void gestureCleanupStalePointers(
-  final GestureClassificationState state,
-  final DateTime now,
+  GestureClassificationState state,
+  DateTime now,
 ) {
   const maxAge = Duration(seconds: 5);
   state._pointers.removeWhere(
-    (final _, final pointerState) =>
+    (_, pointerState) =>
         now.difference(pointerState.startTime) > maxAge,
   );
 }
 
 String gestureCurrentGestureDisplay(
-  final GestureClassificationState state,
-  final DateTime now,
+  GestureClassificationState state,
+  DateTime now,
 ) {
   for (final pointer in state._pointers.keys) {
     final gesture = gestureClassify(pointer, now, state);
@@ -196,7 +196,7 @@ String gestureCurrentGestureDisplay(
 }
 
 Map<int, PointerState> gestureGetDraggingPointers(
-  final GestureClassificationState state,
+  GestureClassificationState state,
 ) {
   const threshold = 5.0;
   final dragging = <int, PointerState>{};
@@ -209,16 +209,16 @@ Map<int, PointerState> gestureGetDraggingPointers(
 }
 
 ui.Offset gestureStartPosition(
-  final GestureClassificationState state,
-  final int pointer,
+  GestureClassificationState state,
+  int pointer,
 ) => state._pointers[pointer]?.startPosition ?? ui.Offset.zero;
 
 ui.Offset gestureStartWorldPosition(
-  final GestureClassificationState state,
-  final int pointer,
+  GestureClassificationState state,
+  int pointer,
 ) => state._pointers[pointer]?.startWorldPosition ?? ui.Offset.zero;
 
-bool gestureHasActiveDragging(final GestureClassificationState state) {
+bool gestureHasActiveDragging(GestureClassificationState state) {
   for (final pointer in state._pointers.keys) {
     if (gestureIsDragging(state, pointer)) return true;
   }
@@ -226,8 +226,8 @@ bool gestureHasActiveDragging(final GestureClassificationState state) {
 }
 
 bool gestureIsDragging(
-  final GestureClassificationState state,
-  final int pointer,
+  GestureClassificationState state,
+  int pointer,
 ) {
   const threshold = 5.0;
   final pointerState = state._pointers[pointer];
@@ -235,16 +235,16 @@ bool gestureIsDragging(
 }
 
 void gestureOnPointerCancel(
-  final GestureClassificationState state,
-  final int pointer,
+  GestureClassificationState state,
+  int pointer,
 ) {
   state._pointers.remove(pointer);
 }
 
 void gestureOnPointerDown(
-  final GestureClassificationState state,
-  final RawPointerDownEvent event,
-  final DateTime now,
+  GestureClassificationState state,
+  RawPointerDownEvent event,
+  DateTime now,
 ) {
   state._pointers[event.pointer] = PointerState(
     startPosition: event.position,
@@ -256,8 +256,8 @@ void gestureOnPointerDown(
 }
 
 void gestureOnPointerMove(
-  final GestureClassificationState state,
-  final RawPointerMoveEvent event,
+  GestureClassificationState state,
+  RawPointerMoveEvent event,
 ) {
   final pointerState = state._pointers[event.pointer];
   if (pointerState == null) return;
@@ -269,27 +269,27 @@ void gestureOnPointerMove(
 }
 
 void gestureOnPointerUp(
-  final GestureClassificationState state,
-  final RawPointerUpEvent event,
+  GestureClassificationState state,
+  RawPointerUpEvent event,
 ) {
   state._pointers.remove(event.pointer);
 }
 
 void gestureRecordCompleted(
-  final GestureClassificationState state,
-  final GestureType gesture,
-  final DateTime now,
+  GestureClassificationState state,
+  GestureType gesture,
+  DateTime now,
 ) {
   state._mostRecentGesture = gesture.name;
   state._mostRecentGestureTime = now;
 }
 
 void gestureCleanupStaleTaps(
-  final GestureClassificationState state,
-  final int nowMs,
+  GestureClassificationState state,
+  int nowMs,
 ) {
   state._recentTaps.removeWhere(
-    (final tap) =>
+    (tap) =>
         nowMs - tap.timestampMs >
         GestureClassificationState._doubleTapTimeout.inMilliseconds,
   );

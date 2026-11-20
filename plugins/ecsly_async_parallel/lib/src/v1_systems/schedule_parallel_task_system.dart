@@ -7,7 +7,7 @@ import 'resource.dart';
 import 'schedule_job_types.dart';
 
 /// Resolves the current schedule execution frame id from the world.
-int currentScheduleExecutionFrame(final World world) {
+int currentScheduleExecutionFrame(World world) {
   if (world.resources.has<ScheduleExecutionPolicyResource>()) {
     return world.getResource<ScheduleExecutionPolicyResource>().frameId;
   }
@@ -16,7 +16,7 @@ int currentScheduleExecutionFrame(final World world) {
 
 /// Resolves the active [ScheduleExecutionPolicyResource], defaulting when unset.
 ScheduleExecutionPolicyResource resolveScheduleExecutionPolicy(
-  final World world,
+  World world,
 ) {
   if (world.resources.has<ScheduleExecutionPolicyResource>()) {
     return world.getResource<ScheduleExecutionPolicyResource>();
@@ -26,7 +26,7 @@ ScheduleExecutionPolicyResource resolveScheduleExecutionPolicy(
 
 /// Resolves the active [ScheduleJobResultQueueResource], defaulting when unset.
 ScheduleJobResultQueueResource resolveScheduleJobResultQueue(
-  final World world,
+  World world,
 ) {
   if (world.resources.has<ScheduleJobResultQueueResource>()) {
     return world.getResource<ScheduleJobResultQueueResource>();
@@ -56,7 +56,7 @@ abstract class ScheduleParallelTaskSystem {
   String get jobKey;
 
   /// Runs the job synchronously on the calling thread.
-  void runSerial(final World world);
+  void runSerial(World world);
 
   /// The isolate backend used to execute chunks in background isolates.
   ///
@@ -65,7 +65,7 @@ abstract class ScheduleParallelTaskSystem {
   IsolateExecutor get isolateExecutor => const IsolateExecutorDart();
 
   /// Dispatches the job according to the world's execution policy.
-  Future<void> runAsync(final World world) async {
+  Future<void> runAsync(World world) async {
     final policy = resolveScheduleExecutionPolicy(world);
     final queue = resolveScheduleJobResultQueue(world);
     switch (policy.mode) {
@@ -86,9 +86,9 @@ abstract class ScheduleParallelTaskSystem {
   ///
   /// Subclasses override to implement pipelined execution.
   Future<void> runBestEffort(
-    final World world, {
-    required final ScheduleExecutionPolicyResource policy,
-    required final ScheduleJobResultQueueResource queue,
+    World world, {
+    required ScheduleExecutionPolicyResource policy,
+    required ScheduleJobResultQueueResource queue,
   });
 
   /// Deterministic mode: run all chunks concurrently and await completion.
@@ -98,9 +98,9 @@ abstract class ScheduleParallelTaskSystem {
   ///
   /// Subclasses override to implement concurrent chunk execution.
   Future<void> runDeterministic(
-    final World world, {
-    required final ScheduleExecutionPolicyResource policy,
-    required final ScheduleJobResultQueueResource queue,
+    World world, {
+    required ScheduleExecutionPolicyResource policy,
+    required ScheduleJobResultQueueResource queue,
   });
 }
 
@@ -127,30 +127,30 @@ abstract class PartitionedScheduleJobSystem<
   /// Defaults to requiring more than one configured worker. Subclasses may
   /// refine this (e.g. gate on world state or buffer availability).
   bool canRunInBackground(
-    final World world,
-    final ScheduleExecutionPolicyResource policy,
+    World world,
+    ScheduleExecutionPolicyResource policy,
   ) => policy.workerCount > 1;
 
   /// Extracts the per-frame work item from the world.
-  TExtract extract(final World world);
+  TExtract extract(World world);
 
   /// Runs a single chunk and returns its result.
-  TResult executeChunk(final TChunk chunk);
+  TResult executeChunk(TChunk chunk);
 
   /// Merges ordered chunk results back into the world.
   void merge(
-    final World world,
-    final List<ScheduleJobChunkResult<TResult>> orderedResults,
+    World world,
+    List<ScheduleJobChunkResult<TResult>> orderedResults,
   );
 
   /// Partitions the extracted work into chunks.
   List<ScheduleJobChunk<TChunk>> partition(
-    final TExtract extracted,
-    final ScheduleExecutionPolicyResource policy,
+    TExtract extracted,
+    ScheduleExecutionPolicyResource policy,
   );
 
   @override
-  void runSerial(final World world) {
+  void runSerial(World world) {
     final policy = resolveScheduleExecutionPolicy(world);
     final extracted = extract(world);
     final chunks = partition(extracted, policy);
@@ -168,15 +168,15 @@ abstract class PartitionedScheduleJobSystem<
         ),
       );
     }
-    results.sort((final a, final b) => a.chunkKey.compareTo(b.chunkKey));
+    results.sort((a, b) => a.chunkKey.compareTo(b.chunkKey));
     merge(world, results);
   }
 
   @override
   Future<void> runDeterministic(
-    final World world, {
-    required final ScheduleExecutionPolicyResource policy,
-    required final ScheduleJobResultQueueResource queue,
+    World world, {
+    required ScheduleExecutionPolicyResource policy,
+    required ScheduleJobResultQueueResource queue,
   }) async {
     if (!canRunInBackground(world, policy)) {
       runSerial(world);
@@ -198,7 +198,7 @@ abstract class PartitionedScheduleJobSystem<
         isolateExecutor
             .compute<TChunk, TResult>(executeChunk, chunk.payload)
             .then(
-              (final value) => ScheduleJobChunkResult<TResult>(
+              (value) => ScheduleJobChunkResult<TResult>(
                 chunkKey: chunk.chunkKey,
                 value: value,
               ),
@@ -207,15 +207,15 @@ abstract class PartitionedScheduleJobSystem<
     }
 
     final results = await Future.wait(futures);
-    results.sort((final a, final b) => a.chunkKey.compareTo(b.chunkKey));
+    results.sort((a, b) => a.chunkKey.compareTo(b.chunkKey));
     merge(world, results);
   }
 
   @override
   Future<void> runBestEffort(
-    final World world, {
-    required final ScheduleExecutionPolicyResource policy,
-    required final ScheduleJobResultQueueResource queue,
+    World world, {
+    required ScheduleExecutionPolicyResource policy,
+    required ScheduleJobResultQueueResource queue,
   }) async {
     final frameId = currentScheduleExecutionFrame(world);
     var mergedCompletedFrame = false;
@@ -257,19 +257,19 @@ abstract class PartitionedScheduleJobSystem<
     unawaited(
       Future.wait(
             chunks.map(
-              (final chunk) => isolateExecutor
+              (chunk) => isolateExecutor
                   .compute<TChunk, TResult>(executeChunk, chunk.payload)
                   .then(
-                    (final value) => ScheduleJobChunkResult<TResult>(
+                    (value) => ScheduleJobChunkResult<TResult>(
                       chunkKey: chunk.chunkKey,
                       value: value,
                     ),
                   ),
             ),
           )
-          .then((final results) {
+          .then((results) {
             results.sort(
-              (final a, final b) => a.chunkKey.compareTo(b.chunkKey),
+              (a, b) => a.chunkKey.compareTo(b.chunkKey),
             );
             queue.completeInFlight(
               ScheduleJobResultEnvelope<TResult>(
@@ -279,7 +279,7 @@ abstract class PartitionedScheduleJobSystem<
               ),
             );
           })
-          .catchError((final _) {
+          .catchError((_) {
             queue.cancelInFlight(jobKey: jobKey, frameId: frameId);
           }),
     );

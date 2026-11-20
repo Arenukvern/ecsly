@@ -9,10 +9,8 @@ part of 'main.dart';
 
 class ExamplePositionColumnFactory extends ColumnFactory {
   @override
-  DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
-  }) => FloatColumn(initialCapacity: initialCapacity, stride: 2);
+  DataColumn createColumn(ComponentId componentId, {int initialCapacity = 8}) =>
+      FloatColumn(initialCapacity: initialCapacity, stride: 2);
 }
 
 class ExamplePositionFacadeFactory
@@ -20,10 +18,10 @@ class ExamplePositionFacadeFactory
   late FloatColumn _column;
 
   @override
-  ExamplePosition create(final int index) => ExamplePosition((index, _column));
+  ExamplePosition create(int index) => ExamplePosition((index, _column));
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     if (column case final FloatColumn column) {
       _column = column;
       return;
@@ -46,7 +44,7 @@ final class ExamplePositionRegistration {
   ///   facadeFactory: ExamplePositionFacadeFactory(),
   /// );
   /// ```
-  static ComponentId register(final World world) => world.components
+  static ComponentId register(World world) => world.components
       .registerExtension<ExamplePositionComponent, ExamplePosition>(
         columnFactory: ExamplePositionColumnFactory(),
         facadeFactory: ExamplePositionFacadeFactory(),

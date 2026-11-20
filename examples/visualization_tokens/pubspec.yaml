@@ -3,4 +3,4 @@ description: Renderer independent visual vocabulary for the visualization exampl
 version: 0.1.0
 publish_to: none
 environment:
-  sdk: ^3.13.4
+  sdk: ^3.14.0

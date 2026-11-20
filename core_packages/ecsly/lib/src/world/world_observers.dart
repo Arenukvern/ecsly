@@ -5,14 +5,14 @@ import '../world/world.dart';
 /// Default is "off" (null observer). Intended for debugging/telemetry.
 abstract interface class WorldFlushObserver {
   void onFlushEnd(
-    final World world, {
-    required final int elapsedMicroseconds,
-    required final int commandsExecuted,
-    required final int resourcesPushed,
-    required final int resourcesRemoved,
+    World world, {
+    required int elapsedMicroseconds,
+    required int commandsExecuted,
+    required int resourcesPushed,
+    required int resourcesRemoved,
   });
 
-  void onFlushStart(final World world);
+  void onFlushStart(World world);
 }
 
 /// No-op base to simplify implementations.
@@ -21,13 +21,13 @@ class WorldFlushObserverBase implements WorldFlushObserver {
 
   @override
   void onFlushEnd(
-    final World world, {
-    required final int elapsedMicroseconds,
-    required final int commandsExecuted,
-    required final int resourcesPushed,
-    required final int resourcesRemoved,
+    World world, {
+    required int elapsedMicroseconds,
+    required int commandsExecuted,
+    required int resourcesPushed,
+    required int resourcesRemoved,
   }) {}
 
   @override
-  void onFlushStart(final World world) {}
+  void onFlushStart(World world) {}
 }

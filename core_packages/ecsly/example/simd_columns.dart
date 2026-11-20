@@ -15,27 +15,27 @@ extension type SimdVector._(int index) {
   double get z => column.getValueUnsafe(index, 2);
   double get w => column.getValueUnsafe(index, 3);
 
-  set x(final double value) => column.setValue(index, 0, value);
-  set y(final double value) => column.setValue(index, 1, value);
-  set z(final double value) => column.setValue(index, 2, value);
-  set w(final double value) => column.setValue(index, 3, value);
+  set x(double value) => column.setValue(index, 0, value);
+  set y(double value) => column.setValue(index, 1, value);
+  set z(double value) => column.setValue(index, 2, value);
+  set w(double value) => column.setValue(index, 3, value);
 }
 
 final class _SimdVectorColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => FloatColumn(stride: 4, initialCapacity: initialCapacity);
 }
 
 final class _SimdVectorFacadeFactory
     extends ComponentFacadeFactory<SimdVector> {
   @override
-  SimdVector create(final int index) => SimdVector._(index);
+  SimdVector create(int index) => SimdVector._(index);
 
   @override
-  void initialize(covariant final FloatColumn column) {
+  void initialize(covariant FloatColumn column) {
     SimdVector.column = column;
   }
 }

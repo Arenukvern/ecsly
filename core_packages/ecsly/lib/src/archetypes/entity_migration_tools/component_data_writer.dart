@@ -12,7 +12,7 @@ class ComponentDataWriter {
   ///
   /// Uses registered extractors for type-safe extraction.
   /// Falls back to default extractors for unregistered component types.
-  static List<double> extractFloats(final Object data) {
+  static List<double> extractFloats(Object data) {
     final extractor = ExtractorRegistry.instance.getExtractorFor(data);
     return extractor.extractFloats(data);
   }
@@ -22,9 +22,9 @@ class ComponentDataWriter {
   /// Handles FloatColumn, IntColumn, Uint8Column, and ObjectColumn.
   /// Uses type-safe extractors for data extraction.
   static void writeToColumn(
-    final DataColumn column,
-    final int rowIndex,
-    final Object data,
+    DataColumn column,
+    int rowIndex,
+    Object data,
   ) {
     final extractor = ExtractorRegistry.instance.getExtractorFor(data);
 

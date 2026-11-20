@@ -17,7 +17,7 @@ void main() {
       // Register event channel with TypedData factory
       world.events.register<DamageEvent>(
         capacity: 10,
-        fromDoubleFieldsFactory: (final fields) => DamageEvent(
+        fromDoubleFieldsFactory: (fields) => DamageEvent(
           targetEntity: fields[0].toInt(),
           sourceEntity: fields[1].toInt(),
           amount: fields[2],
@@ -50,7 +50,7 @@ void main() {
     test('handles capacity overflow with drop policy', () {
       world.events.register<DamageEvent>(
         capacity: 2,
-        fromDoubleFieldsFactory: (final fields) => DamageEvent(
+        fromDoubleFieldsFactory: (fields) => DamageEvent(
           targetEntity: fields[0].toInt(),
           sourceEntity: fields[1].toInt(),
           amount: fields[2],
@@ -89,7 +89,7 @@ void main() {
 
     test('clears events after frame', () {
       world.events.register<DamageEvent>(
-        fromDoubleFieldsFactory: (final fields) => DamageEvent(
+        fromDoubleFieldsFactory: (fields) => DamageEvent(
           targetEntity: fields[0].toInt(),
           sourceEntity: fields[1].toInt(),
           amount: fields[2],
@@ -126,7 +126,7 @@ void main() {
 
       // After explicit registration, it should work
       world.events.register<DamageEvent>(
-        fromDoubleFieldsFactory: (final fields) => DamageEvent(
+        fromDoubleFieldsFactory: (fields) => DamageEvent(
           targetEntity: fields[0].toInt(),
           sourceEntity: fields[1].toInt(),
           amount: fields[2],
@@ -145,7 +145,7 @@ void main() {
 
       // After registration
       world.events.register<DamageEvent>(
-        fromDoubleFieldsFactory: (final fields) => DamageEvent(
+        fromDoubleFieldsFactory: (fields) => DamageEvent(
           targetEntity: fields[0].toInt(),
           sourceEntity: fields[1].toInt(),
           amount: fields[2],
@@ -162,7 +162,7 @@ void main() {
     test('unregister removes event channel', () {
       // Register and send event
       world.events.register<DamageEvent>(
-        fromDoubleFieldsFactory: (final fields) => DamageEvent(
+        fromDoubleFieldsFactory: (fields) => DamageEvent(
           targetEntity: fields[0].toInt(),
           sourceEntity: fields[1].toInt(),
           amount: fields[2],
@@ -192,7 +192,7 @@ void main() {
 
     test('iterSimd provides SIMD access for FloatColumn events', () {
       world.events.register<VectorEvent>(
-        fromDoubleFieldsFactory: (final fields) =>
+        fromDoubleFieldsFactory: (fields) =>
             VectorEvent(x: fields[0], y: fields[1], z: fields[2], w: fields[3]),
         sampleEvent: VectorEvent(x: 0, y: 0, z: 0, w: 0),
       );
@@ -221,7 +221,7 @@ void main() {
     test('EventFactoryValidationError is thrown for invalid factory', () {
       expect(
         () => world.events.register<DamageEvent>(
-          fromDoubleFieldsFactory: (final fields) => DamageEvent(
+          fromDoubleFieldsFactory: (fields) => DamageEvent(
             // Intentionally wrong: mixing up field order
             targetEntity: fields[2].toInt(), // Should be fields[0]
             sourceEntity: fields[0].toInt(), // Should be fields[1]
@@ -235,13 +235,13 @@ void main() {
 
     test('EventTrigger runs schedule only when events exist', () {
       var executionCount = 0;
-      void testSystem(final World world) {
+      void testSystem(World world) {
         executionCount++;
       }
 
       // Register event channel first
       world.events.register<DamageEvent>(
-        fromDoubleFieldsFactory: (final fields) => DamageEvent(
+        fromDoubleFieldsFactory: (fields) => DamageEvent(
           targetEntity: fields[0].toInt(),
           sourceEntity: fields[1].toInt(),
           amount: fields[2],
@@ -293,7 +293,7 @@ void main() {
     test('resources remain single source of truth after cache removal', () {
       // Register event
       world.events.register<DamageEvent>(
-        fromDoubleFieldsFactory: (final fields) => DamageEvent(
+        fromDoubleFieldsFactory: (fields) => DamageEvent(
           targetEntity: fields[0].toInt(),
           sourceEntity: fields[1].toInt(),
           amount: fields[2],
@@ -327,7 +327,7 @@ void main() {
     test('clearAll performance with multiple event types', () {
       // Register multiple event types
       world.events.register<DamageEvent>(
-        fromDoubleFieldsFactory: (final fields) => DamageEvent(
+        fromDoubleFieldsFactory: (fields) => DamageEvent(
           targetEntity: fields[0].toInt(),
           sourceEntity: fields[1].toInt(),
           amount: fields[2],
@@ -336,7 +336,7 @@ void main() {
       );
 
       world.events.register<VectorEvent>(
-        fromDoubleFieldsFactory: (final fields) =>
+        fromDoubleFieldsFactory: (fields) =>
             VectorEvent(x: fields[0], y: fields[1], z: fields[2], w: fields[3]),
         sampleEvent: VectorEvent(x: 0, y: 0, z: 0, w: 0),
       );
@@ -377,7 +377,7 @@ void main() {
 
         // Register TypedDataEvent in world1 only
         world1.events.register<DamageEvent>(
-          fromDoubleFieldsFactory: (final fields) => DamageEvent(
+          fromDoubleFieldsFactory: (fields) => DamageEvent(
             targetEntity: fields[0].toInt(),
             sourceEntity: fields[1].toInt(),
             amount: fields[2],
@@ -413,7 +413,7 @@ void main() {
 
           // Register different events in each world
           world1.events.register<DamageEvent>(
-            fromDoubleFieldsFactory: (final fields) => DamageEvent(
+            fromDoubleFieldsFactory: (fields) => DamageEvent(
               targetEntity: fields[0].toInt(),
               sourceEntity: fields[1].toInt(),
               amount: fields[2],
@@ -426,7 +426,7 @@ void main() {
           );
 
           world2.events.register<VectorEvent>(
-            fromDoubleFieldsFactory: (final fields) => VectorEvent(
+            fromDoubleFieldsFactory: (fields) => VectorEvent(
               x: fields[0],
               y: fields[1],
               z: fields[2],
@@ -460,7 +460,7 @@ void main() {
 
         // Register and send events in both worlds
         world1.events.register<DamageEvent>(
-          fromDoubleFieldsFactory: (final fields) => DamageEvent(
+          fromDoubleFieldsFactory: (fields) => DamageEvent(
             targetEntity: fields[0].toInt(),
             sourceEntity: fields[1].toInt(),
             amount: fields[2],
@@ -468,7 +468,7 @@ void main() {
           sampleEvent: DamageEvent(targetEntity: 0, sourceEntity: 0, amount: 0),
         );
         world2.events.register<DamageEvent>(
-          fromDoubleFieldsFactory: (final fields) => DamageEvent(
+          fromDoubleFieldsFactory: (fields) => DamageEvent(
             targetEntity: fields[0].toInt(),
             sourceEntity: fields[1].toInt(),
             amount: fields[2],
@@ -522,14 +522,14 @@ class DamageEvent extends EcsEvent
   ];
 
   @override
-  void writeNumericFieldsTo(final Float32List target) {
+  void writeNumericFieldsTo(Float32List target) {
     target[0] = targetEntity.toDouble();
     target[1] = sourceEntity.toDouble();
     target[2] = amount;
   }
 
   @override
-  void writeNumericIntFieldsTo(final Int32List target) {
+  void writeNumericIntFieldsTo(Int32List target) {
     target[0] = targetEntity;
     target[1] = sourceEntity;
     target[2] = amount.toInt();
@@ -559,7 +559,7 @@ class VectorEvent extends EcsEvent
   List<double> get numericFields => [x, y, z, w];
 
   @override
-  void writeNumericFieldsTo(final Float32List target) {
+  void writeNumericFieldsTo(Float32List target) {
     target[0] = x;
     target[1] = y;
     target[2] = z;

@@ -14,16 +14,16 @@ abstract interface class ComponentMask {
   Iterable<ComponentId> get componentIds;
   int get length => bits.length;
   int get wordSize;
-  void clear(final ComponentId id);
-  bool contains(final ComponentMask other);
+  void clear(ComponentId id);
+  bool contains(ComponentMask other);
   ComponentMask copy();
-  int getWord(final int index);
-  bool has(final ComponentId id);
-  ComponentMask intersection(final ComponentMask other);
-  bool intersects(final ComponentMask other);
-  void set(final ComponentId id);
-  void setWord(final int index, final int value);
-  ComponentMask union(final ComponentMask other);
+  int getWord(int index);
+  bool has(ComponentId id);
+  ComponentMask intersection(ComponentMask other);
+  bool intersects(ComponentMask other);
+  void set(ComponentId id);
+  void setWord(int index, int value);
+  ComponentMask union(ComponentMask other);
 }
 
 /// Base class for ComponentMask implementations.
@@ -94,7 +94,7 @@ abstract class ComponentMaskBase extends ComponentMask {
 
   /// Equality check
   @override
-  bool operator ==(final Object other) {
+  bool operator ==(Object other) {
     if (other is! ComponentMaskBase) return false;
     final minLength = length < other.length ? length : other.length;
     for (int i = 0; i < minLength; i++) {
@@ -115,7 +115,7 @@ abstract class ComponentMaskBase extends ComponentMask {
 
   /// Clear bit for component ID
   @override
-  void clear(final ComponentId id) {
+  void clear(ComponentId id) {
     assert(id.isValid, 'ComponentId $id is not valid');
     final wordIndex = id.value ~/ wordSize;
     final bitIndex = id.value % wordSize;
@@ -127,7 +127,7 @@ abstract class ComponentMaskBase extends ComponentMask {
 
   /// Check if this mask contains all components in another mask
   @override
-  bool contains(final ComponentMask other) {
+  bool contains(ComponentMask other) {
     final minLength = length < other.length ? length : other.length;
     for (int i = 0; i < minLength; i++) {
       if ((getWord(i) & other.getWord(i)) != other.getWord(i)) {
@@ -152,11 +152,11 @@ abstract class ComponentMaskBase extends ComponentMask {
   }
 
   @override
-  int getWord(final int index) => bits[index];
+  int getWord(int index) => bits[index];
 
   /// Check if component ID is set
   @override
-  bool has(final ComponentId id) {
+  bool has(ComponentId id) {
     if (!id.isValid) return false;
     final wordIndex = id.value ~/ wordSize;
     final bitIndex = id.value % wordSize;
@@ -166,7 +166,7 @@ abstract class ComponentMaskBase extends ComponentMask {
 
   /// Intersection of two masks (creates new mask)
   @override
-  ComponentMask intersection(final ComponentMask other) {
+  ComponentMask intersection(ComponentMask other) {
     final minLength = length < other.length ? length : other.length;
     final result = factory.call(maxComponents: minLength * wordSize);
     for (int i = 0; i < minLength; i++) {
@@ -177,7 +177,7 @@ abstract class ComponentMaskBase extends ComponentMask {
 
   /// Check if this mask intersects with another mask
   @override
-  bool intersects(final ComponentMask other) {
+  bool intersects(ComponentMask other) {
     final minLength = length < other.length ? length : other.length;
     for (int i = 0; i < minLength; i++) {
       if ((getWord(i) & other.getWord(i)) != 0) {
@@ -189,7 +189,7 @@ abstract class ComponentMaskBase extends ComponentMask {
 
   /// Set bit for component ID
   @override
-  void set(final ComponentId id) {
+  void set(ComponentId id) {
     assert(id.isValid, 'ComponentId $id is not valid');
     final wordIndex = id.value ~/ wordSize;
     final bitIndex = id.value % wordSize;
@@ -202,7 +202,7 @@ abstract class ComponentMaskBase extends ComponentMask {
   }
 
   @override
-  void setWord(final int index, final int value) => bits[index] = value;
+  void setWord(int index, int value) => bits[index] = value;
 
   /// String representation for debugging
   @override
@@ -225,7 +225,7 @@ abstract class ComponentMaskBase extends ComponentMask {
 
   /// Union of two masks (creates new mask)
   @override
-  ComponentMask union(final ComponentMask other) {
+  ComponentMask union(ComponentMask other) {
     final maxLength = bits.length > other.bits.length
         ? bits.length
         : other.bits.length;

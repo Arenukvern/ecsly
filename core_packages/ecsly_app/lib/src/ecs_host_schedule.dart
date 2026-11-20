@@ -19,6 +19,6 @@ final class EcsHostSchedule {
   final EcsInvalidationBatch? invalidation;
   final EcsHostSchedulePredicate? runWhen;
 
-  bool shouldRun(final EcsInvalidationBatch triggerInvalidation) =>
+  bool shouldRun(EcsInvalidationBatch triggerInvalidation) =>
       runWhen?.call(triggerInvalidation) ?? true;
 }

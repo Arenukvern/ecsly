@@ -6,27 +6,27 @@ import 'system_descriptor.dart';
 /// Default is "off" (null observer). When enabled, implementations should
 /// avoid allocations on hot paths (use intern tables, typed buffers, etc.).
 abstract interface class EcsExecutionObserver {
-  void onScheduleEnd(final World world, final String scheduleName);
+  void onScheduleEnd(World world, String scheduleName);
 
   void onScheduleStart(
-    final World world,
-    final String scheduleName, {
-    required final int systemCount,
+    World world,
+    String scheduleName, {
+    required int systemCount,
   });
 
   void onSystemEnd(
-    final World world,
-    final String scheduleName,
-    final SystemDescriptor system, {
-    required final int elapsedMicroseconds,
-    final Object? error,
-    final StackTrace? stackTrace,
+    World world,
+    String scheduleName,
+    SystemDescriptor system, {
+    required int elapsedMicroseconds,
+    Object? error,
+    StackTrace? stackTrace,
   });
 
   void onSystemStart(
-    final World world,
-    final String scheduleName,
-    final SystemDescriptor system,
+    World world,
+    String scheduleName,
+    SystemDescriptor system,
   );
 }
 
@@ -35,29 +35,29 @@ class EcsExecutionObserverBase implements EcsExecutionObserver {
   const EcsExecutionObserverBase();
 
   @override
-  void onScheduleEnd(final World world, final String scheduleName) {}
+  void onScheduleEnd(World world, String scheduleName) {}
 
   @override
   void onScheduleStart(
-    final World world,
-    final String scheduleName, {
-    required final int systemCount,
+    World world,
+    String scheduleName, {
+    required int systemCount,
   }) {}
 
   @override
   void onSystemEnd(
-    final World world,
-    final String scheduleName,
-    final SystemDescriptor system, {
-    required final int elapsedMicroseconds,
-    final Object? error,
-    final StackTrace? stackTrace,
+    World world,
+    String scheduleName,
+    SystemDescriptor system, {
+    required int elapsedMicroseconds,
+    Object? error,
+    StackTrace? stackTrace,
   }) {}
 
   @override
   void onSystemStart(
-    final World world,
-    final String scheduleName,
-    final SystemDescriptor system,
+    World world,
+    String scheduleName,
+    SystemDescriptor system,
   ) {}
 }

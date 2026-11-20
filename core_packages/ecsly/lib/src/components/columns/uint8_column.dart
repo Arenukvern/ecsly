@@ -7,7 +7,7 @@ part of 'data_column.dart';
 /// Uses Uint8List for 4x memory reduction compared to Int32List.
 /// Ideal for Health, Team IDs, enum values, and other small integers.
 class Uint8Column implements DataColumn {
-  Uint8Column({final int initialCapacity = 8})
+  Uint8Column({int initialCapacity = 8})
     : _data = Uint8List(initialCapacity),
       _length = 0;
 
@@ -38,9 +38,9 @@ class Uint8Column implements DataColumn {
 
   @override
   void copyTo(
-    final int sourceIndex,
-    final DataColumn destination,
-    final int destIndex,
+    int sourceIndex,
+    DataColumn destination,
+    int destIndex,
   ) {
     assert(sourceIndex < _length, 'Source index out of bounds');
     if (destination is! Uint8Column) {
@@ -50,23 +50,23 @@ class Uint8Column implements DataColumn {
   }
 
   /// Get value at index.
-  int getValue(final int index) {
+  int getValue(int index) {
     assert(index < _length, 'Index out of bounds');
     return _data[index];
   }
 
   @override
   void moveTo(
-    final int sourceIndex,
-    final DataColumn destination,
-    final int destIndex,
+    int sourceIndex,
+    DataColumn destination,
+    int destIndex,
   ) {
     copyTo(sourceIndex, destination, destIndex);
     _data[sourceIndex] = 0;
   }
 
   @override
-  void resize(final int newCapacity) {
+  void resize(int newCapacity) {
     if (newCapacity <= capacity) return;
     final newData = Uint8List(newCapacity);
     newData.setRange(0, _data.length, _data);
@@ -75,13 +75,13 @@ class Uint8Column implements DataColumn {
 
   /// Set value at index.
   /// Values are clamped to 0-255 range (Uint8 limits).
-  void setValue(final int index, final int value) {
+  void setValue(int index, int value) {
     assert(index < _length, 'Index out of bounds');
     _data[index] = value.clamp(0, 255);
   }
 
   @override
-  void swap(final int indexA, final int indexB) {
+  void swap(int indexA, int indexB) {
     assert(indexA < _length && indexB < _length, 'Indices out of bounds');
     final temp = _data[indexA];
     _data[indexA] = _data[indexB];
@@ -89,7 +89,7 @@ class Uint8Column implements DataColumn {
   }
 
   @override
-  void swapRemove(final int index) {
+  void swapRemove(int index) {
     assert(index < _length, 'Index out of bounds');
     if (index != _length - 1) {
       _data[index] = _data[_length - 1];

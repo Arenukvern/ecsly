@@ -38,8 +38,8 @@ extension WorldQueryX on World {
   /// required/excluded masks and lets the existing query engine reuse matching
   /// archetype plans across iterations.
   ComponentQuery prepareQuery({
-    final Iterable<ComponentId>? required,
-    final Iterable<ComponentId>? excluded,
+    Iterable<ComponentId>? required,
+    Iterable<ComponentId>? excluded,
   }) => ComponentQuery(world: this, required: required, excluded: excluded);
 
   ComponentQuery prepareQuery1<T extends Component>() =>
@@ -324,7 +324,7 @@ extension WorldQueryX on World {
     TExt,
     T2Comp extends Component,
     T2Ext
-  >(final ExtensionPredicate<TExt> predicate) {
+  >(ExtensionPredicate<TExt> predicate) {
     final query = ComponentQuery(
       world: this,
       required: [
@@ -437,7 +437,7 @@ extension WorldQueryX on World {
   Iterable<(WorldEntityExtension, TExt)> queryExtWhere<
     TComp extends Component,
     TExt
-  >(final ExtensionPredicate<TExt> predicate) {
+  >(ExtensionPredicate<TExt> predicate) {
     final query = ComponentQuery(
       world: this,
       required: [components.getComponentId<TComp>()],

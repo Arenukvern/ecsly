@@ -16,6 +16,6 @@ extension EntityCommandsX on EntityCommands {
     queue.push(RemoveComponentCommand<T>(entity, componentId));
   }
 
-  void upsert<T extends Component>(final T component) =>
+  void upsert<T extends Component>(T component) =>
       queue.push(UpsertComponentCommand<T>(entity, component));
 }

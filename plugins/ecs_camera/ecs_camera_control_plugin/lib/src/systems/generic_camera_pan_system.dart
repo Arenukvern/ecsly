@@ -10,7 +10,7 @@ import '../resources/camera_interaction_mode_resource.dart';
 /// Supports both keyboard-based panning (WASD) and drag-based panning (mouse/touch).
 /// Drag panning accumulates deltas from DragEvent events when camera pan action is active.
 /// Keyboard panning uses axis-based input from InputStateTracker.
-void genericCameraPanSystem(final World world) {
+void genericCameraPanSystem(World world) {
   // Graceful exit if InputPlugin not installed
   if (!world.resources.has<InputStateTracker>()) {
     return;
@@ -126,10 +126,10 @@ void genericCameraPanSystem(final World world) {
 /// [zoom] Current camera zoom level
 /// Returns accumulated (dx, dy) delta for camera movement
 (double, double) _calculateDragPanDelta(
-  final EventReader<DragEvent> dragReader,
-  final GestureConsumptionTracker? tracker,
-  final CameraPanAction panAction,
-  final double zoom,
+  EventReader<DragEvent> dragReader,
+  GestureConsumptionTracker? tracker,
+  CameraPanAction panAction,
+  double zoom,
 ) {
   var totalDx = 0.0;
   var totalDy = 0.0;

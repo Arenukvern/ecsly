@@ -39,7 +39,7 @@ class SparseColumnList {
   Iterable<DataColumn> get values => _columns;
 
   /// Add a column for a component ID (O(1))
-  void add(final ComponentId componentId, final DataColumn column) {
+  void add(ComponentId componentId, DataColumn column) {
     if (!componentId.isValid) {
       throw ArgumentError('Invalid ComponentId: $componentId');
     }
@@ -55,20 +55,20 @@ class SparseColumnList {
   }
 
   /// Check if column exists for component ID (O(1))
-  bool contains(final ComponentId componentId) {
+  bool contains(ComponentId componentId) {
     if (!componentId.isValid) return false;
     return _idToIndex[componentId.value] >= 0;
   }
 
   /// Get column for a component ID (O(1))
-  DataColumn? getColumn(final ComponentId componentId) {
+  DataColumn? getColumn(ComponentId componentId) {
     if (!componentId.isValid) return null;
     final index = _idToIndex[componentId.value];
     return index >= 0 ? _columns[index] : null;
   }
 
   /// Remove a column for a component ID (O(1) via swap-with-last)
-  void remove(final ComponentId componentId) {
+  void remove(ComponentId componentId) {
     if (!componentId.isValid) return;
 
     final index = _idToIndex[componentId.value];

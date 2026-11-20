@@ -312,7 +312,7 @@ void main() {
 }
 
 /// Helper function to access private _getIndex method for testing
-int _getTestIndex(final Type type) => type.hashCode.abs() & (1024 - 1);
+int _getTestIndex(Type type) => type.hashCode.abs() & (1024 - 1);
 
 /// Mock component types for testing (to avoid using real components)
 class MockComponentA {

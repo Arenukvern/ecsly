@@ -11,9 +11,9 @@ final class DeterministicSectionHashing {
   static int get fnv64Offset => impl.fnvOffset;
   static int get fnv64Prime => impl.fnvPrime;
 
-  static int mixInt64(final int hash, final int value) => impl.mix(hash, value);
+  static int mixInt64(int hash, int value) => impl.mix(hash, value);
 
-  static int hashInt32Section(final Int32List data, final int count) {
+  static int hashInt32Section(Int32List data, int count) {
     var hash = fnv64Offset;
     for (var i = 0; i < count; i++) {
       hash = mixInt64(hash, data[i]);
@@ -21,7 +21,7 @@ final class DeterministicSectionHashing {
     return hash;
   }
 
-  static int hashUint32Section(final Uint32List data, final int count) {
+  static int hashUint32Section(Uint32List data, int count) {
     var hash = fnv64Offset;
     for (var i = 0; i < count; i++) {
       hash = mixInt64(hash, data[i]);
@@ -29,7 +29,7 @@ final class DeterministicSectionHashing {
     return hash;
   }
 
-  static int hashFloat32Section(final Float32List data, final int count) {
+  static int hashFloat32Section(Float32List data, int count) {
     var hash = fnv64Offset;
     final bits = ByteData(4);
     for (var i = 0; i < count; i++) {
@@ -48,7 +48,7 @@ final class DeterministicSectionHashing {
   /// identity that must survive a process, a store or a platform boundary
   /// (cross-consumer payload contracts); keep the 64-bit variants for
   /// in-process extraction equality.
-  static int stableStringHash(final String text) {
+  static int stableStringHash(String text) {
     var hash = stableOffsetBasis;
     for (var i = 0; i < text.length; i++) {
       final unit = text.codeUnitAt(i);
@@ -65,6 +65,6 @@ final class DeterministicSectionHashing {
   /// The FNV-1a 32-bit prime used by [stableStringHash].
   static const int stablePrime = 0x01000193;
 
-  static int _stableMix(final int hash, final int byte) =>
+  static int _stableMix(int hash, int byte) =>
       ((hash ^ byte) * stablePrime) & 0xFFFFFFFF;
 }

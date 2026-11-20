@@ -28,15 +28,15 @@ const double _kTopPitchDeg = 90.0;
 
 /// Resolves a preset into a clamped inspect camera pose.
 InspectCameraPose resolveInspectCameraPresetPose({
-  required final InspectCameraPreset preset,
-  required final double targetX,
-  required final double targetY,
-  required final double targetZ,
-  final double distance = 12.0,
-  final double minPitchDeg = -89.0,
-  final double maxPitchDeg = 89.0,
-  final double minDistance = 0.1,
-  final double maxDistance = 1000.0,
+  required InspectCameraPreset preset,
+  required double targetX,
+  required double targetY,
+  required double targetZ,
+  double distance = 12.0,
+  double minPitchDeg = -89.0,
+  double maxPitchDeg = 89.0,
+  double minDistance = 0.1,
+  double maxDistance = 1000.0,
 }) {
   final pose = switch (preset) {
     InspectCameraPreset.front => (yawDeg: 0.0, pitchDeg: 0.0),
@@ -58,7 +58,7 @@ InspectCameraPose resolveInspectCameraPresetPose({
   );
 }
 
-double _clampFinite(final double value, final double min, final double max) {
+double _clampFinite(double value, double min, double max) {
   final bounded = value.isFinite ? value : min;
   return math.max(min, math.min(max, bounded));
 }

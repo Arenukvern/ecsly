@@ -5,8 +5,8 @@ import 'package:ecsly/ecsly.dart';
 class CameraShakeColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => FloatColumn(initialCapacity: initialCapacity, stride: 3);
 }
 
@@ -21,10 +21,10 @@ class CameraShakeFacadeFactory extends ComponentFacadeFactory<CameraShake> {
   late FloatColumn _column;
 
   @override
-  CameraShake create(final int index) => CameraShake((index, _column));
+  CameraShake create(int index) => CameraShake((index, _column));
 
   @override
-  void initialize(covariant final FloatColumn column) {
+  void initialize(covariant FloatColumn column) {
     _column = column;
   }
 }
@@ -36,7 +36,7 @@ extension type const CameraShake((int index, FloatColumn column) data) {
   /// Lower values = slower decay (shake lasts longer).
   /// Typical values: 0.5-0.9 for natural decay.
   double get decay => data.$2.getValue(data.$1, 2);
-  set decay(final double value) => data.$2.setValue(data.$1, 2, value);
+  set decay(double value) => data.$2.setValue(data.$1, 2, value);
 
   /// Check if camera has active shake.
   bool get hasShake {
@@ -47,17 +47,17 @@ extension type const CameraShake((int index, FloatColumn column) data) {
   /// Current shake offset in X direction (world units)
   double get offsetX => data.$2.getValue(data.$1, 0);
 
-  set offsetX(final double value) => data.$2.setValue(data.$1, 0, value);
+  set offsetX(double value) => data.$2.setValue(data.$1, 0, value);
 
   /// Current shake offset in Y direction (world units)
   double get offsetY => data.$2.getValue(data.$1, 1);
 
-  set offsetY(final double value) => data.$2.setValue(data.$1, 1, value);
+  set offsetY(double value) => data.$2.setValue(data.$1, 1, value);
 
   /// Add shake impulse to the camera.
   /// [intensityX] - Shake intensity in X direction (world units)
   /// [intensityY] - Shake intensity in Y direction (world units)
-  void addShake(final double intensityX, final double intensityY) {
+  void addShake(double intensityX, double intensityY) {
     offsetX += intensityX;
     offsetY += intensityY;
   }

@@ -5,7 +5,7 @@ part of 'data_column.dart';
 /// Uses stride-based packing: [x0, y0, x1, y1, x2, y2, ...]
 /// where stride is the number of ints per component.
 class IntColumn implements DataColumn {
-  IntColumn({final int initialCapacity = 8, this.stride = 1})
+  IntColumn({int initialCapacity = 8, this.stride = 1})
     : _data = Int32List(initialCapacity * stride),
       _length = 0;
 
@@ -41,9 +41,9 @@ class IntColumn implements DataColumn {
 
   @override
   void copyTo(
-    final int sourceIndex,
-    final DataColumn destination,
-    final int destIndex,
+    int sourceIndex,
+    DataColumn destination,
+    int destIndex,
   ) {
     assert(sourceIndex < _length, 'Source index out of bounds');
     if (destination is! IntColumn) {
@@ -67,7 +67,7 @@ class IntColumn implements DataColumn {
 
   /// Get single int value at (index, componentIndex).
   /// Performs bounds checking for safety.
-  int getValue(final int index, final int componentIndex) {
+  int getValue(int index, int componentIndex) {
     final isNotStale = index < _length && componentIndex < stride;
     if (!isNotStale) return 0;
     assert(isNotStale, 'Index out of bounds');
@@ -76,7 +76,7 @@ class IntColumn implements DataColumn {
 
   /// Get value at index (stride=1 only).
   /// Use [getValue(index, componentIndex)] for stride support.
-  int getValueAt(final int index) {
+  int getValueAt(int index) {
     assert(
       index < _length && stride == 1,
       'getValueAt only works with stride=1',
@@ -86,9 +86,9 @@ class IntColumn implements DataColumn {
 
   @override
   void moveTo(
-    final int sourceIndex,
-    final DataColumn destination,
-    final int destIndex,
+    int sourceIndex,
+    DataColumn destination,
+    int destIndex,
   ) {
     copyTo(sourceIndex, destination, destIndex);
     // Clear source (set to zero)
@@ -99,7 +99,7 @@ class IntColumn implements DataColumn {
   }
 
   @override
-  void resize(final int newCapacity) {
+  void resize(int newCapacity) {
     if (newCapacity <= capacity) return;
     final newData = Int32List(newCapacity * stride);
     newData.setRange(0, _data.length, _data);
@@ -107,14 +107,14 @@ class IntColumn implements DataColumn {
   }
 
   /// Set single int value at (index, componentIndex).
-  void setValue(final int index, final int componentIndex, final int value) {
+  void setValue(int index, int componentIndex, int value) {
     assert(index < _length && componentIndex < stride, 'Index out of bounds');
     _data[index * stride + componentIndex] = value;
   }
 
   /// Set value at index (backward compatibility for stride=1).
   /// Use [setValue(index, componentIndex, value)] for stride support.
-  void setValueAt(final int index, final int value) {
+  void setValueAt(int index, int value) {
     assert(
       index < _length && stride == 1,
       'setValueAt only works with stride=1. Use setValue(index, componentIndex, value) for multi-field support.',
@@ -123,7 +123,7 @@ class IntColumn implements DataColumn {
   }
 
   @override
-  void swap(final int indexA, final int indexB) {
+  void swap(int indexA, int indexB) {
     assert(indexA < _length && indexB < _length, 'Index out of bounds');
     if (indexA == indexB) return;
 
@@ -139,7 +139,7 @@ class IntColumn implements DataColumn {
   }
 
   @override
-  void swapRemove(final int index) {
+  void swapRemove(int index) {
     assert(index < _length, 'Index out of bounds');
     if (index != _length - 1) {
       swap(index, _length - 1);
