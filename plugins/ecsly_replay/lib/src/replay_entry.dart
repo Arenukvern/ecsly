@@ -54,17 +54,17 @@ class ReplayEntry {
   int get orderingKey => Object.hash(tick, seq);
 
   /// Compares rows in log order.
-  int compareTo(final ReplayEntry other) {
+  int compareTo(ReplayEntry other) {
     final byTick = tick.compareTo(other.tick);
     if (byTick != 0) return byTick;
     return seq.compareTo(other.seq);
   }
 
-  bool isBeforeOrAt(final int targetTick, final int targetSeq) =>
+  bool isBeforeOrAt(int targetTick, int targetSeq) =>
       tick < targetTick || (tick == targetTick && seq <= targetSeq);
 
   /// True when this row is strictly after [position].
-  bool isAfterPosition(final ReplayPosition position) =>
+  bool isAfterPosition(ReplayPosition position) =>
       tick > position.tick ||
       (tick == position.tick && seq > position.seq);
 
@@ -77,13 +77,13 @@ class ReplayEntry {
   };
 
   // ignore: prefer_constructors_over_static_methods
-  static ReplayEntry fromJson(final Map<String, Object?> json) {
+  static ReplayEntry fromJson(Map<String, Object?> json) {
     final kindName = json['kind'] as String? ?? ReplayEntryKind.command.name;
     return ReplayEntry(
       tick: (json['tick'] as num?)?.toInt() ?? 0,
       seq: (json['seq'] as num?)?.toInt() ?? 0,
       kind: ReplayEntryKind.values.firstWhere(
-        (final k) => k.name == kindName,
+        (k) => k.name == kindName,
         orElse: () => ReplayEntryKind.command,
       ),
       payload: (json['payload'] as Map<String, Object?>?) ?? const {},
@@ -94,12 +94,12 @@ class ReplayEntry {
 
 /// Seek target: inclusive position in the log.
 class ReplayPosition {
-  /// Position after applying [entry].
-  factory ReplayPosition.after(final ReplayEntry entry) =>
-      ReplayPosition(tick: entry.tick, seq: entry.seq);
 
   /// Creates a replay position.
   const ReplayPosition({required this.tick, required this.seq});
+  /// Position after applying [entry].
+  factory ReplayPosition.after(ReplayEntry entry) =>
+      ReplayPosition(tick: entry.tick, seq: entry.seq);
 
   /// Tick component.
   final int tick;

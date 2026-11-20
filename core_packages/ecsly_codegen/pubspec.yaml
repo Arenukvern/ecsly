@@ -13,13 +13,13 @@ topics:
 version: 0.1.0
 
 environment:
-  sdk: ">=3.12.0 <4.0.0"
+  sdk: ">=3.14.0 <4.0.0"
 
 resolution: workspace
 # This package owns the annotation surface and the build_runner builder used by
 # component packages. Runtime storage remains in package:ecsly.
 dependencies:
-  analyzer: "^12.0.0"
+  analyzer: "^13.0.0"
   build: ^4.0.0
   source_gen: ^4.2.4
 

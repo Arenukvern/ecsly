@@ -9,6 +9,7 @@ import '../archetypes/archetypes.dart';
 import 'entity.dart';
 
 export 'entity.dart';
+export 'persistent_entity.dart';
 export 'world_entity.dart';
 export 'world_entity_extension.dart';
 export 'world_entity_mut.dart';
@@ -69,7 +70,7 @@ class Entities {
   ///
   /// This increments the entity's generation, ensuring that any old `Entity`
   /// handles become invalid. The index is then added to the free-list for reuse.
-  void destroy(final Entity entity) {
+  void destroy(Entity entity) {
     final index = entity.indexValue;
     // Increment the generation to invalidate old handles.
     _generations[index] = _generations[index] + 1;
@@ -79,7 +80,7 @@ class Entities {
   }
 
   /// Gets the storage location of an entity.
-  EntityLocation getLocation(final Entity entity) {
+  EntityLocation getLocation(Entity entity) {
     final index = entity.indexValue;
     return EntityLocation(
       ArchetypeId(_archetypeIds[index]),
@@ -91,7 +92,7 @@ class Entities {
   ///
   /// Matches [getLocation].entity; use when only the id is needed, e.g. cache
   /// checks while the entity may have migrated after a [WorldEntity] snapshot.
-  ArchetypeId archetypeIdOf(final Entity entity) =>
+  ArchetypeId archetypeIdOf(Entity entity) =>
       ArchetypeId(_archetypeIds[entity.indexValue]);
 
   /// Allocation-free check that [entity] is alive and still located at
@@ -99,7 +100,7 @@ class Entities {
   ///
   /// Hot-path variant of comparing [getLocation] fields; avoids the
   /// per-row [EntityLocation] allocation in query iteration.
-  bool isAt(final Entity entity, final ArchetypeId archetypeId, final int row) {
+  bool isAt(Entity entity, ArchetypeId archetypeId, int row) {
     final index = entity.indexValue;
     return index < _capacity &&
         _generations[index] == entity.generation &&
@@ -111,20 +112,20 @@ class Entities {
   ///
   /// An entity is considered alive if its generation in the handle matches
   /// the current generation stored in the manager.
-  bool isAlive(final Entity entity) {
+  bool isAlive(Entity entity) {
     final index = entity.indexValue;
     return index < _capacity && _generations[index] == entity.generation;
   }
 
   /// Sets the storage location of an entity.
-  void setLocation(final Entity entity, final EntityLocation location) {
+  void setLocation(Entity entity, EntityLocation location) {
     final index = entity.indexValue;
     _archetypeIds[index] = location.archetypeId.value;
     _archetypeRows[index] = location.archetypeRow;
   }
 
   /// Ensures the internal buffers have enough capacity for a given index.
-  void _ensureCapacity(final int index) {
+  void _ensureCapacity(int index) {
     if (index >= _capacity) {
       final newCapacity = (index * 2).clamp(_initialCapacity, 0x7FFFFFFF);
       _capacity = newCapacity;
@@ -136,7 +137,7 @@ class Entities {
   }
 
   /// Helper to create a new `Uint32List` with the new capacity and copy old data.
-  Uint32List _resizeBuffer(final Uint32List oldBuffer, final int newCapacity) {
+  Uint32List _resizeBuffer(Uint32List oldBuffer, int newCapacity) {
     final newBuffer = Uint32List(newCapacity);
     newBuffer.setAll(0, oldBuffer);
     return newBuffer;

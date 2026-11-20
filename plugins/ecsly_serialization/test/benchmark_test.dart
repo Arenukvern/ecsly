@@ -14,7 +14,7 @@ import 'serialization_test_components.dart';
 /// signal.
 
 /// Measures [run] for ~500ms after warmup and prints µs/op + ops/s.
-int _measure(final String name, final int Function() run) {
+int _measure(String name, int Function() run) {
   // Warmup.
   run();
   run();
@@ -37,12 +37,12 @@ int _measure(final String name, final int Function() run) {
   return iterations;
 }
 
-World _worldWith(final int entityCount) {
+World _worldWith(int entityCount) {
   final world = buildSerializationTestWorld();
-  registerPersistentId(world);
+  registerPersistentEntity(world);
   for (var i = 0; i < entityCount; i++) {
     world.spawnComponents([
-      PersistentId(i + 1),
+      PersistentEntityComponent(PersistentEntity.sequence(i + 1)),
       const PositionComponent(),
       const HealthComponent(),
       const ScoreComponent(),
@@ -92,7 +92,7 @@ void main() {
 
   test('benchmark: single-entity column capture', () {
     final world = _worldWith(1);
-    final entity = world.archetypes.all.expand((final a) => a.entities).first;
+    final entity = world.archetypes.all.expand((a) => a.entities).first;
 
     _measure('captureEntityColumns [1 entity, 3 components]', () {
       for (var i = 0; i < 10000; i++) {

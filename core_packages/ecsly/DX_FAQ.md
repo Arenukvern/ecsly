@@ -69,6 +69,12 @@ Keep persistent app ids as component data. Runtime `Entity` handles are not
 save-file or route identities. If a UI repeatedly starts from a route id, use a
 cold projection in `ecsly_app`/plugin code, not a core `World` id API.
 
+For cross-session durable identity, use `PersistentEntity` (entities barrel):
+the String-valued counterpart of `Entity` that survives save/load and world
+transfers. It ships as a value type — allocation policy (deterministic
+sequence vs random), the O(1) index, and snapshot integration live in
+`ecsly_serialization` (ADR 0007).
+
 App-layer and Flutter host packages live in this public repo under
 `core_packages/ecsly_app` and `core_packages/ecsly_flutter`, published on
 pub.dev alongside the core runtime.

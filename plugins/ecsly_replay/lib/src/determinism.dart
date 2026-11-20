@@ -3,22 +3,22 @@
 import 'package:ecsly/ecsly.dart';
 import 'package:ecsly_serialization/ecsly_serialization.dart';
 
-/// Capture keyed by [PersistentId] for cold-vs-hot replay comparison.
-Map<int, Map<String, Object?>> capturePersistentKeyedColumns(
-  final World world, {
-  final WorldSnapshotOptions options = const WorldSnapshotOptions(),
+/// Capture keyed by [PersistentEntityComponent] for cold-vs-hot replay comparison.
+Map<String, Map<String, Object?>> capturePersistentKeyedColumns(
+  World world, {
+  WorldSnapshotOptions options = const WorldSnapshotOptions(),
 }) {
   final snapshot = captureWorldSnapshot(world, options: options);
   return {
     for (final entry in snapshot.entities)
-      entry.persistentId: Map<String, Object?>.from(entry.columns),
+      entry.identity: Map<String, Object?>.from(entry.columns),
   };
 }
 
 /// Returns true when [a] and [b] describe the same persisted entity state.
 bool persistentCapturesEqual(
-  final Map<int, Map<String, Object?>> a,
-  final Map<int, Map<String, Object?>> b,
+  Map<String, Map<String, Object?>> a,
+  Map<String, Map<String, Object?>> b,
 ) {
   if (a.length != b.length) return false;
   for (final entry in a.entries) {
@@ -32,7 +32,7 @@ bool persistentCapturesEqual(
   return true;
 }
 
-bool _jsonEqual(final Object? a, final Object? b) {
+bool _jsonEqual(Object? a, Object? b) {
   if (a is Map && b is Map) {
     if (a.length != b.length) return false;
     for (final key in a.keys) {

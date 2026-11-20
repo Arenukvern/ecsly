@@ -20,13 +20,11 @@ class GameMeta extends Resource with SnapshotableResource {
   final int seed;
 
   @override
-  Map<String, Object?> toJson() => <String, Object?>{
-    'level': level,
-    'seed': seed,
-  };
+  Map<String, Object?> toJson(EntityRefEncoder refs) =>
+      <String, Object?>{'level': level, 'seed': seed};
 
   // ignore: prefer_constructors_over_static_methods
-  static GameMeta fromJson(final Map<String, Object?> json) => GameMeta(
+  static GameMeta fromJson(Map<String, Object?> json) => GameMeta(
     level: (json['level'] as num?)?.toInt() ?? 1,
     seed: (json['seed'] as num?)?.toInt() ?? 0,
   );
@@ -52,10 +50,10 @@ void main() {
   test('dogfood: save/load cycle across process-like boundary', () {
     // --- Session 1: play and save. PersistentIds 1..50; even ids get EnemyTag.
     final session1 = _buildGame();
-    registerPersistentId(session1);
+    registerPersistentEntity(session1);
     for (var i = 1; i <= 50; i++) {
       session1.spawnComponents([
-        PersistentId(i),
+        PersistentEntityComponent(PersistentEntity.sequence(i)),
         const PositionComponent(),
         const HealthComponent(),
         const ScoreComponent(),
@@ -68,7 +66,7 @@ void main() {
     // Simulate some gameplay mutation on persistent ids 1..9.
     for (final archetype in session1.archetypes.all) {
       for (final entity in archetype.entities) {
-        final pid = persistentIdOf(session1, entity)!.value;
+        final pid = int.parse(persistentEntityOf(session1, entity)!.value);
         if (pid > 9) continue;
         final (ext, ok) = session1.getEntityExtension(entity);
         if (!ok) continue;
@@ -105,7 +103,9 @@ void main() {
       for (final entity in archetype.entities) {
         final (ext, ok) = session2.getEntityExtension(entity);
         if (!ok) continue;
-        final expectedIndex = persistentIdOf(session2, entity)!.value;
+        final expectedIndex = int.parse(
+          persistentEntityOf(session2, entity)!.value,
+        );
         if (expectedIndex >= 10) continue;
         expect(
           ext.getOrCreate<PositionComponent, Position>().x,
@@ -129,10 +129,10 @@ void main() {
   test('dogfood: snapshot determinism — same state produces same bytes', () {
     World build() {
       final world = _buildGame();
-      registerPersistentId(world);
+      registerPersistentEntity(world);
       for (var i = 1; i <= 20; i++) {
         world.spawnComponents([
-          PersistentId(i),
+          PersistentEntityComponent(PersistentEntity.sequence(i)),
           const PositionComponent(),
           const ScoreComponent(),
         ]);

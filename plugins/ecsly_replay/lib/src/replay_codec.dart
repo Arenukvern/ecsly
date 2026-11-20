@@ -9,8 +9,8 @@ import 'replay_log.dart';
 class ReplaySessionCodec {
   /// Encodes [log] and [checkpoints] to a JSON string.
   static String encode({
-    required final ReplayLog log,
-    required final CheckpointStore checkpoints,
+    required ReplayLog log,
+    required CheckpointStore checkpoints,
   }) =>
       jsonEncode(<String, Object?>{
         'log': log.toJson(),
@@ -18,7 +18,7 @@ class ReplaySessionCodec {
       });
 
   /// Decodes a session from JSON.
-  static (ReplayLog log, CheckpointStore checkpoints) decode(final String json) {
+  static (ReplayLog log, CheckpointStore checkpoints) decode(String json) {
     final root = jsonDecode(json) as Map<String, Object?>;
     final log = ReplayLog.fromJson(
       (root['log'] as Map<String, Object?>?) ?? const {},

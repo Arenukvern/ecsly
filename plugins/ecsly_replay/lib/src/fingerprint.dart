@@ -22,7 +22,7 @@ class ReplayFingerprints {
   };
 
   // ignore: prefer_constructors_over_static_methods
-  static ReplayFingerprints fromJson(final Map<String, Object?> json) =>
+  static ReplayFingerprints fromJson(Map<String, Object?> json) =>
       ReplayFingerprints(
         buildFingerprint: json['buildFingerprint'] as String? ?? '',
         schemaFingerprint: json['schemaFingerprint'] as String? ?? '',
@@ -30,4 +30,4 @@ class ReplayFingerprints {
 }
 
 /// Canonical JSON string for stable equality checks.
-String canonicalJson(final Object? value) => jsonEncode(value);
+String canonicalJson(Object? value) => jsonEncode(value);

@@ -8,10 +8,11 @@ class _NameCodec extends ObjectComponentCodec<NameComponent> {
   const _NameCodec();
 
   @override
-  Object? toJson(final NameComponent component) => component.value;
+  Object? toJson(NameComponent component, EntityRefEncoder refs) =>
+      component.value;
 
   @override
-  NameComponent fromJson(final Object? value) =>
+  NameComponent fromJson(Object? value, EntityRefResolver refs) =>
       NameComponent(value as String? ?? '');
 }
 
@@ -23,25 +24,26 @@ class GameConfig extends Resource with SnapshotableResource {
   final double speed;
 
   @override
-  Map<String, Object?> toJson() => <String, Object?>{'speed': speed};
+  Map<String, Object?> toJson(EntityRefEncoder refs) =>
+      <String, Object?>{'speed': speed};
 
   // ignore: prefer_constructors_over_static_methods
-  static GameConfig fromJson(final Map<String, Object?> json) =>
+  static GameConfig fromJson(Map<String, Object?> json) =>
       GameConfig(speed: (json['speed'] as num?)?.toDouble() ?? 100);
 }
 
 void main() {
   test('full world round-trip: entities, columns, resources', () {
     final source = buildSerializationTestWorld();
-    registerPersistentId(source);
+    registerPersistentEntity(source);
     final a = source.spawnComponents([
-      const PersistentId(1),
+      PersistentEntityComponent(PersistentEntity.sequence(1)),
       const PositionComponent(),
       const HealthComponent(),
       const ScoreComponent(),
     ]);
     final b = source.spawnComponents([
-      const PersistentId(2),
+      PersistentEntityComponent(PersistentEntity.sequence(2)),
       const PositionComponent(),
       const ScoreComponent(),
     ]);
@@ -79,16 +81,16 @@ void main() {
     var verified = 0;
     for (final archetype in target.archetypes.all) {
       for (final entity in archetype.entities) {
-        final pid = persistentIdOf(target, entity)!.value;
+        final pid = persistentEntityOf(target, entity)!.value;
         final (ext, ok) = target.getEntityExtension(entity);
         expect(ok, isTrue);
-        if (pid == 1) {
+        if (pid == '1') {
           expect(ext.getOrCreate<PositionComponent, Position>().x, 10);
           expect(ext.getOrCreate<PositionComponent, Position>().y, 20);
           expect(ext.getOrCreate<HealthComponent, Health>().value, 55);
           expect(ext.getOrCreate<ScoreComponent, Score>().value, 900);
           verified++;
-        } else if (pid == 2) {
+        } else if (pid == '2') {
           expect(ext.getOrCreate<PositionComponent, Position>().x, -1);
           expect(ext.getOrCreate<PositionComponent, Position>().y, -2);
           verified++;
@@ -100,8 +102,8 @@ void main() {
 
   test('JSON codec round-trip preserves snapshot', () {
     final source = buildSerializationTestWorld();
-    registerPersistentId(source);
-    source.spawnComponents([const PersistentId(1), const PositionComponent()]);
+    registerPersistentEntity(source);
+    source.spawnComponents([PersistentEntityComponent(PersistentEntity.sequence(1)), const PositionComponent()]);
     source.upsertResource(GameConfig(speed: 3.5));
     source.flush();
 
@@ -119,9 +121,9 @@ void main() {
     final options = WorldSnapshotOptions(codecs: codecs);
 
     final source = buildSerializationTestWorld();
-    registerPersistentId(source);
+    registerPersistentEntity(source);
     source.spawnComponents([
-      const PersistentId(1),
+      PersistentEntityComponent(PersistentEntity.sequence(1)),
       const NameComponent('hero'),
     ]);
     source.flush();

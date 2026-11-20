@@ -15,26 +15,27 @@ class _Meta extends Resource with SnapshotableResource {
   final List<int> values;
 
   @override
-  Map<String, Object?> toJson() => <String, Object?>{'values': values};
+  Map<String, Object?> toJson(EntityRefEncoder refs) =>
+      <String, Object?>{'values': values};
 
   // ignore: prefer_constructors_over_static_methods
-  static _Meta fromJson(final Map<String, Object?> json) => _Meta(
+  static _Meta fromJson(Map<String, Object?> json) => _Meta(
     values: ((json['values'] as List<Object?>?) ?? const [])
-        .map((final v) => (v as num?)?.toInt() ?? 0)
+        .map((v) => (v as num?)?.toInt() ?? 0)
         .toList(),
   );
 }
 
 /// Sets Position.x = persistentId on every persisted entity of [world].
-void markPositions(final World world) {
+void markPositions(World world) {
   for (final archetype in world.archetypes.all) {
     for (final entity in archetype.entities) {
-      final pid = persistentIdOf(world, entity);
+      final pid = persistentEntityOf(world, entity);
       if (pid == null) continue;
       final (ext, ok) = world.getEntityExtension(entity);
       if (!ok) continue;
       ext.getOrCreate<PositionComponent, Position>()
-        ..x = pid.value.toDouble()
+        ..x = double.parse(pid.value)
         ..y = 0;
     }
   }
@@ -66,7 +67,7 @@ void main() {
       expect(second[pid], first[pid]);
       final (ext, ok) = target.getEntityExtension(first[pid]!);
       expect(ok, isTrue);
-      expect(ext.getOrCreate<PositionComponent, Position>().x, pid.toDouble());
+      expect(ext.getOrCreate<PositionComponent, Position>().x, double.parse(pid));
     }
   });
 
@@ -89,7 +90,7 @@ void main() {
 
   test('eval: NaN and infinity round-trip through JSON', () {
     final source = buildPopulatedWorld(1);
-    final entity = source.archetypes.all.expand((final a) => a.entities).first;
+    final entity = source.archetypes.all.expand((a) => a.entities).first;
     final (ext, _) = source.getEntityExtension(entity);
     ext.getOrCreate<PositionComponent, Position>()
       ..x = double.infinity
@@ -114,7 +115,7 @@ void main() {
 
   test('eval: large list resource values round-trip', () {
     final source = buildPopulatedWorld(1);
-    source.upsertResource(_Meta(values: List.generate(1000, (final i) => i)));
+    source.upsertResource(_Meta(values: List.generate(1000, (i) => i)));
     source.flush();
 
     final encoded = encodeWorldSnapshot(captureWorldSnapshot(source));
@@ -133,15 +134,15 @@ void main() {
 
   test('eval: duplicate persistent ids fail capture loudly', () {
     final world = buildSerializationTestWorld();
-    registerPersistentId(world);
-    world.spawnComponents([const PersistentId(1), const PositionComponent()]);
-    world.spawnComponents([const PersistentId(1), const PositionComponent()]);
+    registerPersistentEntity(world);
+    world.spawnComponents([PersistentEntityComponent(PersistentEntity.sequence(1)), const PositionComponent()]);
+    world.spawnComponents([PersistentEntityComponent(PersistentEntity.sequence(1)), const PositionComponent()]);
     world.flush();
 
     expect(() => captureWorldSnapshot(world), throwsStateError);
   });
 
-  test('eval: restore into empty world spawns PersistentId carriers', () {
+  test('eval: restore into empty world spawns identity carriers', () {
     final source = buildPopulatedWorld(3);
     markPositions(source);
     final snapshot = captureWorldSnapshot(source);
@@ -154,8 +155,8 @@ void main() {
     for (final pid in mapping.keys) {
       final (ext, ok) = fresh.getEntityExtension(mapping[pid]!);
       expect(ok, isTrue);
-      expect(persistentIdOf(fresh, mapping[pid]!)!.value, pid);
-      expect(ext.getOrCreate<PositionComponent, Position>().x, pid.toDouble());
+      expect(persistentEntityOf(fresh, mapping[pid]!)!.value, pid);
+      expect(ext.getOrCreate<PositionComponent, Position>().x, double.parse(pid));
     }
   });
 
@@ -173,7 +174,7 @@ void main() {
       entities: [
         ...snapshot.entities.take(1),
         EntityEntry(
-          persistentId: -1,
+          identity: '-1',
           components: snapshot.entities[1].components,
           columns: snapshot.entities[1].columns,
         ),
@@ -184,6 +185,6 @@ void main() {
     final target = buildSerializationTestWorld();
     final mapping = restoreWorldSnapshot(target, corrupted);
     expect(mapping.length, 3);
-    expect(mapping.containsKey(-1), isTrue);
+    expect(mapping.containsKey('-1'), isTrue);
   });
 }

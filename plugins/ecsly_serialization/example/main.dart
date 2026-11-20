@@ -7,7 +7,7 @@
 /// game-config resource. You play a bit (mutate positions), save to JSON,
 /// then "relaunch the game" — a brand-new, completely empty world — and
 /// restore. Runtime entity handles are never serialized; stable identity
-/// travels in the [PersistentId] component.
+/// travels in the [PersistentEntityComponent].
 library;
 
 import 'dart:io';
@@ -29,30 +29,30 @@ extension type Position._(int index) {
   static late FloatColumn _column;
 
   // ignore: use_setters_to_change_properties - internal column bootstrap
-  static void _setTypedColumn(final FloatColumn column) {
+  static void _setTypedColumn(FloatColumn column) {
     _column = column;
   }
 
   double get x => _column.getValueUnsafe(index, 0);
   double get y => _column.getValueUnsafe(index, 1);
-  set x(final double value) => _column.setValue(index, 0, value);
-  set y(final double value) => _column.setValue(index, 1, value);
+  set x(double value) => _column.setValue(index, 0, value);
+  set y(double value) => _column.setValue(index, 1, value);
 }
 
 final class _PositionColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => FloatColumn(stride: 2, initialCapacity: initialCapacity);
 }
 
 final class _PositionFacadeFactory extends ComponentFacadeFactory<Position> {
   @override
-  Position create(final int index) => Position._(index);
+  Position create(int index) => Position._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     Position._setTypedColumn(column as FloatColumn);
   }
 }
@@ -66,28 +66,28 @@ extension type Health._(int index) {
   static late Uint8Column _column;
 
   // ignore: use_setters_to_change_properties - internal column bootstrap
-  static void _setTypedColumn(final Uint8Column column) {
+  static void _setTypedColumn(Uint8Column column) {
     _column = column;
   }
 
   int get value => _column.getValue(index);
-  set value(final int v) => _column.setValue(index, v);
+  set value(int v) => _column.setValue(index, v);
 }
 
 final class _HealthColumnFactory extends ColumnFactory {
   @override
   DataColumn createColumn(
-    final ComponentId componentId, {
-    final int initialCapacity = 8,
+    ComponentId componentId, {
+    int initialCapacity = 8,
   }) => Uint8Column(initialCapacity: initialCapacity);
 }
 
 final class _HealthFacadeFactory extends ComponentFacadeFactory<Health> {
   @override
-  Health create(final int index) => Health._(index);
+  Health create(int index) => Health._(index);
 
   @override
-  void initialize(final DataColumn column) {
+  void initialize(DataColumn column) {
     Health._setTypedColumn(column as Uint8Column);
   }
 }
@@ -112,10 +112,14 @@ class InventoryCodec extends ObjectComponentCodec<InventoryComponent> {
   const InventoryCodec();
 
   @override
-  Object? toJson(final InventoryComponent component) => component.items;
+  Object? toJson(
+    InventoryComponent component,
+    EntityRefEncoder refs,
+  ) => component.items;
 
   @override
-  InventoryComponent fromJson(final Object? value) => InventoryComponent(
+  InventoryComponent fromJson(Object? value, EntityRefResolver refs) =>
+      InventoryComponent(
     ((value as List<Object?>?) ?? const []).whereType<String>().toList(
       growable: false,
     ),
@@ -129,10 +133,11 @@ class GameConfig extends Resource with SnapshotableResource {
   final double difficulty;
 
   @override
-  Map<String, Object?> toJson() => <String, Object?>{'difficulty': difficulty};
+  Map<String, Object?> toJson(EntityRefEncoder refs) =>
+      <String, Object?>{'difficulty': difficulty};
 
   // ignore: prefer_constructors_over_static_methods
-  static GameConfig fromJson(final Map<String, Object?> json) =>
+  static GameConfig fromJson(Map<String, Object?> json) =>
       GameConfig(difficulty: (json['difficulty'] as num?)?.toDouble() ?? 1.0);
 }
 
@@ -142,7 +147,7 @@ class GameConfig extends Resource with SnapshotableResource {
 
 World buildGameWorld() {
   final world = World();
-  registerPersistentId(world);
+  registerPersistentEntity(world);
   world.components.registerExtension<PositionComponent, Position>(
     columnFactory: _PositionColumnFactory(),
     facadeFactory: _PositionFacadeFactory(),
@@ -157,13 +162,14 @@ World buildGameWorld() {
   return world;
 }
 
-/// Spawns the game's persistent entities. Each carries a [PersistentId] —
+/// Spawns the game's persistent entities. Each carries a
+/// [PersistentEntityComponent] —
 /// the stable cross-session identity. Entities without one (particles, VFX)
 /// would simply not be captured.
-void spawnEnemies(final World world) {
+void spawnEnemies(World world) {
   for (var i = 1; i <= 3; i++) {
     world.spawnComponents([
-      PersistentId(i),
+      PersistentEntityComponent(PersistentEntity.sequence(i)),
       const PositionComponent(),
       const HealthComponent(),
       InventoryComponent(['potion_$i']),
@@ -174,19 +180,20 @@ void spawnEnemies(final World world) {
 }
 
 /// Simulates gameplay: move each enemy and damage the odd-numbered ones.
-void play(final World world) {
+void play(World world) {
   final random = math.Random(7);
   for (final archetype in world.archetypes.all) {
     for (final entity in archetype.entities) {
-      final pid = persistentIdOf(world, entity)?.value;
+      final pid = persistentEntityOf(world, entity)?.value;
       if (pid == null) continue; // not persisted — skip
+      final sequence = int.parse(pid);
       final (ext, ok) = world.getEntityExtension(entity);
       if (!ok) continue;
       ext.getOrCreate<PositionComponent, Position>()
         ..x = random.nextDouble() * 100
         ..y = random.nextDouble() * 100;
-      if (pid.isOdd) {
-        ext.getOrCreate<HealthComponent, Health>().value = 40 + pid;
+      if (sequence.isOdd) {
+        ext.getOrCreate<HealthComponent, Health>().value = 40 + sequence;
       }
     }
   }

@@ -1,5 +1,7 @@
 import 'package:ecsly/ecsly.dart';
 
+import 'component_naming.dart';
+import 'entity_refs.dart';
 import 'object_component_codec.dart';
 
 /// Captures all SoA column data for an entity as a flat JSON map.
@@ -12,10 +14,10 @@ import 'object_component_codec.dart';
 ///
 /// [includeOnly] limits capture to specific component IDs (optimization).
 Map<String, Object?>? captureEntityColumns(
-  final World world,
-  final Entity entity, {
-  final Set<ComponentId>? includeOnly,
-  final ObjectComponentCodecRegistry? codecs,
+  World world,
+  Entity entity, {
+  Set<ComponentId>? includeOnly,
+  ObjectComponentCodecRegistry? codecs,
 }) {
   if (!world.entities.isAlive(entity)) return null;
   final (ext, ok) = world.getEntityExtension(entity);
@@ -52,6 +54,7 @@ Map<String, Object?>? captureEntityColumns(
           row,
           snapshot,
           codecs,
+          EntityRefEncoder(world),
         );
     }
   }
@@ -62,13 +65,15 @@ Map<String, Object?>? captureEntityColumns(
 /// Restores column data for an entity from a flat JSON map.
 ///
 /// Inverse of [captureEntityColumns]. Writes values back into the
-/// entity's columns using the same key format.
+/// entity's columns using the same key format. Entity references inside
+/// object payloads resolve through [refs].
 void restoreEntityColumns(
-  final World world,
-  final Entity entity,
-  final Map<String, Object?> snapshot, {
-  final Set<ComponentId>? includeOnly,
-  final ObjectComponentCodecRegistry? codecs,
+  World world,
+  Entity entity,
+  Map<String, Object?> snapshot, {
+  required EntityRefResolver refs,
+  Set<ComponentId>? includeOnly,
+  ObjectComponentCodecRegistry? codecs,
 }) {
   final (ext, ok) = world.getEntityExtension(entity);
   if (!ok) return;
@@ -111,23 +116,25 @@ void restoreEntityColumns(
           row,
           snapshot,
           codecs,
+          refs,
         );
     }
   }
 }
 
 void _captureObjectColumn(
-  final World world,
-  final Archetype archetype,
-  final ComponentId componentId,
-  final int row,
-  final Map<String, Object?> snapshot,
-  final ObjectComponentCodecRegistry? codecs,
+  World world,
+  Archetype archetype,
+  ComponentId componentId,
+  int row,
+  Map<String, Object?> snapshot,
+  ObjectComponentCodecRegistry? codecs,
+  EntityRefEncoder refs,
 ) {
   if (codecs == null) return;
-  final typeName = _componentTypeName(world, componentId);
-  if (typeName == null) return;
-  final codec = codecs.lookup(typeName);
+  final identity = componentSnapshotName(world, componentId);
+  if (identity == null) return;
+  final codec = _codecFor(world, componentId, identity, codecs);
   if (codec == null) return;
 
   final column = archetype.getColumn(componentId);
@@ -136,28 +143,29 @@ void _captureObjectColumn(
   final component = column.getValue(row);
   if (component == null) return;
   snapshot['obj_${componentId.value}'] = <String, Object?>{
-    'type': typeName,
-    'value': codec.toJson(component as dynamic),
+    'type': identity,
+    'value': codec.toJson(component as dynamic, refs),
   };
 }
 
 void _restoreObjectColumn(
-  final World world,
-  final Archetype archetype,
-  final ComponentId componentId,
-  final int row,
-  final Map<String, Object?> snapshot,
-  final ObjectComponentCodecRegistry? codecs,
+  World world,
+  Archetype archetype,
+  ComponentId componentId,
+  int row,
+  Map<String, Object?> snapshot,
+  ObjectComponentCodecRegistry? codecs,
+  EntityRefResolver refs,
 ) {
   if (codecs == null) return;
-  final typeName = _componentTypeName(world, componentId);
-  if (typeName == null) return;
-  final codec = codecs.lookup(typeName);
+  final identity = componentSnapshotName(world, componentId);
+  if (identity == null) return;
+  final codec = _codecFor(world, componentId, identity, codecs);
   if (codec == null) return;
 
   final raw = snapshot['obj_${componentId.value}'];
   if (raw is! Map) return;
-  final component = codec.fromJson(raw['value']);
+  final component = codec.fromJson(raw['value'], refs);
   final column = archetype.getColumn(componentId);
   if (column != null) {
     _writeObjectValue(column, row, component);
@@ -165,9 +173,9 @@ void _restoreObjectColumn(
 }
 
 void _writeObjectValue(
-  final DataColumn column,
-  final int row,
-  final Component component,
+  DataColumn column,
+  int row,
+  Component component,
 ) {
   if (column case final ObjectColumn c) {
     while (row >= c.length) {
@@ -177,7 +185,19 @@ void _writeObjectValue(
   }
 }
 
-String? _componentTypeName(final World world, final ComponentId componentId) {
+/// Codec lookup tolerant of naming: try the snapshot identity first, then
+/// the bare type name (codecs registered before the component carried a
+/// stable name).
+ObjectComponentCodec? _codecFor(
+  World world,
+  ComponentId componentId,
+  String identity,
+  ObjectComponentCodecRegistry codecs,
+) =>
+    codecs.lookup(identity) ??
+    codecs.lookup(_typeNameOrNull(world, componentId) ?? '');
+
+String? _typeNameOrNull(World world, ComponentId componentId) {
   try {
     return world.components.getType(componentId).toString();
     // ignore: avoid_catching_errors

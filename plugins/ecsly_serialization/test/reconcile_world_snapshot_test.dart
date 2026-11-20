@@ -7,9 +7,9 @@ import 'serialization_test_components_alt.dart';
 
 World _worldWithHero() {
   final world = buildSerializationTestWorld();
-  registerPersistentId(world);
+  registerPersistentEntity(world);
   final hero = world.spawnComponents([
-    const PersistentId(1),
+    PersistentEntityComponent(PersistentEntity.sequence(1)),
     const PositionComponent(),
     const HealthComponent(),
   ]);
@@ -23,10 +23,10 @@ World _worldWithHero() {
   return world;
 }
 
-Map<int, Object?> _captureByPid(final World world) {
+Map<String, Object?> _captureByPid(World world) {
   final snap = captureWorldSnapshot(world);
   return {
-    for (final e in snap.entities) e.persistentId: e.columns,
+    for (final e in snap.entities) e.identity: e.columns,
   };
 }
 
@@ -47,7 +47,7 @@ void main() {
   test('reconcile despawns persisted entities absent from snapshot', () {
     final world = _worldWithHero();
     world.spawnComponents([
-      const PersistentId(99),
+      PersistentEntityComponent(PersistentEntity.sequence(99)),
       const PositionComponent(),
     ]);
     world.flush();
@@ -58,27 +58,27 @@ void main() {
       schemaVersion: snapshot.schemaVersion,
       componentIds: snapshot.componentIds,
       resources: snapshot.resources,
-      entities: snapshot.entities.where((final e) => e.persistentId == 1).toList(),
+      entities: snapshot.entities.where((e) => e.identity == '1').toList(),
     );
 
     reconcileWorldSnapshot(world, trimmed);
-    expect(_entityWithPersistentIdPublic(world, 99), isNull);
-    expect(_entityWithPersistentIdPublic(world, 1), isNotNull);
+    expect(_entityWithIdentityPublic(world, '99'), isNull);
+    expect(_entityWithIdentityPublic(world, '1'), isNotNull);
   });
 
   test('reconcile leaves non-persistent entities alone', () {
     final world = _worldWithHero();
     final beforeTransient = world.archetypes.all
-        .expand((final a) => a.entities)
-        .where((final e) => persistentIdOf(world, e) == null)
+        .expand((a) => a.entities)
+        .where((e) => persistentEntityOf(world, e) == null)
         .length;
 
     final snapshot = captureWorldSnapshot(world);
     reconcileWorldSnapshot(world, snapshot);
 
     final afterTransient = world.archetypes.all
-        .expand((final a) => a.entities)
-        .where((final e) => persistentIdOf(world, e) == null)
+        .expand((a) => a.entities)
+        .where((e) => persistentEntityOf(world, e) == null)
         .length;
     expect(afterTransient, beforeTransient);
   });
@@ -87,7 +87,7 @@ void main() {
     final world = _worldWithHero();
     final snapshot = captureWorldSnapshot(world);
 
-    final entity = _entityWithPersistentIdPublic(world, 1)!;
+    final entity = _entityWithIdentityPublic(world, '1')!;
     world.removeComponent<HealthComponent>(entity);
     world.flush();
     expect(world.maybeGetComponent<HealthComponent>(entity), isNull);
@@ -99,23 +99,23 @@ void main() {
     expect(ext.getOrCreate<HealthComponent, Health>().value, 42);
   });
 
-  test('duplicate PersistentId in snapshot fails reconcile', () {
+  test('duplicate persistent identity in snapshot fails reconcile', () {
     final world = buildSerializationTestWorld();
-    final bad = WorldSnapshot(
+    const bad = WorldSnapshot(
       version: worldSnapshotVersion,
       schemaVersion: 1,
-      componentIds: const {},
-      resources: const {},
+      componentIds: {},
+      resources: {},
       entities: [
-        const EntityEntry(
-          persistentId: 1,
+        EntityEntry(
+          identity: '1',
           components: ['PositionComponent'],
-          columns: const {},
+          columns: {},
         ),
-        const EntityEntry(
-          persistentId: 1,
+        EntityEntry(
+          identity: '1',
           components: ['PositionComponent'],
-          columns: const {},
+          columns: {},
         ),
       ],
     );
@@ -131,7 +131,7 @@ void main() {
 
     final altWorld = buildReorderedWorld();
     final snapshot = decodeWorldSnapshot(encoded);
-    String altName(final String name) => switch (name) {
+    String altName(String name) => switch (name) {
       'PositionComponent' => 'AltPositionComponent',
       'HealthComponent' => 'AltHealthComponent',
       _ => name,
@@ -147,7 +147,7 @@ void main() {
       entities: [
         for (final e in snapshot.entities)
           EntityEntry(
-            persistentId: e.persistentId,
+            identity: e.identity,
             components: e.components.map(altName).toList(),
             columns: e.columns,
           ),
@@ -158,9 +158,9 @@ void main() {
     restoreWorldSnapshot(respawn, remapped);
 
     final reconcile = buildReorderedWorld();
-    registerPersistentId(reconcile);
+    registerPersistentEntity(reconcile);
     reconcile.spawnComponents([
-      const PersistentId(1),
+      PersistentEntityComponent(PersistentEntity.sequence(1)),
       const AltPositionComponent(),
     ]);
     reconcile.flush();
@@ -170,10 +170,10 @@ void main() {
   });
 }
 
-Entity? _entityWithPersistentIdPublic(final World world, final int value) {
+Entity? _entityWithIdentityPublic(World world, String value) {
   for (final archetype in world.archetypes.all) {
     for (final entity in archetype.entities) {
-      final pid = persistentIdOf(world, entity);
+      final pid = persistentEntityOf(world, entity);
       if (pid?.value == value) return entity;
     }
   }

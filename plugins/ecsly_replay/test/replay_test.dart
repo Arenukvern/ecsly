@@ -7,19 +7,19 @@ import 'serialization_test_components.dart';
 import 'serialization_test_components_alt.dart';
 
 ReplayLog _emptyLog() => ReplayLog(
-  header: ReplayLogHeader(
+  header: const ReplayLogHeader(
     formatVersion: replayLogFormatVersion,
-    fingerprints: const ReplayFingerprints(
+    fingerprints: ReplayFingerprints(
       buildFingerprint: 'test-build',
       schemaFingerprint: 'schema-1',
     ),
   ),
 );
 
-Entity _heroAt(final World world, final double x) {
-  registerPersistentId(world);
+Entity _heroAt(World world, double x) {
+  registerPersistentEntity(world);
   final e = world.spawnComponents([
-    const PersistentId(1),
+    PersistentEntityComponent(PersistentEntity.sequence(1)),
     const PositionComponent(),
     const HealthComponent(),
   ]);
@@ -30,10 +30,10 @@ Entity _heroAt(final World world, final double x) {
   return e;
 }
 
-double _positionX(final World world) {
+double _positionX(World world) {
   for (final archetype in world.archetypes.all) {
     for (final entity in archetype.entities) {
-      if (persistentIdOf(world, entity)?.value == 1) {
+      if (persistentEntityOf(world, entity)?.value == '1') {
         final (ext, ok) = world.getEntityExtension(entity);
         if (!ok) continue;
         return ext.getOrCreate<PositionComponent, Position>().x;
@@ -43,18 +43,18 @@ double _positionX(final World world) {
   return double.nan;
 }
 
-WorldSnapshot _capture(final World world) => captureWorldSnapshot(world);
+WorldSnapshot _capture(World world) => captureWorldSnapshot(world);
 
-Entity? _entityWithPid(final World world, final int pid) {
+Entity? _entityWithPid(World world, String pid) {
   for (final archetype in world.archetypes.all) {
     for (final entity in archetype.entities) {
-      if (persistentIdOf(world, entity)?.value == pid) return entity;
+      if (persistentEntityOf(world, entity)?.value == pid) return entity;
     }
   }
   return null;
 }
 
-Entity _spawnTransient(final World world) {
+Entity _spawnTransient(World world) {
   final e = world.spawnComponents([const PositionComponent()]);
   world.flush();
   return e;
@@ -83,19 +83,19 @@ Entity _spawnTransient(final World world) {
   return (log, checkpoints);
 }
 
-World _inspectorWorld({final double heroX = 99, final bool withTransient = true}) {
+World _inspectorWorld({double heroX = 99, bool withTransient = true}) {
   final world = buildSerializationTestWorld();
   _heroAt(world, heroX);
   if (withTransient) _spawnTransient(world);
   return world;
 }
 
-int _transientCount(final World world) {
-  registerPersistentId(world);
+int _transientCount(World world) {
+  registerPersistentEntity(world);
   var count = 0;
   for (final archetype in world.archetypes.all) {
     for (final entity in archetype.entities) {
-      if (persistentIdOf(world, entity) == null) count++;
+      if (persistentEntityOf(world, entity) == null) count++;
     }
   }
   return count;
@@ -164,7 +164,7 @@ void main() {
 
   test('seek by opaque eventKey', () {
     final log = _emptyLog();
-    final checkpoints = CheckpointStore(cadence: 10);
+    final checkpoints = CheckpointStore();
     final recorder = ReplayRecorder(log: log, checkpoints: checkpoints);
 
     final base = buildSerializationTestWorld();
@@ -284,7 +284,7 @@ void main() {
     final encoded = encodeWorldSnapshot(_capture(source));
 
     final snapshot = decodeWorldSnapshot(encoded);
-    String altName(final String name) => switch (name) {
+    String altName(String name) => switch (name) {
       'PositionComponent' => 'AltPositionComponent',
       'HealthComponent' => 'AltHealthComponent',
       _ => name,
@@ -300,7 +300,7 @@ void main() {
       entities: [
         for (final e in snapshot.entities)
           EntityEntry(
-            persistentId: e.persistentId,
+            identity: e.identity,
             components: e.components.map(altName).toList(),
             columns: e.columns,
           ),
@@ -311,7 +311,7 @@ void main() {
     final checkpoints = CheckpointStore();
     final recorder = ReplayRecorder(log: log, checkpoints: checkpoints);
     final altWorld = buildReorderedWorld();
-    registerPersistentId(altWorld);
+    registerPersistentEntity(altWorld);
     restoreWorldSnapshot(altWorld, remapped);
     altWorld.flush();
     checkpoints.save(altWorld, 0);
@@ -326,7 +326,7 @@ void main() {
     Entity? hero;
     for (final archetype in player.world.archetypes.all) {
       for (final entity in archetype.entities) {
-        if (persistentIdOf(player.world, entity)?.value == 1) {
+        if (persistentEntityOf(player.world, entity)?.value == '1') {
           hero = entity;
           break;
         }
@@ -339,7 +339,7 @@ void main() {
       ext.getOrCreate<AltPositionComponent, AltPosition>().x,
       11.0,
     );
-    expect(persistentIdOf(player.world, hero!)?.value, 1);
+    expect(persistentEntityOf(player.world, hero!)?.value, '1');
   });
 
   test(
@@ -421,16 +421,16 @@ void main() {
       () {
     final (log, checkpoints) = _sessionWithTicks();
     final world = _inspectorWorld(heroX: 50);
-    final heroBefore = _entityWithPid(world, 1)!;
+    final heroBefore = _entityWithPid(world, '1')!;
     final transientBefore = world.archetypes.all
-        .expand((final a) => a.entities)
-        .firstWhere((final e) => persistentIdOf(world, e) == null);
+        .expand((a) => a.entities)
+        .firstWhere((e) => persistentEntityOf(world, e) == null);
 
     final player = ReplayPlayer(world: world, log: log, checkpoints: checkpoints);
     player.seekToTick(2);
     player.seekToTick(1);
 
-    final heroAfter = _entityWithPid(world, 1);
+    final heroAfter = _entityWithPid(world, '1');
     expect(heroAfter, heroBefore);
     expect(world.entities.isAlive(heroBefore), isTrue);
     expect(world.entities.isAlive(transientBefore), isTrue);
@@ -466,11 +466,11 @@ void main() {
     final (log, checkpoints) = _sessionWithTicks();
     for (final policy in TransientPolicy.values) {
       final world = _inspectorWorld(withTransient: false);
-      final heroBefore = _entityWithPid(world, 1)!;
+      final heroBefore = _entityWithPid(world, '1')!;
       final player = ReplayPlayer(world: world, log: log, checkpoints: checkpoints);
       player.seekToTick(2, transientPolicy: policy);
       player.seekToTick(1, transientPolicy: policy);
-      expect(_entityWithPid(world, 1), heroBefore);
+      expect(_entityWithPid(world, '1'), heroBefore);
     }
   });
 
@@ -682,7 +682,7 @@ void main() {
       log: log,
       checkpoints: checkpoints,
       initialBaseline: _capture(w0),
-      inputReplayer: (final world, final type, final data) {
+      inputReplayer: (world, type, data) {
         transientsSeenDuringInput = _transientCount(world);
       },
     );
@@ -751,7 +751,7 @@ void main() {
       log: log,
       checkpoints: checkpoints,
       initialBaseline: _capture(w0),
-      inputReplayer: (final world, final type, final data) {
+      inputReplayer: (world, type, data) {
         _spawnTransient(world);
       },
     );

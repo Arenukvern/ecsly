@@ -106,7 +106,7 @@ class ReplayPlugin extends Plugin {
   String get name => 'ecsly_replay';
 
   @override
-  void install(final World world) {
+  void install(World world) {
     final log = ReplayLog(header: header);
     final checkpoints = CheckpointStore(cadence: checkpointCadence);
     final recorder = ReplayRecorder(
@@ -137,7 +137,7 @@ class ReplayPlugin extends Plugin {
   }
 
   @override
-  void uninstall(final World world) {
+  void uninstall(World world) {
     world.resources.remove<ReplayStateResource>();
   }
 }

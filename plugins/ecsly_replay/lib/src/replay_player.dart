@@ -75,9 +75,9 @@ class ReplayPlayer {
 
   /// Seeks to [tick] or [eventKey] (exactly one must be set).
   void seek({
-    final int? tick,
-    final String? eventKey,
-    final TransientPolicy? transientPolicy,
+    int? tick,
+    String? eventKey,
+    TransientPolicy? transientPolicy,
   }) {
     if (tick != null && eventKey != null) {
       throw ArgumentError('Pass only one of tick or eventKey.');
@@ -95,8 +95,8 @@ class ReplayPlayer {
 
   /// Seeks to the inclusive end of [targetTick] (all rows with that tick).
   void seekToTick(
-    final int targetTick, {
-    final TransientPolicy? transientPolicy,
+    int targetTick, {
+    TransientPolicy? transientPolicy,
   }) {
     final lastSeq = _maxSeqAtTick(targetTick);
     seekTo(
@@ -107,8 +107,8 @@ class ReplayPlayer {
 
   /// Seeks to the inclusive position of [eventKey].
   void seekToEventKey(
-    final String eventKey, {
-    final TransientPolicy? transientPolicy,
+    String eventKey, {
+    TransientPolicy? transientPolicy,
   }) {
     final found = log.positionForEventKey(eventKey);
     if (found == null) {
@@ -119,8 +119,8 @@ class ReplayPlayer {
 
   /// Seeks to [target] by restoring the nearest checkpoint and replaying.
   void seekTo(
-    final ReplayPosition target, {
-    final TransientPolicy? transientPolicy,
+    ReplayPosition target, {
+    TransientPolicy? transientPolicy,
   }) {
     if (target.tick < 0) {
       throw ArgumentError.value(target, 'target', 'tick must be non-negative.');
@@ -166,11 +166,11 @@ class ReplayPlayer {
   }
 
   /// Captures persisted state after a cold replay in a fresh [createColdWorld].
-  Map<int, Map<String, Object?>> replayColdCapture({
-    required final ColdWorldFactory createColdWorld,
-    required final ReplayPosition target,
-    final WorldSnapshot? initialSnapshot,
-    final TransientPolicy transientPolicy = TransientPolicy.despawn,
+  Map<String, Map<String, Object?>> replayColdCapture({
+    required ColdWorldFactory createColdWorld,
+    required ReplayPosition target,
+    WorldSnapshot? initialSnapshot,
+    TransientPolicy transientPolicy = TransientPolicy.despawn,
   }) {
     if (transientPolicy != TransientPolicy.despawn) {
       throw ArgumentError.value(
@@ -189,12 +189,12 @@ class ReplayPlayer {
   }
 
   /// Persisted capture of the live [world] (no seek).
-  Map<int, Map<String, Object?>> replayHotCapture() =>
+  Map<String, Map<String, Object?>> replayHotCapture() =>
       capturePersistentKeyedColumns(world, options: snapshotOptions);
 
   /// Whether [reference] matches the live world's persisted capture.
   bool persistedCapturesMatch(
-    final Map<int, Map<String, Object?>> reference,
+    Map<String, Map<String, Object?>> reference,
   ) => persistentCapturesEqual(reference, replayHotCapture());
 
   /// Cold replay vs hot [seekTo] at [target]; returns equality.
@@ -205,10 +205,10 @@ class ReplayPlayer {
   /// The hot [seekTo] also uses despawn, which clears transient entities on
   /// this player [world] (inspector selection, gizmos, debug draws, etc.).
   bool verifyDeterminism({
-    required final ColdWorldFactory createColdWorld,
-    required final ReplayPosition target,
-    final WorldSnapshot? initialSnapshot,
-    final TransientPolicy transientPolicy = TransientPolicy.despawn,
+    required ColdWorldFactory createColdWorld,
+    required ReplayPosition target,
+    WorldSnapshot? initialSnapshot,
+    TransientPolicy transientPolicy = TransientPolicy.despawn,
   }) {
     if (transientPolicy != TransientPolicy.despawn) {
       throw ArgumentError.value(
@@ -227,7 +227,7 @@ class ReplayPlayer {
     return persistedCapturesMatch(cold);
   }
 
-  void _assertColdWorldIsolated(final World cold) {
+  void _assertColdWorldIsolated(World cold) {
     if (identical(cold, world)) {
       throw ArgumentError(
         'createColdWorld must return a new World instance, not the live '
@@ -236,11 +236,11 @@ class ReplayPlayer {
     }
   }
 
-  Map<int, Map<String, Object?>> _coldReplayCapture({
-    required final ColdWorldFactory createColdWorld,
-    required final ReplayPosition target,
-    required final WorldSnapshot? baseline,
-    required final TransientPolicy transientPolicy,
+  Map<String, Map<String, Object?>> _coldReplayCapture({
+    required ColdWorldFactory createColdWorld,
+    required ReplayPosition target,
+    required WorldSnapshot? baseline,
+    required TransientPolicy transientPolicy,
   }) {
     final cold = createColdWorld();
     _assertColdWorldIsolated(cold);
@@ -269,19 +269,18 @@ class ReplayPlayer {
         entities: const [],
       );
 
-  void _applyBaseline(final WorldSnapshot baseline) {
+  void _applyBaseline(WorldSnapshot baseline) {
     reconcileWorldSnapshot(
       world,
       baseline,
       resourceFactories: resourceFactories,
       componentFactories: componentFactories,
       options: snapshotOptions,
-      despawnAbsent: true,
     );
     world.flush();
   }
 
-  void _restoreCheckpoint(final WorldSnapshot snapshot) {
+  void _restoreCheckpoint(WorldSnapshot snapshot) {
     switch (checkpointRestoreMode) {
       case CheckpointRestoreMode.reconcile:
         reconcileWorldSnapshot(
@@ -290,7 +289,6 @@ class ReplayPlayer {
           resourceFactories: resourceFactories,
           componentFactories: componentFactories,
           options: snapshotOptions,
-          despawnAbsent: true,
         );
       case CheckpointRestoreMode.spawn:
         restoreWorldSnapshot(
@@ -303,7 +301,6 @@ class ReplayPlayer {
             codecs: snapshotOptions.codecs,
             schemaVersion: snapshotOptions.schemaVersion,
             strictComponents: snapshotOptions.strictComponents,
-            restoreMode: WorldSnapshotRestoreMode.spawn,
           ),
         );
     }
@@ -311,11 +308,11 @@ class ReplayPlayer {
   }
 
   void _despawnTransientEntities() {
-    registerPersistentId(world);
+    registerPersistentEntity(world);
     final toDespawn = <Entity>[];
     for (final archetype in world.archetypes.all) {
       for (final entity in archetype.entities) {
-        if (persistentIdOf(world, entity) == null) {
+        if (persistentEntityOf(world, entity) == null) {
           toDespawn.add(entity);
         }
       }
@@ -326,7 +323,7 @@ class ReplayPlayer {
     world.flush();
   }
 
-  void _applyEntry(final ReplayEntry entry) {
+  void _applyEntry(ReplayEntry entry) {
     switch (entry.kind) {
       case ReplayEntryKind.command:
         final raw = entry.payload[commandOutcomeKey];
@@ -355,7 +352,7 @@ class ReplayPlayer {
     }
   }
 
-  int _maxSeqAtTick(final int tick) {
+  int _maxSeqAtTick(int tick) {
     var maxSeq = 0;
     for (final entry in log.entries) {
       if (entry.tick == tick && entry.seq >= maxSeq) {

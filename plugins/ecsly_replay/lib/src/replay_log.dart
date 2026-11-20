@@ -26,7 +26,7 @@ class ReplayLogHeader {
   };
 
   // ignore: prefer_constructors_over_static_methods
-  static ReplayLogHeader fromJson(final Map<String, Object?> json) =>
+  static ReplayLogHeader fromJson(Map<String, Object?> json) =>
       ReplayLogHeader(
         formatVersion:
             (json['formatVersion'] as num?)?.toInt() ?? replayLogFormatVersion,
@@ -44,7 +44,7 @@ class ReplayLog {
   /// Creates a log from existing rows (rebuilds index).
   ReplayLog.fromEntries({
     required this.header,
-    required final List<ReplayEntry> entries,
+    required List<ReplayEntry> entries,
   }) : _entries = List<ReplayEntry>.from(entries) {
     _rebuildIndex();
     _validateOrdering();
@@ -60,7 +60,7 @@ class ReplayLog {
   List<ReplayEntry> get entries => List<ReplayEntry>.unmodifiable(_entries);
 
   /// Next sequence number for [tick] (0 when tick advances).
-  int nextSeqForTick(final int tick) {
+  int nextSeqForTick(int tick) {
     if (_entries.isEmpty) return 0;
     final last = _entries.last;
     if (last.tick == tick) return last.seq + 1;
@@ -68,7 +68,7 @@ class ReplayLog {
   }
 
   /// Appends [entry], enforcing monotonic `(tick, seq)` and unique [eventKey].
-  void append(final ReplayEntry entry) {
+  void append(ReplayEntry entry) {
     if (_entries.isNotEmpty) {
       final last = _entries.last;
       if (entry.tick < last.tick) {
@@ -102,7 +102,7 @@ class ReplayLog {
   }
 
   /// Removes entries at or after [position] and drops stale index rows.
-  void truncateFrom(final ReplayPosition position) {
+  void truncateFrom(ReplayPosition position) {
     var cut = _entries.length;
     for (var i = 0; i < _entries.length; i++) {
       if (!_entries[i].isBeforeOrAt(position.tick, position.seq)) {
@@ -116,7 +116,7 @@ class ReplayLog {
   }
 
   /// Looks up `(tick, seq)` for [eventKey].
-  ReplayPosition? positionForEventKey(final String eventKey) =>
+  ReplayPosition? positionForEventKey(String eventKey) =>
       _eventIndex[eventKey];
 
   /// Last entry position, or null when empty.
@@ -125,11 +125,11 @@ class ReplayLog {
 
   Map<String, Object?> toJson() => <String, Object?>{
     'header': header.toJson(),
-    'entries': _entries.map((final e) => e.toJson()).toList(growable: false),
+    'entries': _entries.map((e) => e.toJson()).toList(growable: false),
   };
 
   // ignore: prefer_constructors_over_static_methods
-  static ReplayLog fromJson(final Map<String, Object?> json) {
+  static ReplayLog fromJson(Map<String, Object?> json) {
     final header = ReplayLogHeader.fromJson(
       (json['header'] as Map<String, Object?>?) ?? const {},
     );

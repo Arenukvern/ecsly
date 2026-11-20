@@ -1,24 +1,33 @@
 import 'package:ecsly/ecsly.dart';
 
 import 'column_entity_snapshot.dart';
+import 'component_naming.dart';
+import 'entity_refs.dart';
 import 'object_component_codec.dart';
-import 'persistent_id.dart';
+import 'persistent_entity.dart';
 import 'resource_snapshot.dart';
 
 /// Version of the world snapshot envelope format.
-const int worldSnapshotVersion = 3;
-
-/// A full snapshot of a world: resources plus all [PersistentId]-tagged
-/// entities with their column data and structural layout.
 ///
-/// Identity model (matching Bevy/networked-ECS practice):
+/// v4: durable identity is a [PersistentEntity] (String); `EntityEntry`
+/// carries `identity`. v3 and earlier carried an int `persistentId`;
+/// decoding normalizes it, so pre-v4 snapshots load without migration.
+const int worldSnapshotVersion = 4;
+
+/// A full snapshot of a world: resources plus all persisted entities
+/// (carrying [PersistentEntityComponent]) with their column data and
+/// structural layout.
+///
+/// Identity model (matching Bevy/networked-ECS practice, ADR 0007):
 /// - Runtime `Entity` handles are world-local and never serialized as
-///   identity. Persisted entities carry a [PersistentId] component whose
-///   value is the stable cross-session key; it is re-attached on restore and
-///   used to resolve entity references *within* the snapshot.
-/// - Component identity is by type name ([componentIds]); restore remaps data
-///   onto the target world's own IDs, so snapshots survive registration
-///   reordering, additions, and removals.
+///   identity. Persisted entities carry a [PersistentEntityComponent] whose
+///   [PersistentEntity] value is the stable cross-session key; it is
+///   re-attached on restore and used to resolve entity references *within*
+///   the snapshot.
+/// - Component identity is by stable registered name (falling back to the
+///   type name) in [componentIds]; restore remaps data onto the target
+///   world's own IDs, so snapshots survive registration reordering,
+///   additions, and removals.
 ///
 /// Restore spawns fresh entities into the target world — no pre-spawned
 /// structure required. Works into completely empty worlds.
@@ -40,16 +49,17 @@ class WorldSnapshot {
   /// [SnapshotMigration] so older saves keep loading.
   final int schemaVersion;
 
-  /// Component type name → source-world `ComponentId` value.
+  /// Component snapshot identity → source-world `ComponentId` value.
   ///
   /// This is the stable identity layer: names travel with the snapshot,
-  /// IDs stay world-local. [PersistentId] is implicit and not listed here.
+  /// IDs stay world-local. [PersistentEntityComponent] is implicit and not
+  /// listed here.
   final Map<String, int> componentIds;
 
-  /// Resource snapshot keyed by resource type name.
+  /// Resource snapshot keyed by resource snapshot identity.
   final Map<String, Object?> resources;
 
-  /// Per-entity snapshots, each carrying its [EntityEntry.persistentId].
+  /// Per-entity snapshots, each carrying its [EntityEntry.identity].
   final List<EntityEntry> entities;
 
   /// Serializes to a JSON-compatible map.
@@ -58,17 +68,20 @@ class WorldSnapshot {
     'schemaVersion': schemaVersion,
     'componentIds': componentIds,
     'resources': resources,
-    'entities': entities.map((final e) => e.toJson()).toList(growable: false),
+    'entities': entities.map((e) => e.toJson()).toList(growable: false),
   };
 
   /// Deserializes from a JSON-compatible map.
+  ///
+  /// Pre-v4 envelopes (int `persistentId` per entity) are normalized to the
+  /// v4 `identity` form during entity decoding.
   // ignore: prefer_constructors_over_static_methods
-  static WorldSnapshot fromJson(final Map<String, Object?> json) =>
+  static WorldSnapshot fromJson(Map<String, Object?> json) =>
       WorldSnapshot(
         version: (json['version'] as num?)?.toInt() ?? worldSnapshotVersion,
         schemaVersion: (json['schemaVersion'] as num?)?.toInt() ?? 1,
         componentIds: ((json['componentIds'] as Map?) ?? const {}).map(
-          (final k, final v) => MapEntry(k.toString(), (v as num).toInt()),
+          (k, v) => MapEntry(k.toString(), (v as num).toInt()),
         ),
         resources: (json['resources'] as Map<String, Object?>?) ?? const {},
         entities: ((json['entities'] as List<Object?>?) ?? const [])
@@ -82,21 +95,22 @@ class WorldSnapshot {
 class EntityEntry {
   /// Creates an entity entry.
   ///
-  /// [persistentId] is the stable cross-session identity (from the entity's
-  /// [PersistentId] component). [components] lists the component type names
-  /// the entity carries besides [PersistentId]. [columns] is the flat column
-  /// data (including PersistentId's object-column entry).
+  /// [identity] is the stable cross-session identity (from the entity's
+  /// [PersistentEntityComponent]). [components] lists the component snapshot
+  /// identities the entity carries besides the identity component itself.
+  /// [columns] is the flat column data (including the identity component's
+  /// object-column entry).
   const EntityEntry({
-    required this.persistentId,
+    required this.identity,
     required this.components,
     required this.columns,
   });
 
-  /// Stable cross-session identity from the entity's [PersistentId].
-  final int persistentId;
+  /// Stable cross-session identity from the entity's identity component.
+  final String identity;
 
-  /// Component type names this entity carries (structural signature),
-  /// excluding [PersistentId] itself.
+  /// Component snapshot identities this entity carries (structural
+  /// signature), excluding the identity component itself.
   final List<String> components;
 
   /// Flat column data for this entity.
@@ -104,20 +118,25 @@ class EntityEntry {
 
   /// Serializes to a JSON-compatible map.
   Map<String, Object?> toJson() => <String, Object?>{
-    'persistentId': persistentId,
+    'identity': identity,
     'components': components,
     'columns': columns,
   };
 
   /// Deserializes from a JSON-compatible map.
+  ///
+  /// Pre-v4 entries carry an int `persistentId` (or its String form); it is
+  /// normalized to a decimal [PersistentEntity] identity.
   // ignore: prefer_constructors_over_static_methods
-  static EntityEntry fromJson(final Map<String, Object?> json) => EntityEntry(
-    persistentId: (json['persistentId'] as num?)?.toInt() ?? 0,
+  static EntityEntry fromJson(Map<String, Object?> json) => EntityEntry(
+    identity: PersistentEntity.fromJson(
+      json['identity'] ?? json['persistentId'],
+    ).value,
     components: ((json['components'] as List<Object?>?) ?? const [])
         .whereType<String>()
         .toList(growable: false),
     columns: (json['columns'] as Map? ?? const {}).map(
-      (final k, final v) => MapEntry(k.toString(), v),
+      (k, v) => MapEntry(k.toString(), v),
     ),
   );
 }
@@ -127,9 +146,10 @@ enum WorldSnapshotRestoreMode {
   /// Spawn fresh entities for each snapshot entry (default save/load path).
   spawn,
 
-  /// Reconcile an existing world by [PersistentId]: update values, add/remove
-  /// components to match, optionally despawn persisted entities missing from
-  /// the snapshot. Entities without [PersistentId] are left untouched.
+  /// Reconcile an existing world by identity: update values, add/remove
+  /// components to match, optionally despawn persisted entities missing
+  /// from the snapshot. Entities without an identity component are left
+  /// untouched.
   reconcile,
 }
 
@@ -146,7 +166,7 @@ class WorldSnapshotOptions {
   });
 
   /// Restrict capture/restore to these component IDs (excluding
-  /// [PersistentId], which is always handled).
+  /// [PersistentEntityComponent], which is always handled).
   final Set<ComponentId>? includeOnly;
 
   /// Codecs for object-tier components.
@@ -170,44 +190,47 @@ class WorldSnapshotOptions {
 
 /// Captures a full [WorldSnapshot] from [world].
 ///
-/// Only entities carrying a [PersistentId] component are captured. The world
-/// is flushed first so pending commands and resource pushes are reflected in
-/// the snapshot.
+/// Only entities carrying a [PersistentEntityComponent] are captured. The
+/// world is flushed first so pending commands and resource pushes are
+/// reflected in the snapshot. [resourceRegistry] supplies stable names for
+/// registered snapshotable resources.
 WorldSnapshot captureWorldSnapshot(
-  final World world, {
-  final WorldSnapshotOptions options = const WorldSnapshotOptions(),
+  World world, {
+  WorldSnapshotOptions options = const WorldSnapshotOptions(),
+  SnapshotResourceRegistry? resourceRegistry,
 }) {
-  registerPersistentId(world);
+  registerPersistentEntity(world);
   world.flush();
 
-  final persistentIdId = _persistentIdComponentIdOrNull(world)!;
+  final identityId = _identityComponentIdOrNull(world)!;
   final componentIds = <String, int>{};
   for (final archetype in world.archetypes.all) {
-    if (!archetype.signature.has(persistentIdId)) continue;
+    if (!archetype.signature.has(identityId)) continue;
     for (final componentId in archetype.componentIds) {
-      if (componentId == persistentIdId) continue;
+      if (componentId == identityId) continue;
       if (options.includeOnly != null &&
           !options.includeOnly!.contains(componentId)) {
         continue;
       }
-      final typeName = _componentTypeName(world, componentId);
-      if (typeName != null) {
-        componentIds[typeName] = componentId.value;
+      final name = componentSnapshotName(world, componentId);
+      if (name != null) {
+        componentIds[name] = componentId.value;
       }
     }
   }
 
   final entities = <EntityEntry>[];
-  final seenIds = <int>{};
+  final seenIds = <String>{};
   for (final archetype in world.archetypes.all) {
-    if (!archetype.signature.has(persistentIdId)) continue;
+    if (!archetype.signature.has(identityId)) continue;
     for (final entity in archetype.entities) {
-      final pid = persistentIdOf(world, entity);
-      if (pid == null) continue;
-      if (!seenIds.add(pid.value)) {
+      final identity = persistentEntityOf(world, entity);
+      if (identity == null) continue;
+      if (!seenIds.add(identity.value)) {
         throw StateError(
-          'Duplicate PersistentId(${pid.value}) during capture. Persistent '
-          'ids must be unique among persisted entities.',
+          'Duplicate ${identity.value} during capture. Persistent '
+          'identities must be unique among persisted entities — allocate '
+          'them through a PersistentEntityAllocator.',
         );
       }
       final columns = captureEntityColumns(
@@ -219,10 +242,10 @@ WorldSnapshot captureWorldSnapshot(
       if (columns == null) continue;
       entities.add(
         EntityEntry(
-          persistentId: pid.value,
+          identity: identity.value,
           components: [
             for (final id in archetype.componentIds)
-              if (id != persistentIdId) ...?_componentTypeNameOrNull(world, id),
+              if (id != identityId) ...?componentSnapshotNameOrNull(world, id),
           ],
           columns: columns,
         ),
@@ -234,7 +257,7 @@ WorldSnapshot captureWorldSnapshot(
     version: worldSnapshotVersion,
     schemaVersion: options.schemaVersion,
     componentIds: componentIds,
-    resources: captureResourceSnapshot(world),
+    resources: captureResourceSnapshot(world, registry: resourceRegistry),
     entities: entities,
   );
 }
@@ -243,24 +266,31 @@ WorldSnapshot captureWorldSnapshot(
 ///
 /// Default [WorldSnapshotOptions.restoreMode] spawns fresh entities. With
 /// [WorldSnapshotRestoreMode.reconcile], updates the live world in place by
-/// [PersistentId] (see [WorldSnapshotOptions.reconcileDespawnAbsent]).
+/// identity (see [WorldSnapshotOptions.reconcileDespawnAbsent]).
 ///
 /// Restores instances from the registry's registered sample instances
 /// (the component-side mirror of `sampleEvent`). Component types that are
 /// needed at spawn time must be registered with a `sample:` instance;
 /// restore throws a [StateError] naming the missing type otherwise.
 ///
-/// Returns the mapping of snapshot persistent IDs to live entities.
-Map<int, Entity> restoreWorldSnapshot(
-  final World world,
-  final WorldSnapshot snapshot, {
-  final Map<String, SnapshotResourceFactory> resourceFactories =
+/// When the world holds a [PersistentEntityAllocatorResource], restore
+/// auto-adopts: the allocator grows past every live identity (including
+/// pre-existing ones a partial restore left in place), so identities minted
+/// after restore never collide. When the world holds a
+/// [PersistentEntityIndex], it is repaired — identity lookups stay O(1).
+///
+/// Returns the mapping of snapshot identities to live entities.
+Map<String, Entity> restoreWorldSnapshot(
+  World world,
+  WorldSnapshot snapshot, {
+  Map<String, SnapshotResourceFactory> resourceFactories =
       const <String, SnapshotResourceFactory>{},
-  final Map<String, Component Function()> componentFactories =
+  SnapshotResourceRegistry? resourceRegistry,
+  Map<String, Component Function()> componentFactories =
       const <String, Component Function()>{},
-  final WorldSnapshotOptions options = const WorldSnapshotOptions(),
+  WorldSnapshotOptions options = const WorldSnapshotOptions(),
 }) {
-  registerPersistentId(world);
+  registerPersistentEntity(world);
   world.flush();
 
   if (options.restoreMode == WorldSnapshotRestoreMode.reconcile) {
@@ -268,20 +298,23 @@ Map<int, Entity> restoreWorldSnapshot(
       world,
       snapshot,
       resourceFactories: resourceFactories,
+      resourceRegistry: resourceRegistry,
       componentFactories: componentFactories,
       options: options,
     );
   }
 
   final idRemap = _buildIdRemap(world, snapshot, options);
-  final newEntities = <int, Entity>{};
+  final index = world.maybeGetResource<PersistentEntityIndex>();
+  index?.repair(world);
+  final newEntities = <String, Entity>{};
   for (final entry in snapshot.entities) {
-    final existing = _entityWithPersistentId(world, entry.persistentId);
+    final existing = _entityWithIdentity(world, entry.identity, index);
     if (existing != null) {
-      newEntities[entry.persistentId] = existing;
+      newEntities[entry.identity] = existing;
       continue;
     }
-    newEntities[entry.persistentId] = _spawnEntityFromEntry(
+    newEntities[entry.identity] = _spawnEntityFromEntry(
       world,
       entry,
       componentFactories: componentFactories,
@@ -290,39 +323,50 @@ Map<int, Entity> restoreWorldSnapshot(
   }
   world.flush();
 
+  final resolver = EntityRefResolver(newEntities);
   for (final entry in snapshot.entities) {
-    final entity = newEntities[entry.persistentId];
+    final entity = newEntities[entry.identity];
     if (entity == null) continue;
     restoreEntityColumns(
       world,
       entity,
       _remapColumns(entry.columns, idRemap),
+      refs: resolver,
       includeOnly: options.includeOnly,
       codecs: options.codecs,
     );
   }
 
-  restoreResourceSnapshot(world, snapshot.resources, resourceFactories);
+  restoreResourceSnapshot(
+    world,
+    snapshot.resources,
+    factories: resourceFactories,
+    registry: resourceRegistry,
+    refs: resolver,
+  );
+  _adoptIdentityState(world);
   return newEntities;
 }
 
-/// Reconciles [snapshot] into a non-empty [world] by [PersistentId].
+/// Reconciles [snapshot] into a non-empty [world] by identity.
 ///
-/// Convenience wrapper setting [WorldSnapshotRestoreMode.reconcile].
-Map<int, Entity> reconcileWorldSnapshot(
-  final World world,
-  final WorldSnapshot snapshot, {
-  final Map<String, SnapshotResourceFactory> resourceFactories =
+/// Convenience wrapper setting [WorldSnapshotOptions.restoreMode.reconcile].
+Map<String, Entity> reconcileWorldSnapshot(
+  World world,
+  WorldSnapshot snapshot, {
+  Map<String, SnapshotResourceFactory> resourceFactories =
       const <String, SnapshotResourceFactory>{},
-  final Map<String, Component Function()> componentFactories =
+  SnapshotResourceRegistry? resourceRegistry,
+  Map<String, Component Function()> componentFactories =
       const <String, Component Function()>{},
-  final WorldSnapshotOptions options = const WorldSnapshotOptions(),
-  final bool despawnAbsent = true,
+  WorldSnapshotOptions options = const WorldSnapshotOptions(),
+  bool despawnAbsent = true,
 }) =>
     restoreWorldSnapshot(
       world,
       snapshot,
       resourceFactories: resourceFactories,
+      resourceRegistry: resourceRegistry,
       componentFactories: componentFactories,
       options: WorldSnapshotOptions(
         includeOnly: options.includeOnly,
@@ -334,31 +378,38 @@ Map<int, Entity> reconcileWorldSnapshot(
       ),
     );
 
-Map<int, Entity> _reconcileWorldSnapshot(
-  final World world,
-  final WorldSnapshot snapshot, {
-  required final Map<String, SnapshotResourceFactory> resourceFactories,
-  required final Map<String, Component Function()> componentFactories,
-  required final WorldSnapshotOptions options,
+Map<String, Entity> _reconcileWorldSnapshot(
+  World world,
+  WorldSnapshot snapshot, {
+  required Map<String, SnapshotResourceFactory> resourceFactories,
+  required SnapshotResourceRegistry? resourceRegistry,
+  required Map<String, Component Function()> componentFactories,
+  required WorldSnapshotOptions options,
 }) {
   final idRemap = _buildIdRemap(world, snapshot, options);
-  final snapshotIds = snapshot.entities.map((final e) => e.persistentId).toSet();
-  _assertUniquePersistentIds(snapshotIds, snapshot.entities);
+  final snapshotIds = snapshot.entities
+      .map((e) => e.identity)
+      .toSet();
+  _assertUniqueIdentities(snapshotIds, snapshot.entities);
+
+  final index = world.maybeGetResource<PersistentEntityIndex>();
+  index?.repair(world);
 
   if (options.reconcileDespawnAbsent) {
-    for (final entity in _allPersistentEntities(world)) {
-      final pid = persistentIdOf(world, entity);
-      if (pid == null) continue;
-      if (!snapshotIds.contains(pid.value)) {
+    for (final entity in _allPersistedEntities(world)) {
+      final identity = persistentEntityOf(world, entity);
+      if (identity == null) continue;
+      if (!snapshotIds.contains(identity.value)) {
         world.despawnEntity(entity);
       }
     }
     world.flush();
+    index?.repair(world);
   }
 
-  final live = <int, Entity>{};
+  final live = <String, Entity>{};
   for (final entry in snapshot.entities) {
-    var entity = _entityWithPersistentId(world, entry.persistentId);
+    var entity = _entityWithIdentity(world, entry.identity, index);
     if (entity == null) {
       entity = _spawnEntityFromEntry(
         world,
@@ -375,42 +426,74 @@ Map<int, Entity> _reconcileWorldSnapshot(
         options: options,
       );
     }
-    live[entry.persistentId] = entity;
+    live[entry.identity] = entity;
   }
   world.flush();
 
+  final resolver = EntityRefResolver(live);
   for (final entry in snapshot.entities) {
-    final entity = live[entry.persistentId];
+    final entity = live[entry.identity];
     if (entity == null) continue;
     restoreEntityColumns(
       world,
       entity,
       _remapColumns(entry.columns, idRemap),
+      refs: resolver,
       includeOnly: options.includeOnly,
       codecs: options.codecs,
     );
   }
 
-  restoreResourceSnapshot(world, snapshot.resources, resourceFactories);
+  restoreResourceSnapshot(
+    world,
+    snapshot.resources,
+    factories: resourceFactories,
+    registry: resourceRegistry,
+    refs: resolver,
+  );
+  _adoptIdentityState(world);
   return live;
 }
 
-void _assertUniquePersistentIds(
-  final Set<int> ids,
-  final List<EntityEntry> entities,
+/// Repairs the index (post-flush) and grows the allocator past every live
+/// identity — the auto-adopt step (ADR 0007 §2/§3).
+void _adoptIdentityState(World world) {
+  final index = world.maybeGetResource<PersistentEntityIndex>();
+  final allocatorResource = world.maybeGetResource<PersistentEntityAllocatorResource>();
+  if (allocatorResource != null) {
+    if (index == null) {
+      // No index: adopt over a full scan of live persisted entities.
+      allocatorResource.allocator.adoptMax(
+        [
+          for (final entity in _allPersistedEntities(world))
+            ?persistentEntityOf(world, entity),
+        ].whereType<PersistentEntity>(),
+      );
+    } else {
+      index.repair(world);
+      allocatorResource.allocator.adoptMax(index.identities);
+    }
+  } else {
+    index?.repair(world);
+  }
+}
+
+void _assertUniqueIdentities(
+  Set<String> identities,
+  List<EntityEntry> entities,
 ) {
-  if (ids.length == entities.length) return;
+  if (identities.length == entities.length) return;
   throw StateError(
-    'Snapshot contains duplicate PersistentId values; persisted ids must be '
-    'unique.',
+    'Snapshot contains duplicate persistent identities; persisted '
+    'identities must be unique.',
   );
 }
 
-Iterable<Entity> _allPersistentEntities(final World world) sync* {
-  final persistentIdId = _persistentIdComponentIdOrNull(world);
-  if (persistentIdId == null) return;
+Iterable<Entity> _allPersistedEntities(World world) sync* {
+  final identityId = _identityComponentIdOrNull(world);
+  if (identityId == null) return;
   for (final archetype in world.archetypes.all) {
-    if (!archetype.signature.has(persistentIdId)) continue;
+    if (!archetype.signature.has(identityId)) continue;
     for (final entity in archetype.entities) {
       yield entity;
     }
@@ -418,19 +501,20 @@ Iterable<Entity> _allPersistentEntities(final World world) sync* {
 }
 
 Entity _spawnEntityFromEntry(
-  final World world,
-  final EntityEntry entry, {
-  required final Map<String, Component Function()> componentFactories,
-  required final WorldSnapshotOptions options,
+  World world,
+  EntityEntry entry, {
+  required Map<String, Component Function()> componentFactories,
+  required WorldSnapshotOptions options,
 }) {
-  final instances = <Component>[PersistentId(entry.persistentId)];
+  final identity = PersistentEntity.fromJson(entry.identity);
+  final instances = <Component>[PersistentEntityComponent(identity)];
   final extensions = <(Type, Type)>[];
   for (final typeName in entry.components) {
-    final localType = _localTypeFor(world, typeName);
+    final localType = componentTypeForSnapshotName(world, typeName);
     if (localType == null) {
       if (options.strictComponents) {
         throw StateError(
-          'Snapshot entity ${entry.persistentId} requires component '
+          'Snapshot entity ${entry.identity} requires component '
           '"$typeName" which is not registered in the target world '
           '(strictComponents=true).',
         );
@@ -462,26 +546,26 @@ Entity _spawnEntityFromEntry(
 }
 
 void _reconcileEntityComponents(
-  final World world,
-  final Entity entity,
-  final EntityEntry entry, {
-  required final Map<String, Component Function()> componentFactories,
-  required final WorldSnapshotOptions options,
+  World world,
+  Entity entity,
+  EntityEntry entry, {
+  required Map<String, Component Function()> componentFactories,
+  required WorldSnapshotOptions options,
 }) {
-  final persistentIdId = _persistentIdComponentIdOrNull(world)!;
+  final identityId = _identityComponentIdOrNull(world)!;
   final (ext, ok) = world.getEntityExtension(entity);
   if (!ok) return;
 
   final desired = entry.components.toSet();
   final currentNames = <String>{};
   for (final componentId in ext.archetype.componentIds) {
-    if (componentId == persistentIdId) continue;
-    final name = _componentTypeName(world, componentId);
+    if (componentId == identityId) continue;
+    final name = componentSnapshotName(world, componentId);
     if (name != null) currentNames.add(name);
   }
 
   for (final typeName in currentNames.difference(desired)) {
-    final localType = _localTypeFor(world, typeName);
+    final localType = componentTypeForSnapshotName(world, typeName);
     if (localType == null) continue;
     final componentId = world.components.getComponentIdByType(localType);
     if (componentId == null) continue;
@@ -492,11 +576,11 @@ void _reconcileEntityComponents(
   world.flush();
 
   for (final typeName in desired.difference(currentNames)) {
-    final localType = _localTypeFor(world, typeName);
+    final localType = componentTypeForSnapshotName(world, typeName);
     if (localType == null) {
       if (options.strictComponents) {
         throw StateError(
-          'Snapshot entity ${entry.persistentId} requires component '
+          'Snapshot entity ${entry.identity} requires component '
           '"$typeName" which is not registered in the target world '
           '(strictComponents=true).',
         );
@@ -532,44 +616,47 @@ void _reconcileEntityComponents(
   world.flush();
 }
 
-Type? _localTypeFor(final World world, final String typeName) {
-  for (final entry in world.components.registeredTypes.entries) {
-    if (entry.value.toString() == typeName) return entry.value;
-  }
-  return null;
-}
-
-/// Finds the live entity carrying [value], or null.
-Entity? _entityWithPersistentId(final World world, final int value) {
-  final persistentIdId = _persistentIdComponentIdOrNull(world);
-  if (persistentIdId == null) return null;
+/// Finds the live entity carrying [identity].
+///
+/// Index-first (O(1)) when [index] is supplied — callers repair it before
+/// the lookup loop; otherwise a linear scan (legacy behavior).
+Entity? _entityWithIdentity(
+  World world,
+  String identity,
+  PersistentEntityIndex? index,
+) {
+  if (index != null) return index.lookup(PersistentEntity.fromJson(identity));
+  final identityId = _identityComponentIdOrNull(world);
+  if (identityId == null) return null;
   for (final archetype in world.archetypes.all) {
-    if (!archetype.signature.has(persistentIdId)) continue;
+    if (!archetype.signature.has(identityId)) continue;
     for (final entity in archetype.entities) {
-      final pid = persistentIdOf(world, entity);
-      if (pid?.value == value) return entity;
+      final candidate = persistentEntityOf(world, entity);
+      if (candidate?.value == identity) return entity;
     }
   }
   return null;
 }
 
-/// Builds snapshot-ID → local-ID remap from the component name table.
+/// Builds snapshot-ID → local-ID remap from the component identity table.
 ///
-/// Resolution uses the target world's registered component types directly,
-/// so restoring into a fresh/empty world works without any prior capture.
+/// Resolution uses the target world's stable component names first (O(1)),
+/// falling back to type names, so restoring into a fresh/empty world works
+/// without any prior capture.
 Map<int, int> _buildIdRemap(
-  final World world,
-  final WorldSnapshot snapshot,
-  final WorldSnapshotOptions options,
+  World world,
+  WorldSnapshot snapshot,
+  WorldSnapshotOptions options,
 ) {
-  final localTypes = <String, int>{};
+  final localIds = <String, int>{};
   for (final entry in world.components.registeredTypes.entries) {
-    localTypes[entry.value.toString()] = entry.key.value;
+    final name = world.components.nameOf(entry.key) ?? entry.value.toString();
+    localIds[name] = entry.key.value;
   }
 
   final remap = <int, int>{};
   for (final entry in snapshot.componentIds.entries) {
-    final localIdValue = localTypes[entry.key];
+    final localIdValue = localIds[entry.key];
     if (localIdValue == null) {
       if (options.strictComponents) {
         throw StateError(
@@ -586,8 +673,8 @@ Map<int, int> _buildIdRemap(
 
 /// Rewrites positional and object keys from snapshot IDs to local IDs.
 Map<String, Object?> _remapColumns(
-  final Map<String, Object?> columns,
-  final Map<int, int> idRemap,
+  Map<String, Object?> columns,
+  Map<int, int> idRemap,
 ) {
   if (idRemap.isEmpty) return columns;
   final remapped = <String, Object?>{};
@@ -619,22 +706,13 @@ Map<String, Object?> _remapColumns(
   return remapped;
 }
 
-String? _componentTypeName(final World world, final ComponentId componentId) {
-  try {
-    return world.components.getType(componentId).toString();
-    // ignore: avoid_catching_errors
-  } on EcsStateError {
-    return null;
-  }
-}
-
-List<String>? _componentTypeNameOrNull(
-  final World world,
-  final ComponentId componentId,
+List<String>? componentSnapshotNameOrNull(
+  World world,
+  ComponentId componentId,
 ) {
-  final name = _componentTypeName(world, componentId);
+  final name = componentSnapshotName(world, componentId);
   return name == null ? null : [name];
 }
 
-ComponentId? _persistentIdComponentIdOrNull(final World world) =>
-    world.components.getComponentIdByType(PersistentId);
+ComponentId? _identityComponentIdOrNull(World world) =>
+    world.components.getComponentIdByType(PersistentEntityComponent);

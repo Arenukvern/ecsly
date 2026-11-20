@@ -29,7 +29,7 @@ void main() {
     ext.getOrCreate<PositionComponent, Position>()
       ..x = 0
       ..y = 0;
-    restoreEntityColumns(world, entity, snapshot!);
+    restoreEntityColumns(world, entity, snapshot!, refs: const EntityRefResolver({}));
 
     final (ext2, ok2) = world.getEntityExtension(entity);
     expect(ok2, isTrue);

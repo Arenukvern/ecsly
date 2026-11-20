@@ -11,13 +11,11 @@ class GameConfig extends Resource with SnapshotableResource {
   final String name;
 
   @override
-  Map<String, Object?> toJson() => <String, Object?>{
-    'speed': speed,
-    'name': name,
-  };
+  Map<String, Object?> toJson(EntityRefEncoder refs) =>
+      <String, Object?>{'speed': speed, 'name': name};
 
   // ignore: prefer_constructors_over_static_methods
-  static GameConfig fromJson(final Map<String, Object?> json) => GameConfig(
+  static GameConfig fromJson(Map<String, Object?> json) => GameConfig(
     speed: (json['speed'] as num? ?? 100).toDouble(),
     name: json['name'] as String? ?? 'default',
   );
@@ -39,7 +37,7 @@ void main() {
     expect(snapshot.containsKey('HiddenResource'), isFalse);
 
     final target = _world();
-    restoreResourceSnapshot(target, snapshot, {
+    restoreResourceSnapshot(target, snapshot, factories: {
       'GameConfig': GameConfig.fromJson,
     });
 
@@ -53,7 +51,7 @@ void main() {
     final target = _world();
     restoreResourceSnapshot(target, const <String, Object?>{
       'Missing': <String, Object?>{'x': 1},
-    }, const <String, SnapshotResourceFactory>{});
+    });
     expect(target.resources.iterDense().length, greaterThanOrEqualTo(0));
     // No throw is the contract.
   });

@@ -16,10 +16,10 @@ ReplayPlugin _plugin() => ReplayPlugin(
   checkpointCadence: 1,
 );
 
-Entity _heroAt(final World world, final double x) {
-  registerPersistentId(world);
+Entity _heroAt(World world, double x) {
+  registerPersistentEntity(world);
   final e = world.spawnComponents([
-    const PersistentId(1),
+    PersistentEntityComponent(PersistentEntity.sequence(1)),
     const PositionComponent(),
     const HealthComponent(),
   ]);
@@ -28,15 +28,15 @@ Entity _heroAt(final World world, final double x) {
   return e;
 }
 
-void _setX(final World world, final Entity e, final double x) {
+void _setX(World world, Entity e, double x) {
   final (ext, _) = world.getEntityExtension(e);
   ext.getOrCreate<PositionComponent, Position>().x = x;
 }
 
-double _positionX(final World world) {
+double _positionX(World world) {
   for (final archetype in world.archetypes.all) {
     for (final entity in archetype.entities) {
-      if (persistentIdOf(world, entity)?.value == 1) {
+      if (persistentEntityOf(world, entity)?.value == '1') {
         final (ext, ok) = world.getEntityExtension(entity);
         if (!ok) continue;
         return ext.getOrCreate<PositionComponent, Position>().x;

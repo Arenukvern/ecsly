@@ -5,10 +5,10 @@ worlds.
 
 Captures and restores JSON snapshots of:
 
-- Entities carrying a `PersistentId` component (identity + SoA columns +
+- Entities carrying a `PersistentEntityComponent` (identity + SoA columns +
   object-tier components);
 - Resources implementing `SnapshotableResource`;
-- Whole worlds via a versioned snapshot envelope (format v3).
+- Whole worlds via a versioned snapshot envelope (format v4).
 
 Vision and boundaries: [NORTH_STAR.md](NORTH_STAR.md).
 
@@ -16,18 +16,32 @@ Vision and boundaries: [NORTH_STAR.md](NORTH_STAR.md).
 
 Runtime `Entity` handles are world-local and never serialized — they are
 regenerated on restore, exactly like Bevy and networked ECS engines treat
-entity ids. Stable identity lives in a component:
+entity ids. Stable identity is a `PersistentEntity` (String) carried by a
+component, and it is **allocated, never hand-picked**:
 
 ```dart
-world.spawnComponents([
-  const PersistentId(42), // stable cross-session identity
+// SerializationPlugin(manageIds: true) installs a sequence allocator
+// (deterministic, replay-safe) and the O(1) identity index.
+final entity = world.spawnPersistent([
   const PositionComponent(),
 ]);
+// persistentEntityOf(world, entity) == PersistentEntity.sequence(1) → '1'
 ```
 
-Only entities carrying `PersistentId` are captured; particles, VFX, and other
-transient entities are runtime-only by default. Restore **spawns fresh
-entities** into the target world — the target can be completely empty.
+Allocation is a world-level policy (ADR 0007): a
+`SequencePersistentEntityAllocator` (default — identities are a pure function
+of seed and spawn order, which deterministic replay requires) or a
+`RandomPersistentEntityAllocator` (128-bit secure random — the merge-safe
+choice for MMO-style topologies). Never mix policies within one world.
+
+Only entities carrying the identity component are captured; particles, VFX,
+and other transient entities are runtime-only by default. Restore **spawns
+fresh entities** into the target world — the target can be completely empty —
+and auto-adopts allocation state, so identities minted after restore never
+collide with restored ones.
+
+Pre-v4 snapshots (int `persistentId`) decode transparently: identities are
+normalized to their decimal String form on load.
 
 ## Install
 
@@ -46,24 +60,38 @@ A complete runnable save/load story lives in [example/main.dart](example/main.da
 ### Whole world save/load
 
 ```dart
-// Mark persistable entities with PersistentId at spawn time.
-final entity = world.spawnComponents([
-  const PersistentId(1),
-  const PositionComponent(),
-  const HealthComponent(),
-]);
-
 final snapshot = captureWorldSnapshot(world);
 final encoded = encodeWorldSnapshot(snapshot); // JSON string → disk
 
 // Later — any fresh world, even a completely empty one:
 final decoded = decodeWorldSnapshot(encoded);
 final mapping = restoreWorldSnapshot(freshWorld, decoded);
-// mapping: persistentId → newly spawned Entity
+// mapping: identity String → newly spawned Entity
 ```
 
 Restore is idempotent: re-applying the same snapshot leaves entities whose
-`PersistentId` already exists in the target world untouched.
+identity already exists in the target world untouched.
+
+### Entity references inside payloads
+
+References are first-class in the codec contract — capture receives an
+`EntityRefEncoder`, restore an `EntityRefResolver`:
+
+```dart
+class RefCodec extends ObjectComponentCodec<RefComponent> {
+  @override
+  Object? toJson(RefComponent component, EntityRefEncoder refs) =>
+      refs.encode(component.target); // stable identity, or null
+
+  @override
+  RefComponent fromJson(Object? value, EntityRefResolver refs) =>
+      RefComponent(refs.resolve(value)); // live entity again
+}
+```
+
+A reference to a non-persisted entity **fails capture loudly** — one
+dangling-reference policy for the whole engine. The restore mapping never
+escapes `restoreWorldSnapshot`; there is no second rehydration pass.
 
 ### Object-tier components
 
@@ -93,11 +121,33 @@ SoA/tag components need no sample — their columns are zero-initialized at
 spawn and overwritten from snapshot data. Object values are serialized via
 codecs registered in `ObjectComponentCodecRegistry`.
 
+### Stable names
+
+Component and resource identity travels as **stable registered names** when
+given, falling back to type names for unregistered types:
+
+```dart
+world.components.registerObjectComponent<PositionComponent>(
+  name: 'game.position',
+  columnFactory: positionColumnFactory,
+);
+```
+
+Names survive class renames, cannot collide across libraries, and are
+independent of web minification. Registered resources declare name and
+restore factory together — registration IS the factory map:
+
+```dart
+final registry = SnapshotResourceRegistry()
+  ..register<GameConfig>('game.config', (json, refs) => GameConfig.fromJson(json));
+restoreWorldSnapshot(target, snapshot, resourceRegistry: registry);
+```
+
 ### Structural changes between versions
 
-Component identity travels as type names, so registration reorder, additions,
-and removals are handled automatically. Renames and value transforms need an
-explicit migration chain keyed on `schemaVersion`:
+Registration reorder, additions, and removals are handled automatically.
+Renames and value transforms need an explicit migration chain keyed on
+`schemaVersion`:
 
 ```dart
 final restored = decodeAndMigrateWorldSnapshot(oldSaveJson, [
@@ -109,35 +159,20 @@ final restored = decodeAndMigrateWorldSnapshot(oldSaveJson, [
 ], targetVersion: 2);
 ```
 
-### Resources
-
-```dart
-class GameConfig extends Resource with SnapshotableResource {
-  GameConfig({this.speed = 100});
-  final double speed;
-
-  @override
-  Map<String, Object?> toJson() => {'speed': speed};
-
-  static GameConfig fromJson(Map<String, Object?> json) =>
-      GameConfig(speed: (json['speed'] as num).toDouble());
-}
-
-restoreWorldSnapshot(target, snapshot, resourceFactories: {
-  'GameConfig': GameConfig.fromJson,
-});
-```
-
 ### Plugin
 
 ```dart
+// Identity management off (capture/restore only):
 world.addPlugin(const SerializationPlugin());
+
+// Full identity layer: allocator + index + auto-adopt + spawnPersistent:
+world.addPlugin(const SerializationPlugin(manageIds: true));
 ```
 
 ## Constraints
 
-- Capture saves only `PersistentId` carriers; duplicate persistent ids fail
-  capture loudly.
+- Capture saves only identity carriers; duplicate identities fail capture
+  loudly (allocate through the allocator so this cannot happen).
 - Restore requires object-tier components to have a registered sample or an
   explicit `componentFactories` entry — missing ones throw with the type name.
 - Renames and value transforms need an explicit `SnapshotMigration` chain;

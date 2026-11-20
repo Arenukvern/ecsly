@@ -13,11 +13,11 @@ import 'serialization_test_components_alt.dart';
 ///
 /// Restore spawns fresh entities, so targets are always freshly built worlds.
 
-World _populate(final World world) {
-  registerPersistentId(world);
+World _populate(World world) {
+  registerPersistentEntity(world);
   for (var i = 0; i < 5; i++) {
     world.spawnComponents([
-      PersistentId(i + 1),
+      PersistentEntityComponent(PersistentEntity.sequence(i + 1)),
       const PositionComponent(),
       const HealthComponent(),
       const ScoreComponent(),
@@ -26,7 +26,7 @@ World _populate(final World world) {
   world.flush();
   for (final archetype in world.archetypes.all) {
     for (final entity in archetype.entities) {
-      final pid = persistentIdOf(world, entity)!.value;
+      final pid = int.parse(persistentEntityOf(world, entity)!.value);
       final (ext, ok) = world.getEntityExtension(entity);
       if (!ok) continue;
       ext.getOrCreate<PositionComponent, Position>()
@@ -51,7 +51,7 @@ void main() {
     // The alt world uses different type names, so remap by name first:
     // rewrite BOTH the component table and each entity's component list.
     final snapshot = decodeWorldSnapshot(encoded);
-    String altName(final String name) => switch (name) {
+    String altName(String name) => switch (name) {
       'PositionComponent' => 'AltPositionComponent',
       'HealthComponent' => 'AltHealthComponent',
       'ScoreComponent' => 'AltScoreComponent',
@@ -64,7 +64,7 @@ void main() {
     final remappedEntities = [
       for (final entity in snapshot.entities)
         EntityEntry(
-          persistentId: entity.persistentId,
+          identity: entity.identity,
           components: entity.components.map(altName).toList(),
           columns: entity.columns,
         ),
@@ -82,7 +82,7 @@ void main() {
     var verified = 0;
     for (final archetype in reordered.archetypes.all) {
       for (final entity in archetype.entities) {
-        final pid = persistentIdOf(reordered, entity)!.value;
+        final pid = int.parse(persistentEntityOf(reordered, entity)!.value);
         final (ext, ok) = reordered.getEntityExtension(entity);
         if (!ok) continue;
         expect(
@@ -101,14 +101,14 @@ void main() {
     // Source entities carry only Position; the target world also registers
     // Health — restore still works because structure comes from the snapshot.
     final source = buildSerializationTestWorld();
-    registerPersistentId(source);
+    registerPersistentEntity(source);
     for (var i = 0; i < 3; i++) {
-      source.spawnComponents([PersistentId(i + 1), const PositionComponent()]);
+      source.spawnComponents([PersistentEntityComponent(PersistentEntity.sequence(i + 1)), const PositionComponent()]);
     }
     source.flush();
     for (final archetype in source.archetypes.all) {
       for (final entity in archetype.entities) {
-        final pid = persistentIdOf(source, entity)!.value;
+        final pid = int.parse(persistentEntityOf(source, entity)!.value);
         final (ext, _) = source.getEntityExtension(entity);
         ext.getOrCreate<PositionComponent, Position>().x = pid * 2.0;
       }
@@ -121,7 +121,7 @@ void main() {
     var verified = 0;
     for (final archetype in extended.archetypes.all) {
       for (final entity in archetype.entities) {
-        final pid = persistentIdOf(extended, entity)!.value;
+        final pid = int.parse(persistentEntityOf(extended, entity)!.value);
         final (ext, ok) = extended.getEntityExtension(entity);
         if (!ok) continue;
         expect(ext.getOrCreate<PositionComponent, Position>().x, pid * 2.0);
@@ -144,7 +144,7 @@ void main() {
     var verified = 0;
     for (final archetype in reduced.archetypes.all) {
       for (final entity in archetype.entities) {
-        final pid = persistentIdOf(reduced, entity)!.value;
+        final pid = int.parse(persistentEntityOf(reduced, entity)!.value);
         final (ext, ok) = reduced.getEntityExtension(entity);
         if (!ok) continue;
         expect(ext.getOrCreate<PositionComponent, Position>().x, pid * 2.0);
@@ -196,7 +196,7 @@ void main() {
     var verified = 0;
     for (final archetype in target.archetypes.all) {
       for (final entity in archetype.entities) {
-        final pid = persistentIdOf(target, entity)!.value;
+        final pid = int.parse(persistentEntityOf(target, entity)!.value);
         final (ext, ok) = target.getEntityExtension(entity);
         if (!ok) continue;
         expect(ext.getOrCreate<PositionComponent, Position>().x, pid * 2.0);
@@ -250,8 +250,8 @@ void main() {
 
   test('stability: schemaVersion round-trips through the envelope', () {
     final source = buildSerializationTestWorld();
-    registerPersistentId(source);
-    source.spawnComponents([const PersistentId(1), const PositionComponent()]);
+    registerPersistentEntity(source);
+    source.spawnComponents([PersistentEntityComponent(PersistentEntity.sequence(1)), const PositionComponent()]);
     source.flush();
 
     final snapshot = captureWorldSnapshot(

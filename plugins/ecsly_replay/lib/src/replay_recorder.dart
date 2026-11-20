@@ -27,10 +27,10 @@ class ReplayRecorder {
 
   /// Records a command whose [outcome] is the world after the command runs.
   ReplayEntry recordCommand({
-    required final int tick,
-    required final WorldSnapshot outcome,
-    final String? eventKey,
-    final String? label,
+    required int tick,
+    required WorldSnapshot outcome,
+    String? eventKey,
+    String? label,
   }) {
     final entry = ReplayEntry(
       tick: tick,
@@ -38,7 +38,7 @@ class ReplayRecorder {
       kind: ReplayEntryKind.command,
       eventKey: eventKey,
       payload: <String, Object?>{
-        if (label != null) commandLabelKey: label,
+        commandLabelKey: ?label,
         commandOutcomeKey: outcome.toJson(),
       },
     );
@@ -48,10 +48,10 @@ class ReplayRecorder {
 
   /// Records an input row (replayed by host systems).
   ReplayEntry recordInput({
-    required final int tick,
-    required final String inputType,
-    required final Map<String, Object?> data,
-    final String? eventKey,
+    required int tick,
+    required String inputType,
+    required Map<String, Object?> data,
+    String? eventKey,
   }) {
     final entry = ReplayEntry(
       tick: tick,
@@ -68,13 +68,13 @@ class ReplayRecorder {
   }
 
   /// Captures a checkpoint when [tick] matches [CheckpointStore.cadence].
-  void maybeCheckpoint(final World world, final int tick) {
+  void maybeCheckpoint(World world, int tick) {
     if (!checkpoints.shouldCheckpoint(tick)) return;
     checkpoints.save(world, tick, options: snapshotOptions);
   }
 
   /// Rewrites history from [position] (invalidates checkpoints).
-  void truncateFrom(final ReplayPosition position) {
+  void truncateFrom(ReplayPosition position) {
     log.truncateFrom(position);
     checkpoints.invalidateFromTick(position.tick);
   }

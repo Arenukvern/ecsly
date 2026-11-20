@@ -21,7 +21,7 @@ abstract class SnapshotMigration {
 
   /// Apply the migration to the raw snapshot [json] in place (or return a
   /// new map).
-  Map<String, Object?> migrate(final Map<String, Object?> json);
+  Map<String, Object?> migrate(Map<String, Object?> json);
 }
 
 /// Convenience migration that renames a component key across all entities.
@@ -46,7 +46,7 @@ class RenameComponentMigration extends SnapshotMigration {
   final String newName;
 
   @override
-  Map<String, Object?> migrate(final Map<String, Object?> json) {
+  Map<String, Object?> migrate(Map<String, Object?> json) {
     final componentIds = (json['componentIds'] as Map?)
         ?.cast<String, Object?>();
     if (componentIds == null || !componentIds.containsKey(oldName)) {
@@ -79,9 +79,9 @@ class RenameComponentMigration extends SnapshotMigration {
 /// Throws [StateError] when a required step is missing — loud failure beats
 /// silent drift.
 WorldSnapshot decodeAndMigrateWorldSnapshot(
-  final String json,
-  final List<SnapshotMigration> migrations, {
-  final int targetVersion = 1,
+  String json,
+  List<SnapshotMigration> migrations, {
+  int targetVersion = 1,
 }) {
   var raw = jsonDecode(json) as Map<String, Object?>;
   var current = (raw['schemaVersion'] as num?)?.toInt() ?? 1;
@@ -103,8 +103,8 @@ WorldSnapshot decodeAndMigrateWorldSnapshot(
 }
 
 SnapshotMigration? _findStep(
-  final List<SnapshotMigration> migrations,
-  final int fromVersion,
+  List<SnapshotMigration> migrations,
+  int fromVersion,
 ) {
   for (final migration in migrations) {
     if (migration.fromVersion == fromVersion) return migration;

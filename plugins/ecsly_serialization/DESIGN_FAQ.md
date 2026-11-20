@@ -62,7 +62,7 @@ versions, Bevy's explicit scene type registration) requires the developer to
 declare semantics. The framework's job is to make declaring them cheap and to
 fail loudly when a declaration is missing — which is what layers 1–3 do.
 
-## Why PersistentId instead of serializing entity handles?
+## Why PersistentEntity instead of serializing entity handles?
 
 Runtime `Entity` handles are world-local: index + generation, recycled on
 despawn. Serializing them would make saves fragile (any spawn-order change
@@ -70,11 +70,15 @@ invalidates every reference) and would couple the format to core's internal
 entity encoding.
 
 This matches how Bevy and networked ECS engines treat identity: the runtime
-handle is disposable; stable identity lives in a component (`PersistentId`
-here, Bevy's `PrimaryEntity`/BSN `Context`-scoped ids, or MMO persistent
-object GUIDs). The snapshot stores only `PersistentId` carriers and re-spawns
+handle is disposable; stable identity lives in a component
+(`PersistentEntityComponent` here, Bevy's `PrimaryEntity`/BSN `Context`-scoped
+ids, or MMO persistent object GUIDs). The snapshot stores only identity
+carriers and re-spawns
 them into any target world — including a completely empty one — returning a
-`persistentId → Entity` map so apps can re-resolve references.
+`persistentId → Entity` map so apps can re-resolve references. (ADR 0007
+closed this gap: allocation is a world-level allocator policy, the index
+makes resolution O(1), and the mapping no longer escapes restore — codecs
+resolve references through the engine-provided resolver.)
 
 Consequences:
 
@@ -100,9 +104,9 @@ columns are zero-initialized and filled from snapshot data.
 Use `reconcileWorldSnapshot` (or `restoreWorldSnapshot` with
 `WorldSnapshotRestoreMode.reconcile`) when the target world already has live
 entities — for example replay seek into an inspector world. Reconcile overwrites
-values by `PersistentId`, adds/removes components to match the snapshot,
+values by identity, adds/removes components to match the snapshot,
 despawns persisted entities missing from a **full** snapshot, and leaves entities
-without `PersistentId` alone. Partial command outcomes should pass
+without an identity alone. Partial command outcomes should pass
 `despawnAbsent: false`. Spawn restore remains the save/load default and the test
 oracle: both paths must yield identical captures for full snapshots.
 
