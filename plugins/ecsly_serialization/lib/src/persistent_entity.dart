@@ -5,6 +5,9 @@ import 'persistent_entity_index.dart';
 
 export 'persistent_entity_allocator.dart';
 export 'persistent_entity_index.dart';
+// The durable-identity type lives in core's public barrel; re-export it so
+// one import serves the whole identity model.
+export 'package:ecsly/ecsly.dart' show PersistentEntity;
 
 /// Marker + identity component marking an entity as persistable.
 ///
