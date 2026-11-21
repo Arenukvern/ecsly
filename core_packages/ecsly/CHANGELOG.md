@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.1
+
+### Patch Changes
+
+- Widen from_json_to_json to >=0.5.0 <0.7.0: oka@main and
+  intentcall_platform@main require ^0.6.0, and the range keeps 0.5.x
+  consumers valid (0.6.0 was additive — yaml-shaped maps accepted in the
+  jsonDecodeMap variants). Verified with core (313) and serialization
+  (51) suites green at from_json_to_json 0.6.1.
 ## [1.0.0](https://github.com/Arenukvern/ecsly/compare/ecsly-v0.1.0...ecsly-v1.0.0) (2026-11-20)
 
 
@@ -175,3 +184,4 @@ First stable release. The API surface is unchanged from `ecsly` 0.1.0-dev.14; th
   ECS ecosystem, including [Bevy](https://bevyengine.org/) and
   [EnTT](https://github.com/skypjack/entt), and many other developers who
   advanced data-oriented architecture in game and simulation tooling.
+
