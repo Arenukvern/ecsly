@@ -11,8 +11,8 @@ and CLI.
 
 [![pub: ecsly](https://img.shields.io/pub/v/ecsly.svg?include_prereleases)](https://pub.dev/packages/ecsly)
 [![Release validation](https://github.com/Arenukvern/ecsly/actions/workflows/release-validation.yml/badge.svg?branch=main)](https://github.com/Arenukvern/ecsly/actions/workflows/release-validation.yml)
-[![Release Please](https://github.com/Arenukvern/ecsly/actions/workflows/release-please.yml/badge.svg?branch=main)](https://github.com/Arenukvern/ecsly/actions/workflows/release-please.yml)
-[![Publish pub.dev package](https://github.com/Arenukvern/ecsly/actions/workflows/pub-publish.yml/badge.svg?branch=main)](https://github.com/Arenukvern/ecsly/actions/workflows/pub-publish.yml)
+[![release train](https://img.shields.io/github/actions/workflow/status/Arenukvern/ecsly/dart_changesets.yml?branch=main&label=release%20train&logo=github)](https://github.com/Arenukvern/ecsly/actions/workflows/dart_changesets.yml)
+[![release engine: dart_changesets](https://img.shields.io/badge/release_engine-dart__changesets-0175C2?logo=dart&logoColor=white)](https://github.com/Arenukvern/dart_changesets)
 [![Docs](https://img.shields.io/badge/docs-docs.page-blue)](https://docs.page/arenukvern/ecsly)
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/arenukvern/ecsly)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE-MIT)
