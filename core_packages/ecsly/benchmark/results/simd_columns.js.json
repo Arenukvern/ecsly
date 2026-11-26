@@ -1,0 +1,485 @@
+{
+  "generatedAt": "2026-11-26T16:16:57.840Z",
+  "command": "benchmark/simd_columns.dart",
+  "compiler": "js",
+  "simdHardware": false,
+  "maskWordSize": 32,
+  "aggregation": "median",
+  "sampleCount": 5,
+  "batchMs": 60,
+  "environment": {
+    "os": "unknown",
+    "osVersion": "",
+    "dartVersion": "",
+    "processors": 0,
+    "executable": "",
+    "gitCommit": "",
+    "gitDirty": false
+  },
+  "metrics": [
+    {
+      "name": "update_position_stride2_us",
+      "entities": 64,
+      "value": 0.1087188720703125,
+      "unit": "us",
+      "samples": [
+        0.1087188720703125,
+        0.1087188720703125,
+        0.10776519775390625,
+        0.10776519775390625,
+        0.1087188720703125
+      ],
+      "scalarMedianUs": 0.23651123046875,
+      "speedup": 2.175438596491228,
+      "notes": "Stride-2 integrate. The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "normalize_stride2_us",
+      "entities": 64,
+      "value": 0.10204315185546875,
+      "unit": "us",
+      "samples": [
+        0.10204315185546875,
+        0.102996826171875,
+        0.10204315185546875,
+        0.10204315185546875,
+        0.102996826171875
+      ],
+      "scalarMedianUs": 0.1850128173828125,
+      "speedup": 1.8130841121495327,
+      "notes": "Stride-2 normalize. The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "distance_stride2_us",
+      "entities": 64,
+      "value": 0.0972747802734375,
+      "unit": "us",
+      "samples": [
+        0.0972747802734375,
+        0.0972747802734375,
+        0.09632110595703125,
+        0.0972747802734375,
+        0.0972747802734375
+      ],
+      "scalarMedianUs": 0.152587890625,
+      "speedup": 1.5686274509803921,
+      "notes": "Stride-2 distance to (target.x, target.y). The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "scale_stride2_us",
+      "entities": 64,
+      "value": 0.0782012939453125,
+      "unit": "us",
+      "samples": [
+        0.07724761962890625,
+        0.0782012939453125,
+        0.0782012939453125,
+        0.0782012939453125,
+        0.0782012939453125
+      ],
+      "scalarMedianUs": 0.1468658447265625,
+      "speedup": 1.8780487804878048,
+      "notes": "Layout measurement. The scalar twin is a getValue/setValue loop."
+    },
+    {
+      "name": "scale_stride4_us",
+      "entities": 64,
+      "value": 0.152587890625,
+      "unit": "us",
+      "samples": [
+        0.152587890625,
+        0.152587890625,
+        0.1506805419921875,
+        0.152587890625,
+        0.152587890625
+      ],
+      "scalarMedianUs": 0.2231597900390625,
+      "speedup": 1.4625,
+      "notes": "Layout measurement. The scalar twin is a getValue/setValue loop."
+    },
+    {
+      "name": "add_stride2_us",
+      "entities": 64,
+      "value": 0.1430511474609375,
+      "unit": "us",
+      "samples": [
+        0.141143798828125,
+        0.1430511474609375,
+        0.1430511474609375,
+        0.1430511474609375,
+        0.1430511474609375
+      ],
+      "scalarMedianUs": 0.308990478515625,
+      "speedup": 2.16,
+      "notes": "Stride-2 element-wise add into a third column. The scalar twin is a getValue/setValue loop."
+    },
+    {
+      "name": "dot_stride2_us",
+      "entities": 64,
+      "value": 0.446319580078125,
+      "unit": "us",
+      "samples": [
+        0.446319580078125,
+        0.446319580078125,
+        0.4425048828125,
+        0.446319580078125,
+        0.45013427734375
+      ],
+      "scalarMedianUs": 0.48065185546875,
+      "speedup": 1.0769230769230769,
+      "notes": "Stride-2 row dot products into a new stride-1 column. The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "update_position_stride2_us",
+      "entities": 1000,
+      "value": 1.678466796875,
+      "unit": "us",
+      "samples": [
+        1.678466796875,
+        1.6937255859375,
+        1.678466796875,
+        1.678466796875,
+        1.678466796875
+      ],
+      "scalarMedianUs": 3.570556640625,
+      "speedup": 2.1272727272727274,
+      "notes": "Stride-2 integrate. The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "normalize_stride2_us",
+      "entities": 1000,
+      "value": 1.5411376953125,
+      "unit": "us",
+      "samples": [
+        1.52587890625,
+        1.5411376953125,
+        1.5411376953125,
+        1.5411376953125,
+        1.5411376953125
+      ],
+      "scalarMedianUs": 2.8076171875,
+      "speedup": 1.8217821782178218,
+      "notes": "Stride-2 normalize. The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "distance_stride2_us",
+      "entities": 1000,
+      "value": 1.373291015625,
+      "unit": "us",
+      "samples": [
+        1.373291015625,
+        1.3580322265625,
+        1.373291015625,
+        1.373291015625,
+        1.373291015625
+      ],
+      "scalarMedianUs": 2.166748046875,
+      "speedup": 1.5777777777777777,
+      "notes": "Stride-2 distance to (target.x, target.y). The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "scale_stride2_us",
+      "entities": 1000,
+      "value": 1.1444091796875,
+      "unit": "us",
+      "samples": [
+        1.1444091796875,
+        1.1444091796875,
+        1.15966796875,
+        1.1444091796875,
+        1.1444091796875
+      ],
+      "scalarMedianUs": 2.13623046875,
+      "speedup": 1.8666666666666667,
+      "notes": "Layout measurement. The scalar twin is a getValue/setValue loop."
+    },
+    {
+      "name": "scale_stride4_us",
+      "entities": 1000,
+      "value": 2.288818359375,
+      "unit": "us",
+      "samples": [
+        2.288818359375,
+        2.288818359375,
+        2.288818359375,
+        2.288818359375,
+        2.288818359375
+      ],
+      "scalarMedianUs": 3.326416015625,
+      "speedup": 1.4533333333333334,
+      "notes": "Layout measurement. The scalar twin is a getValue/setValue loop."
+    },
+    {
+      "name": "add_stride2_us",
+      "entities": 1000,
+      "value": 1.922607421875,
+      "unit": "us",
+      "samples": [
+        1.922607421875,
+        1.953125,
+        1.922607421875,
+        1.953125,
+        1.922607421875
+      ],
+      "scalarMedianUs": 4.638671875,
+      "speedup": 2.4126984126984126,
+      "notes": "Stride-2 element-wise add into a third column. The scalar twin is a getValue/setValue loop."
+    },
+    {
+      "name": "dot_stride2_us",
+      "entities": 1000,
+      "value": 5.06591796875,
+      "unit": "us",
+      "samples": [
+        5.06591796875,
+        5.06591796875,
+        5.06591796875,
+        5.126953125,
+        5.126953125
+      ],
+      "scalarMedianUs": 5.43212890625,
+      "speedup": 1.072289156626506,
+      "notes": "Stride-2 row dot products into a new stride-1 column. The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "update_position_stride2_us",
+      "entities": 10000,
+      "value": 17.08984375,
+      "unit": "us",
+      "samples": [
+        17.08984375,
+        17.08984375,
+        17.08984375,
+        17.08984375,
+        17.08984375
+      ],
+      "scalarMedianUs": 36.62109375,
+      "speedup": 2.142857142857143,
+      "notes": "Stride-2 integrate. The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "normalize_stride2_us",
+      "entities": 10000,
+      "value": 15.380859375,
+      "unit": "us",
+      "samples": [
+        15.380859375,
+        15.380859375,
+        15.380859375,
+        15.13671875,
+        15.380859375
+      ],
+      "scalarMedianUs": 27.587890625,
+      "speedup": 1.7936507936507937,
+      "notes": "Stride-2 normalize. The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "distance_stride2_us",
+      "entities": 10000,
+      "value": 13.5498046875,
+      "unit": "us",
+      "samples": [
+        13.671875,
+        13.5498046875,
+        13.5498046875,
+        13.5498046875,
+        13.671875
+      ],
+      "scalarMedianUs": 21.484375,
+      "speedup": 1.5855855855855856,
+      "notes": "Stride-2 distance to (target.x, target.y). The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "scale_stride2_us",
+      "entities": 10000,
+      "value": 11.3525390625,
+      "unit": "us",
+      "samples": [
+        11.3525390625,
+        11.3525390625,
+        11.474609375,
+        11.3525390625,
+        11.3525390625
+      ],
+      "scalarMedianUs": 21.484375,
+      "speedup": 1.89247311827957,
+      "notes": "Layout measurement. The scalar twin is a getValue/setValue loop."
+    },
+    {
+      "name": "scale_stride4_us",
+      "entities": 10000,
+      "value": 22.705078125,
+      "unit": "us",
+      "samples": [
+        22.705078125,
+        22.705078125,
+        22.705078125,
+        22.94921875,
+        22.705078125
+      ],
+      "scalarMedianUs": 35.15625,
+      "speedup": 1.5483870967741935,
+      "notes": "Layout measurement. The scalar twin is a getValue/setValue loop."
+    },
+    {
+      "name": "add_stride2_us",
+      "entities": 10000,
+      "value": 19.287109375,
+      "unit": "us",
+      "samples": [
+        19.287109375,
+        19.04296875,
+        19.53125,
+        19.04296875,
+        19.287109375
+      ],
+      "scalarMedianUs": 46.38671875,
+      "speedup": 2.4050632911392404,
+      "notes": "Stride-2 element-wise add into a third column. The scalar twin is a getValue/setValue loop."
+    },
+    {
+      "name": "dot_stride2_us",
+      "entities": 10000,
+      "value": 49.31640625,
+      "unit": "us",
+      "samples": [
+        49.8046875,
+        49.31640625,
+        49.31640625,
+        48.828125,
+        48.828125
+      ],
+      "scalarMedianUs": 52.734375,
+      "speedup": 1.0693069306930694,
+      "notes": "Stride-2 row dot products into a new stride-1 column. The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "update_position_stride2_us",
+      "entities": 100000,
+      "value": 179.6875,
+      "unit": "us",
+      "samples": [
+        179.6875,
+        179.6875,
+        177.734375,
+        179.6875,
+        179.6875
+      ],
+      "scalarMedianUs": 355.46875,
+      "speedup": 1.9782608695652173,
+      "notes": "Stride-2 integrate. The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "normalize_stride2_us",
+      "entities": 100000,
+      "value": 154.296875,
+      "unit": "us",
+      "samples": [
+        154.296875,
+        152.34375,
+        154.296875,
+        152.34375,
+        154.296875
+      ],
+      "scalarMedianUs": 277.34375,
+      "speedup": 1.7974683544303798,
+      "notes": "Stride-2 normalize. The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "distance_stride2_us",
+      "entities": 100000,
+      "value": 148.4375,
+      "unit": "us",
+      "samples": [
+        146.484375,
+        148.4375,
+        148.4375,
+        146.484375,
+        148.4375
+      ],
+      "scalarMedianUs": 214.84375,
+      "speedup": 1.4473684210526316,
+      "notes": "Stride-2 distance to (target.x, target.y). The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "scale_stride2_us",
+      "entities": 100000,
+      "value": 201.171875,
+      "unit": "us",
+      "samples": [
+        203.125,
+        201.171875,
+        201.171875,
+        203.125,
+        201.171875
+      ],
+      "scalarMedianUs": 232.421875,
+      "speedup": 1.1553398058252426,
+      "notes": "Layout measurement. The scalar twin is a getValue/setValue loop."
+    },
+    {
+      "name": "scale_stride4_us",
+      "entities": 100000,
+      "value": 406.25,
+      "unit": "us",
+      "samples": [
+        406.25,
+        406.25,
+        406.25,
+        402.34375,
+        406.25
+      ],
+      "scalarMedianUs": 355.46875,
+      "speedup": 0.875,
+      "notes": "Layout measurement. The scalar twin is a getValue/setValue loop."
+    },
+    {
+      "name": "add_stride2_us",
+      "entities": 100000,
+      "value": 351.5625,
+      "unit": "us",
+      "samples": [
+        351.5625,
+        351.5625,
+        351.5625,
+        351.5625,
+        351.5625
+      ],
+      "scalarMedianUs": 492.1875,
+      "speedup": 1.4,
+      "notes": "Stride-2 element-wise add into a third column. The scalar twin is a getValue/setValue loop."
+    },
+    {
+      "name": "dot_stride2_us",
+      "entities": 100000,
+      "value": 382.8125,
+      "unit": "us",
+      "samples": [
+        378.90625,
+        382.8125,
+        382.8125,
+        382.8125,
+        378.90625
+      ],
+      "scalarMedianUs": 507.8125,
+      "speedup": 1.3265306122448979,
+      "notes": "Stride-2 row dot products into a new stride-1 column. The scalar twin is the getValue/setValue loop the 1.0.1 kernel ran."
+    },
+    {
+      "name": "int_less_than_count_us",
+      "entities": 100000,
+      "value": 82.03125,
+      "unit": "us",
+      "samples": [
+        81.0546875,
+        82.03125,
+        82.03125,
+        82.03125,
+        81.0546875
+      ],
+      "scalarMedianUs": 126.953125,
+      "speedup": 1.5476190476190477,
+      "notes": "Int32x4 lessThan plus signMask versus a scalar Int32List loop. A public integer kernel stays out of the library."
+    }
+  ]
+}

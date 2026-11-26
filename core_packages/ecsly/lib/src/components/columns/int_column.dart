@@ -1,5 +1,16 @@
 part of 'data_column.dart';
 
+/// Live `Int32x4` prefix of an [IntColumn], plus the unfilled tail.
+final class SimdIntWindow {
+  const SimdIntWindow(this.vectors, this.tailInts);
+
+  /// Live ints grouped by four. Empty when fewer than four live ints.
+  final Int32x4List vectors;
+
+  /// Live ints after [vectors]. Always 0, 1, 2, or 3.
+  final int tailInts;
+}
+
 /// Column for storing integer components (Health, Team, etc.).
 ///
 /// Uses stride-based packing: [x0, y0, x1, y1, x2, y2, ...]
@@ -13,10 +24,33 @@ class IntColumn implements DataColumn {
   int _length;
   final int stride;
 
+  /// The last [simdWindow] handed out, and the [_length] it was built for.
+  SimdIntWindow? _window;
+  int _windowLength = -1;
+
   @override
   int get capacity => _data.length ~/ stride;
 
   Int32List get data => _data;
+
+  /// Live `Int32x4` prefix for any stride, plus a 0–3 int tail.
+  ///
+  /// Spare capacity is excluded. The view is 16-byte aligned because the
+  /// column owns its [Int32List]. Like [FloatColumn.simdWindow], it is a
+  /// reused view that is rebuilt when [length] or the buffer changes.
+  SimdIntWindow get simdWindow {
+    final cached = _window;
+    if (cached != null && _windowLength == _length) return cached;
+    final liveInts = _length * stride;
+    final vectorCount = liveInts ~/ 4;
+    final window = SimdIntWindow(
+      _data.buffer.asInt32x4List(0, vectorCount),
+      liveInts - vectorCount * 4,
+    );
+    _window = window;
+    _windowLength = _length;
+    return window;
+  }
 
   @override
   int get length => _length;
@@ -40,11 +74,7 @@ class IntColumn implements DataColumn {
   }
 
   @override
-  void copyTo(
-    int sourceIndex,
-    DataColumn destination,
-    int destIndex,
-  ) {
+  void copyTo(int sourceIndex, DataColumn destination, int destIndex) {
     assert(sourceIndex < _length, 'Source index out of bounds');
     if (destination is! IntColumn) {
       throw ArgumentError('Destination must be IntColumn');
@@ -85,11 +115,7 @@ class IntColumn implements DataColumn {
   }
 
   @override
-  void moveTo(
-    int sourceIndex,
-    DataColumn destination,
-    int destIndex,
-  ) {
+  void moveTo(int sourceIndex, DataColumn destination, int destIndex) {
     copyTo(sourceIndex, destination, destIndex);
     // Clear source (set to zero)
     final sourceOffset = sourceIndex * stride;
@@ -104,6 +130,7 @@ class IntColumn implements DataColumn {
     final newData = Int32List(newCapacity * stride);
     newData.setRange(0, _data.length, _data);
     _data = newData;
+    _window = null;
   }
 
   /// Set single int value at (index, componentIndex).

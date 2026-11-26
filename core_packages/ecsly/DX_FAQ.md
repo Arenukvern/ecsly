@@ -451,18 +451,37 @@ not own game-specific components such as position, velocity, or health.
 
 ```dart
 final column = archetype.getColumn(id) as FloatColumn;
-final simd = column.simdView; // Only if stride % 4 == 0
-if (simd != null) {
+if (kEcslySimdHardware) {
+  // VM and AOT: live prefix, then the 0..3 floats left over.
+  final window = column.simdWindow;
   final scale = Float32x4.splat(1.1);
-  for (int i = 0; i < simd.length; i++) {
-    simd[i] = simd[i] * scale;
+  for (var i = 0; i < window.vectors.length; i++) {
+    window.vectors[i] = window.vectors[i] * scale;
+  }
+  // The tail keeps the float32 constant the vector lanes used.
+  final tailStart = window.vectors.length * 4;
+  for (var i = tailStart; i < tailStart + window.tailFloats; i++) {
+    column.data[i] *= scale.x;
+  }
+} else {
+  // dart2js, DDC, dart2wasm: a Float32x4 loop is slower there, so doubles win.
+  for (var i = 0; i < column.length * column.stride; i++) {
+    column.data[i] *= 1.1;
   }
 }
 ```
 
-For a runnable version, see `example/simd_columns.dart`. SIMD works best when
-the component uses a `FloatColumn(stride: 4)` so each entity row maps to one
-`Float32x4` lane.
+For a runnable version, see `example/simd_columns.dart`. A stride-4 row is one
+`Float32x4`. A stride-2 column packs two entities as `[x0, y0, x1, y1]`. The
+window is a view over the column and is reused while the length and the
+backing buffer are unchanged, so take it again after a spawn, despawn,
+`clear()`, or `resize()`. A window kept across a `resize()` still points at the
+old buffer. Closed kernels such as
+`updatePositionSimd` pick the path themselves: `Float32x4` on the VM and in
+AOT, plain doubles on `dart2js`, DDC, and `dart2wasm`.
+
+Vector rows round to float32 after every operation. They can differ from a
+scalar loop by an ulp, so do not expect the same bits on web and native.
 
 ## 🚨 Safety Zone
 
@@ -471,6 +490,6 @@ the component uses a `FloatColumn(stride: 4)` so each entity row maps to one
 - ❌ Deprecated + forbidden for web interop: `dart:html`, `dart:js_util` (`js:utils`)
 - ✅ Required web interop path: `dart:js_interop` (plus `dart:js_interop_unsafe` only when needed)
 - ✅ Flush at schedule end
-- ✅ SIMD when stride % 4 == 0
+- ✅ `Float32x4` loops only when `kEcslySimdHardware` is true, and bounded by `vectors.length`
 
 **Memory Hook:** "World → Entity → Query → Component → Schedule → Events"

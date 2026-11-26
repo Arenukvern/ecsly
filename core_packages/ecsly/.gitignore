@@ -23,6 +23,16 @@ migrate_working_dir/
 # is commented out by default.
 #.vscode/
 
+# SIMD benchmark binaries. JSON reports under benchmark/results stay.
+benchmark/simd_columns.exe
+benchmark/results/simd_columns.js
+benchmark/results/simd_columns.js.deps
+benchmark/results/simd_columns.js.map
+benchmark/results/simd_columns.support.js
+benchmark/results/simd_columns.wasm
+benchmark/results/simd_columns.wasm.map
+benchmark/results/simd_columns.mjs
+
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id

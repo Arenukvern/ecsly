@@ -59,6 +59,22 @@ bench-serialization:
 bench-append-ingest:
     cd core_packages/ecsly && dart run benchmark/append_only_ingest.dart --sizes=1000,100000,1000000 --samples=3 --json --out=benchmark/results/append_only_ingest.latest.json
 
+# AOT SIMD column benchmark, the acceptance numbers. Writes benchmark/results/simd_columns.aot.json.
+bench-simd:
+    cd core_packages/ecsly && dart compile exe benchmark/simd_columns.dart -o benchmark/simd_columns.exe && ./benchmark/simd_columns.exe --compiler=aot --json-out=benchmark/results/simd_columns.aot.json
+
+# JIT SIMD column benchmark. A dev signal, not the acceptance number.
+bench-simd-jit:
+    cd core_packages/ecsly && dart run benchmark/simd_columns.dart --compiler=jit --json-out=benchmark/results/simd_columns.jit.json
+
+# dart2js SIMD column benchmark. Needs Node. Records simdHardware false.
+bench-simd-js:
+    cd core_packages/ecsly && dart compile js -O4 benchmark/simd_columns.dart -o benchmark/results/simd_columns.js && node benchmark/results/simd_columns.js > benchmark/results/simd_columns.js.json
+
+# dart2wasm SIMD column benchmark. Needs Node 22 or newer for WasmGC. Records simdHardware false.
+bench-simd-wasm:
+    cd core_packages/ecsly && dart compile wasm -O4 benchmark/simd_columns.dart -o benchmark/results/simd_columns.wasm && node benchmark/simd_wasm_runner.mjs --compiler=wasm > benchmark/results/simd_columns.wasm.json
+
 # Run all package tests that do not publish.
 test: test-core test-app test-codegen test-flutter test-serialization test-replay
 
