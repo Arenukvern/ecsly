@@ -1,8 +1,8 @@
 [
   {
     "package": "ecsly",
-    "version": "1.0.1",
-    "tag": "ecsly-v1.0.1",
-    "directory": "/home/runner/work/ecsly/ecsly/core_packages/ecsly"
+    "version": "1.1.0",
+    "tag": "ecsly-v1.1.0",
+    "directory": "core_packages/ecsly"
   }
 ]
