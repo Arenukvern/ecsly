@@ -37,8 +37,9 @@ shape, and `steward probe --profile quick --json` for the quick-safe smoke.
 Treat those as stewardship checks, not runtime package proof.
 
 **Q: How does agent auto-approval work?**
-A: Add the `agent-auto-approve` label to a trusted same-repo `codex/` or
-`release-please--` PR. After `Release validation` passes,
+A: Add the `agent-auto-approve` label to a trusted same-repo `codex/`,
+`release-please--`, or `changesets/` PR. The dart_changesets version PR gets
+the label from `.github/workflows/version-pr-finish.yml` on its own. After `Release validation` passes,
 `.github/workflows/agent-auto-approve.yml` uses the `AUTO_APPROVE_TOKEN`
 repository secret to approve eligible PRs from `Arenukvern` or
 `github-actions[bot]`. The token must belong to a separate machine user with

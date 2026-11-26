@@ -83,13 +83,13 @@ The release helper keeps the same package order for automation, uses
 `flutter pub publish` for `ecsly_flutter`, checks package changelog entries, and
 waits for internal hosted dependencies before publishing dependent packages.
 
-Release Please is still the source of truth for release PR versions through
-`.release-please-manifest.json`. Because the Dart updater can format prerelease
-pubspec versions incorrectly, release PRs run
-`.github/workflows/release-pr-sync-pubspecs.yml`, which normalizes every
-package `pubspec.yaml` (core and plugins) from the manifest and syncs
-`docs.json`'s version variable with the core pubspec. Maintainers can run the
-same sync locally:
+The dart_changesets train fixes up its own version PR. When the
+`changesets/version-packages` PR opens or gains a commit,
+`.github/workflows/version-pr-finish.yml` syncs `docs.json`'s version variable
+with the core pubspec, strips the changelog whitespace the generator writes
+(the Release validation diff check rejects it), pushes the result with the
+train PAT so Release validation re-runs green, and applies the
+`agent-auto-approve` label. Maintainers can run the same sync locally:
 
 ```sh
 just sync-release-pubspecs
@@ -98,6 +98,7 @@ just sync-benchmarks
 ```
 
 Agent auto-approval is label-gated. Configure `AUTO_APPROVE_TOKEN` with a
-separate write-capable machine user token. Release Please PRs from
-`github-actions[bot]` are labeled automatically; trusted same-repo `codex/` PRs
-still need an explicit `agent-auto-approve` label.
+separate write-capable machine user token. The dart_changesets version PR is
+labeled automatically by the finish workflow; trusted same-repo `codex/` PRs
+still need an explicit `agent-auto-approve` label. Approval fires only when
+Release validation is green.

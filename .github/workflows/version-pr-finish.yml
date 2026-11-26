@@ -1,0 +1,101 @@
+# Finishes the machine-generated version PR from the dart_changesets train
+# (head branch `changesets/version-packages`): syncs docs metadata, strips
+# generated changelog whitespace, and labels the PR for agent auto-approval.
+# Restores the release-please-era fix-up loop (release-pr-sync-pubspecs.yml,
+# removed in the dart_changesets migration) for the new train. Without it,
+# every version PR fails Release validation on docs.json version drift and
+# changelog whitespace the generator itself writes.
+name: Version PR finish
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+    branches:
+      - main
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: version-pr-finish-${{ github.event.pull_request.number || 'manual' }}
+  cancel-in-progress: true
+
+jobs:
+  finish:
+    if: >-
+      ${{
+        github.event_name == 'workflow_dispatch' ||
+        github.head_ref == 'changesets/version-packages' ||
+        github.event.pull_request.title == 'chore: version packages'
+      }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
+
+      - uses: dart-lang/setup-dart@v1
+
+      - name: Sync docs metadata (docs.json version, README benchmark blocks)
+        run: dart tool/docs/sync_readme_benchmarks.dart
+
+      - name: Strip generated changelog whitespace
+        run: |
+          set -euo pipefail
+          # dart_changesets indents multi-paragraph changelog bullets, which
+          # leaves two-space blank lines and a trailing blank at EOF. The
+          # Release validation whitespace check rejects both.
+          find . -name CHANGELOG.md -type f -not -path './.dart_tool/*' -print0 |
+          while IFS= read -r -d '' f; do
+            sed -i 's/[ \t]*$//' "$f"
+            printf '%s\n' "$(cat "$f")" > "$f"
+          done
+
+      - name: Commit and push if changed
+        env:
+          # A GITHUB_TOKEN push does not trigger new workflow runs, so the
+          # follow-up Release validation would never fire. The train's PAT
+          # (same one the dart_changesets action pushes with) does.
+          PUSH_TOKEN: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          git add docs.json
+          find . -name CHANGELOG.md -type f -not -path './.dart_tool/*' \
+            -print0 | xargs -0 git add
+          if git diff --cached --quiet; then
+            echo "version PR already finished"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: finish version PR (docs metadata, changelog whitespace)"
+          if [ -n "${PUSH_TOKEN:-}" ]; then
+            git push \
+              "https://x-access-token:${PUSH_TOKEN}@github.com/${{ github.repository }}.git" \
+              "HEAD:${{ github.head_ref }}"
+          else
+            echo "RELEASE_PLEASE_TOKEN not set; pushing with GITHUB_TOKEN"
+            echo "(!) this push will not re-trigger Release validation"
+            git push origin "HEAD:${{ github.head_ref }}"
+          fi
+
+      - name: Label for agent auto-approval
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          gh label create agent-auto-approve --color 0E8A16 \
+            --description "Auto-approve trusted agent PRs after release validation" \
+            --force
+          gh pr edit "$PR_NUMBER" --add-label agent-auto-approve
