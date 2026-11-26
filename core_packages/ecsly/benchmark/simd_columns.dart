@@ -523,6 +523,8 @@ void _expectFloats(FloatColumn column, Float32List expected) {
 /// off-by-one lane is much larger than that at every benchmark size.
 bool _closeFloat32(double actual, double expected) {
   if (actual.isNaN && expected.isNaN) return true;
+  if (actual == expected) return true;
+  if (!actual.isFinite || !expected.isFinite) return false;
   final diff = (actual - expected).abs();
   final mag = actual.abs() > expected.abs() ? actual.abs() : expected.abs();
   final ulps = mag * (8 / 8388608);

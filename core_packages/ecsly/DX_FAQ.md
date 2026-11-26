@@ -473,8 +473,10 @@ if (kEcslySimdHardware) {
 
 For a runnable version, see `example/simd_columns.dart`. A stride-4 row is one
 `Float32x4`. A stride-2 column packs two entities as `[x0, y0, x1, y1]`. The
-window is a view over the column and is reused while the length is unchanged,
-so take it again after a spawn, despawn, or `clear()`. Closed kernels such as
+window is a view over the column and is reused while the length and the
+backing buffer are unchanged, so take it again after a spawn, despawn,
+`clear()`, or `resize()`. A window kept across a `resize()` still points at the
+old buffer. Closed kernels such as
 `updatePositionSimd` pick the path themselves: `Float32x4` on the VM and in
 AOT, plain doubles on `dart2js`, DDC, and `dart2wasm`.
 

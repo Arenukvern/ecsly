@@ -927,7 +927,8 @@ before a nested query changes that binding, or reacquire them afterward.
 
 ### SIMD Operations
 
-**Column SIMD Views**: `FloatColumn.simdWindow` → live `Float32x4` prefix for any stride, plus a 0–3 float tail, reused while the length is unchanged. `FloatColumn.simdView` → its vector list when the stride is a multiple of 4. Spare capacity is excluded.
+**Column SIMD Views**: `FloatColumn.simdWindow` → live `Float32x4` prefix for any stride, plus a 0–3 float tail, reused while the length and the backing buffer are
+unchanged (`resize()` replaces the buffer). `FloatColumn.simdView` → its vector list when the stride is a multiple of 4. Spare capacity is excluded.
 
 **Kernel Path**: get the column (`archetype.getColumn(id) as FloatColumn`) → check `kEcslySimdHardware` → on the VM and in AOT: a `Float32x4` loop bounded by `vectors.length` → elsewhere, and for the rows after the last full vector: a scalar loop over `FloatColumn.data`. Nothing in core walks archetypes for you; a system that wants SIMD calls a kernel per column.
 

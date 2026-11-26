@@ -124,7 +124,7 @@ void main() {
 
     test('the VM has hardware SIMD', () {
       expect(kEcslySimdHardware, isTrue);
-    });
+    }, testOn: 'vm');
   });
 
   group('kernel parity', () {
@@ -316,11 +316,36 @@ void main() {
       }
     });
 
+    test('distance keeps a finite, nonzero value at the float32 limits', () {
+      final column = _column(
+        2,
+        3,
+        (row, lane) => switch (row) {
+          // 2^64: its float32 square overflows.
+          0 => lane == 0 ? 18446744073709551616.0 : 0,
+          // 1e-24: its float32 square underflows.
+          1 => lane == 0 ? 1e-24 : 0,
+          _ => 3,
+        },
+      );
+      column.setValue(2, 1, 4);
+      final out = FloatColumn(stride: 1);
+      for (var i = 0; i < 3; i++) {
+        out.addBlank();
+      }
+      calculateDistancesSimd(column, Float32x4(0, 0, 0, 0), out);
+      expect(out.data[0], 18446744073709551616.0);
+      expect(out.data[1], closeTo(1e-24, 1e-31));
+      expect(out.data[2], 5);
+    });
+
     test('kernels leave spare capacity untouched', () {
       final column = _column(2, 8, (row, lane) => row * 0.5 + lane + 1);
+      column.resize(16);
       final live = column.length * 2;
       final spare = Float32List(column.data.length - live)
         ..fillRange(0, column.data.length - live, 7.5);
+      expect(spare, isNotEmpty);
       column.data.setAll(live, spare);
 
       scalePositionsSimd(column, 2);

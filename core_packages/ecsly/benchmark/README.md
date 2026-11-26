@@ -55,7 +55,10 @@ on the VM and on Wasm and 32 on JS. There is no JS or Wasm CI gate.
 Compare against a baseline, not against the scalar loop. `speedup` says how a
 kernel compares with its 1.0.1 loop. It says nothing about whether the change
 made the kernel faster. Run the same file on both trees and compare `value`
-per metric. `environment.gitCommit` and `--label=<text>` say which run is
+per metric. The file calls `kEcslySimdHardware` and `IntColumn.simdWindow`,
+which a tree from before this change lacks. On such a tree, declare
+`const kEcslySimdHardware = false;` in the file and drop the integer probe
+metric with `_countVector`. The timed float workloads stay identical. `environment.gitCommit` and `--label=<text>` say which run is
 which.
 
 This machine differs by 20% or more between identical runs on some metrics.

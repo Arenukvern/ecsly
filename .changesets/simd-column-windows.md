@@ -14,3 +14,4 @@ Vector rows change results by rounding. They compute in float32 and can differ f
 - `simdAdd` and `simdMultiply` apply to one row at every stride: component `j` takes lane `j % 4`. They were a silent no-op below stride 4 and wrote across two rows at stride 5, 6, and 7.
 - `batchSimdUpdate` is a no-op unless the stride is a multiple of 4. It wrote across rows at stride 5, 6, and 7.
 - `updatePositionSimd` and `calculateDistancesSimd` stop at the shorter column instead of failing an assert.
+- `calculateDistancesSimd` recomputes a pair in double when its float32 square would overflow or underflow, so a position at `(2^64, 0)` or `(1e-24, 0)` keeps a finite, nonzero distance.

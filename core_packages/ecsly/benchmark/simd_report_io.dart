@@ -22,7 +22,13 @@ void writeReport(String? path, String text) {
 }
 
 String _git(List<String> args) {
-  final result = Process.runSync('git', args);
+  final ProcessResult result;
+  try {
+    result = Process.runSync('git', args);
+  } on ProcessException {
+    // No git on this machine. The report keeps its measurements.
+    return '';
+  }
   if (result.exitCode != 0) return '';
   return (result.stdout as String).trim();
 }

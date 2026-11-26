@@ -1,5 +1,6 @@
 // ignore_for_file: do_not_use_environment
 
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 /// True when `Float32x4` lowers to hardware SIMD on this compile target.
@@ -74,7 +75,9 @@ Float32x4 simdPairLength(Float32x4 vector) {
 /// Stores the distance of each xy pair to `(targetX, targetY)`.
 ///
 /// [positions] packs two rows per vector; [distances] gets one entry per pair
-/// lane, so it needs two entries per vector.
+/// lane, so it needs two entries per vector. A pair whose float32 square
+/// overflows or underflows is recomputed in double, so a finite position
+/// keeps a finite, nonzero distance.
 void simdDistanceVectors(
   Float32x4List positions,
   double targetX,
@@ -85,8 +88,23 @@ void simdDistanceVectors(
   for (var i = 0; i < positions.length; i++) {
     final magnitude = simdPairLength(positions[i] - targetXy);
     final row = i * 2;
-    distances[row] = magnitude.x;
-    distances[row + 1] = magnitude.z;
+    final first = magnitude.x;
+    final second = magnitude.z;
+    // Both distances are positive normal numbers unless a square overflowed
+    // (infinity) or underflowed (zero).
+    final product = first * second;
+    if (product > 0 && product < double.infinity) {
+      distances[row] = first;
+      distances[row + 1] = second;
+    } else {
+      final pair = positions[i];
+      final dx = pair.x - targetX;
+      final dy = pair.y - targetY;
+      final ex = pair.z - targetX;
+      final ey = pair.w - targetY;
+      distances[row] = math.sqrt(dx * dx + dy * dy);
+      distances[row + 1] = math.sqrt(ex * ex + ey * ey);
+    }
   }
 }
 
