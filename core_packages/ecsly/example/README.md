@@ -14,4 +14,4 @@ Then explore focused examples:
 - `extension_component.dart` - use factories around extension-type components.
 - `commands_and_resources.dart` - queue commands and read/write data-only
   resource state from systems.
-- `simd_columns.dart` - use `Float32x4` columns for packed hot-loop data.
+- `simd_columns.dart` - stride-2 `simdWindow` integrate, plus a stride-4 `simdView`.

@@ -14,6 +14,10 @@ final class FloatColumn extends DataColumn {
   int _length;
   final int stride; // Elements per component (e.g., 2 for Position x,y)
 
+  /// The last [simdWindow] handed out, and the [_length] it was built for.
+  SimdFloatWindow? _window;
+  int _windowLength = -1;
+
   @override
   int get capacity => _data.length ~/ stride;
 
@@ -23,11 +27,38 @@ final class FloatColumn extends DataColumn {
   @override
   int get length => _length;
 
-  /// Get SIMD view (Float32x4List) for vectorized operations.
-  /// Note: Only works if stride is multiple of 4.
+  /// Live `Float32x4List` for a stride that is a multiple of 4.
+  ///
+  /// Null for any other stride; stride-2 columns use [simdWindow]. The view
+  /// stops at the live rows and leaves spare capacity out. It is the vector
+  /// list of [simdWindow] and follows the same reuse.
   Float32x4List? get simdView {
     if (stride % 4 != 0) return null;
-    return _data.buffer.asFloat32x4List();
+    return simdWindow.vectors;
+  }
+
+  /// Live `Float32x4` prefix for any stride, plus a 0–3 float tail.
+  ///
+  /// A stride-2 column packs `[x0, y0, x1, y1]` into one vector. The tail is
+  /// the live floats that do not fill a vector. Spare capacity is never part
+  /// of a window.
+  ///
+  /// The window is a view over this column, not a copy. It is rebuilt when
+  /// [length] changes, so a system that takes it every frame on a stable
+  /// column does not allocate. Take it again after [resize]: an older window
+  /// then still views the previous buffer.
+  SimdFloatWindow get simdWindow {
+    final cached = _window;
+    if (cached != null && _windowLength == _length) return cached;
+    final liveFloats = _length * stride;
+    final vectorCount = liveFloats ~/ 4;
+    final window = SimdFloatWindow(
+      _data.buffer.asFloat32x4List(0, vectorCount),
+      liveFloats - vectorCount * 4,
+    );
+    _window = window;
+    _windowLength = _length;
+    return window;
   }
 
   @override
@@ -45,11 +76,7 @@ final class FloatColumn extends DataColumn {
   }
 
   @override
-  void copyTo(
-    int sourceIndex,
-    DataColumn destination,
-    int destIndex,
-  ) {
+  void copyTo(int sourceIndex, DataColumn destination, int destIndex) {
     assert(sourceIndex < _length, 'Source index out of bounds');
     if (destination is! FloatColumn) {
       throw ArgumentError('Destination must be FloatColumn');
@@ -85,11 +112,7 @@ final class FloatColumn extends DataColumn {
       _data[index * stride + componentIndex];
 
   @override
-  void moveTo(
-    int sourceIndex,
-    DataColumn destination,
-    int destIndex,
-  ) {
+  void moveTo(int sourceIndex, DataColumn destination, int destIndex) {
     copyTo(sourceIndex, destination, destIndex);
     // Clear source (set to zero)
     final sourceOffset = sourceIndex * stride;
@@ -105,6 +128,7 @@ final class FloatColumn extends DataColumn {
     final newData = Float32List(newCapacity * stride);
     newData.setRange(0, _data.length, _data);
     _data = newData;
+    _window = null;
   }
 
   /// Set element at index from Float32List.
@@ -154,69 +178,100 @@ final class FloatColumn extends DataColumn {
   }
 }
 
+/// Live `Float32x4` prefix of a [FloatColumn], plus the unfilled tail.
+final class SimdFloatWindow {
+  const SimdFloatWindow(this.vectors, this.tailFloats);
+
+  /// Live floats grouped by four. Empty when fewer than four live floats.
+  final Float32x4List vectors;
+
+  /// Live floats after [vectors]. Always 0, 1, 2, or 3.
+  final int tailFloats;
+}
+
 /// SIMD-optimized operations for FloatColumn.
 extension FloatColumnSimd on FloatColumn {
-  /// Batch update using SIMD (processes 4 elements at a time).
+  /// Writes [updateFn] over each live `Float32x4`.
+  ///
+  /// [updateFn] receives the vector index, which is the row index when
+  /// [stride] is 4. A no-op when [stride] is not a multiple of 4, because a
+  /// vector would then cover parts of two rows. Spare capacity is untouched.
   void batchSimdUpdate(Float32x4 Function(int index) updateFn) {
-    if (stride < 4) return;
+    if (stride % 4 != 0) return;
+    final vectorCount = (_length * stride) ~/ 4;
+    if (vectorCount == 0) return;
     final simdData = _data.buffer.asFloat32x4List();
-    final simdLength = (_length * stride) ~/ 4;
-
-    for (int i = 0; i < simdLength; i++) {
+    for (int i = 0; i < vectorCount; i++) {
       simdData[i] = updateFn(i);
     }
   }
 
-  /// Get SIMD view for specific row range.
-  /// Returns view starting at row index, with length elements.
-  /// Returns null if stride is not multiple of 4 or range is invalid.
+  /// Live `Float32x4List` over [length] rows starting at [startRow].
+  ///
+  /// Returns null when the span leaves the live rows, or when the start float
+  /// or the span is not a whole number of 16-byte vectors. A stride-2 column
+  /// therefore needs an even [startRow] and an even [length].
   Float32x4List? getSimdViewForRows(int startRow, int length) {
-    if (stride % 4 != 0) return null;
-    final startOffset = startRow * stride;
-    final endOffset = startOffset + (length * stride);
-    if (endOffset > _data.length || startRow < 0 || length < 0) return null;
+    if (startRow < 0 || length < 0) return null;
     if (startRow + length > _length) return null;
+    final startFloat = startRow * stride;
+    final spanFloats = length * stride;
+    if (startFloat % 4 != 0 || spanFloats % 4 != 0) return null;
 
-    final buffer = _data.buffer.asByteData();
-    final view = buffer.buffer.asFloat32x4List(
-      startOffset ~/ 4,
-      (length * stride) ~/ 4,
-    );
-    return view;
+    return _data.buffer.asFloat32x4List(startFloat * 4, spanFloats ~/ 4);
   }
 
-  /// Vectorized add operation (4 components at once).
-  /// Requires stride >= 4 and aligned access.
+  /// Adds [delta] to row [index], component by component.
+  ///
+  /// Component `j` of the row receives lane `j % 4`, so a stride-2 row gets
+  /// `delta.x` and `delta.y`. A stride-4 row is one vector op; other strides
+  /// add per component with the same float32 result. An out-of-range row is
+  /// ignored.
   void simdAdd(int index, Float32x4 delta) {
-    if (stride < 4) return;
+    if (index < 0 || index >= _length) return;
+    if (stride == 4) {
+      final vectors = simdWindow.vectors;
+      vectors[index] = vectors[index] + delta;
+      return;
+    }
     final offset = index * stride;
-    final simdData = _data.buffer.asFloat32x4List();
-    final simdIndex = offset ~/ 4;
-    simdData[simdIndex] = simdData[simdIndex] + delta;
+    for (var lane = 0; lane < stride; lane++) {
+      _data[offset + lane] += _lane(delta, lane);
+    }
   }
 
-  /// Vectorized multiply operation.
+  /// Multiplies row [index] by [factor], component by component.
+  ///
+  /// Follows the same lane rule as [simdAdd]. An out-of-range row is ignored.
   void simdMultiply(int index, Float32x4 factor) {
-    if (stride < 4) return;
+    if (index < 0 || index >= _length) return;
+    if (stride == 4) {
+      final vectors = simdWindow.vectors;
+      vectors[index] = vectors[index] * factor;
+      return;
+    }
     final offset = index * stride;
-    final simdData = _data.buffer.asFloat32x4List();
-    final simdIndex = offset ~/ 4;
-    simdData[simdIndex] = simdData[simdIndex] * factor;
+    for (var lane = 0; lane < stride; lane++) {
+      _data[offset + lane] *= _lane(factor, lane);
+    }
   }
 
-  /// Process column using SIMD (if available).
-  /// Falls back to scalar processing if SIMD unavailable.
+  /// Applies [processor] to each live vector of a stride that is a multiple
+  /// of 4.
+  ///
+  /// Spare capacity is untouched. Any other stride runs the per-float fallback,
+  /// which calls [processor] on a splat of each component and stores lane `x`.
   void simdProcess(Float32x4 Function(Float32x4) processor) {
-    final simd = simdView;
-    if (simd != null) {
-      // Process all elements as SIMD vectors
+    final liveFloats = _length * stride;
+    final vectorCount = liveFloats ~/ 4;
+    if (stride % 4 == 0 && vectorCount > 0) {
+      final simd = _data.buffer.asFloat32x4List(0, vectorCount);
       for (int i = 0; i < simd.length; i++) {
         simd[i] = processor(simd[i]);
       }
-    } else {
-      // Fallback to scalar
-      _scalarProcess(processor);
+      return;
     }
+    _scalarProcess(processor);
   }
 
   /// Scalar fallback for simdProcess.
@@ -232,3 +287,10 @@ extension FloatColumnSimd on FloatColumn {
     }
   }
 }
+
+double _lane(Float32x4 vector, int lane) => switch (lane & 3) {
+  0 => vector.x,
+  1 => vector.y,
+  2 => vector.z,
+  _ => vector.w,
+};

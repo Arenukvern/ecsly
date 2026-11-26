@@ -131,10 +131,38 @@ typed access to packed column data. This is why APIs use
 `queryExt<EnergyComponent, Energy>()`: one type selects storage, the other
 selects the typed view.
 
-**Q: Why do SIMD examples use stride-4 FloatColumn storage?**
-A: Dart SIMD exposes `Float32x4` lanes. A `FloatColumn(stride: 4)` maps one
-entity row to one SIMD lane, so systems can update four numeric fields with one
-vector operation. Trade-off: component shape is constrained by SIMD lane width.
+**Q: Why do SIMD examples use stride-4 and stride-2 FloatColumn storage?**
+A: Dart SIMD exposes 128-bit `Float32x4` lanes. A `FloatColumn(stride: 4)` maps
+one entity row to one register. A `FloatColumn(stride: 2)` packs
+`[x0, y0, x1, y1]`, two entities per register. `simdWindow` is the live prefix
+plus a 0–3 float tail, so an odd stride-2 entity stays scalar. `simdView` is
+its vector list for a stride that is a multiple of 4. Only the VM and AOT
+lower `Float32x4` to registers. `dart2js` and DDC emulate it. `dart2wasm`
+since Dart 3.14 lowers it to Wasm v128 instructions, but allocates a wrapper
+per operation and reads `Float32List` storage through a slow view, so a vector
+loop is slower than a scalar one there. The kernels run scalar loops on all
+three and `kEcslySimdHardware` is false.
+Vec3 does not divide 4; store a hot vec3 as stride 4 with an unused lane.
+
+**Q: Why is `normalizeVectorsSimd` scalar on every target?**
+A: The kernel is bound by one square root and one divide per row, and a
+vector square root and divide cost more than two scalar ones. The `Float32x4`
+version measured slower than the double loop in AOT on arm64, and slower still
+on the web targets. SIMD pays when a register replaces several
+independent multiply-adds or memory round trips, as in `updatePositionSimd`,
+scaling, and column add. It pays least where lanes are pulled back out of the
+register, so `dotProductSimd` is vectorised only at stride 2 and 4.
+
+**Q: Are SIMD kernel results bit-identical across platforms?**
+A: The vectorised rows are not. A `Float32x4` rounds to float32 after every
+operation and takes its constant in float32, while a scalar loop computes in
+double and rounds once on store. The two differ by an ulp, and by more where
+terms cancel. Through 1.0.1 the stride-2 kernels ran the same double loop on
+every target, so a `dart2js` build matched a native build exactly; the
+vectorised kernels no longer do. Within one build every kernel is
+deterministic. `normalizeVectorsSimd` and the non-vectorised dot products
+stay bit-identical across targets, and a loop over `FloatColumn.data` keeps
+that property for code that needs it.
 
 **Q: Why are commands deferred instead of mutating archetypes immediately?**
 A: Immediate structural mutation can invalidate active iterators and make system
@@ -242,8 +270,21 @@ A: Proven correctness via well-tested algorithms. Better cycle detection with pa
 
 ## Performance Optimizations
 
-**Q: Why SIMD requirements (stride multiple of 4)?**
-A: Float32x4 operations process 4 floats simultaneously. Stride alignment enables vectorization. Trade-off: Component design constraints vs 4x performance gain.
+**Q: Why does a SIMD window require groups of 4 floats?**
+A: `Float32x4` reads 16 bytes. `simdWindow` takes the longest live prefix whose
+float count is a multiple of 4 and leaves the remainder as a scalar tail.
+Stride 4 covers every live entity. Stride 2 covers pairs of entities. The gain
+is the width of that prefix on the VM and in AOT, measured against the 1.0.1
+stride-2 loops by `benchmark/simd_columns.dart`. It is not a frame-wide
+multiplier. `dart2js`, DDC, and `dart2wasm` do not lower these types to
+hardware SIMD.
+
+**Q: Why are the vector loops small functions bounded by `vectors.length`?**
+A: The VM drops the bounds check of an indexed access when the loop condition
+compares the same index with the same list's `length`. A loop bounded by a
+separate integer keeps that check and measured slower in AOT for every kernel
+tried. A short function also lets the optimizer unbox `Float32x4` on its own,
+whatever the calling kernel looks like.
 
 **Q: Why command queue for structural changes?**
 A: Batches archetype migrations, prevents changes during iteration. Commands validated before execution. Prevents iterator invalidation bugs.

@@ -3,79 +3,35 @@ import 'dart:typed_data';
 
 import 'package:ecsly/ecsly.dart';
 
-class SimdVectorComponent extends Component {
-  const SimdVectorComponent();
-}
-
-extension type SimdVector._(int index) {
-  static late FloatColumn column;
-
-  double get x => column.getValueUnsafe(index, 0);
-  double get y => column.getValueUnsafe(index, 1);
-  double get z => column.getValueUnsafe(index, 2);
-  double get w => column.getValueUnsafe(index, 3);
-
-  set x(double value) => column.setValue(index, 0, value);
-  set y(double value) => column.setValue(index, 1, value);
-  set z(double value) => column.setValue(index, 2, value);
-  set w(double value) => column.setValue(index, 3, value);
-}
-
-final class _SimdVectorColumnFactory extends ColumnFactory {
-  @override
-  DataColumn createColumn(
-    ComponentId componentId, {
-    int initialCapacity = 8,
-  }) => FloatColumn(stride: 4, initialCapacity: initialCapacity);
-}
-
-final class _SimdVectorFacadeFactory
-    extends ComponentFacadeFactory<SimdVector> {
-  @override
-  SimdVector create(int index) => SimdVector._(index);
-
-  @override
-  void initialize(covariant FloatColumn column) {
-    SimdVector.column = column;
-  }
-}
-
 void main() {
-  final world = World();
-  world.components.registerExtension<SimdVectorComponent, SimdVector>(
-    columnFactory: _SimdVectorColumnFactory(),
-    facadeFactory: _SimdVectorFacadeFactory(),
+  final position = FloatColumn(stride: 2);
+  final velocity = FloatColumn(stride: 2);
+  for (var i = 0; i < 3; i++) {
+    position.addBlank();
+    velocity.addBlank();
+    position.setValue(i, 0, i.toDouble());
+    position.setValue(i, 1, 10);
+    velocity.setValue(i, 0, 1);
+    velocity.setValue(i, 1, -1);
+  }
+
+  final window = position.simdWindow;
+  log(
+    'stride2 vectors=${window.vectors.length} tailFloats=${window.tailFloats}',
   );
-
-  for (var i = 0; i < 4; i++) {
-    final entity = world.reserveEmptyEntity().entity;
-    world.spawnBundle(
-      entity,
-      ComponentBundle.fromExtensionList(const [
-        (SimdVectorComponent, SimdVector),
-      ]),
-    );
-  }
-  world.flush();
-
-  var row = 0;
-  for (final (_, vector) in world.queryExt<SimdVectorComponent, SimdVector>()) {
-    vector.x = row.toDouble();
-    vector.y = row.toDouble() + 10;
-    vector.z = 0;
-    vector.w = 1;
-    row += 1;
+  updatePositionSimd(position, velocity, 0.5);
+  for (var i = 0; i < position.length; i++) {
+    log('p$i=(${position.getValue(i, 0)}, ${position.getValue(i, 1)})');
   }
 
-  final simd = SimdVector.column.simdView;
+  final wide = FloatColumn(stride: 4, initialCapacity: 4)..addBlank();
+  wide.set(0, Float32List.fromList([1, 2, 3, 4]));
+  final simd = wide.simdView;
   if (simd != null) {
-    final delta = Float32x4(1, -1, 0, 0);
-    for (var i = 0; i < SimdVector.column.length; i++) {
-      simd[i] = simd[i] + delta;
-    }
+    simd[0] = simd[0] + Float32x4(1, -1, 0, 0);
   }
-
-  for (final (_, vector) in world.queryExt<SimdVectorComponent, SimdVector>()) {
-    log('vector=(${vector.x}, ${vector.y}, ${vector.z}, ${vector.w})');
-  }
+  log(
+    'stride4=(${wide.getValue(0, 0)}, ${wide.getValue(0, 1)}, '
+    '${wide.getValue(0, 2)}, ${wide.getValue(0, 3)})',
+  );
 }

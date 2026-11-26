@@ -1,18 +1,18 @@
 import 'dart:typed_data';
 
 import '../columns/data_column.dart';
+import 'simd_target.dart';
 
 /// Utility functions for common SIMD operations.
 class SimdUtils {
   SimdUtils._(); // Private constructor - static class
 
-  /// Add two FloatColumns element-wise (SIMD).
-  /// Requires all columns to have same stride and length.
-  static void addColumnsSimd(
-    FloatColumn a,
-    FloatColumn b,
-    FloatColumn result,
-  ) {
+  /// Adds [a] and [b] component by component and stores the sum in [result].
+  ///
+  /// All three columns need the same stride and length. On the VM and in AOT
+  /// whole `Float32x4` vectors are added. Fewer than four live floats, and
+  /// every call on `dart2js`, DDC, and `dart2wasm`, use the scalar twin.
+  static void addColumnsSimd(FloatColumn a, FloatColumn b, FloatColumn result) {
     assert(
       a.stride == b.stride && b.stride == result.stride,
       'Columns must have the same stride',
@@ -22,114 +22,123 @@ class SimdUtils {
       'Columns must have the same length',
     );
 
-    final aSimd = a.simdView;
-    final bSimd = b.simdView;
-    final resultSimd = result.simdView;
-
-    if (aSimd != null && bSimd != null && resultSimd != null) {
-      for (int i = 0; i < aSimd.length; i++) {
-        resultSimd[i] = aSimd[i] + bSimd[i];
-      }
-    } else {
-      // Scalar fallback
-      for (int i = 0; i < a.length; i++) {
-        for (int j = 0; j < a.stride; j++) {
-          final sum = a.getValue(i, j) + b.getValue(i, j);
-          result.setValue(i, j, sum);
-        }
-      }
+    final aVectors = a.simdWindow.vectors;
+    final bVectors = b.simdWindow.vectors;
+    final resultVectors = result.simdWindow.vectors;
+    final vectorised =
+        kEcslySimdHardware &&
+        aVectors.isNotEmpty &&
+        aVectors.length == bVectors.length &&
+        aVectors.length == resultVectors.length;
+    if (!vectorised) {
+      // Also the release path for mismatched lengths, which asserts reject.
+      _addScalar(a, b, result, 0);
+      return;
+    }
+    simdAddVectors(aVectors, bVectors, resultVectors);
+    final covered = aVectors.length * 4;
+    if (covered < a.length * a.stride) {
+      _addScalar(a, b, result, covered);
     }
   }
 
-  /// Dot product of two FloatColumns (SIMD).
-  /// Returns a new FloatColumn with stride 1 containing dot products.
-  /// Requires both columns to have same stride and length.
+  static void _addScalar(
+    FloatColumn a,
+    FloatColumn b,
+    FloatColumn result,
+    int startFloat,
+  ) {
+    final aData = a.data;
+    final bData = b.data;
+    final resultData = result.data;
+    final end = a.length * a.stride;
+    for (var i = startFloat; i < end; i++) {
+      resultData[i] = aData[i] + bData[i];
+    }
+  }
+
+  /// Dot product of each row of [a] with the same row of [b].
+  ///
+  /// Returns a new stride-1 column. Both columns need the same stride and
+  /// length. On the VM and in AOT, stride 2 and stride 4 rows are multiplied
+  /// as `Float32x4` lanes; other strides, and every call on `dart2js`, DDC,
+  /// and `dart2wasm`, use the scalar twin, which sums in double precision.
+  /// Vector rows round in float32 and can differ from the scalar twin.
   static FloatColumn dotProductSimd(FloatColumn a, FloatColumn b) {
     assert(a.stride == b.stride, 'Columns must have the same stride');
     assert(a.length == b.length, 'Columns must have the same length');
 
     final result = FloatColumn(stride: 1, initialCapacity: a.length);
-
-    // Resize result to match input length
-    while (result.capacity < a.length) {
-      result.resize(result.capacity * 2);
-    }
-    for (int i = 0; i < a.length; i++) {
+    for (var i = 0; i < a.length; i++) {
       result.addBlank();
     }
 
-    final aSimd = a.simdView;
-    final bSimd = b.simdView;
-
-    if (aSimd != null && bSimd != null) {
-      // Process pairs of elements
-      // Simplified: works best when stride is 4 (one row per SIMD vector)
-      // For other strides, falls back to per-row calculation
-      final simdLength = (a.length * a.stride) ~/ 4;
-      for (int i = 0; i < simdLength; i++) {
-        final aVec = aSimd[i];
-        final bVec = bSimd[i];
-
-        // Dot product: a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w
-        final product = aVec * bVec;
-        final sum = product.x + product.y + product.z + product.w;
-
-        // Store result (simplified - actual implementation depends on stride)
-        // For stride 4, each SIMD vector represents one row
-        if (a.stride == 4 && i < a.length) {
-          result.setValue(i, 0, sum);
-        } else {
-          // For other strides, need to calculate per-row dot products
-          // This is a simplified example - would need stride-specific handling
-          // For now, fall back to scalar for non-4 strides
-          break; // Will fall through to scalar fallback
-        }
+    final dots = result.data;
+    final aVectors = a.simdWindow.vectors;
+    if (kEcslySimdHardware && aVectors.isNotEmpty) {
+      final bVectors = b.simdWindow.vectors;
+      if (a.stride == 2) {
+        simdDotPairs(aVectors, bVectors, dots);
+        final covered = aVectors.length * 2;
+        _dotScalar(a, b, dots, covered, a.length);
+        return result;
       }
-
-      // If we didn't process all rows with SIMD, use scalar fallback for remainder
-      if (a.stride != 4) {
-        // Scalar fallback for non-4 strides
-        for (int i = 0; i < a.length; i++) {
-          double sum = 0;
-          for (int j = 0; j < a.stride; j++) {
-            sum += a.getValue(i, j) * b.getValue(i, j);
-          }
-          result.setValue(i, 0, sum);
-        }
-      }
-    } else {
-      // Scalar fallback
-      for (int i = 0; i < a.length; i++) {
-        double sum = 0;
-        for (int j = 0; j < a.stride; j++) {
-          sum += a.getValue(i, j) * b.getValue(i, j);
-        }
-        result.setValue(i, 0, sum);
+      if (a.stride == 4) {
+        simdDotRows(aVectors, bVectors, dots);
+        return result;
       }
     }
-
+    _dotScalar(a, b, dots, 0, a.length);
     return result;
   }
 
-  /// Multiply FloatColumn by scalar (SIMD).
-  static void multiplyColumnSimd(
-    FloatColumn column,
-    double scalar,
+  static void _dotScalar(
+    FloatColumn a,
+    FloatColumn b,
+    Float32List dots,
+    int start,
+    int end,
   ) {
-    final simd = column.simdView;
-    final scalarVec = Float32x4.splat(scalar);
+    final stride = a.stride;
+    final aData = a.data;
+    final bData = b.data;
+    for (
+      var row = start, offset = start * stride;
+      row < end;
+      row++, offset += stride
+    ) {
+      var sum = 0.0;
+      for (var lane = 0; lane < stride; lane++) {
+        sum += aData[offset + lane] * bData[offset + lane];
+      }
+      dots[row] = sum;
+    }
+  }
 
-    if (simd != null) {
-      for (int i = 0; i < simd.length; i++) {
-        simd[i] = simd[i] * scalarVec;
-      }
-    } else {
-      // Scalar fallback
-      for (int i = 0; i < column.length; i++) {
-        for (int j = 0; j < column.stride; j++) {
-          column.setValue(i, j, column.getValue(i, j) * scalar);
-        }
-      }
+  /// Multiplies every live component of [column] by [scalar], for any stride.
+  ///
+  /// On the VM and in AOT whole `Float32x4` vectors are scaled. Fewer than
+  /// four live floats, and every call on `dart2js`, DDC, and `dart2wasm`, use
+  /// the scalar twin. Vector rows use the float32 value of [scalar] and can
+  /// differ from a double-precision product by an ulp.
+  static void multiplyColumnSimd(FloatColumn column, double scalar) {
+    final window = column.simdWindow;
+    if (!kEcslySimdHardware || window.vectors.isEmpty) {
+      _multiplyScalar(column, scalar, 0);
+      return;
+    }
+    simdMultiplyVectors(window.vectors, scalar);
+    if (window.tailFloats > 0) {
+      // The tail keeps the float32 constant the vector lanes used.
+      _multiplyScalar(column, simdFloat32(scalar), window.vectors.length * 4);
+    }
+  }
+
+  static void _multiplyScalar(FloatColumn column, double scalar, int start) {
+    final data = column.data;
+    final end = column.length * column.stride;
+    for (var i = start; i < end; i++) {
+      data[i] = data[i] * scalar;
     }
   }
 }

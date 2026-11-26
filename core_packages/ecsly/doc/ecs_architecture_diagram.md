@@ -110,22 +110,19 @@ graph TB
         SIMDPatterns["SIMD Patterns<br/>(simd_patterns.dart)"]
 
         Float32x4["Float32x4<br/>(SIMD Vector)"]
-        FloatColumn -->|simdView property| Float32x4List["Float32x4List<br/>(SIMD View)"]
+        FloatColumn -->|simdWindow / simdView| Float32x4List["Float32x4List<br/>(live prefix view)"]
         Float32x4List -->|contains| Float32x4
 
         SIMDUtils -->|provides| Float32x4Operations["Float32x4 Operations<br/>(add, multiply, etc.)"]
-        SIMDPatterns -->|provides| AddPackedVectorsSimd["addPackedVectorsSimd()<br/>(Packed numeric rows)"]
+        SIMDUtils -->|provides| AddColumnsSimd["SimdUtils.addColumnsSimd()<br/>(column add)"]
         SIMDPatterns -->|provides| CalculateDistancesSimd["calculateDistancesSimd()<br/>(Distance Calculations)"]
-        SIMDPatterns -->|provides| NormalizeVectorsSimd["normalizeVectorsSimd()<br/>(Vector Normalization)"]
+        SIMDPatterns -->|provides| NormalizeVectorsSimd["normalizeVectorsSimd()<br/>(scalar on every target)"]
         SIMDPatterns -->|provides| ScalePositionsSimd["scalePositionsSimd()<br/>(Packed vector scaling)"]
 
-        System -->|can use| PackedNumericSystem["packedNumericSystem<br/>(SIMD-Optimized Feature Logic)"]
-        PackedNumericSystem -->|uses| SIMDPatterns
-        PackedNumericSystem -->|accesses| Archetype
-        PackedNumericSystem -->|calls| WorldEnsureFlushed["World.ensureFlushed()"]
-        PackedNumericSystem -->|bypasses| ComponentQuery
-        PackedNumericSystem -->|uses| ComponentMask
-        PackedNumericSystem -->|uses| ArchetypeRegistry
+        System -->|calls per column| SimdKernels["SIMD kernels<br/>(kEcslySimdHardware picks the path)"]
+        SimdKernels -->|uses| SIMDPatterns
+        SimdKernels -->|uses| SIMDUtils
+        SimdKernels -->|reads and writes| FloatColumn
     end
 
     subgraph "Persistent Entity System"
@@ -930,13 +927,13 @@ before a nested query changes that binding, or reacquire them afterward.
 
 ### SIMD Operations
 
-**Column SIMD Views**: `FloatColumn.simdView` → `Float32x4List` view of `Float32List` data → enables vectorized operations
+**Column SIMD Views**: `FloatColumn.simdWindow` → live `Float32x4` prefix for any stride, plus a 0–3 float tail, reused while the length is unchanged. `FloatColumn.simdView` → its vector list when the stride is a multiple of 4. Spare capacity is excluded.
 
-**Packed Numeric System**: `packedNumericSystem(world)` → `world.ensureFlushed()` → get component IDs → create mask → find archetypes → for each archetype: cast columns to `FloatColumn` → apply package-owned SIMD math
+**Kernel Path**: get the column (`archetype.getColumn(id) as FloatColumn`) → check `kEcslySimdHardware` → on the VM and in AOT: a `Float32x4` loop bounded by `vectors.length` → elsewhere, and for the rows after the last full vector: a scalar loop over `FloatColumn.data`. Nothing in core walks archetypes for you; a system that wants SIMD calls a kernel per column.
 
-**SIMD Patterns**: packed vector add/multiply, `calculateDistancesSimd()` (sqrt(dx² + dy²)), `normalizeVectorsSimd()` (vec / magnitude), packed vector scaling
+**SIMD Patterns**: `SimdUtils.addColumnsSimd()` and `multiplyColumnSimd()` (packed add and scaling), `updatePositionSimd()` (integrate), `calculateDistancesSimd()` (sqrt(dx² + dy²)), `dotProductSimd()` (per-row dot), `normalizeVectorsSimd()` (scalar on every target)
 
-**Performance**: Processes 2 positions per SIMD vector (Float32x4 = 4 floats = 2 positions with stride 2) → significant speedup for math-heavy systems
+**Performance**: on a stride-2 column, `updatePositionSimd` and `calculateDistancesSimd` process two positions per `Float32x4` (`[x0, y0, x1, y1]`) on the VM and in AOT. `dart2js` and DDC emulate `Float32x4`, and on `dart2wasm` the vector loop is slower than scalar, so every kernel runs scalar loops there. An odd entity is a scalar tail.
 
 ### World Extensions
 

@@ -6,7 +6,7 @@ A type-safe, allocation-light event system integrated with the ECS framework. Ev
 
 - **Type-safe**: Compile-time guarantees for event types
 - **Column-based Storage**: Uses ECS DataColumns (FloatColumn, IntColumn, ObjectColumn) for SoA layout
-- **SIMD Support**: Automatic vectorization via FloatColumn.simdView for math-heavy events
+- **Numeric fields**: `iterSimd` yields `Float32List` slices when `simdView` is non-null. It is not a `v128` loop.
 - **Zero GC Hot Loop**: TypedData storage eliminates heap allocations
 - **Resource-based**: Events integrate with existing ResourceRegistry
 - **Schedule-aware**: Automatic clearing at frame/schedule boundaries
@@ -209,10 +209,10 @@ world.schedule('Update')
 
 - **Memory**: O(capacity × stride) per event type, TypedData for primitives, ObjectColumn for complex types
 - **Send**: O(1) amortized, ring buffer operations on dense arrays
-- **Read**: O(event_count) for iteration, SIMD-accelerated for FloatColumn events
+- **Read**: O(event_count) for iteration; `iterSimd` hands out raw `Float32List` rows for FloatColumn events
 - **Clear**: O(length) for actual events, not O(capacity) - optimized for sparse clearing
 - **GC Pressure**: Zero in hot loop for primitive events, minimal for complex events
-- **SIMD**: Automatic vectorization via FloatColumn.simdView for math-heavy event processing
+- **Numeric fields**: `iterSimd` requires `FloatColumn.simdView` (stride a multiple of 4). Vector math on the rows is the caller's job.
 
 ## Column-Based Storage
 
