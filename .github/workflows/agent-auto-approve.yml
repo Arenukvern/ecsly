@@ -53,7 +53,8 @@ jobs:
           failures << "missing agent-auto-approve label" unless labels.include?("agent-auto-approve")
           allowed_branch =
             pr["headRefName"].start_with?("codex/") ||
-            pr["headRefName"].start_with?("release-please--")
+            pr["headRefName"].start_with?("release-please--") ||
+            pr["headRefName"].start_with?("changesets/")
           allowed_author = ["Arenukvern", "github-actions[bot]"].include?(pr.dig("author", "login"))
 
           failures << "head branch must use codex/ or release-please-- prefix" unless allowed_branch
